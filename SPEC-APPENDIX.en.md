@@ -8,7 +8,7 @@
 > is the MoonBit package registered in `architecture.json`.
 
 <!-- APPENDIX:BEGIN -->
-**5054** public symbols (declarations + constructors + fields) in 86 specification families; by package: `algebra` 860, `bridge` 87, `cmd-semiringreport` 42, `root` 2678, `semiring-algebra` 287, `semiring-app` 24, `semiring-bp` 22, `semiring-cat` 33, `semiring-examples` 18, `semiring-graph` 40, `semiring-io` 9, `semiring-matrix` 60, `semiring-monoid` 85, `semiring-nf` 43, `semiring-par` 18, `semiring-par-host` 4, `semiring-ratelimit` 64, `semiring-sim` 42, `semiring-spline` 17, `semiring-trop` 84, `symlib` 537.
+**6177** public symbols (declarations + constructors + fields) in 98 specification families; by package: `algebra` 918, `bridge` 172, `cmd-semiringreport` 42, `root` 2992, `scheme` 314, `semiring-algebra` 287, `semiring-app` 24, `semiring-bp` 22, `semiring-cat` 33, `semiring-examples` 18, `semiring-graph` 40, `semiring-io` 9, `semiring-matrix` 60, `semiring-monoid` 85, `semiring-nf` 43, `semiring-par` 18, `semiring-par-host` 4, `semiring-ratelimit` 64, `semiring-sim` 42, `semiring-spline` 17, `semiring-trop` 84, `symlib` 537, `topos` 352.
 
 ### Complex scalars
 
@@ -203,6 +203,7 @@
 | `face_eq_decide` | root | function |
 | `face_eq_mod` | root | function |
 | `face_holds` | root | function |
+| `face_is_cubical_top` | root | function |
 | `face_join_universal` | root | function |
 | `face_le` | root | function |
 | `face_maps_commute` | root | function |
@@ -363,6 +364,7 @@
 | `eval_mk_equiv_term` | root | function |
 | `eval_mutual_elim` | root | function |
 | `eval_ua_term` | root | function |
+| `eval_unglue_equiv_term` | root | function |
 | `nbe_single_valued` | root | function |
 | `nf` | root | function |
 | `quote` | root | function |
@@ -370,6 +372,7 @@
 | `quote_glue_equiv_type` | root | function |
 | `quote_neutral` | root | function |
 | `quote_schema_args_full` | root | function |
+| `quote_unglue_equiv_neutral` | root | function |
 | `swap_involutive_on_element` | root | function |
 | `tm_const` | root | function |
 | `tm_id` | root | function |
@@ -481,6 +484,7 @@
 | `DNeutral::DNCircleElim` | root | constructor |
 | `DNeutral::DNComp` | root | constructor |
 | `DNeutral::DNDecode` | root | constructor |
+| `DNeutral::DNEquivAnn` | root | constructor |
 | `DNeutral::DNEquivBwd` | root | constructor |
 | `DNeutral::DNEquivFwd` | root | constructor |
 | `DNeutral::DNEquivRetr` | root | constructor |
@@ -493,6 +497,7 @@
 | `DNeutral::DNNatElim` | root | constructor |
 | `DNeutral::DNSnd` | root | constructor |
 | `DNeutral::DNTorusElim` | root | constructor |
+| `DNeutral::DNUnglueEquiv` | root | constructor |
 | `DNeutral::DNVar` | root | constructor |
 | `DTerm` | root | enum |
 | `DTerm::DAnn` | root | constructor |
@@ -549,6 +554,7 @@
 | `DTerm::DTorusSquare` | root | constructor |
 | `DTerm::DTorusTy` | root | constructor |
 | `DTerm::DUa` | root | constructor |
+| `DTerm::DUnglueEquiv` | root | constructor |
 | `DTerm::DUnitLit` | root | constructor |
 | `DTerm::DUnitTy` | root | constructor |
 | `DTerm::DUniv` | root | constructor |
@@ -605,8 +611,11 @@
 | `conv_neutral` | root | function |
 | `conv_terms_case_split` | root | function |
 | `conv_terms_case_split_report` | root | function |
+| `conv_terms_finite_case_split` | root | function |
+| `conv_terms_finite_case_split_report` | root | function |
 | `conv_terms_plain` | root | function |
 | `conv_ty` | root | function |
+| `cs_finite_closed_inhabitants` | root | function |
 | `d_as_type` | root | function |
 | `d_check` | root | function |
 | `d_infer` | root | function |
@@ -624,6 +633,8 @@
 | `quote_at` | root | function |
 | `quote_dneutral` | root | function |
 | `quote_ty` | root | function |
+| `reflect_neutral_at_type` | root | function |
+| `reflect_var` | root | function |
 
 ### Cubical AST and dimension NbE
 
@@ -684,6 +695,7 @@
 | `check_ast_kan_types` | root | function |
 | `check_circle_torus_point_comp` | root | function |
 | `check_circle_torus_square_comp` | root | function |
+| `check_phase14_decoupled_torus_and_semantic_circle_norm` | root | function |
 | `coe_value` | root | function |
 | `comp_glue_value` | root | function |
 | `comp_path_value` | root | function |
@@ -754,6 +766,21 @@
 | `DTermDagBinaryLoad::equal` | root | function |
 | `DTermDagBinaryLoad::not_equal` | root | function |
 | `DTermDagBinaryLoad::to_repr` | root | function |
+| `DTermDagDelta` | root | struct |
+| `DTermDagDelta.base_digest_a` | root | field |
+| `DTermDagDelta.base_digest_b` | root | field |
+| `DTermDagDelta.base_node_count` | root | field |
+| `DTermDagDelta.delta_nodes` | root | field |
+| `DTermDagDelta.roots` | root | field |
+| `DTermDagDelta::equal` | root | function |
+| `DTermDagDelta::not_equal` | root | function |
+| `DTermDagDelta::to_repr` | root | function |
+| `DTermDagDeltaBinaryLoad` | root | struct |
+| `DTermDagDeltaBinaryLoad.delta` | root | field |
+| `DTermDagDeltaBinaryLoad.status` | root | field |
+| `DTermDagDeltaBinaryLoad::equal` | root | function |
+| `DTermDagDeltaBinaryLoad::not_equal` | root | function |
+| `DTermDagDeltaBinaryLoad::to_repr` | root | function |
 | `DTermDagImportReport` | root | struct |
 | `DTermDagImportReport.added_nodes` | root | field |
 | `DTermDagImportReport.node_ids` | root | field |
@@ -785,6 +812,7 @@
 | `check_dterm_hash_consing` | root | function |
 | `check_interned_dag_byte_sharing` | root | function |
 | `check_persistent_env_lazy_cache` | root | function |
+| `check_phase14_incremental_dag_delta_and_shared_bundle` | root | function |
 | `ddim_at` | root | function |
 | `ddim_cons` | root | function |
 | `ddim_empty` | root | function |
@@ -808,6 +836,12 @@
 | `dterm_dag_binary_to_hex` | root | function |
 | `dterm_dag_binary_version_of` | root | function |
 | `dterm_dag_binary_version_policy` | root | function |
+| `dterm_dag_delta_apply` | root | function |
+| `dterm_dag_delta_compute` | root | function |
+| `dterm_dag_delta_import_binary` | root | function |
+| `dterm_dag_delta_load_binary_report` | root | function |
+| `dterm_dag_delta_to_binary` | root | function |
+| `dterm_dag_delta_validate` | root | function |
 | `dterm_dag_import` | root | function |
 | `dterm_dag_import_binary` | root | function |
 | `dterm_dag_snapshot` | root | function |
@@ -823,6 +857,7 @@
 | `dterm_intern_node` | root | function |
 | `dterm_intern_table_children` | root | function |
 | `dterm_intern_table_new` | root | function |
+| `dterm_intern_table_prefix_digest` | root | function |
 | `dterm_intern_table_size` | root | function |
 | `dterm_intern_table_snapshot` | root | function |
 | `dterm_intern_table_term` | root | function |
@@ -880,7 +915,9 @@
 | `dsystem_checked_of` | root | function |
 | `dsystem_compatibility` | root | function |
 | `dsystem_compatibility_report` | root | function |
+| `dsystem_compatibility_report_in` | root | function |
 | `dsystem_compatible_with_base` | root | function |
+| `dsystem_compatible_with_base_in` | root | function |
 | `dsystem_domain_face` | root | function |
 | `dsystem_empty` | root | function |
 | `dsystem_first_match_checked` | root | function |
@@ -995,6 +1032,9 @@
 | `dinductive_recursive_spec` | root | function |
 | `dinductive_spec` | root | function |
 | `dtelescope_entry` | root | function |
+| `empty_inductive_elim_value` | root | function |
+| `empty_inductive_schema` | root | function |
+| `empty_inductive_type_value` | root | function |
 | `eval_inductive_elim` | root | function |
 | `eval_inductive_elim_term` | root | function |
 | `eval_inductive_type_term` | root | function |
@@ -1512,9 +1552,12 @@
 | `check_ua_coe` | root | function |
 | `coe_computes` | root | function |
 | `coe_upath` | root | function |
+| `equiv_bidirectional_certified` | root | function |
+| `equiv_bidirectional_certified_in` | root | function |
 | `equiv_bool_not` | root | function |
 | `equiv_bwd_value` | root | function |
 | `equiv_comp` | root | function |
+| `equiv_compose_value` | root | function |
 | `equiv_ext_eq` | root | function |
 | `equiv_ext_eq_oracle` | root | function (differential-testing oracle, not a decision path) |
 | `equiv_fun_value` | root | function |
@@ -1611,6 +1654,7 @@
 | `glue_equiv_collapse` | root | function |
 | `glue_equiv_domain_face` | root | function |
 | `glue_equiv_partial_values` | root | function |
+| `glue_equiv_restrict_arg_under_face` | root | function |
 | `glue_equiv_store_partial` | root | function |
 | `glue_equiv_systems_conv` | root | function |
 | `glue_equiv_term` | root | function |
@@ -1692,9 +1736,9 @@
 
 ### BDD DAGs, budgets and DPLL
 
-- Canonical form: hash-consed DAG node ids; the reachable-node count of a root is its ROBDD size
-- Categorification: shared canonical graphs of boolean functions at a fixed variable order; apply is a memoized lattice operation
-- Decision: same-manager root-id equality, sat as root≠0, node-budget FaceDecision, or step-budgeted DPLL (the legacy scanner and the watched-literal engine on Tseitin CNF); candidate-order minimization, bounded sifting that moves each variable through every insertion position with an honest initial/final report, and apply-cache doubling rehash once apply_misses exceeds four times the bucket count, and a 3ⁿ worst-case node bound; watched/list DPLL are differentially checked against 2^n brute force; CDCL adds 1-UIP clause learning, VSIDS, Luby restarts, LBD clause deletion (decision level 0 only, reason clauses kept) and RUP/DRUP proof output (deletions are recorded up to literal-set identity and replayed by an independent checker over the evolving active clause database), and is checked on generated faces and pigeonhole instances; provably optimal variable orders come from full permutation enumeration for n≤8 and from an incremental-cofactor subset DP over prefix sets for n≤16, above the cap non-exactness is reported
+- Canonical form: hash-consed DAG node ids; the reachable-node count of a root is its ROBDD size; LRAT proof steps are indexed LratAdd/LratDelete chains with a CHLRATBN v1 binary representation
+- Categorification: shared canonical graphs of boolean functions at a fixed variable order; apply is a memoized lattice operation, and DRAT→LRAT elaboration lifts satisfiability-preserving traces to locally checkable proof chains
+- Decision: same-manager root-id equality, sat as root≠0, node-budget FaceDecision, or step-budgeted DPLL (the legacy scanner and the watched-literal engine on Tseitin CNF); candidate-order minimization, bounded sifting, apply-cache doubling rehash, and a 3ⁿ worst-case node bound; CDCL adds 1-UIP clause learning, VSIDS, Luby restarts, LBD clause deletion, DRUP/DRAT checking, backward core trimming, DRAT→LRAT elaboration and linear-time indexed LRAT checking; provably optimal variable orders combine heuristic upper-bound branch-and-bound, cofactor symmetry-orbit pruning (single component up to n≤20) and variable-cooccurrence connected-support decomposition (disjoint support components solved exactly and concatenated; single components above cap report exact=false)
 
 | Symbol | Package | Kind |
 |---|---|---|
@@ -1714,6 +1758,16 @@
 | `BddDagNode.hi` | root | field |
 | `BddDagNode.lo` | root | field |
 | `BddDagNode.rank` | root | field |
+| `BddDecomposedOptimalBuild` | root | struct |
+| `BddDecomposedOptimalBuild.active_vars` | root | field |
+| `BddDecomposedOptimalBuild.built` | root | field |
+| `BddDecomposedOptimalBuild.component_count` | root | field |
+| `BddDecomposedOptimalBuild.exact` | root | field |
+| `BddDecomposedOptimalBuild.max_component_vars` | root | field |
+| `BddDecomposedOptimalBuild.order` | root | field |
+| `BddDecomposedOptimalBuild.pruned_subsets` | root | field |
+| `BddDecomposedOptimalBuild.size` | root | field |
+| `BddDecomposedOptimalBuild.tried` | root | field |
 | `BddManager` | root | struct |
 | `BddManager.apply_buckets` | root | field |
 | `BddManager.apply_hits` | root | field |
@@ -1739,6 +1793,15 @@
 | `BddOptimizedBuild.initial_reachable` | root | field |
 | `BddOptimizedBuild.order` | root | field |
 | `BddOptimizedBuild.reachable` | root | field |
+| `BddPrunedOptimalBuild` | root | struct |
+| `BddPrunedOptimalBuild.active_vars` | root | field |
+| `BddPrunedOptimalBuild.built` | root | field |
+| `BddPrunedOptimalBuild.exact` | root | field |
+| `BddPrunedOptimalBuild.incumbent_size` | root | field |
+| `BddPrunedOptimalBuild.order` | root | field |
+| `BddPrunedOptimalBuild.pruned_subsets` | root | field |
+| `BddPrunedOptimalBuild.size` | root | field |
+| `BddPrunedOptimalBuild.tried` | root | field |
 | `FaceBoolExpr::equal` | root | function |
 | `FaceBoolExpr::not_equal` | root | function |
 | `FaceBoolExpr::to_repr` | root | function |
@@ -1781,6 +1844,28 @@
 | `FaceDecision::equal` | root | function |
 | `FaceDecision::not_equal` | root | function |
 | `FaceDecision::to_repr` | root | function |
+| `FaceDrupTrimReport` | root | struct |
+| `FaceDrupTrimReport.original_steps` | root | field |
+| `FaceDrupTrimReport.steps` | root | field |
+| `FaceDrupTrimReport.trimmed_steps` | root | field |
+| `FaceDrupTrimReport.valid` | root | field |
+| `FaceLratElaborateReport` | root | struct |
+| `FaceLratElaborateReport.input_steps` | root | field |
+| `FaceLratElaborateReport.lrat_adds` | root | field |
+| `FaceLratElaborateReport.lrat_deletes` | root | field |
+| `FaceLratElaborateReport.original_clauses` | root | field |
+| `FaceLratElaborateReport.steps` | root | field |
+| `FaceLratElaborateReport.total_hints` | root | field |
+| `FaceLratElaborateReport.valid` | root | field |
+| `FaceLratElaborateReport::equal` | root | function |
+| `FaceLratElaborateReport::not_equal` | root | function |
+| `FaceLratElaborateReport::to_repr` | root | function |
+| `FaceLratStep` | root | enum |
+| `FaceLratStep::LratAdd` | root | constructor |
+| `FaceLratStep::LratDelete` | root | constructor |
+| `FaceLratStep::equal` | root | function |
+| `FaceLratStep::not_equal` | root | function |
+| `FaceLratStep::to_repr` | root | function |
 | `FaceSatDecision` | root | enum |
 | `FaceSatDecision::FaceSat` | root | constructor |
 | `FaceSatDecision::FaceSearchBudgetExceeded` | root | constructor |
@@ -1801,7 +1886,9 @@
 | `bdd_dag_of_face` | root | function |
 | `bdd_dag_of_face_best` | root | function |
 | `bdd_dag_of_face_optimal` | root | function |
+| `bdd_dag_of_face_optimal_decomposed` | root | function |
 | `bdd_dag_of_face_optimal_dp` | root | function |
+| `bdd_dag_of_face_optimal_pruned` | root | function |
 | `bdd_dag_of_face_optimized` | root | function |
 | `bdd_dag_or` | root | function |
 | `bdd_dag_reachable_count` | root | function |
@@ -1826,12 +1913,22 @@
 | `check_bdd_optimal_order_exact` | root | function |
 | `check_cdcl_clause_learning` | root | function |
 | `check_cdcl_drup_proof_with_deletions` | root | function |
+| `check_phase14_bdd_bnb_and_cdcl_drat` | root | function |
+| `check_phase15_bdd_symmetry_orbit_and_decomposed_optimal` | root | function |
+| `check_phase15_cdcl_lrat_elaboration_and_binary_codec` | root | function |
+| `face_cdcl_drat_check` | root | function |
 | `face_cdcl_drup_check` | root | function |
+| `face_cdcl_drup_trim` | root | function |
+| `face_cdcl_elaborate_lrat` | root | function |
+| `face_cdcl_lrat_check` | root | function |
+| `face_cdcl_lrat_check_binary` | root | function |
 | `face_cnf_stats` | root | function |
 | `face_eq_cdcl` | root | function |
 | `face_eq_dpll` | root | function |
 | `face_eq_watched_dpll` | root | function |
 | `face_eq_within_budget` | root | function |
+| `face_lrat_from_binary` | root | function |
+| `face_lrat_to_binary` | root | function |
 | `face_sat_cdcl` | root | function |
 | `face_sat_cdcl_proof` | root | function |
 | `face_sat_cdcl_report` | root | function |
@@ -1872,6 +1969,13 @@
 | `DSystemRepair.compatible` | root | field |
 | `DSystemRepair.repaired_branches` | root | field |
 | `DSystemRepair.system` | root | field |
+| `DSystemRepairAllMaxima` | root | struct |
+| `DSystemRepairAllMaxima.all_compatible` | root | field |
+| `DSystemRepairAllMaxima.conflict_components` | root | field |
+| `DSystemRepairAllMaxima.exact` | root | field |
+| `DSystemRepairAllMaxima.max_branch_count` | root | field |
+| `DSystemRepairAllMaxima.systems` | root | field |
+| `DSystemRepairAllMaxima.total_maximum_count` | root | field |
 | `DSystemRepairExact` | root | struct |
 | `DSystemRepairExact.base_removed_region` | root | field |
 | `DSystemRepairExact.compatible` | root | field |
@@ -1904,14 +2008,20 @@
 | `check_dsystem_maximum_completion` | root | function |
 | `check_dsystem_repair_phase9` | root | function |
 | `check_face_agreement_and_exact_repair` | root | function |
+| `check_phase14_dsystem_all_maxima_and_finite_case_split` | root | function |
 | `conv_at_under_face` | root | function |
+| `conv_at_under_face_in` | root | function |
 | `conv_at_under_face_report` | root | function |
+| `conv_at_under_face_report_in` | root | function |
+| `cubical_face_subcubes` | root | function |
+| `dsystem_repair_all_maxima` | root | function |
 | `dsystem_repair_maximum` | root | function |
 | `dtube_nf_class` | root | function |
 | `face_agreement_face` | root | function |
 | `face_agreement_face_sound` | root | function |
 | `face_agreement_region` | root | function |
 | `tube_paths_conv_under_face` | root | function |
+| `tube_paths_conv_under_face_in` | root | function |
 
 ### First-class AST Equiv and GlueEquiv
 
@@ -1963,6 +2073,7 @@
 | `infer_glue_equiv` | root | function |
 | `infer_mk_equiv` | root | function |
 | `infer_ua` | root | function |
+| `infer_unglue_equiv` | root | function |
 | `mk_equiv_term` | root | function |
 
 ### Checked semantic type lines
@@ -2101,9 +2212,16 @@
 | `DPositivityReport::equal` | root | function |
 | `DPositivityReport::not_equal` | root | function |
 | `DPositivityReport::to_repr` | root | function |
+| `DPositivityWitness` | root | struct |
+| `DPositivityWitness.declaration` | root | field |
+| `DPositivityWitness.definition` | root | field |
+| `DPositivityWitness::equal` | root | function |
+| `DPositivityWitness::not_equal` | root | function |
+| `DPositivityWitness::to_repr` | root | function |
 | `check_container_functor_tree` | root | function |
 | `check_family_nested_functors` | root | function |
 | `check_nested_rose_tree` | root | function |
+| `check_phase14_positivity_witness_certificates` | root | function |
 | `check_self_family_positivity_fixpoint` | root | function |
 | `check_structural_positivity` | root | function |
 | `check_tarski_induction_recursion` | root | function |
@@ -2127,11 +2245,14 @@
 | `dpositivity_declaration` | root | function |
 | `dpositivity_declaration_from_lambda` | root | function |
 | `dpositivity_report` | root | function |
+| `dpositivity_witness` | root | function |
+| `dpositivity_witness_verify` | root | function |
 | `dterm_children` | root | function |
 | `dterm_family_occurs` | root | function |
 | `dterm_family_positivity` | root | function |
 | `dterm_family_positivity_declared` | root | function |
 | `dterm_family_strictly_positive` | root | function |
+| `dterm_family_strictly_positive_certified` | root | function |
 | `dterm_family_strictly_positive_declared` | root | function |
 | `dterm_shift` | root | function |
 | `dterm_substitute` | root | function |
@@ -2303,7 +2424,6 @@
 | `qpoly_irreducibility_certificate_check` | algebra | function |
 | `qpoly_irreducible_by_mod_patterns` | algebra | function |
 | `qpoly_irreducible_certified` | algebra | function |
-| `qpoly_irreducible_upto3` | algebra | function |
 | `qpoly_is_one` | algebra | function |
 | `qpoly_is_squarefree` | algebra | function |
 | `qpoly_is_zero` | algebra | function |
@@ -2375,6 +2495,14 @@
 | `QuadNum::equal` | algebra | function |
 | `QuadNum::not_equal` | algebra | function |
 | `QuadNum::to_repr` | algebra | function |
+| `RealAlgRadical` | algebra | struct |
+| `RealAlgRadical.lower` | algebra | field |
+| `RealAlgRadical.minpoly` | algebra | field |
+| `RealAlgRadical.root_index` | algebra | field |
+| `RealAlgRadical.upper` | algebra | field |
+| `RealAlgRadical::equal` | algebra | function |
+| `RealAlgRadical::not_equal` | algebra | function |
+| `RealAlgRadical::to_repr` | algebra | function |
 | `TriquadNum` | algebra | struct |
 | `TriquadNum.coeffs` | algebra | field |
 | `TriquadNum.gens` | algebra | field |
@@ -2413,7 +2541,9 @@
 | `alg_to_rat` | algebra | function |
 | `alg_trace` | algebra | function |
 | `alg_zero` | algebra | function |
+| `check_algebraic_radicals_and_rank6_multiquad` | algebra | function |
 | `check_multiquadratic_tower` | algebra | function |
+| `check_phase14_algebraic_radicals_and_rank6_multiquad` | root | function |
 | `cubic_add` | algebra | function |
 | `cubic_cuberoot_rat` | algebra | function |
 | `cubic_div` | algebra | function |
@@ -2432,14 +2562,19 @@
 | `int_sqrt_exact` | algebra | function |
 | `int_squarefree_decomp` | algebra | function |
 | `multiquad_add` | algebra | function |
+| `multiquad_add_upto` | algebra | function |
 | `multiquad_align` | algebra | function |
+| `multiquad_align_upto` | algebra | function |
 | `multiquad_div` | algebra | function |
 | `multiquad_eq` | algebra | function |
+| `multiquad_eq_upto` | algebra | function |
 | `multiquad_inv` | algebra | function |
 | `multiquad_is_rat` | algebra | function |
 | `multiquad_is_zero` | algebra | function |
 | `multiquad_make` | algebra | function |
+| `multiquad_make_upto` | algebra | function |
 | `multiquad_mul` | algebra | function |
+| `multiquad_mul_upto` | algebra | function |
 | `multiquad_neg` | algebra | function |
 | `multiquad_of_biquad` | algebra | function |
 | `multiquad_of_quad` | algebra | function |
@@ -2449,6 +2584,7 @@
 | `multiquad_reembed` | algebra | function |
 | `multiquad_sign` | algebra | function |
 | `multiquad_sqrt_extended` | algebra | function |
+| `multiquad_sqrt_extended_upto` | algebra | function |
 | `multiquad_sqrt_in_field` | algebra | function |
 | `multiquad_sqrt_rat` | algebra | function |
 | `multiquad_sub` | algebra | function |
@@ -2481,6 +2617,16 @@
 | `quad_to_rat` | algebra | function |
 | `quad_trace` | algebra | function |
 | `quad_zero` | algebra | function |
+| `real_alg_add` | algebra | function |
+| `real_alg_div` | algebra | function |
+| `real_alg_eq` | algebra | function |
+| `real_alg_inv` | algebra | function |
+| `real_alg_mul` | algebra | function |
+| `real_alg_neg` | algebra | function |
+| `real_alg_nth_root` | algebra | function |
+| `real_alg_of_rat` | algebra | function |
+| `real_alg_sign` | algebra | function |
+| `real_alg_sub` | algebra | function |
 | `triquad_add` | algebra | function |
 | `triquad_align` | algebra | function |
 | `triquad_div` | algebra | function |
@@ -2743,13 +2889,23 @@
 
 ### Spheres and suspension HITs
 
-- Canonical form: north/south points of Susp(X) with one meridian per point; S²=Susp(S¹), S³=Susp(S²)
-- Categorification: suspension is the HIT quotient collapsing both ends of X×I to points; iterated suspension gives the sphere family
-- Decision: generic HIT schema validation, meridian endpoint face reduction, dependent elimination and hcomp
+- Canonical form: north/south points of parameterized SuspS(A) with one meridian per point a:A; S²=Susp(S¹), S³=Susp(S²); Susp(Bool)≃S¹, Cocone(A,B) and the pointed loop-suspension adjunction (ΣA→*B)≃(A→*ΩB)
+- Categorification: suspension is the homotopy-pushout HIT quotient collapsing both ends of A×I to points, classified by cocone universal property; Σ and Ω form the canonical homotopy adjunction Σ⊣Ω on pointed types
+- Decision: generic HIT schema validation, meridian endpoint face reduction, dependent elimination and hcomp; 0-connected spaces have trivial suspended fundamental group ‖Ω¹(Susp(A))‖₀≃1 by the 0-connected Freudenthal suspension theorem (instantiating π₁(S²)≃1 and π₁(S³)≃1), complemented by circle wedge-connectivity extension and coherences
 
 | Symbol | Package | Kind |
 |---|---|---|
+| `based_map_type_value` | root | function |
+| `check_phase15_freudenthal_suspension_and_wedge_connectivity` | root | function |
+| `check_phase15_suspension_and_loop_suspension_adjunction` | root | function |
 | `check_sphere3` | root | function |
+| `circle_0_connected_value` | root | function |
+| `circle_to_susp_bool_value` | root | function |
+| `cocone_to_based_loop_equiv_value` | root | function |
+| `freudenthal_pi1_susp_connected_equiv_unit_value` | root | function |
+| `loop_suspension_adjunction_equiv_value` | root | function |
+| `pi1_susp2_circle_equiv_unit_value` | root | function |
+| `pi1_susp_circle_equiv_unit_value` | root | function |
 | `sphere2_north_term` | root | function |
 | `sphere2_north_value` | root | function |
 | `sphere2_schema` | root | function |
@@ -2763,7 +2919,22 @@
 | `sphere3_type_term` | root | function |
 | `sphere3_type_value` | root | function |
 | `sphere_schema` | root | function |
+| `susp_0_connected_of_pointed_value` | root | function |
+| `susp_based_to_cocone_equiv_value` | root | function |
+| `susp_bool_equiv_circle_value` | root | function |
+| `susp_bool_to_circle_value` | root | function |
+| `susp_cocone_type_value` | root | function |
+| `susp_merid_path_value` | root | function |
+| `susp_north_value` | root | function |
+| `susp_south_value` | root | function |
+| `susp_type_schema` | root | function |
+| `susp_type_schema_at` | root | function |
+| `susp_type_value` | root | function |
+| `susp_universal_equiv_value` | root | function |
 | `suspension_schema` | root | function |
+| `wedge_connectivity_circle_left_coh_value` | root | function |
+| `wedge_connectivity_circle_right_coh_value` | root | function |
+| `wedge_connectivity_circle_set_ext_value` | root | function |
 
 ### Jacobi interval spectral iteration
 
@@ -2796,6 +2967,13 @@
 | `JacobiAdaptiveReport::equal` | algebra | function |
 | `JacobiAdaptiveReport::not_equal` | algebra | function |
 | `JacobiAdaptiveReport::to_repr` | algebra | function |
+| `JacobiBlockDeflatedReport` | algebra | struct |
+| `JacobiBlockDeflatedReport.block_reports` | algebra | field |
+| `JacobiBlockDeflatedReport.blocks` | algebra | field |
+| `JacobiBlockDeflatedReport.intervals` | algebra | field |
+| `JacobiBlockDeflatedReport.max_block_dimension` | algebra | field |
+| `JacobiBlockDeflatedReport.max_interval_width` | algebra | field |
+| `JacobiBlockDeflatedReport.target_met` | algebra | field |
 | `JacobiCertificate` | algebra | struct |
 | `JacobiCertificate.eigenvalues` | algebra | field |
 | `JacobiCertificate.final_matrix` | algebra | field |
@@ -2876,7 +3054,9 @@
 | `SeparatedEigenInterval::not_equal` | algebra | function |
 | `SeparatedEigenInterval::to_repr` | algebra | function |
 | `check_jacobi_adaptive_exact_fallback` | algebra | function |
+| `check_jacobi_block_deflation_and_multiplicity` | algebra | function |
 | `check_jacobi_cluster_separation` | algebra | function |
+| `check_phase14_jacobi_block_deflation_and_multiplicity` | root | function |
 | `cinterval` | algebra | function |
 | `cinterval_add` | algebra | function |
 | `cinterval_conj` | algebra | function |
@@ -2892,6 +3072,9 @@
 | `cinterval_subset` | algebra | function |
 | `cinterval_zero` | algebra | function |
 | `eigen_interval_contains` | algebra | function |
+| `jacobi_block_components` | algebra | function |
+| `jacobi_block_deflated_certified` | algebra | function |
+| `jacobi_block_deflated_eigen` | algebra | function |
 | `jacobi_certificate_sound` | algebra | function |
 | `jacobi_cluster_separation_certified` | algebra | function |
 | `jacobi_coefficients` | algebra | function |
@@ -2979,6 +3162,16 @@
 | `HouConstraint::equal` | root | function |
 | `HouConstraint::not_equal` | root | function |
 | `HouConstraint::to_repr` | root | function |
+| `HouEnumerationReport` | root | struct |
+| `HouEnumerationReport.branches_tried` | root | field |
+| `HouEnumerationReport.capped` | root | field |
+| `HouEnumerationReport.max_depth_reached` | root | field |
+| `HouEnumerationReport.nodes` | root | field |
+| `HouEnumerationReport.search_exhausted` | root | field |
+| `HouEnumerationReport.solutions` | root | field |
+| `HouEnumerationReport::equal` | root | function |
+| `HouEnumerationReport::not_equal` | root | function |
+| `HouEnumerationReport::to_repr` | root | function |
 | `HouIterativeReport` | root | struct |
 | `HouIterativeReport.report` | root | field |
 | `HouIterativeReport.rounds` | root | field |
@@ -3084,11 +3277,13 @@
 | `check_hou_phase9_extensions` | root | function |
 | `check_hou_residual_solver` | root | function |
 | `check_hou_search_extensions` | root | function |
+| `check_phase14_hou_backtracking_and_enumeration` | root | function |
 | `elab_check` | root | function |
 | `elab_infer` | root | function |
 | `elab_result_to_dterm` | root | function |
 | `elab_type_to_dterm` | root | function |
 | `elaborator_new` | root | function |
+| `hou_enumerate_unifiers` | root | function |
 | `hou_fresh_meta` | root | function |
 | `hou_search_unify` | root | function |
 | `hou_search_unify_bool` | root | function |
@@ -3096,6 +3291,7 @@
 | `hou_search_unify_iterative_bool` | root | function |
 | `hou_semantic_optimize` | root | function |
 | `hou_solve_constraints` | root | function |
+| `hou_solve_constraints_backtracking` | root | function |
 | `hou_unify` | root | function |
 | `hou_unify_mgu` | root | function |
 | `hou_unify_residual` | root | function |
@@ -3245,20 +3441,34 @@
 | `KanBox.line` | root | field |
 | `KanBox.system` | root | field |
 | `check_cubical_algorithms` | root | function |
+| `check_phase14_eckmann_hilton_and_pentagon_coherence` | root | function |
 | `dfunext_term` | root | function |
+| `dj_singleton_elim_value` | root | function |
 | `dpath_assoc3_value` | root | function |
+| `dpath_assoc_path3_value` | root | function |
 | `dpath_at_value` | root | function |
 | `dpath_cong_term` | root | function |
 | `dpath_cong_value` | root | function |
+| `dpath_eckmann_hilton3_value` | root | function |
 | `dpath_funext_value` | root | function |
 | `dpath_left_inverse3_value` | root | function |
 | `dpath_left_unit3_value` | root | function |
+| `dpath_lr_unit_coherence4_value` | root | function |
+| `dpath_of_pathp_value` | root | function |
+| `dpath_pentagon4_value` | root | function |
+| `dpath_pentagon_bot3_value` | root | function |
+| `dpath_pentagon_path_bot3_value` | root | function |
+| `dpath_pentagon_path_top3_value` | root | function |
+| `dpath_pentagon_top3_value` | root | function |
 | `dpath_prefix_value` | root | function |
 | `dpath_refl_term` | root | function |
 | `dpath_refl_value` | root | function |
 | `dpath_right_inverse3_value` | root | function |
 | `dpath_right_unit3_value` | root | function |
+| `dpath_right_unit_general_value` | root | function |
 | `dpath_segment_value` | root | function |
+| `dpath_square_boundary3_value` | root | function |
+| `dpath_subst_trans_value` | root | function |
 | `dpath_sym_compose3_value` | root | function |
 | `dpath_sym_term` | root | function |
 | `dpath_sym_value` | root | function |
@@ -3266,6 +3476,8 @@
 | `dpath_trans_term` | root | function |
 | `dpath_trans_value` | root | function |
 | `dpath_triple_square_value` | root | function |
+| `dpathp_eq_in_set_family_value` | root | function |
+| `dpathp_of_transport_eq_value` | root | function |
 | `dtransport_back_term` | root | function |
 | `dtransport_term` | root | function |
 | `kan_box` | root | function |
@@ -3350,12 +3562,27 @@
 | `ComplexRootIsolation.disk` | algebra | field |
 | `ComplexRootIsolation.multiplicity` | algebra | field |
 | `ComplexRootIsolation.polynomial` | algebra | field |
+| `QPolyCertifiedFactor` | algebra | struct |
+| `QPolyCertifiedFactor.certificate` | algebra | field |
+| `QPolyCertifiedFactor.factor` | algebra | field |
+| `QPolyCertifiedFactor.multiplicity` | algebra | field |
+| `QPolyCertifiedFactor::equal` | algebra | function |
+| `QPolyCertifiedFactor::not_equal` | algebra | function |
+| `QPolyCertifiedFactor::to_repr` | algebra | function |
 | `QPolyCompleteFactorization` | algebra | struct |
 | `QPolyCompleteFactorization.factors` | algebra | field |
 | `QPolyCompleteFactorization.leading` | algebra | field |
 | `QPolyDegreePattern` | algebra | struct |
 | `QPolyDegreePattern.degrees` | algebra | field |
 | `QPolyDegreePattern.prime` | algebra | field |
+| `QPolyFactorCertificate` | algebra | struct |
+| `QPolyFactorCertificate.factors` | algebra | field |
+| `QPolyFactorCertificate.hensel_exponent` | algebra | field |
+| `QPolyFactorCertificate.hensel_prime` | algebra | field |
+| `QPolyFactorCertificate.leading` | algebra | field |
+| `QPolyFactorCertificate::equal` | algebra | function |
+| `QPolyFactorCertificate::not_equal` | algebra | function |
+| `QPolyFactorCertificate::to_repr` | algebra | function |
 | `QPolyIrreducibilityCertificate` | algebra | enum |
 | `QPolyIrreducibilityCertificate::CertEisenstein` | algebra | constructor |
 | `QPolyIrreducibilityCertificate::CertLinear` | algebra | constructor |
@@ -3431,8 +3658,10 @@
 | `biquad_to_radical` | algebra | function |
 | `biquad_zero` | algebra | function |
 | `check_biquadratic_denesting` | algebra | function |
+| `check_phase14_qpoly_hensel_factor_and_certificates` | root | function |
 | `check_qpoly_degree_pattern_certificates` | algebra | function |
 | `check_qpoly_factor_complete` | algebra | function |
+| `check_qpoly_hensel_factor_and_certificates` | algebra | function |
 | `check_qpoly_mod_pattern_pruning` | algebra | function |
 | `check_radical_denesting` | algebra | function |
 | `check_root_isolation` | algebra | function |
@@ -3442,8 +3671,12 @@
 | `qcpx_hermitian_eigenvalue_isolations` | algebra | function |
 | `qmat_symmetric_eigenvalue_isolations` | algebra | function |
 | `qpoly_complete_factorization_expand` | algebra | function |
+| `qpoly_factor_certificate_check` | algebra | function |
+| `qpoly_factor_certified` | algebra | function |
 | `qpoly_factor_complete` | algebra | function |
 | `qpoly_factor_complete_with_budget` | algebra | function |
+| `qpoly_factor_hensel` | algebra | function |
+| `qpoly_irreducible_upto3` | algebra | function |
 | `qpoly_is_irreducible` | algebra | function |
 | `qpoly_isolate_complex_roots` | algebra | function |
 | `qpoly_isolate_real_roots` | algebra | function |
@@ -3451,6 +3684,7 @@
 | `qpoly_splitting_field` | algebra | function |
 | `qpoly_sturm_sequence` | algebra | function |
 | `qpoly_sturm_variations` | algebra | function |
+| `radical_equal_algebraic` | algebra | function |
 | `radical_equal_exact` | algebra | function |
 | `radical_int` | algebra | function |
 | `radical_rat` | algebra | function |
@@ -3459,6 +3693,8 @@
 | `radical_to_biquad` | algebra | function |
 | `radical_to_cubic` | algebra | function |
 | `radical_to_multiquad` | algebra | function |
+| `radical_to_multiquad_upto` | algebra | function |
+| `radical_to_real_alg` | algebra | function |
 | `radical_to_triquad` | algebra | function |
 | `real_root_isolation_refine` | algebra | function |
 | `real_root_isolations_are_certified` | algebra | function |
@@ -3534,6 +3770,7 @@
 | `check_level_polymorphic_declarations` | root | function |
 | `check_mutual_declaration_positivity` | root | function |
 | `check_nested_iter_datatype` | root | function |
+| `check_phase14_joint_simultaneous_ir_mutual` | root | function |
 | `check_simultaneous_induction_recursion` | root | function |
 | `check_simultaneous_ir_compiled_decode` | root | function |
 | `check_simultaneous_ir_nested_foreign` | root | function |
@@ -3570,8 +3807,11 @@
 | `simultaneous_ir_compile_decode` | root | function |
 | `simultaneous_ir_compile_eliminator` | root | function |
 | `simultaneous_ir_compile_eliminator_block` | root | function |
+| `simultaneous_ir_compile_joint` | root | function |
+| `simultaneous_ir_compile_joint_block` | root | function |
 | `simultaneous_ir_eliminator_type` | root | function |
 | `simultaneous_ir_function_universe_level` | root | function |
+| `simultaneous_ir_general_eliminator_type` | root | function |
 | `simultaneous_ir_uses_other_hypotheses` | root | function |
 | `simultaneous_ir_validate` | root | function |
 | `type_operator_is_strictly_positive` | root | function |
@@ -3579,9 +3819,9 @@
 
 ### Adjoint equivalences, fibers and propositional truncation
 
-- Canonical form: a triangle Path(Path) over a quasi-inverse; the improved counit; Σ-points of fibers with singleton contraction; the point/squash HIT for PropTrunc
-- Categorification: half-adjoint equivalences, the contractible-fiber characterization of equivalences and the truncation reflection into propositions
-- Decision: adjointify_equiv_value and equiv_contractible_fibers_value implement the general lemIso construction with hfill/hcomp/dpath; endpoints and the Path(Path) triangle are checked by dependent checking/conversion (deep adjustment points such as the circle midpoint are checked under face restrictions)
+- Canonical form: a triangle Path(Path) over a quasi-inverse; the improved counit; Σ-points of fibers with singleton contraction; the point/squash HIT for PropTrunc; the point/hub/spoke set truncation ‖A‖₀ (SetTruncS) and open-variable bidirectional bijectivity certification DVEquiv
+- Categorification: half-adjoint equivalences, the contractible-fiber characterization of equivalences, and left-adjoint truncation reflections into propositions and into h-sets (0-groupoids)
+- Decision: adjointify_equiv_value, equiv_bidirectional_certified_in and equiv_contractible_fibers_value construct and check half-adjoint equivalences in open variable contexts; SetTruncS carries an internal h-set proof, universal elimination into arbitrary h-sets, and ‖X‖₀≃B equivalence lifting
 
 | Symbol | Package | Kind |
 |---|---|---|
@@ -3598,6 +3838,7 @@
 | `check_lemiso_generic_points` | root | function |
 | `check_propositional_truncation` | root | function |
 | `contractible_fibers_type_term` | root | function |
+| `dprop_is_set_value` | root | function |
 | `equiv_contractible_fibers_value` | root | function |
 | `equiv_fiber_center_value` | root | function |
 | `equiv_fiber_contraction_value` | root | function |
@@ -3609,8 +3850,26 @@
 | `fiber_type_term` | root | function |
 | `identity_fibers_contractible_value` | root | function |
 | `is_contr_type_term` | root | function |
+| `prop_trunc_elim_prop_value` | root | function |
+| `prop_trunc_point_value` | root | function |
 | `prop_trunc_schema` | root | function |
 | `prop_trunc_schema_at` | root | function |
+| `prop_trunc_squash_path_value` | root | function |
+| `prop_trunc_type_value` | root | function |
+| `set_trunc_elim_prop_value` | root | function |
+| `set_trunc_elim_set_value` | root | function |
+| `set_trunc_equiv_of_equiv_set_value` | root | function |
+| `set_trunc_hub_value` | root | function |
+| `set_trunc_is_set_value` | root | function |
+| `set_trunc_loop_trivial_value` | root | function |
+| `set_trunc_point_term` | root | function |
+| `set_trunc_point_value` | root | function |
+| `set_trunc_rec_set_value` | root | function |
+| `set_trunc_schema` | root | function |
+| `set_trunc_schema_at` | root | function |
+| `set_trunc_spoke_path_value` | root | function |
+| `set_trunc_type_term` | root | function |
+| `set_trunc_type_value` | root | function |
 | `singleton_contraction_value` | root | function |
 | `trunc_point_term` | root | function |
 | `trunc_rec_unit_term` | root | function |
@@ -3620,9 +3879,9 @@
 
 ### Spherical homotopy representatives and the Hopf invariant
 
-- Canonical form: nested Path types for Ωⁿ; integer degree maps by iterated suspension; the pole-swapped S³ HIT; the Hopf map and phase fibers on the unit sphere in C²
-- Categorification: representatives for the suspension functor, based maps and loop spaces; the Hopf S¹-fibration and its linking number
-- Decision: conversion checks on generating meridians; IntegerS is a generated inductive type with unique zero/posSucc/negSucc constructor forms and semantic succ/pred maps, and pi3 is presented as Ω³(Sphereₙ) modulo the propositionally truncated Path relation via QuotientS, and the triply iterated suspension unit is rebased through the transitivity-square cancellation by subst; representative loop expressions reduce to integer powers with end-to-end endpoint checks.  This layer is representatives and canonical powers: it does not claim a general synthetic encode/decode proof that π₃(S³)≅ℤ, nor an internal Hopf-invariant proof that π₃(S²)≅ℤ; the unit, inverse and associativity laws and symmetry-of-composite anti-homomorphism are verified face by face on representatives by explicit 3-cells, and every closed representative expression has a recursively assembled normalization 3-cell to the canonical word of its degree (Eckmann–Hilton/interchange are not constructed); beyond floating-point algebraic checks and a Gauss linking integral after stereographic projection numerically deciding |lk|=1, the Hopf landing/fiber-invariance/pole identities are verified in exact rational arithmetic on rational points and rational phase rotations; no internal Hopf map is claimed
+- Canonical form: nested Path types for Ωⁿ; integer degree maps by iterated suspension; the pole-swapped S³ HIT; the geometric Hopf map on C² together with the internal univalent Hopf fibration H:S²→Type₀ glued along circle rotation ua; IntegerS with unique zero/posSucc/negSucc constructor forms, semantic succ/pred and an internal h-set proof; pi3 presented via QuotientS; generator powers in SphereLoopExpr
+- Categorification: representatives for the suspension functor, based maps and loop spaces; the geometric and internal univalent Hopf S¹-fibrations and connecting map Ω³(S²)→Ω(S¹)→ℤ
+- Decision: conversion checks on generating meridians; unit, inverse, associativity, symmetry-of-composite, Ω² Eckmann–Hilton interchange and Mac Lane pentagon 4-cells are verified face by face on representatives, and closed representative expressions carry recursive normalization 3-cells to canonical powers; the internal univalent Hopf invariant computes exact signed degrees on Ω³(S²) representatives alongside the Freudenthal 1-loop suspension map σ₁:Ω¹(S¹)→Ω²(Susp(S¹)) (full bidirectional π₃(S²)≃ℤ classification is not claimed)
 
 | Symbol | Package | Kind |
 |---|---|---|
@@ -3637,14 +3896,22 @@
 | `based_map_type_term` | root | function |
 | `check_hopf_numeric` | root | function |
 | `check_loop_inverse_assoc_and_classification` | root | function |
+| `check_phase14_internal_circle_sect_and_hopf_invariant` | root | function |
 | `check_sphere_homotopy_representatives` | root | function |
 | `check_sphere_loop_representatives_internal` | root | function |
 | `circle_degree_value` | root | function |
 | `circle_hit_base_value` | root | function |
 | `circle_hit_loop_path_value` | root | function |
 | `circle_hit_loop_power_value` | root | function |
+| `circle_rot_equiv_value` | root | function |
+| `circle_self_loop_value` | root | function |
 | `dpath_trans_sym_cancel_value` | root | function |
+| `freudenthal_susp_loop1_preserves_refl_value` | root | function |
+| `freudenthal_susp_loop1_to_loop2_value` | root | function |
 | `homotopy_group_type_term` | root | function |
+| `hopf_connecting_loop_value` | root | function |
+| `hopf_family_value` | root | function |
+| `hopf_invariant_value` | root | function |
 | `hopf_linking_number_numeric` | root | function |
 | `hopf_map_rat` | root | function |
 | `hopf_map_s3_to_s2` | root | function |
@@ -3704,11 +3971,26 @@
 
 | Symbol | Package | Kind |
 |---|---|---|
+| `ArtifactAuthKey` | root | struct |
+| `ArtifactAuthKey.key_id` | root | field |
+| `ArtifactAuthKey.secret_a` | root | field |
+| `ArtifactAuthKey.secret_b` | root | field |
+| `ArtifactAuthKey::equal` | root | function |
+| `ArtifactAuthKey::not_equal` | root | function |
+| `ArtifactAuthKey::to_repr` | root | function |
 | `ArtifactByteStore` | root | struct |
 | `ArtifactByteStore.list` | root | field |
 | `ArtifactByteStore.read` | root | field |
 | `ArtifactByteStore.remove` | root | field |
 | `ArtifactByteStore.write` | root | field |
+| `ArtifactCasStatus` | root | enum |
+| `ArtifactCasStatus::ArtifactCasAuthFailed` | root | constructor |
+| `ArtifactCasStatus::ArtifactCasCommitted` | root | constructor |
+| `ArtifactCasStatus::ArtifactCasConflict` | root | constructor |
+| `ArtifactCasStatus::ArtifactCasIoError` | root | constructor |
+| `ArtifactCasStatus::equal` | root | function |
+| `ArtifactCasStatus::not_equal` | root | function |
+| `ArtifactCasStatus::to_repr` | root | function |
 | `ArtifactChainEntry` | root | struct |
 | `ArtifactChainEntry.entry_a` | root | field |
 | `ArtifactChainEntry.entry_b` | root | field |
@@ -3754,6 +4036,16 @@
 | `ArtifactRepositoryStats::equal` | root | function |
 | `ArtifactRepositoryStats::not_equal` | root | function |
 | `ArtifactRepositoryStats::to_repr` | root | function |
+| `ArtifactSyncReport` | root | struct |
+| `ArtifactSyncReport.final_head_a` | root | field |
+| `ArtifactSyncReport.final_head_b` | root | field |
+| `ArtifactSyncReport.ok` | root | field |
+| `ArtifactSyncReport.skipped_existing_blobs` | root | field |
+| `ArtifactSyncReport.tombstones_applied` | root | field |
+| `ArtifactSyncReport.transferred_blobs` | root | field |
+| `ArtifactSyncReport::equal` | root | function |
+| `ArtifactSyncReport::not_equal` | root | function |
+| `ArtifactSyncReport::to_repr` | root | function |
 | `BinaryVersionPolicy` | root | struct |
 | `BinaryVersionPolicy.current` | root | field |
 | `BinaryVersionPolicy.oldest_writable` | root | field |
@@ -3780,6 +4072,14 @@
 | `CompiledModuleEnv::equal` | root | function |
 | `CompiledModuleEnv::not_equal` | root | function |
 | `CompiledModuleEnv::to_repr` | root | function |
+| `CompiledModuleEnvelopeLoad` | root | struct |
+| `CompiledModuleEnvelopeLoad.module_` | root | field |
+| `CompiledModuleEnvelopeLoad.recognized_sections` | root | field |
+| `CompiledModuleEnvelopeLoad.skipped_noncritical_tags` | root | field |
+| `CompiledModuleEnvelopeLoad.status` | root | field |
+| `CompiledModuleEnvelopeLoad::equal` | root | function |
+| `CompiledModuleEnvelopeLoad::not_equal` | root | function |
+| `CompiledModuleEnvelopeLoad::to_repr` | root | function |
 | `CompiledModuleStore` | root | struct |
 | `CompiledModuleStore.blobs` | root | field |
 | `CompiledModuleStore.hits` | root | field |
@@ -3828,6 +4128,22 @@
 | `ModuleDependencyFingerprint::equal` | root | function |
 | `ModuleDependencyFingerprint::not_equal` | root | function |
 | `ModuleDependencyFingerprint::to_repr` | root | function |
+| `ModuleTlvSection` | root | struct |
+| `ModuleTlvSection.critical` | root | field |
+| `ModuleTlvSection.payload` | root | field |
+| `ModuleTlvSection.tag` | root | field |
+| `ModuleTlvSection::equal` | root | function |
+| `ModuleTlvSection::not_equal` | root | function |
+| `ModuleTlvSection::to_repr` | root | function |
+| `SharedDagBundle` | root | struct |
+| `SharedDagBundle.modules` | root | field |
+| `SharedDagBundle.registry` | root | field |
+| `SharedDagBundleLoad` | root | struct |
+| `SharedDagBundleLoad.bundle` | root | field |
+| `SharedDagBundleLoad.interned_dag_nodes` | root | field |
+| `SharedDagBundleLoad.reused_dag_nodes` | root | field |
+| `SharedDagBundleLoad.shared_term_entries` | root | field |
+| `SharedDagBundleLoad.status` | root | field |
 | `abstract_point_module` | root | function |
 | `artifact_byte_store_new` | root | function |
 | `artifact_kind_compiled_module` | root | function |
@@ -3846,6 +4162,7 @@
 | `artifact_repository_list` | root | function |
 | `artifact_repository_new` | root | function |
 | `artifact_repository_put` | root | function |
+| `artifact_repository_put_cas_authenticated` | root | function |
 | `artifact_repository_put_compiled_module` | root | function |
 | `artifact_repository_put_dterm_dag_snapshot` | root | function |
 | `artifact_repository_put_dterm_dag_terms` | root | function |
@@ -3855,13 +4172,17 @@
 | `artifact_repository_recover` | root | function |
 | `artifact_repository_recover_chained` | root | function |
 | `artifact_repository_remove` | root | function |
+| `artifact_repository_seal_authenticated` | root | function |
 | `artifact_repository_stats` | root | function |
+| `artifact_repository_sync_incremental` | root | function |
 | `artifact_repository_verify_all` | root | function |
+| `artifact_repository_verify_authenticated` | root | function |
 | `binary_negotiate_version` | root | function |
 | `check_artifact_manifest_integrity_chain` | root | function |
 | `check_module_binary_format` | root | function |
 | `check_module_binary_versions_and_store` | root | function |
 | `check_module_compilation` | root | function |
+| `check_phase14_tlv_envelope_cas_and_incremental_sync` | root | function |
 | `compiled_module_binary_format_version` | root | function |
 | `compiled_module_binary_from_hex` | root | function |
 | `compiled_module_binary_negotiate_version` | root | function |
@@ -3873,6 +4194,8 @@
 | `compiled_module_env_find` | root | function |
 | `compiled_module_env_new` | root | function |
 | `compiled_module_env_to_module_env` | root | function |
+| `compiled_module_envelope_load_binary` | root | function |
+| `compiled_module_envelope_to_binary` | root | function |
 | `compiled_module_format_version` | root | function |
 | `compiled_module_from_binary` | root | function |
 | `compiled_module_instantiate` | root | function |
@@ -3907,6 +4230,8 @@
 | `module_source_fingerprint` | root | function |
 | `point_client_module` | root | function |
 | `point_implementation_module` | root | function |
+| `shared_dag_bundle_load_binary_report` | root | function |
+| `shared_dag_bundle_to_binary` | root | function |
 
 ### Categorification checks
 
@@ -3988,29 +4313,53 @@
 
 ### The circle's universal cover and encode/decode
 
-- Canonical form: cover fibres are canonical IntegerS integers over base and ua-line GlueEquiv types over loop points; loop representatives are DVHitCell paths of the schema circle and winding numbers are canonical integer values
-- Categorification: the helix is a fibration family from the circle to the universe; encode is the endpoint of substitution (path lifting) in the cover and decode is integer elimination into loop powers
-- Decision: the base fibre is convertible to ℤ at universe level; substitution computes directly on the generator, its inverse and refl; a single substitution across the trans points of a composite loop now chains the equivalences through endpoint Glue-line composition and accumulates the winding number correctly (loop²↦2, loop³↦3, loop⁻²↦−2, cancellation↦0, all by conversion), with transport subdivision retained as a comparison path; both round trips are checked by conversion on representatives (a complete internal proof of π₁(S¹)≃ℤ for arbitrary neutral loops remains open)
+- Canonical form: cover fibres are canonical IntegerS integers over base and ua-line GlueEquiv types over loop points; loop representatives are DVHitCell paths of the schema circle, winding numbers are canonical integer values, and π₁(S¹)=‖Ω¹(S¹)‖₀≃ℤ is certified as a DVEquiv
+- Categorification: the helix is a fibration family from the circle to the universe; encode is the endpoint of substitution (path lifting) in the cover, decode is integer elimination into loop powers, and set truncation lifts Ω¹(S¹)≃ℤ to the fundamental-group isomorphism via ℤ being an h-set
+- Decision: the base fibre is convertible to ℤ at universe level; substitution accumulates winding numbers across composite loops; both homotopies decode(encode(p))≡p and encode(decode(z))≡z are constructed internally in open neutral loop and integer contexts, completing the full internal proofs of Path S¹ base x ≃ Cover(x), Ω¹(S¹)≃ℤ and π₁(S¹)=‖Ω¹(S¹)‖₀≃ℤ
 
 | Symbol | Package | Kind |
 |---|---|---|
 | `check_circle_encode_decode` | root | function |
+| `check_phase15_bidirectional_bijectivity_and_pi1_circle` | root | function |
 | `circle_cover_value` | root | function |
+| `circle_decode_encode_retr_value` | root | function |
+| `circle_decode_encode_x_retr_value` | root | function |
+| `circle_decode_step_value` | root | function |
 | `circle_decode_value` | root | function |
+| `circle_decode_x_value` | root | function |
+| `circle_encode_decode_sect_value` | root | function |
+| `circle_encode_decode_x_sect_value` | root | function |
+| `circle_encode_decode_x_sect_with_zset_value` | root | function |
 | `circle_encode_pieces_value` | root | function |
 | `circle_encode_value` | root | function |
+| `circle_encode_x_value` | root | function |
 | `circle_hit_type_value` | root | function |
+| `circle_loop_space_equiv_integer_value` | root | function |
 | `circle_loop_space_type_value` | root | function |
+| `circle_path_equiv_cover_value` | root | function |
+| `circle_path_equiv_cover_with_zset_value` | root | function |
+| `integer_is_set_value` | root | function |
+| `integer_pred_succ_retr_value` | root | function |
 | `integer_succ_equiv_value` | root | function |
+| `integer_succ_pred_sect_value` | root | function |
+| `pi1_set_circle_equiv_integer_value` | root | function |
 
 ### Host-opaque cubes and open-box filling
 
-- Canonical form: cubes are host functions (dimension lists to semantic values / rational-polynomial coordinates); an open box is boundary data missing one face and the cap is the filler's restriction to that face
-- Categorification: external cubical data over □ with a host implementation of the Kan filling condition; polynomial cubes are cubical maps in exact rational coordinates, filled by the iteration F += w·(S − F|face) face by face
-- Decision: boundary completeness and overlap compatibility are verified face by face by typed conversion / canonical polynomial equality; beyond the generic-point probe, stratified extensionality compares host cube functions on finite probe tiers covering face interiors, diagonals (shared/ambient dimensions), connections (¬, ∧, ∨) and axis-specific deep connections, with stratified box validation and verified filling alongside (tiers beyond the probe budget report complete=false); incompatible or incomplete boxes are rejected with failure counts
+- Canonical form: cubes are host functions (dimension lists to semantic values / rational-polynomial coordinates) or CheckedDCube terms anchored to typechecked syntax; an open box is boundary data missing one face and the cap is the filler's restriction to that face
+- Categorification: external cubical data over □ with a host implementation of the Kan filling condition, whose natural transformations are determined at the generic diagonal by the cubical Yoneda lemma; polynomial cubes are cubical maps in exact rational coordinates, filled by the iteration F += w·(S − F|face) face by face
+- Decision: boundary completeness and overlap compatibility are verified face by face by typed conversion / canonical polynomial equality; extensional comparison combines four-tier stratified probes, strength t≤4 orthogonal/covering arrays over P¹(𝔽₈) with a 5-color perfect hash family, a cubical Yoneda naturality/faithfulness audit that rejects non-natural host closures, and exact probe-free generic-dimension reification for CheckedDCube
 
 | Symbol | Package | Kind |
 |---|---|---|
+| `CheckedDCube` | root | struct |
+| `CheckedDCube.arity` | root | field |
+| `CheckedDCube.body` | root | field |
+| `CheckedDCube.ctx` | root | field |
+| `CheckedDCube.cube` | root | field |
+| `CheckedDCube.denv` | root | field |
+| `CheckedDCube.env` | root | field |
+| `CheckedDCube.ty` | root | field |
 | `DCubeBoxFace` | root | struct |
 | `DCubeBoxFace.axis` | root | field |
 | `DCubeBoxFace.cube` | root | field |
@@ -4019,6 +4368,12 @@
 | `DCubeBoxReport.complete` | root | field |
 | `DCubeBoxReport.failed_overlaps` | root | field |
 | `DCubeBoxReport.overlaps_ok` | root | field |
+| `DCubeCoveringReport` | root | struct |
+| `DCubeCoveringReport.complete_for_strength` | root | field |
+| `DCubeCoveringReport.equal` | root | field |
+| `DCubeCoveringReport.failed` | root | field |
+| `DCubeCoveringReport.interaction_strength` | root | field |
+| `DCubeCoveringReport.probes` | root | field |
 | `DCubeFunction` | root | struct |
 | `DCubeFunction.arity` | root | field |
 | `DCubeFunction.at` | root | field |
@@ -4032,6 +4387,14 @@
 | `DCubeStratifiedReport.equal` | root | field |
 | `DCubeStratifiedReport.failed` | root | field |
 | `DCubeStratifiedReport.probes` | root | field |
+| `DCubeYonedaReport` | root | struct |
+| `DCubeYonedaReport.audited_substitutions` | root | field |
+| `DCubeYonedaReport.failed_substitutions` | root | field |
+| `DCubeYonedaReport.generic_reified_term` | root | field |
+| `DCubeYonedaReport.natural` | root | field |
+| `DCubeYonedaReport::equal` | root | function |
+| `DCubeYonedaReport::not_equal` | root | function |
+| `DCubeYonedaReport::to_repr` | root | function |
 | `PolyBoxFace` | algebra | struct |
 | `PolyBoxFace.axis` | algebra | field |
 | `PolyBoxFace.cube` | algebra | field |
@@ -4044,7 +4407,12 @@
 | `PolyOpenBox.faces` | algebra | field |
 | `check_dcube_open_box_filler` | root | function |
 | `check_dcube_stratified_tier_d` | root | function |
+| `check_phase14_dcube_orthogonal_array_covering` | root | function |
+| `check_phase15_dcube_strength4_phf_and_yoneda_audit` | root | function |
 | `check_poly_cubes` | algebra | function |
+| `checked_dcube_closed` | root | function |
+| `checked_dcube_extensional_eq` | root | function (differential-testing oracle, not a decision path) |
+| `checked_dcube_make` | root | function |
 | `dcube_at` | root | function |
 | `dcube_box_cap` | root | function |
 | `dcube_box_complete` | root | function |
@@ -4057,6 +4425,8 @@
 | `dcube_box_validate_stratified` | root | function |
 | `dcube_constant` | root | function |
 | `dcube_cubes_conv` | root | function |
+| `dcube_cubes_conv_covering_phf_report` | root | function |
+| `dcube_cubes_conv_covering_report` | root | function |
 | `dcube_cubes_conv_stratified` | root | function |
 | `dcube_cubes_conv_stratified_report` | root | function |
 | `dcube_degenerate` | root | function |
@@ -4068,6 +4438,8 @@
 | `dcube_of_path` | root | function |
 | `dcube_of_point` | root | function |
 | `dcube_open_box` | root | function |
+| `dcube_phf_5colors` | root | function |
+| `dcube_yoneda_audit_report` | root | function |
 | `poly_box_cap` | algebra | function |
 | `poly_box_face` | algebra | function |
 | `poly_box_face_of` | algebra | function |
@@ -5837,4 +6209,863 @@
 | `tropical_optimal_assignments` | bridge | function |
 | `weighted_graph_report` | bridge | function |
 | `wiring_output_signs` | bridge | function |
+
+### Topos: sites, sieves, Grothendieck topologies and presheaves
+
+- Canonical form: sorted deduplicated morphism sieves, covering-sieve closures, natural-transformation component tables and matching families
+- Categorification: small sites (C, J), the Yoneda embedding C ↪ PSh(C) and bicomplete presheaf limits/colimits
+- Decision: sieve right-ideal laws, the three Grothendieck topology axioms (maximal/stability/transitivity) and exhaustive general Yoneda bijection checks
+
+| Symbol | Package | Kind |
+|---|---|---|
+| `GrothendieckTopology` | topos | struct |
+| `GrothendieckTopology.covers` | topos | field |
+| `GrothendieckTopology.nobj` | topos | field |
+| `GrothendieckTopology::equal` | topos | function |
+| `GrothendieckTopology::not_equal` | topos | function |
+| `GrothendieckTopology::to_repr` | topos | function |
+| `MatchingFamily` | topos | struct |
+| `MatchingFamily.sieve` | topos | field |
+| `MatchingFamily.values` | topos | field |
+| `MatchingFamily::equal` | topos | function |
+| `MatchingFamily::not_equal` | topos | function |
+| `MatchingFamily::to_repr` | topos | function |
+| `PresheafHom` | topos | struct |
+| `PresheafHom.cat` | topos | field |
+| `PresheafHom.cod_size` | topos | field |
+| `PresheafHom.components` | topos | field |
+| `PresheafHom.dom_size` | topos | field |
+| `Sieve` | topos | struct |
+| `Sieve.arrows` | topos | field |
+| `Sieve.target` | topos | field |
+| `Sieve::equal` | topos | function |
+| `Sieve::not_equal` | topos | function |
+| `Sieve::to_repr` | topos | function |
+| `Site` | topos | struct |
+| `Site.cat` | topos | field |
+| `Site.topology` | topos | field |
+| `all_sieves_on` | topos | function |
+| `cat_circle_open_poset` | topos | function |
+| `cat_has_pullbacks` | topos | function |
+| `cat_opposite` | topos | function |
+| `cat_satisfies_right_ore` | topos | function |
+| `enumerate_matching_families` | topos | function |
+| `is_matching_family` | topos | function |
+| `presheaf_are_isomorphic` | topos | function |
+| `presheaf_coequalizer` | topos | function |
+| `presheaf_constant_raw` | topos | function |
+| `presheaf_coproduct` | topos | function |
+| `presheaf_equalizer` | topos | function |
+| `presheaf_hom_compose` | topos | function |
+| `presheaf_hom_enumerate` | topos | function |
+| `presheaf_hom_eq` | topos | function |
+| `presheaf_hom_id` | topos | function |
+| `presheaf_hom_is_epi_presheaf` | topos | function |
+| `presheaf_hom_is_iso` | topos | function |
+| `presheaf_hom_is_mono` | topos | function |
+| `presheaf_hom_is_natural` | topos | function |
+| `presheaf_initial` | topos | function |
+| `presheaf_of_sieve` | topos | function |
+| `presheaf_product` | topos | function |
+| `presheaf_product_hom` | topos | function |
+| `presheaf_pullback` | topos | function |
+| `presheaf_representable` | topos | function |
+| `presheaf_representable_with_table` | topos | function |
+| `presheaf_terminal` | topos | function |
+| `section_to_matching_family` | topos | function |
+| `sieve_contains` | topos | function |
+| `sieve_empty` | topos | function |
+| `sieve_generate` | topos | function |
+| `sieve_heyting_implies` | topos | function |
+| `sieve_inter` | topos | function |
+| `sieve_is_j_closed` | topos | function |
+| `sieve_is_valid` | topos | function |
+| `sieve_j_closure` | topos | function |
+| `sieve_maximal` | topos | function |
+| `sieve_pullback` | topos | function |
+| `sieve_subset` | topos | function |
+| `sieve_union` | topos | function |
+| `site_circle_good_cover` | topos | function |
+| `site_is_valid` | topos | function |
+| `site_new` | topos | function |
+| `topology_atomic` | topos | function |
+| `topology_covers` | topos | function |
+| `topology_dense` | topos | function |
+| `topology_from_coverage` | topos | function |
+| `topology_is_valid` | topos | function |
+| `topology_trivial` | topos | function |
+| `verify_general_yoneda_lemma` | topos | function |
+| `yoneda_elem_to_hom` | topos | function |
+
+### Topos: sheafification, cartesian closedness, subobject classifiers and elementary toposes
+
+- Canonical form: J-closed sieve Heyting lattices Ω_J, two-step Grothendieck Plus sheafification a(P)=(P^+)^+ and Yoneda exponentials G^F
+- Categorification: Grothendieck sheaf toposes Sh(C, J), cartesian closed structure, subobject-classifier pullbacks and the Lawvere–Tierney subtopos bijection
+- Decision: separated/gluing sheaf conditions, sheafification universal property, CCC currying isomorphisms, characteristic pullback squares and Giraud disjoint-coproduct stability
+
+| Symbol | Package | Kind |
+|---|---|---|
+| `ExponentialData` | topos | struct |
+| `ExponentialData.eval_hom` | topos | field |
+| `ExponentialData.exp` | topos | field |
+| `ExponentialData.prod_exp_dom` | topos | field |
+| `ExponentialData.thetas_by_obj` | topos | field |
+| `SheafificationResult` | topos | struct |
+| `SheafificationResult.plus_once` | topos | field |
+| `SheafificationResult.sheaf` | topos | field |
+| `SheafificationResult.unit` | topos | field |
+| `SubobjectClassifierData` | topos | struct |
+| `SubobjectClassifierData.closed_sieves` | topos | field |
+| `SubobjectClassifierData.omega` | topos | field |
+| `SubobjectClassifierData.terminal` | topos | field |
+| `SubobjectClassifierData.true_hom` | topos | field |
+| `characteristic_morphism` | topos | function |
+| `exponential_curry` | topos | function |
+| `exponential_uncurry` | topos | function |
+| `is_boolean_topos` | topos | function |
+| `is_de_morgan_topos` | topos | function |
+| `is_lawvere_tierney_operator` | topos | function |
+| `is_separated_presheaf` | topos | function |
+| `is_sheaf` | topos | function |
+| `lawvere_tierney_of_site` | topos | function |
+| `omega_j_join` | topos | function |
+| `omega_j_neg` | topos | function |
+| `plus_construction` | topos | function |
+| `presheaf_exponential` | topos | function |
+| `sheafify` | topos | function |
+| `subobject_classifier_presheaf` | topos | function |
+| `subobject_classifier_sheaf` | topos | function |
+| `topology_of_lawvere_tierney` | topos | function |
+| `verify_elementary_and_giraud_topos` | topos | function |
+| `verify_sheaf_cartesian_closed` | topos | function |
+| `verify_sheafification_universal_property` | topos | function |
+| `verify_subobject_classifier_pullback` | topos | function |
+
+### Topos: geometric morphisms and local/connected/atomic/compact-coherent properties
+
+- Canonical form: left-exact inverse images f^* = a ∘ Lan_{u^{op}}, right-adjoint direct images f_*, flat tensor point functors and focal points
+- Categorification: geometric morphism adjunctions f^* ⊣ f_*, local-topos triple adjunctions Δ ⊣ Γ ⊣ Γ^!, π_0 connectedness, atomic Galois groupoids and coherent compact coverings
+- Decision: adjunction hom-bijections, finite-limit preservation, Diaconescu flat/cover-preserving point criteria, and local/connected/atomic/De Morgan/Boolean property checks
+
+| Symbol | Package | Kind |
+|---|---|---|
+| `AtomicToposReport` | topos | struct |
+| `AtomicToposReport.is_atomic` | topos | field |
+| `AtomicToposReport.is_boolean` | topos | field |
+| `AtomicToposReport.representable_atom_count` | topos | field |
+| `AtomicToposReport.site_right_ore` | topos | field |
+| `CompactCoherentReport` | topos | struct |
+| `CompactCoherentReport.has_enough_points` | topos | field |
+| `CompactCoherentReport.is_coherent` | topos | field |
+| `CompactCoherentReport.is_compact` | topos | field |
+| `CompactCoherentReport.max_minimal_cover_arity` | topos | field |
+| `CompactCoherentReport.point_count` | topos | field |
+| `CompactCoherentReport.site_has_pullbacks` | topos | field |
+| `CompactCoherentReport.terminal_irredundant_cover_degree` | topos | field |
+| `ConnectedToposReport` | topos | struct |
+| `ConnectedToposReport.clopen_subobjects_of_one` | topos | field |
+| `ConnectedToposReport.connected_components` | topos | field |
+| `ConnectedToposReport.delta_two_global_sections` | topos | field |
+| `ConnectedToposReport.is_connected` | topos | field |
+| `FlatPointFunctor` | topos | struct |
+| `FlatPointFunctor.cat` | topos | field |
+| `FlatPointFunctor.map` | topos | field |
+| `FlatPointFunctor.size` | topos | field |
+| `LocalToposReport` | topos | struct |
+| `LocalToposReport.focal_point` | topos | field |
+| `LocalToposReport.global_initial_sections` | topos | field |
+| `LocalToposReport.global_terminal_sections` | topos | field |
+| `LocalToposReport.is_local` | topos | field |
+| `LocalToposReport.preserves_coequalizers` | topos | field |
+| `LocalToposReport.preserves_coproducts` | topos | field |
+| `LocalToposReport.triple_adjunction_holds` | topos | field |
+| `analyze_atomic_topos` | topos | function |
+| `analyze_compact_coherent_topos` | topos | function |
+| `analyze_connected_topos` | topos | function |
+| `analyze_local_topos` | topos | function |
+| `covariant_representable_point` | topos | function |
+| `direct_image_presheaf` | topos | function |
+| `enumerate_canonical_points` | topos | function |
+| `global_sections_count` | topos | function |
+| `inverse_image_presheaf` | topos | function |
+| `inverse_image_sheaf` | topos | function |
+| `is_atom_sheaf` | topos | function |
+| `is_covariant_point_functor` | topos | function |
+| `is_cover_preserving_functor` | topos | function |
+| `is_diaconescu_point` | topos | function |
+| `is_flat_point_functor` | topos | function |
+| `point_skyscraper_sheaf` | topos | function |
+| `point_stalk_cardinality` | topos | function |
+| `verify_geometric_morphism` | topos | function |
+
+### Topos: geometric normal forms, classifying toposes and categorification
+
+- Canonical form: Joyal–Reyes disjunctive-existential-conjunctive normal forms ⋁∃⋀, adjoint quantifiers Σ_f ⊣ f^* ⊣ Π_f and propositional classifying sites
+- Categorification: Kripke–Joyal sheaf semantics, classifying toposes B(T) with Pt(B(T)) ≃ Mod_Set(T), and category-of-elements categorification PSh(C)/P ≃ PSh(∫P)
+- Decision: Kripke–Joyal forcing, geometric normal-form soundness, Beck–Chevalley exact squares, classifying-topos point/model bijections and slice categorification checks
+
+| Symbol | Package | Kind |
+|---|---|---|
+| `ClassifyingToposData` | topos | struct |
+| `ClassifyingToposData.generic_prop_sheaves` | topos | field |
+| `ClassifyingToposData.obj_theories` | topos | field |
+| `ClassifyingToposData.site` | topos | field |
+| `ClassifyingToposData.theory` | topos | field |
+| `GeoAtom` | topos | enum |
+| `GeoAtom::AtomEq` | topos | constructor |
+| `GeoAtom::AtomPred` | topos | constructor |
+| `GeoAtom::equal` | topos | function |
+| `GeoAtom::not_equal` | topos | function |
+| `GeoAtom::to_repr` | topos | function |
+| `GeoConjClause` | topos | struct |
+| `GeoConjClause.atoms` | topos | field |
+| `GeoConjClause.num_exists` | topos | field |
+| `GeoConjClause::equal` | topos | function |
+| `GeoConjClause::not_equal` | topos | function |
+| `GeoConjClause::to_repr` | topos | function |
+| `GeoFormula` | topos | enum |
+| `GeoFormula::GAnd` | topos | constructor |
+| `GeoFormula::GEq` | topos | constructor |
+| `GeoFormula::GExists` | topos | constructor |
+| `GeoFormula::GFalse` | topos | constructor |
+| `GeoFormula::GForall` | topos | constructor |
+| `GeoFormula::GImplies` | topos | constructor |
+| `GeoFormula::GOr` | topos | constructor |
+| `GeoFormula::GPred` | topos | constructor |
+| `GeoFormula::GTrue` | topos | constructor |
+| `GeoFormula::equal` | topos | function |
+| `GeoFormula::not_equal` | topos | function |
+| `GeoFormula::to_repr` | topos | function |
+| `GeoNormalForm` | topos | struct |
+| `GeoNormalForm.clauses` | topos | field |
+| `GeoNormalForm.free_arity` | topos | field |
+| `GeoNormalForm::equal` | topos | function |
+| `GeoNormalForm::not_equal` | topos | function |
+| `GeoNormalForm::to_repr` | topos | function |
+| `GeoSequent` | topos | struct |
+| `GeoSequent.arity` | topos | field |
+| `GeoSequent.conclusion` | topos | field |
+| `GeoSequent.premise` | topos | field |
+| `GeoSequent::equal` | topos | function |
+| `GeoSequent::not_equal` | topos | function |
+| `GeoSequent::to_repr` | topos | function |
+| `GeometricTheory` | topos | struct |
+| `GeometricTheory.axioms` | topos | field |
+| `GeometricTheory.pred_arities` | topos | field |
+| `PropGeoAxiom` | topos | struct |
+| `PropGeoAxiom.branches` | topos | field |
+| `PropGeoAxiom.premise_atoms` | topos | field |
+| `PropGeoAxiom::equal` | topos | function |
+| `PropGeoAxiom::not_equal` | topos | function |
+| `PropGeoAxiom::to_repr` | topos | function |
+| `PropGeoTheory` | topos | struct |
+| `PropGeoTheory.axioms` | topos | field |
+| `PropGeoTheory.num_props` | topos | field |
+| `SheafStructure` | topos | struct |
+| `SheafStructure.carrier` | topos | field |
+| `SheafStructure.pred_arities` | topos | field |
+| `SheafStructure.relations` | topos | field |
+| `SliceCategoryData` | topos | struct |
+| `SliceCategoryData.obj_arrow` | topos | field |
+| `SliceCategoryData.proj_mor` | topos | field |
+| `SliceCategoryData.proj_obj` | topos | field |
+| `SliceCategoryData.slice_cat` | topos | field |
+| `Subpresheaf` | topos | struct |
+| `Subpresheaf.ambient` | topos | field |
+| `Subpresheaf.members` | topos | field |
+| `build_propositional_classifying_topos` | topos | function |
+| `cat_slice` | topos | function |
+| `category_of_elements` | topos | function |
+| `enumerate_set_models_prop` | topos | function |
+| `geo_normal_form_to_formula` | topos | function |
+| `geometric_normal_form` | topos | function |
+| `is_valid_subpresheaf` | topos | function |
+| `kripke_joyal_forces` | topos | function |
+| `model_satisfies_sequent` | topos | function |
+| `model_satisfies_theory` | topos | function |
+| `subpresheaf_exists` | topos | function |
+| `subpresheaf_forall` | topos | function |
+| `subpresheaf_pullback` | topos | function |
+| `verify_beck_chevalley_quantifiers` | topos | function |
+| `verify_classifying_topos_universal_property` | topos | function |
+| `verify_elements_slice_categorification` | topos | function |
+| `verify_geometric_normal_form_soundness` | topos | function |
+
+### Topos: groupoid stacks, descent, sheaf cohomology and homotopy types
+
+- Canonical form: Čech descent cocycles g_{ij}·g_{jk}=g_{ik}, Roos/simplicial cochain complexes over Q and integer Smith torsion invariant factors
+- Categorification: fibered groupoid stacks and G-torsor descent, rational abelian sheaf cohomology H^•(C; F), Snake-lemma long exact sequences and simplicial nerve homotopy types
+- Decision: 2-categorical cocycle coherence, effective descent bijections, d^{n+1}∘d^n = 0, Euler–Poincaré identities, Snake connecting-homomorphism exactness and Betti/π_1 computation
+
+| Symbol | Package | Kind |
+|---|---|---|
+| `AbelianPresheafQ` | topos | struct |
+| `AbelianPresheafQ.cat` | topos | field |
+| `AbelianPresheafQ.dims` | topos | field |
+| `AbelianPresheafQ.res_mats` | topos | field |
+| `CochainComplexQ` | topos | struct |
+| `CochainComplexQ.differentials` | topos | field |
+| `CochainComplexQ.dims` | topos | field |
+| `CoverDescentDiagram` | topos | struct |
+| `CoverDescentDiagram.cleavage_transitions` | topos | field |
+| `CoverDescentDiagram.cover_arrows` | topos | field |
+| `CoverDescentDiagram.overlap_obj` | topos | field |
+| `CoverDescentDiagram.proj1` | topos | field |
+| `CoverDescentDiagram.proj12` | topos | field |
+| `CoverDescentDiagram.proj13` | topos | field |
+| `CoverDescentDiagram.proj2` | topos | field |
+| `CoverDescentDiagram.proj23` | topos | field |
+| `CoverDescentDiagram.target` | topos | field |
+| `CoverDescentDiagram.triple_obj` | topos | field |
+| `DescentDatum` | topos | struct |
+| `DescentDatum.local_objs` | topos | field |
+| `DescentDatum.transitions` | topos | field |
+| `DescentDatum::equal` | topos | function |
+| `DescentDatum::not_equal` | topos | function |
+| `DescentDatum::to_repr` | topos | function |
+| `FiniteGroupoid` | topos | struct |
+| `FiniteGroupoid.cat` | topos | field |
+| `FiniteGroupoid.inv` | topos | field |
+| `GroupoidFibration` | topos | struct |
+| `GroupoidFibration.base` | topos | field |
+| `GroupoidFibration.fibers` | topos | field |
+| `GroupoidFibration.pullbacks` | topos | field |
+| `HomotopyTypeSummary` | topos | struct |
+| `HomotopyTypeSummary.betti_numbers` | topos | field |
+| `HomotopyTypeSummary.euler_characteristic` | topos | field |
+| `HomotopyTypeSummary.pi0_components` | topos | field |
+| `HomotopyTypeSummary.pi1_free_rank` | topos | field |
+| `HomotopyTypeSummary.pi1_torsion_invariants` | topos | field |
+| `HomotopyTypeSummary::equal` | topos | function |
+| `HomotopyTypeSummary::not_equal` | topos | function |
+| `HomotopyTypeSummary::to_repr` | topos | function |
+| `RectQMat` | topos | struct |
+| `RectQMat.ncols` | topos | field |
+| `RectQMat.nrows` | topos | field |
+| `RectQMat.rows` | topos | field |
+| `RectQMat::equal` | topos | function |
+| `RectQMat::not_equal` | topos | function |
+| `RectQMat::to_repr` | topos | function |
+| `SimplicialNerve` | topos | struct |
+| `SimplicialNerve.edges` | topos | field |
+| `SimplicialNerve.num_vertices` | topos | field |
+| `SimplicialNerve.tetrahedra` | topos | field |
+| `SimplicialNerve.triangles` | topos | field |
+| `abelian_presheaf_constant_q` | topos | function |
+| `boundary_simplex_nerve` | topos | function |
+| `build_circle_z2_torsor_stack` | topos | function |
+| `canonical_descent_datum` | topos | function |
+| `circle_mobius_double_cover_sheaf` | topos | function |
+| `classify_group_torsor_cohomology` | topos | function |
+| `classifying_nerve_of_poset` | topos | function |
+| `cochain_complex_is_valid` | topos | function |
+| `cohomology_dimensions` | topos | function |
+| `compute_nerve_homotopy_type` | topos | function |
+| `descent_data_isomorphic` | topos | function |
+| `groupoid_of_fincat` | topos | function |
+| `is_valid_abelian_presheaf` | topos | function |
+| `is_valid_groupoid` | topos | function |
+| `nerve_constant_cochain_complex_q` | topos | function |
+| `rect_qmat_id` | topos | function |
+| `rect_qmat_zero` | topos | function |
+| `roos_site_cochain_complex` | topos | function |
+| `rp2_minimal_nerve` | topos | function |
+| `verify_descent_cocycle` | topos | function |
+| `verify_euler_poincare` | topos | function |
+| `verify_snake_lemma_cohomology_les` | topos | function |
+| `verify_stack_effective_descent` | topos | function |
+
+### Topos: Round-2 structural derivations (essential triple adjunctions, open/closed subtopos nuclei, dense Comparison Lemma, internal torsors and cup-product ring)
+
+- Canonical form: right Kan presheaves Ran_{u^{op}}, open/closed Lawvere–Tierney nuclei j_o/j_c, induced dense subsite topologies J_C, internal permutation-group actions and Alexander–Whitney 2-cochain cup products
+- Categorification: essential geometric morphisms Lan_{u^{op}} ⊣ u^* ⊣ Ran_{u^{op}}, co-Heyting open/closed subtopos complementarity, Grothendieck–Verdier dense site Morita equivalence, Diaconescu internal G-torsor sheaves and multiplicative DG-algebras H^•(U; Q)
+- Decision: triple-adjunction hom bijections, J_o ∧ J_c = J_triv & J_o ∨ J_c = J_⊥ complementarity without internal LEM, dense sheaf reconstruction, shear bijections T × G ≅ T × T and Koszul-signed Leibniz rules separating T^2 from S^1 ∨ S^1 ∨ S^2
+
+| Symbol | Package | Kind |
+|---|---|---|
+| `InternalGroupTorsor` | topos | struct |
+| `InternalGroupTorsor.action` | topos | field |
+| `InternalGroupTorsor.carrier` | topos | field |
+| `InternalGroupTorsor.group_elems` | topos | field |
+| `InternalGroupTorsor.site` | topos | field |
+| `SubtoposComplementReport` | topos | struct |
+| `SubtoposComplementReport.closed_lt_valid` | topos | field |
+| `SubtoposComplementReport.internal_lem_holds` | topos | field |
+| `SubtoposComplementReport.join_is_inconsistent` | topos | field |
+| `SubtoposComplementReport.meet_is_ambient` | topos | field |
+| `SubtoposComplementReport.open_lt_valid` | topos | field |
+| `SubtoposComplementReport.subtopos_boolean_complement_holds` | topos | field |
+| `SubtoposComplementReport::equal` | topos | function |
+| `SubtoposComplementReport::not_equal` | topos | function |
+| `SubtoposComplementReport::to_repr` | topos | function |
+| `build_mobius_internal_z2_torsor` | topos | function |
+| `closed_subtopos_lt_operator` | topos | function |
+| `induced_dense_subsite_topology` | topos | function |
+| `is_connected_essential_functor` | topos | function |
+| `is_internal_group_torsor_sheaf` | topos | function |
+| `open_subtopos_lt_operator` | topos | function |
+| `right_kan_presheaf` | topos | function |
+| `simplicial_cup_1_1` | topos | function |
+| `simplicial_cup_h1_h1_rank` | topos | function |
+| `topology_lattice_join` | topos | function |
+| `topology_lattice_meet` | topos | function |
+| `torus_t2_minimal_nerve` | topos | function |
+| `verify_alexander_whitney_leibniz` | topos | function |
+| `verify_essential_geometric_triple_adjunction` | topos | function |
+| `verify_grothendieck_comparison_lemma` | topos | function |
+| `verify_open_closed_subtopos_complementarity` | topos | function |
+| `wedge_s1_s1_s2_nerve` | topos | function |
+
+### Schemes: multivariate polynomials, reduced Gröbner normal forms and radical ideals
+
+- Canonical form: sparse canonical multivariate polynomials MPoly, monic interreduced Gröbner bases and standard-monomial quotient bases
+- Categorification: ideal calculus over Q[x_1,…,x_n] (sum, product, intersection, colon quotient, saturation, elimination and radical)
+- Decision: Buchberger's S-polynomial algorithm, unique multivariate normal-form remainders, Rabinowitsch radical membership and Hilbert–Krull dimension
+
+| Symbol | Package | Kind |
+|---|---|---|
+| `Ideal` | scheme | struct |
+| `Ideal.nvars` | scheme | field |
+| `Ideal.rgb` | scheme | field |
+| `Ideal::equal` | scheme | function |
+| `Ideal::not_equal` | scheme | function |
+| `Ideal::to_repr` | scheme | function |
+| `MPoly` | scheme | struct |
+| `MPoly.nvars` | scheme | field |
+| `MPoly.terms` | scheme | field |
+| `MPoly::equal` | scheme | function |
+| `MPoly::not_equal` | scheme | function |
+| `MPoly::to_repr` | scheme | function |
+| `MTerm` | scheme | struct |
+| `MTerm.coeff` | scheme | field |
+| `MTerm.exps` | scheme | field |
+| `MTerm::equal` | scheme | function |
+| `MTerm::not_equal` | scheme | function |
+| `MTerm::to_repr` | scheme | function |
+| `MonomialOrder` | scheme | enum |
+| `MonomialOrder::Elim` | scheme | constructor |
+| `MonomialOrder::GRevLex` | scheme | constructor |
+| `MonomialOrder::Lex` | scheme | constructor |
+| `MonomialOrder::equal` | scheme | function |
+| `MonomialOrder::not_equal` | scheme | function |
+| `MonomialOrder::to_repr` | scheme | function |
+| `ReducedGroebnerBasis` | scheme | struct |
+| `ReducedGroebnerBasis.gens` | scheme | field |
+| `ReducedGroebnerBasis.nvars` | scheme | field |
+| `ReducedGroebnerBasis.order` | scheme | field |
+| `ReducedGroebnerBasis::equal` | scheme | function |
+| `ReducedGroebnerBasis::not_equal` | scheme | function |
+| `ReducedGroebnerBasis::to_repr` | scheme | function |
+| `ideal_add` | scheme | function |
+| `ideal_contains` | scheme | function |
+| `ideal_eliminate_first_k` | scheme | function |
+| `ideal_eq` | scheme | function |
+| `ideal_intersect` | scheme | function |
+| `ideal_is_unit` | scheme | function |
+| `ideal_is_zero` | scheme | function |
+| `ideal_krull_dimension` | scheme | function |
+| `ideal_mul` | scheme | function |
+| `ideal_new` | scheme | function |
+| `ideal_normal_form` | scheme | function |
+| `ideal_quotient` | scheme | function |
+| `ideal_quotient_poly` | scheme | function |
+| `ideal_quotient_vector_space_dim` | scheme | function |
+| `ideal_radical` | scheme | function |
+| `ideal_radical_contains` | scheme | function |
+| `ideal_saturate` | scheme | function |
+| `ideal_standard_monomials` | scheme | function |
+| `ideal_subset` | scheme | function |
+| `monomial_cmp` | scheme | function |
+| `mpoly_add` | scheme | function |
+| `mpoly_const` | scheme | function |
+| `mpoly_dehomogenize` | scheme | function |
+| `mpoly_div_exact` | scheme | function |
+| `mpoly_eval` | scheme | function |
+| `mpoly_extend_vars` | scheme | function |
+| `mpoly_from_terms` | scheme | function |
+| `mpoly_int` | scheme | function |
+| `mpoly_is_zero` | scheme | function |
+| `mpoly_leading_term` | scheme | function |
+| `mpoly_monic` | scheme | function |
+| `mpoly_mul` | scheme | function |
+| `mpoly_neg` | scheme | function |
+| `mpoly_of_poly` | scheme | function |
+| `mpoly_partial_deriv` | scheme | function |
+| `mpoly_pow` | scheme | function |
+| `mpoly_reduce` | scheme | function |
+| `mpoly_scale` | scheme | function |
+| `mpoly_sub` | scheme | function |
+| `mpoly_subst` | scheme | function |
+| `mpoly_to_poly` | scheme | function |
+| `mpoly_to_qpoly_univariate` | scheme | function |
+| `mpoly_total_degree` | scheme | function |
+| `mpoly_var` | scheme | function |
+| `mpoly_zero` | scheme | function |
+| `qpoly_to_mpoly_var` | scheme | function |
+| `reduced_groebner_basis` | scheme | function |
+| `s_polynomial` | scheme | function |
+
+### Schemes: coordinate rings, Zariski sheafification, reduced schemes and quasi-coherent modules
+
+- Canonical form: normal-form quotient remainders modulo reduced Gröbner bases, localized principal-open sections a/f^m and radical ideals √I
+- Categorification: affine schemes Spec(Q[x]/I), Zariski structure sheaves O_X, associated reduced closed immersions X_red ↪ X and localized quasi-coherent modules
+- Decision: Zariski partition-of-unity cover tests 1 ∈ ⟨f_i⟩, compatible section gluing uniqueness, nilpotent witness search and reduced universal-property checks
+
+| Symbol | Package | Kind |
+|---|---|---|
+| `AffineScheme` | scheme | struct |
+| `AffineScheme.ring` | scheme | field |
+| `AffineScheme::equal` | scheme | function |
+| `AffineScheme::not_equal` | scheme | function |
+| `AffineScheme::to_repr` | scheme | function |
+| `CoordRing` | scheme | struct |
+| `CoordRing.ideal` | scheme | field |
+| `CoordRing.nvars` | scheme | field |
+| `CoordRing::equal` | scheme | function |
+| `CoordRing::not_equal` | scheme | function |
+| `CoordRing::to_repr` | scheme | function |
+| `LocalizedSection` | scheme | struct |
+| `LocalizedSection.den_base` | scheme | field |
+| `LocalizedSection.exp` | scheme | field |
+| `LocalizedSection.num` | scheme | field |
+| `LocalizedSection::equal` | scheme | function |
+| `LocalizedSection::not_equal` | scheme | function |
+| `LocalizedSection::to_repr` | scheme | function |
+| `QuasiCoherentModule` | scheme | struct |
+| `QuasiCoherentModule.ncols` | scheme | field |
+| `QuasiCoherentModule.nrows` | scheme | field |
+| `QuasiCoherentModule.rel_matrix` | scheme | field |
+| `QuasiCoherentModule.ring` | scheme | field |
+| `RingHom` | scheme | struct |
+| `RingHom.dst` | scheme | field |
+| `RingHom.src` | scheme | field |
+| `RingHom.var_images` | scheme | field |
+| `RingHom::equal` | scheme | function |
+| `RingHom::not_equal` | scheme | function |
+| `RingHom::to_repr` | scheme | function |
+| `affine_is_reduced` | scheme | function |
+| `affine_nilpotent_witness` | scheme | function |
+| `affine_reduction` | scheme | function |
+| `affine_scheme` | scheme | function |
+| `coord_ring_eq` | scheme | function |
+| `coord_ring_new` | scheme | function |
+| `coord_ring_nf` | scheme | function |
+| `glue_zariski_structure_sections` | scheme | function |
+| `is_zariski_open_cover` | scheme | function |
+| `localize_quasicoherent_module` | scheme | function |
+| `localized_section_eq` | scheme | function |
+| `principal_open_subset` | scheme | function |
+| `restrict_localized_section` | scheme | function |
+| `ring_hom_apply` | scheme | function |
+| `ring_hom_compose` | scheme | function |
+| `ring_hom_id` | scheme | function |
+| `ring_hom_is_surjective` | scheme | function |
+| `ring_hom_is_valid` | scheme | function |
+| `ring_hom_kernel` | scheme | function |
+| `solve_ideal_linear_combination` | scheme | function |
+| `verify_affine_reduction_universal_property` | scheme | function |
+
+### Schemes: glued schemes, scheme morphisms, affine morphisms and DVR properness
+
+- Canonical form: affine chart atlases (U_i, U_{ij}), chartwise pullback ring homomorphisms and truncated formal Laurent series in Q((t))
+- Categorification: glued schemes over Q (A^n, P^n, projective closed subschemes, A^2\0, doubled-origin line), fiber products, affine morphisms and diagonal immersions Δ_X
+- Decision: cocycle gluing coherence, chart-local affine preimage tests, diagonal closed-immersion separatedness and the Q[[t]] ⊂ Q((t)) DVR valuative criterion of properness
+
+| Symbol | Package | Kind |
+|---|---|---|
+| `ChartOverlap` | scheme | struct |
+| `ChartOverlap.from_i` | scheme | field |
+| `ChartOverlap.from_j` | scheme | field |
+| `ChartOverlap.is_empty` | scheme | field |
+| `ChartOverlap.ring` | scheme | field |
+| `ChartOverlap::equal` | scheme | function |
+| `ChartOverlap::not_equal` | scheme | function |
+| `ChartOverlap::to_repr` | scheme | function |
+| `LaurentSeries` | scheme | struct |
+| `LaurentSeries.coeffs` | scheme | field |
+| `LaurentSeries.prec` | scheme | field |
+| `LaurentSeries.val` | scheme | field |
+| `LaurentSeries::equal` | scheme | function |
+| `LaurentSeries::not_equal` | scheme | function |
+| `LaurentSeries::to_repr` | scheme | function |
+| `PropernessReport` | scheme | struct |
+| `PropernessReport.existence_holds` | scheme | field |
+| `PropernessReport.is_proper` | scheme | field |
+| `PropernessReport.is_separated` | scheme | field |
+| `PropernessReport.uniqueness_holds` | scheme | field |
+| `PropernessReport::equal` | scheme | function |
+| `PropernessReport::not_equal` | scheme | function |
+| `PropernessReport::to_repr` | scheme | function |
+| `Scheme` | scheme | struct |
+| `Scheme.charts` | scheme | field |
+| `Scheme.overlaps` | scheme | field |
+| `Scheme::equal` | scheme | function |
+| `Scheme::not_equal` | scheme | function |
+| `Scheme::to_repr` | scheme | function |
+| `SchemeMorphism` | scheme | struct |
+| `SchemeMorphism.chart_map` | scheme | field |
+| `SchemeMorphism.dst` | scheme | field |
+| `SchemeMorphism.ring_maps` | scheme | field |
+| `SchemeMorphism.src` | scheme | field |
+| `SchemeMorphism::equal` | scheme | function |
+| `SchemeMorphism::not_equal` | scheme | function |
+| `SchemeMorphism::to_repr` | scheme | function |
+| `affine_fiber_product` | scheme | function |
+| `analyze_scheme_properness` | scheme | function |
+| `global_sections_dimension_upto_deg` | scheme | function |
+| `is_affine_morphism` | scheme | function |
+| `is_proper_morphism` | scheme | function |
+| `is_proper_scheme` | scheme | function |
+| `is_separated_scheme` | scheme | function |
+| `laurent_add` | scheme | function |
+| `laurent_const` | scheme | function |
+| `laurent_inv` | scheme | function |
+| `laurent_is_integral_dvr` | scheme | function |
+| `laurent_is_zero` | scheme | function |
+| `laurent_monomial` | scheme | function |
+| `laurent_mul` | scheme | function |
+| `laurent_sub` | scheme | function |
+| `morphism_closed_immersion_in_projective_space` | scheme | function |
+| `morphism_hopf_punctured_plane_to_p1` | scheme | function |
+| `morphism_punctured_plane_to_a2` | scheme | function |
+| `morphism_to_spec_q` | scheme | function |
+| `mpoly_eval_laurent` | scheme | function |
+| `scheme_affine_space` | scheme | function |
+| `scheme_doubled_origin_line` | scheme | function |
+| `scheme_fat_point` | scheme | function |
+| `scheme_from_affine` | scheme | function |
+| `scheme_is_reduced` | scheme | function |
+| `scheme_is_valid` | scheme | function |
+| `scheme_morphism_compose` | scheme | function |
+| `scheme_morphism_is_valid` | scheme | function |
+| `scheme_projective_space` | scheme | function |
+| `scheme_projective_subscheme` | scheme | function |
+| `scheme_punctured_plane` | scheme | function |
+| `scheme_reduction` | scheme | function |
+| `valuative_extension_classes_for_arc` | scheme | function |
+
+### Schemes: rational equivalence, dualizing complexes, functor of points and motivic categorification
+
+- Canonical form: normalized Weil divisors and Chow classes CH^1(P^1), P^1/P^2/plane-curve Čech cohomology ranks, bihomogeneous correspondence ideals and finite-ring point sets
+- Categorification: principal divisor quotients, Grothendieck–Serre dualizing complexes ω_{P^1} ≅ O(-2)[1], ω_{P^2} ≅ O(-3)[2] and ω_C ≅ O_C(d-3)[1], Yoneda functors of points h_X : CRing → Set and multi-projective Gröbner Chow motives
+- Decision: explicit rational-equivalence witnesses f/g, local-multiplicity Bézout verification, Riemann–Roch & Grothendieck–Serre duality pairings, F_p[ε] Zariski tangent dimensions and 6-variable Gröbner saturation/elimination h(P^1) = 1 ⊕ L motivic splitting
+
+| Symbol | Package | Kind |
+|---|---|---|
+| `FiniteCommRing` | scheme | struct |
+| `FiniteCommRing.add_table` | scheme | field |
+| `FiniteCommRing.mul_table` | scheme | field |
+| `FiniteCommRing.neg_table` | scheme | field |
+| `FiniteCommRing.one` | scheme | field |
+| `FiniteCommRing.size` | scheme | field |
+| `FiniteCommRing.zero` | scheme | field |
+| `FiniteCommRing::equal` | scheme | function |
+| `FiniteCommRing::not_equal` | scheme | function |
+| `FiniteCommRing::to_repr` | scheme | function |
+| `FiniteRingHom` | scheme | struct |
+| `FiniteRingHom.dst` | scheme | field |
+| `FiniteRingHom.src` | scheme | field |
+| `FiniteRingHom.values` | scheme | field |
+| `FiniteRingHom::equal` | scheme | function |
+| `FiniteRingHom::not_equal` | scheme | function |
+| `FiniteRingHom::to_repr` | scheme | function |
+| `P1LineBundleCohomology` | scheme | struct |
+| `P1LineBundleCohomology.chi` | scheme | field |
+| `P1LineBundleCohomology.h0` | scheme | field |
+| `P1LineBundleCohomology.h1` | scheme | field |
+| `P1LineBundleCohomology.twist` | scheme | field |
+| `P1LineBundleCohomology::equal` | scheme | function |
+| `P1LineBundleCohomology::not_equal` | scheme | function |
+| `P1LineBundleCohomology::to_repr` | scheme | function |
+| `P2LineBundleCohomology` | scheme | struct |
+| `P2LineBundleCohomology.chi` | scheme | field |
+| `P2LineBundleCohomology.h0` | scheme | field |
+| `P2LineBundleCohomology.h1` | scheme | field |
+| `P2LineBundleCohomology.h2` | scheme | field |
+| `P2LineBundleCohomology.twist` | scheme | field |
+| `P2LineBundleCohomology::equal` | scheme | function |
+| `P2LineBundleCohomology::not_equal` | scheme | function |
+| `P2LineBundleCohomology::to_repr` | scheme | function |
+| `PlaneCurveDualizingReport` | scheme | struct |
+| `PlaneCurveDualizingReport.arithmetic_genus` | scheme | field |
+| `PlaneCurveDualizingReport.canonical_twist` | scheme | field |
+| `PlaneCurveDualizingReport.degree` | scheme | field |
+| `PlaneCurveDualizingReport.h0_oc` | scheme | field |
+| `PlaneCurveDualizingReport.h0_omega` | scheme | field |
+| `PlaneCurveDualizingReport.h1_oc` | scheme | field |
+| `PlaneCurveDualizingReport.h1_omega` | scheme | field |
+| `PlaneCurveDualizingReport.serre_duality_holds` | scheme | field |
+| `PlaneCurveDualizingReport::equal` | scheme | function |
+| `PlaneCurveDualizingReport::not_equal` | scheme | function |
+| `PlaneCurveDualizingReport::to_repr` | scheme | function |
+| `PrimeDivisorP1` | scheme | enum |
+| `PrimeDivisorP1::FiniteIrreducible` | scheme | constructor |
+| `PrimeDivisorP1::PointAtInfinity` | scheme | constructor |
+| `PrimeDivisorP1::equal` | scheme | function |
+| `PrimeDivisorP1::not_equal` | scheme | function |
+| `PrimeDivisorP1::to_repr` | scheme | function |
+| `WeilDivisorP1` | scheme | struct |
+| `WeilDivisorP1.terms` | scheme | field |
+| `WeilDivisorP1::equal` | scheme | function |
+| `WeilDivisorP1::not_equal` | scheme | function |
+| `WeilDivisorP1::to_repr` | scheme | function |
+| `are_rationally_equivalent_p1` | scheme | function |
+| `bezout_intersection_number_p2` | scheme | function |
+| `cech_cohomology_p1_line_bundle` | scheme | function |
+| `cech_cohomology_p2_line_bundle` | scheme | function |
+| `compose_p1_correspondences_groebner` | scheme | function |
+| `eval_affine_functor_of_points` | scheme | function |
+| `eval_scheme_functor_of_points` | scheme | function |
+| `fcomm_dual_numbers` | scheme | function |
+| `fcomm_fp` | scheme | function |
+| `fcomm_product` | scheme | function |
+| `finite_ring_hom_is_valid` | scheme | function |
+| `mpoly_eval_finite_ring` | scheme | function |
+| `p1_correspondence_bidegree` | scheme | function |
+| `plane_curve_dualizing_complex` | scheme | function |
+| `plane_curve_line_bundle_cohomology` | scheme | function |
+| `principal_divisor_p1` | scheme | function |
+| `pushforward_affine_point` | scheme | function |
+| `quasicoherent_fitting_ideal` | scheme | function |
+| `rational_equivalence_witness_p1` | scheme | function |
+| `verify_bezout_theorem_p2` | scheme | function |
+| `verify_motivic_p1_categorification` | scheme | function |
+| `verify_serre_duality_and_riemann_roch_p1` | scheme | function |
+| `verify_serre_duality_p2` | scheme | function |
+| `weil_divisor_p1_add` | scheme | function |
+| `weil_divisor_p1_degree` | scheme | function |
+| `weil_divisor_p1_normalize` | scheme | function |
+| `weil_divisor_p1_sub` | scheme | function |
+| `zariski_tangent_dimension_fp` | scheme | function |
+
+### Schemes: Round-2 structural derivations (Kähler differentials, étale criteria, Hilbert polynomials, blow-up desingularization and Frobenius descent)
+
+- Canonical form: Kähler presentation matrices Ω^1_{B/A}, zeroth Fitting and Jacobian minor ideals, symbolic Hilbert polynomials P_X(t) ∈ Q[t], two-chart strict-transform schemes and quadratic finite fields F_{p^2}
+- Categorification: relative Kähler differential modules and unramified/smooth/étale morphisms, Tjurina isolated-singularity algebras τ(X), arbitrary-codimension projective degree & arithmetic genus, Rees blow-up Bl_{(0,0)}(A^2) desingularization and Galois–Frobenius point-count descent
+- Decision: Fitting vanishing 1 ∈ Fitt_0(Ω^1) under localization, Macaulay initial-ideal inclusion-exclusion vs homogeneous monomial counts, Gröbner-saturated strict-transform smoothness & reduced vs non-reduced exceptional fibers, and F_3 ⊂ F_9 rational-point jump checks
+
+| Symbol | Package | Kind |
+|---|---|---|
+| `PlaneCurveBlowupReport` | scheme | struct |
+| `PlaneCurveBlowupReport.exceptional_fiber_is_reduced` | scheme | field |
+| `PlaneCurveBlowupReport.exceptional_fiber_length` | scheme | field |
+| `PlaneCurveBlowupReport.origin_was_singular` | scheme | field |
+| `PlaneCurveBlowupReport.strict_transform` | scheme | field |
+| `PlaneCurveBlowupReport.strict_transform_is_smooth` | scheme | field |
+| `ProjectiveHilbertReport` | scheme | struct |
+| `ProjectiveHilbertReport.ambient_dim` | scheme | field |
+| `ProjectiveHilbertReport.arithmetic_genus` | scheme | field |
+| `ProjectiveHilbertReport.degree` | scheme | field |
+| `ProjectiveHilbertReport.hilbert_poly` | scheme | field |
+| `ProjectiveHilbertReport.matches_hilbert_function` | scheme | field |
+| `ProjectiveHilbertReport.projective_dim` | scheme | field |
+| `affine_is_smooth` | scheme | function |
+| `affine_jacobian_ideal` | scheme | function |
+| `affine_kahler_differentials` | scheme | function |
+| `affine_singular_locus_ideal` | scheme | function |
+| `affine_tjurina_number` | scheme | function |
+| `blowup_plane_curve_at_origin` | scheme | function |
+| `fcomm_fp2` | scheme | function |
+| `is_etale_ring_hom_between_smooth` | scheme | function |
+| `is_unramified_ring_hom` | scheme | function |
+| `kahler_differentials_module` | scheme | function |
+| `projective_hilbert_function` | scheme | function |
+| `projective_hilbert_report` | scheme | function |
+| `quasicoherent_fitting_zero_ideal` | scheme | function |
+| `quasicoherent_module_is_zero` | scheme | function |
+| `verify_weil_zeta_and_galois_frobenius_descent` | scheme | function |
+
+### Six-pillar grand unification: logical theory translations and geometry-logic correspondence atlas
+
+- Canonical form: cross-pillar normal forms, translated geometric formulas/ideals and the 18-entry fine-grained geometry-logic correspondence atlas
+- Categorification: Glivenko ¬¬ dense Boolean subtoposes, Stone–Zariski classifying dualities, Kapranov tropical valuations, quadratic étale torsor Galois bridges, subtopos/blow-up excision bridges and the S^1/P^1/Galois/motivic six-pillar synthesis
+- Decision: cross-pillar semantic preservation, non-tautological witness/contrast pairs and live verification of all 30 unified certificates
+
+| Symbol | Package | Kind |
+|---|---|---|
+| `FederationDescriptor` | bridge | struct |
+| `FederationDescriptor.canonical_normal_form` | bridge | field |
+| `FederationDescriptor.categorification_role` | bridge | field |
+| `FederationDescriptor.id` | bridge | field |
+| `FederationDescriptor.live_health_ok` | bridge | field |
+| `FederationDescriptor.packages` | bridge | field |
+| `FederationDescriptor.slug` | bridge | field |
+| `FederationDescriptor.summary` | bridge | field |
+| `FederationDescriptor::equal` | bridge | function |
+| `FederationDescriptor::not_equal` | bridge | function |
+| `FederationDescriptor::to_repr` | bridge | function |
+| `FederationId` | bridge | enum |
+| `FederationId::Cubical` | bridge | constructor |
+| `FederationId::Scheme` | bridge | constructor |
+| `FederationId::Semiring` | bridge | constructor |
+| `FederationId::Symlib` | bridge | constructor |
+| `FederationId::Topos` | bridge | constructor |
+| `FederationId::equal` | bridge | function |
+| `FederationId::not_equal` | bridge | function |
+| `FederationId::to_repr` | bridge | function |
+| `FederationPairBridge` | bridge | struct |
+| `FederationPairBridge.bridge_theorem` | bridge | field |
+| `FederationPairBridge.holds` | bridge | field |
+| `FederationPairBridge.id` | bridge | field |
+| `FederationPairBridge.lhs` | bridge | field |
+| `FederationPairBridge.quantitative_witness` | bridge | field |
+| `FederationPairBridge.rhs` | bridge | field |
+| `FederationPairBridge::equal` | bridge | function |
+| `FederationPairBridge::not_equal` | bridge | function |
+| `FederationPairBridge::to_repr` | bridge | function |
+| `GeometryLogicAtlasEntry` | bridge | struct |
+| `GeometryLogicAtlasEntry.contrast_holds` | bridge | field |
+| `GeometryLogicAtlasEntry.correspondence_theorem` | bridge | field |
+| `GeometryLogicAtlasEntry.domain` | bridge | field |
+| `GeometryLogicAtlasEntry.geometric_structure` | bridge | field |
+| `GeometryLogicAtlasEntry.id` | bridge | field |
+| `GeometryLogicAtlasEntry.logical_counterpart` | bridge | field |
+| `GeometryLogicAtlasEntry.quantitative_summary` | bridge | field |
+| `GeometryLogicAtlasEntry.witness_holds` | bridge | field |
+| `GeometryLogicAtlasEntry::equal` | bridge | function |
+| `GeometryLogicAtlasEntry::not_equal` | bridge | function |
+| `GeometryLogicAtlasEntry::to_repr` | bridge | function |
+| `GrandUnificationReport` | bridge | struct |
+| `GrandUnificationReport.all_ok` | bridge | field |
+| `GrandUnificationReport.atlas_verified_count` | bridge | field |
+| `GrandUnificationReport.federations_verified_count` | bridge | field |
+| `GrandUnificationReport.five_federation_pentagon_ok` | bridge | field |
+| `GrandUnificationReport.five_federations_ok` | bridge | field |
+| `GrandUnificationReport.geometry_logic_atlas_ok` | bridge | field |
+| `GrandUnificationReport.k5_bridges_verified_count` | bridge | field |
+| `GrandUnificationReport.k5_pairwise_bridges_ok` | bridge | field |
+| `GrandUnificationReport.logic_translation_ok` | bridge | field |
+| `GrandUnificationReport.six_pillar_circle_sphere_ok` | bridge | field |
+| `GrandUnificationReport.total_certificates_count` | bridge | field |
+| `GrandUnificationReport.total_certificates_passed` | bridge | field |
+| `GrandUnificationReport::equal` | bridge | function |
+| `GrandUnificationReport::not_equal` | bridge | function |
+| `GrandUnificationReport::to_repr` | bridge | function |
+| `build_cchm_interval_classifying_topos` | bridge | function |
+| `build_fine_grained_geometry_logic_atlas` | bridge | function |
+| `five_federation_descriptors` | bridge | function |
+| `glivenko_double_negation_formula` | bridge | function |
+| `grand_unification_certificates` | bridge | function |
+| `run_grand_unification_system` | bridge | function |
+| `translate_coord_ring_to_zariski_theory` | bridge | function |
+| `translate_cubical_dim_to_mpoly` | bridge | function |
+| `translate_cubical_dterm_to_geo_formula` | bridge | function |
+| `translate_cubical_face_to_geo_formula` | bridge | function |
+| `translate_cubical_face_to_zariski_ideal` | bridge | function |
+| `translate_sexpr_to_geo_formula` | bridge | function |
+| `verify_cubical_algebra_scheme_bridge` | bridge | function |
+| `verify_dependent_cubical_topos_bridge` | bridge | function |
+| `verify_excision_subtopos_blowup_bridge` | bridge | function |
+| `verify_five_federation_pentagon_unification` | bridge | function |
+| `verify_geometry_logic_atlas` | bridge | function |
+| `verify_glivenko_topos_subtopos_bridge` | bridge | function |
+| `verify_k5_federation_bridges` | bridge | function |
+| `verify_kapranov_tropical_laurent_bridge` | bridge | function |
+| `verify_quadratic_etale_torsor_galois_bridge` | bridge | function |
+| `verify_quaternary_normal_forms` | bridge | function |
+| `verify_semiring_kleene_alexandroff_topos_bridge` | bridge | function |
+| `verify_six_pillar_circle_sphere_unification` | bridge | function |
+| `verify_symlib_galois_topos_bridge` | bridge | function |
+| `verify_symlib_symmetric_scheme_bridge` | bridge | function |
+| `verify_zariski_topos_invariance_vs_nilpotent_points` | bridge | function |
 <!-- APPENDIX:END -->

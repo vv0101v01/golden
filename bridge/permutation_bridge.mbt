@@ -198,6 +198,12 @@ pub fn check_perm_wiring_bridge() -> Bool {
     return false
   }
   for p in all {
+    let pm = permutation_matrix(p)
+    let p_inv_m = permutation_matrix(p.inverse())
+    if !@cub.mat_approx_eq(@cub.mat_adjoint(pm), p_inv_m) ||
+      !@cub.mat_approx_eq(@cub.mat_mul(pm, p_inv_m), @cub.mat_identity(4)) {
+      return false
+    }
     let w = perm_wiring(p)
     if !@cub.wiring_wf(w) {
       return false

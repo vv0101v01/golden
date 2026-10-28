@@ -1512,6 +1512,1298 @@ pub fn face_cdcl_drup_check(
 }
 
 ///|
+pub struct FaceDrupTrimReport {
+  valid : Bool
+  original_steps : Int32
+  trimmed_steps : Int32
+  steps : Array[FaceCdclProofStep]
+}
+
+///|
+fn cdcl_clause_is_tautology(clause : Array[Int32]) -> Bool {
+  for i in 0..<clause.length() {
+    for j in (i + 1)..<clause.length() {
+      if clause[i] == 0 - clause[j] {
+        return true
+      }
+    }
+  }
+  false
+}
+
+///|
+/// Check a DRAT (Delete Resolution Asymmetric Tautology) proof over
+/// the evolving active clause database.  Each `CdclProofAdd(C)` step
+/// must either be RUP, or be RAT on its leading pivot literal `C[0]`
+/// (for every active clause `D` containing `-C[0]`, the resolvent
+/// `C ∪ (D \ {-C[0]})` is tautological or RUP).  Deletions follow
+/// literal-set identity, and the final step must be `CdclProofAdd([])`.
+pub fn face_cdcl_drat_check(
+  original_clauses : Array[Array[Int32]],
+  proof_steps : Array[FaceCdclProofStep],
+) -> Bool {
+  if proof_steps.length() == 0 {
+    return false
+  }
+  match proof_steps[proof_steps.length() - 1] {
+    CdclProofAdd(clause) => if clause.length() != 0 { return false }
+    CdclProofDelete(_) => return false
+  }
+  let max_var = cdcl_drup_max_var(original_clauses, proof_steps)
+  let mut active : Array[Array[Int32]] = []
+  for ci in 0..<original_clauses.length() {
+    active.push(original_clauses[ci])
+  }
+  for si in 0..<proof_steps.length() {
+    match proof_steps[si] {
+      CdclProofAdd(clause) => {
+        if clause.length() == 0 && si != proof_steps.length() - 1 {
+          return false
+        }
+        for i in 0..<clause.length() {
+          if clause[i] == 0 {
+            return false
+          }
+        }
+        if cdcl_clause_is_tautology(clause) {
+          active.push(clause)
+          continue
+        }
+        let assumptions : Array[Int32] = []
+        for i in 0..<clause.length() {
+          assumptions.push(0 - clause[i])
+        }
+        let mut accepted = cdcl_proof_up_conflict(active, assumptions, max_var)
+        if !accepted && clause.length() > 0 {
+          let pivot = clause[0]
+          let neg_pivot = 0 - pivot
+          let mut rat_ok = true
+          for di in 0..<active.length() {
+            let d = active[di]
+            if !cdcl_clause_contains(d, neg_pivot) {
+              continue
+            }
+            let resolvent : Array[Int32] = []
+            for i in 0..<clause.length() {
+              if !cdcl_clause_contains(resolvent, clause[i]) {
+                resolvent.push(clause[i])
+              }
+            }
+            for i in 0..<d.length() {
+              if d[i] != neg_pivot && !cdcl_clause_contains(resolvent, d[i]) {
+                resolvent.push(d[i])
+              }
+            }
+            if cdcl_clause_is_tautology(resolvent) {
+              continue
+            }
+            let res_assump : Array[Int32] = []
+            for i in 0..<resolvent.length() {
+              res_assump.push(0 - resolvent[i])
+            }
+            if !cdcl_proof_up_conflict(active, res_assump, max_var) {
+              rat_ok = false
+              break
+            }
+          }
+          accepted = rat_ok
+        }
+        if !accepted {
+          return false
+        }
+        active.push(clause)
+      }
+      CdclProofDelete(clause) => {
+        for i in 0..<clause.length() {
+          if clause[i] == 0 {
+            return false
+          }
+        }
+        let mut found = -1
+        for ci in 0..<active.length() {
+          if cdcl_clause_set_equal(active[ci], clause) {
+            found = ci
+            break
+          }
+        }
+        if found < 0 {
+          return false
+        }
+        let next : Array[Array[Int32]] = []
+        for ci in 0..<active.length() {
+          if ci != found {
+            next.push(active[ci])
+          }
+        }
+        active = next
+      }
+    }
+  }
+  true
+}
+
+///|
+/// Reverse unit propagation returning a minimal topologically ordered
+/// sequence of active clause IDs (`hint_chain`) whose unit propagations
+/// end at a falsified conflict clause under `assumptions`.
+fn cdcl_up_conflict_ordered_chain(
+  active : Array[Array[Int32]],
+  active_ids : Array[Int32],
+  assumptions : Array[Int32],
+  max_var : Int32,
+) -> (Bool, Array[Int32]) {
+  let val_arr : Array[Int32] = []
+  let reason_slot : Array[Int32] = []
+  for _v in 0..<(max_var + 1) {
+    val_arr.push(0)
+    reason_slot.push(-1)
+  }
+  for i in 0..<assumptions.length() {
+    let lit = assumptions[i]
+    let v = cdcl_var_of(lit)
+    let sign = if lit > 0 { 1 } else { -1 }
+    if val_arr[v] == 0 - sign {
+      return (true, [])
+    }
+    if val_arr[v] == 0 {
+      val_arr[v] = sign
+    }
+  }
+  let prop_vars : Array[Int32] = []
+  let prop_slots : Array[Int32] = []
+  let mut conflict_slot = -1
+  let mut progress = true
+  while progress && conflict_slot < 0 {
+    progress = false
+    for ci in 0..<active.length() {
+      let c = active[ci]
+      let mut sat = false
+      let mut unassigned_count = 0
+      let mut last_lit = 0
+      for i in 0..<c.length() {
+        let lit = c[i]
+        let v = cdcl_var_of(lit)
+        let s = if lit > 0 { 1 } else { -1 }
+        if val_arr[v] == s {
+          sat = true
+          break
+        }
+        if val_arr[v] == 0 {
+          unassigned_count = unassigned_count + 1
+          last_lit = lit
+        }
+      }
+      if sat {
+        continue
+      }
+      if unassigned_count == 0 {
+        conflict_slot = ci
+        break
+      }
+      if unassigned_count == 1 {
+        let v = cdcl_var_of(last_lit)
+        val_arr[v] = if last_lit > 0 { 1 } else { -1 }
+        reason_slot[v] = prop_vars.length()
+        prop_vars.push(v)
+        prop_slots.push(ci)
+        progress = true
+      }
+    }
+  }
+  if conflict_slot < 0 {
+    return (false, [])
+  }
+  let needed_var : Array[Bool] = []
+  for _v in 0..<(max_var + 1) {
+    needed_var.push(false)
+  }
+  let needed_prop : Array[Bool] = []
+  for _p in 0..<prop_vars.length() {
+    needed_prop.push(false)
+  }
+  let conf_c = active[conflict_slot]
+  for i in 0..<conf_c.length() {
+    needed_var[cdcl_var_of(conf_c[i])] = true
+  }
+  let mut pi = prop_vars.length() - 1
+  while pi >= 0 {
+    let v = prop_vars[pi]
+    if needed_var[v] {
+      needed_prop[pi] = true
+      let rc = active[prop_slots[pi]]
+      for j in 0..<rc.length() {
+        needed_var[cdcl_var_of(rc[j])] = true
+      }
+    }
+    pi = pi - 1
+  }
+  let chain : Array[Int32] = []
+  for i in 0..<prop_vars.length() {
+    if needed_prop[i] {
+      let cid = active_ids[prop_slots[i]]
+      if cid >= 0 {
+        chain.push(cid)
+      }
+    }
+  }
+  let conf_id = active_ids[conflict_slot]
+  if conf_id >= 0 {
+    chain.push(conf_id)
+  }
+  (true, chain)
+}
+
+///|
+/// Backward conflict-core trimming of a DRUP proof: replays unit
+/// propagation while recording propagation-reason dependencies, marks
+/// only additions reachable from the final empty clause, and emits an
+/// audited core proof verified by `face_cdcl_drup_check`.
+pub fn face_cdcl_drup_trim(
+  original_clauses : Array[Array[Int32]],
+  proof_steps : Array[FaceCdclProofStep],
+) -> FaceDrupTrimReport {
+  if !face_cdcl_drup_check(original_clauses, proof_steps) {
+    return FaceDrupTrimReport::{
+      valid: false,
+      original_steps: proof_steps.length(),
+      trimmed_steps: 0,
+      steps: [],
+    }
+  }
+  let max_var = cdcl_drup_max_var(original_clauses, proof_steps)
+  let mut active : Array[Array[Int32]] = []
+  let mut active_ids : Array[Int32] = []
+  for ci in 0..<original_clauses.length() {
+    active.push(original_clauses[ci])
+    active_ids.push(-1)
+  }
+  let step_deps : Array[Array[Int32]] = []
+  for si in 0..<proof_steps.length() {
+    match proof_steps[si] {
+      CdclProofAdd(clause) => {
+        let assumptions : Array[Int32] = []
+        for i in 0..<clause.length() {
+          assumptions.push(0 - clause[i])
+        }
+        let (ok, deps) = cdcl_up_conflict_ordered_chain(
+          active, active_ids, assumptions, max_var,
+        )
+        if !ok {
+          return FaceDrupTrimReport::{
+            valid: false,
+            original_steps: proof_steps.length(),
+            trimmed_steps: 0,
+            steps: [],
+          }
+        }
+        step_deps.push(deps)
+        active.push(clause)
+        active_ids.push(si)
+      }
+      CdclProofDelete(clause) => {
+        step_deps.push([])
+        let mut found = -1
+        for ci in 0..<active.length() {
+          if cdcl_clause_set_equal(active[ci], clause) {
+            found = ci
+            break
+          }
+        }
+        if found >= 0 {
+          let next_c : Array[Array[Int32]] = []
+          let next_id : Array[Int32] = []
+          for ci in 0..<active.length() {
+            if ci != found {
+              next_c.push(active[ci])
+              next_id.push(active_ids[ci])
+            }
+          }
+          active = next_c
+          active_ids = next_id
+        }
+      }
+    }
+  }
+  let needed : Array[Bool] = []
+  for _si in 0..<proof_steps.length() {
+    needed.push(false)
+  }
+  needed[proof_steps.length() - 1] = true
+  let mut idx = proof_steps.length() - 1
+  while idx >= 0 {
+    if needed[idx] {
+      let deps = step_deps[idx]
+      for i in 0..<deps.length() {
+        let d = deps[i]
+        if d >= 0 && d < idx {
+          needed[d] = true
+        }
+      }
+    }
+    idx = idx - 1
+  }
+  let trimmed : Array[FaceCdclProofStep] = []
+  for si in 0..<proof_steps.length() {
+    if needed[si] {
+      match proof_steps[si] {
+        CdclProofAdd(c) => trimmed.push(CdclProofAdd(c))
+        CdclProofDelete(_) => ()
+      }
+    }
+  }
+  let ok = face_cdcl_drup_check(original_clauses, trimmed)
+  FaceDrupTrimReport::{
+    valid: ok,
+    original_steps: proof_steps.length(),
+    trimmed_steps: trimmed.length(),
+    steps: if ok {
+      trimmed
+    } else {
+      []
+    },
+  }
+}
+
+///|
+/// Indexed LRAT (Linear Resolution Asymmetric Tautology) proof step:
+/// - `LratAdd(clause_id, literals, rup_hints, rat_hints)`: introduces a
+///   clause at strictly increasing `clause_id` (`> original_clauses.length()`),
+///   justified either by an explicit topological unit-propagation chain
+///   `rup_hints` or (when `rup_hints` is empty and `literals` is non-empty)
+///   by RAT resolution chains `(neg_pivot_clause_id, sub_hints)` on pivot
+///   `literals[0]`.
+/// - `LratDelete(step_id, deleted_clause_ids)`: deletes active clauses in
+///   `O(1)` per ID without literal-set scanning.
+pub(all) enum FaceLratStep {
+  LratAdd(
+    Int32,
+    Array[Int32],
+    Array[Int32],
+    Array[(Int32, Array[Int32])]
+  )
+  LratDelete(Int32, Array[Int32])
+} derive(Debug, Eq)
+
+///|
+pub extend FaceLratStep with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend FaceLratStep with Eq::{not_equal, equal}
+
+///|
+pub(all) struct FaceLratElaborateReport {
+  valid : Bool
+  original_clauses : Int32
+  input_steps : Int32
+  lrat_adds : Int32
+  lrat_deletes : Int32
+  total_hints : Int32
+  steps : Array[FaceLratStep]
+} derive(Debug, Eq)
+
+///|
+pub extend FaceLratElaborateReport with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend FaceLratElaborateReport with Eq::{not_equal, equal}
+
+///|
+fn lrat_lit_index(lit : Int32) -> Int32 {
+  let v = cdcl_var_of(lit)
+  if lit > 0 {
+    2 * v
+  } else {
+    2 * v + 1
+  }
+}
+
+///|
+/// Zero-search linear-time LRAT proof checker.
+///
+/// Original CNF clauses receive 1-based IDs `1 .. M` (`M = original_clauses.length()`).
+/// Every `LratAdd` RUP step is verified solely by stepping through its
+/// `rup_hints` array: each hinted clause must be active, non-satisfied,
+/// and have at most one unassigned literal (`1` propagates; `0` must
+/// occur on the final hint as the falsified conflict clause).  Any hint
+/// with `>= 2` unassigned literals, an already-satisfied literal, an
+/// inactive/deleted ID, or trailing hints after conflict is immediately
+/// rejected without searching the active database.  Pure RAT steps verify
+/// exhaustive coverage of active `-pivot` clauses via per-literal
+/// occurrence lists plus zero-search RUP verification of each resolvent.
+pub fn face_cdcl_lrat_check(
+  original_clauses : Array[Array[Int32]],
+  lrat_steps : Array[FaceLratStep],
+) -> Bool {
+  if lrat_steps.length() == 0 {
+    return false
+  }
+  match lrat_steps[lrat_steps.length() - 1] {
+    LratAdd(_, clause, _, _) => if clause.length() != 0 { return false }
+    LratDelete(_, _) => return false
+  }
+  let orig_count = original_clauses.length()
+  let mut max_id = orig_count
+  let mut max_var = 0
+  for ci in 0..<orig_count {
+    let c = original_clauses[ci]
+    for j in 0..<c.length() {
+      let lit = c[j]
+      if lit == 0 {
+        return false
+      }
+      let v = cdcl_var_of(lit)
+      if v > max_var {
+        max_var = v
+      }
+    }
+  }
+  let mut prev_id = orig_count
+  for si in 0..<lrat_steps.length() {
+    match lrat_steps[si] {
+      LratAdd(cid, clause, _, _) => {
+        if cid <= prev_id {
+          return false
+        }
+        if clause.length() == 0 && si != lrat_steps.length() - 1 {
+          return false
+        }
+        for j in 0..<clause.length() {
+          let lit = clause[j]
+          if lit == 0 {
+            return false
+          }
+          let v = cdcl_var_of(lit)
+          if v > max_var {
+            max_var = v
+          }
+        }
+        prev_id = cid
+        if cid > max_id {
+          max_id = cid
+        }
+      }
+      LratDelete(sid, del_ids) => {
+        if sid < prev_id || del_ids.length() == 0 {
+          return false
+        }
+        prev_id = sid
+        if sid > max_id {
+          max_id = sid
+        }
+      }
+    }
+  }
+
+  let clauses_by_id : Array[Array[Int32]] = []
+  let is_active : Array[Bool] = []
+  for _i in 0..<(max_id + 1) {
+    clauses_by_id.push([])
+    is_active.push(false)
+  }
+  let occ : Array[Array[Int32]] = []
+  for _li in 0..<(2 * max_var + 2) {
+    occ.push([])
+  }
+  let register_clause = (cid : Int32, c : Array[Int32]) => {
+    clauses_by_id[cid] = c
+    is_active[cid] = true
+    for j in 0..<c.length() {
+      let li = lrat_lit_index(c[j])
+      if !cdcl_clause_contains(occ[li], cid) {
+        occ[li].push(cid)
+      }
+    }
+  }
+  for ci in 0..<orig_count {
+    register_clause(ci + 1, original_clauses[ci])
+  }
+
+  let val_arr : Array[Int32] = []
+  for _v in 0..<(max_var + 1) {
+    val_arr.push(0)
+  }
+  let touched : Array[Int32] = []
+  let reset_touched = () => {
+    while touched.length() > 0 {
+      let v = touched[touched.length() - 1]
+      let _ = touched.pop()
+      val_arr[v] = 0
+    }
+  }
+
+  let verify_hint_chain = (
+    assumptions : Array[Int32],
+    hints : Array[Int32],
+  ) => {
+    let mut trivial_conflict = false
+    for i in 0..<assumptions.length() {
+      let lit = assumptions[i]
+      let v = cdcl_var_of(lit)
+      let s = if lit > 0 { 1 } else { -1 }
+      if val_arr[v] == 0 - s {
+        trivial_conflict = true
+        break
+      }
+      if val_arr[v] == 0 {
+        val_arr[v] = s
+        touched.push(v)
+      }
+    }
+    if trivial_conflict {
+      reset_touched()
+      return hints.length() == 0
+    }
+    if hints.length() == 0 {
+      reset_touched()
+      return false
+    }
+    for hi in 0..<hints.length() {
+      let hid = hints[hi]
+      if hid <= 0 || hid > max_id || !is_active[hid] {
+        reset_touched()
+        return false
+      }
+      let c = clauses_by_id[hid]
+      let mut sat = false
+      let mut unassigned_count = 0
+      let mut last_lit = 0
+      for j in 0..<c.length() {
+        let lit = c[j]
+        let v = cdcl_var_of(lit)
+        let s = if lit > 0 { 1 } else { -1 }
+        if val_arr[v] == s {
+          sat = true
+          break
+        }
+        if val_arr[v] == 0 {
+          unassigned_count = unassigned_count + 1
+          last_lit = lit
+          if unassigned_count >= 2 {
+            break
+          }
+        }
+      }
+      if sat || unassigned_count >= 2 {
+        reset_touched()
+        return false
+      }
+      if unassigned_count == 0 {
+        reset_touched()
+        return hi == hints.length() - 1
+      }
+      // Exactly 1 unassigned literal: must propagate before final conflict hint.
+      if hi == hints.length() - 1 {
+        reset_touched()
+        return false
+      }
+      let pv = cdcl_var_of(last_lit)
+      val_arr[pv] = if last_lit > 0 { 1 } else { -1 }
+      touched.push(pv)
+    }
+    reset_touched()
+    false
+  }
+
+  for si in 0..<lrat_steps.length() {
+    match lrat_steps[si] {
+      LratAdd(cid, clause, rup_hints, rat_hints) => {
+        if cdcl_clause_is_tautology(clause) {
+          if rup_hints.length() != 0 || rat_hints.length() != 0 {
+            return false
+          }
+          register_clause(cid, clause)
+          continue
+        }
+        if rup_hints.length() > 0 || rat_hints.length() == 0 {
+          if rat_hints.length() != 0 {
+            return false
+          }
+          let assump : Array[Int32] = []
+          for j in 0..<clause.length() {
+            assump.push(0 - clause[j])
+          }
+          if !verify_hint_chain(assump, rup_hints) {
+            return false
+          }
+          register_clause(cid, clause)
+        } else {
+          // Pure RAT step on leading literal `clause[0]`.
+          if clause.length() == 0 {
+            return false
+          }
+          let pivot = clause[0]
+          let neg_pivot = 0 - pivot
+          let seen_rat_ids : Array[Int32] = []
+          for ri in 0..<rat_hints.length() {
+            let (dcid, sub_hints) = rat_hints[ri]
+            if dcid <= 0 ||
+              dcid > max_id ||
+              !is_active[dcid] ||
+              cdcl_clause_contains(seen_rat_ids, dcid) {
+              return false
+            }
+            let d = clauses_by_id[dcid]
+            if !cdcl_clause_contains(d, neg_pivot) {
+              return false
+            }
+            seen_rat_ids.push(dcid)
+            let resolvent : Array[Int32] = []
+            for j in 0..<clause.length() {
+              if !cdcl_clause_contains(resolvent, clause[j]) {
+                resolvent.push(clause[j])
+              }
+            }
+            for j in 0..<d.length() {
+              if d[j] != neg_pivot && !cdcl_clause_contains(resolvent, d[j]) {
+                resolvent.push(d[j])
+              }
+            }
+            if cdcl_clause_is_tautology(resolvent) {
+              if sub_hints.length() != 0 {
+                return false
+              }
+            } else {
+              let res_assump : Array[Int32] = []
+              for j in 0..<resolvent.length() {
+                res_assump.push(0 - resolvent[j])
+              }
+              if !verify_hint_chain(res_assump, sub_hints) {
+                return false
+              }
+            }
+          }
+          // Verify that no active clause containing `-pivot` with a
+          // non-tautological resolvent was omitted from `rat_hints`.
+          let neg_list = occ[lrat_lit_index(neg_pivot)]
+          for oi in 0..<neg_list.length() {
+            let ocid = neg_list[oi]
+            if !is_active[ocid] || cdcl_clause_contains(seen_rat_ids, ocid) {
+              continue
+            }
+            let d = clauses_by_id[ocid]
+            let resolvent : Array[Int32] = []
+            for j in 0..<clause.length() {
+              if !cdcl_clause_contains(resolvent, clause[j]) {
+                resolvent.push(clause[j])
+              }
+            }
+            for j in 0..<d.length() {
+              if d[j] != neg_pivot && !cdcl_clause_contains(resolvent, d[j]) {
+                resolvent.push(d[j])
+              }
+            }
+            if !cdcl_clause_is_tautology(resolvent) {
+              return false
+            }
+          }
+          register_clause(cid, clause)
+        }
+      }
+      LratDelete(_, del_ids) =>
+        for di in 0..<del_ids.length() {
+          let did = del_ids[di]
+          if did <= 0 || did > max_id || !is_active[did] {
+            return false
+          }
+          is_active[did] = false
+        }
+    }
+  }
+  true
+}
+
+///|
+/// Elaborate any valid DRUP or DRAT proof into a backward-trimmed,
+/// deletion-scheduled indexed LRAT proof, and self-audit the result via
+/// `face_cdcl_lrat_check`.
+///
+/// NOTE: For pure RAT steps (`rup_hints == []`), deleting an active
+/// clause earlier than in the source proof could introduce *fewer* `-pivot`
+/// obligations, which is sound, whereas keeping extra active `-pivot`
+/// clauses not present in the source proof could break a later RAT step!
+/// Therefore:
+/// - If the proof contains any pure RAT step, we preserve source deletions
+///   faithfully (emitting `LratDelete` at exact deletion points) while
+///   annotating every step with exact ordered unit-propagation hint chains.
+/// - On pure DRUP proofs (such as all CDCL refutations), we perform full
+///   backward dependency-core trimming AND emit scheduled `LratDelete`
+///   steps immediately after each clause's final reference!
+pub fn face_cdcl_elaborate_lrat(
+  original_clauses : Array[Array[Int32]],
+  proof_steps : Array[FaceCdclProofStep],
+) -> FaceLratElaborateReport {
+  let orig_count = original_clauses.length()
+  let fail_rep = FaceLratElaborateReport::{
+    valid: false,
+    original_clauses: orig_count,
+    input_steps: proof_steps.length(),
+    lrat_adds: 0,
+    lrat_deletes: 0,
+    total_hints: 0,
+    steps: [],
+  }
+  if proof_steps.length() == 0 {
+    return fail_rep
+  }
+  match proof_steps[proof_steps.length() - 1] {
+    CdclProofAdd(c) => if c.length() != 0 { return fail_rep }
+    CdclProofDelete(_) => return fail_rep
+  }
+  let max_var = cdcl_drup_max_var(original_clauses, proof_steps)
+  let mut active : Array[Array[Int32]] = []
+  let mut active_ids : Array[Int32] = []
+  for ci in 0..<orig_count {
+    for j in 0..<original_clauses[ci].length() {
+      if original_clauses[ci][j] == 0 {
+        return fail_rep
+      }
+    }
+    active.push(original_clauses[ci])
+    active_ids.push(ci + 1)
+  }
+
+  let raw_is_add : Array[Bool] = []
+  let raw_cid : Array[Int32] = []
+  let raw_clause : Array[Array[Int32]] = []
+  let raw_rup : Array[Array[Int32]] = []
+  let raw_rat : Array[Array[(Int32, Array[Int32])]] = []
+  let raw_del : Array[Int32] = []
+  let mut next_cid = orig_count + 1
+  let mut has_rat_step = false
+
+  for si in 0..<proof_steps.length() {
+    match proof_steps[si] {
+      CdclProofAdd(clause) => {
+        if clause.length() == 0 && si != proof_steps.length() - 1 {
+          return fail_rep
+        }
+        for j in 0..<clause.length() {
+          if clause[j] == 0 {
+            return fail_rep
+          }
+        }
+        let cid = next_cid
+        next_cid = next_cid + 1
+        if cdcl_clause_is_tautology(clause) {
+          raw_is_add.push(true)
+          raw_cid.push(cid)
+          raw_clause.push(clause)
+          raw_rup.push([])
+          raw_rat.push([])
+          raw_del.push(-1)
+          active.push(clause)
+          active_ids.push(cid)
+          continue
+        }
+        let assump : Array[Int32] = []
+        for j in 0..<clause.length() {
+          assump.push(0 - clause[j])
+        }
+        let (rup_ok, rup_chain) = cdcl_up_conflict_ordered_chain(
+          active, active_ids, assump, max_var,
+        )
+        if rup_ok {
+          raw_is_add.push(true)
+          raw_cid.push(cid)
+          raw_clause.push(clause)
+          raw_rup.push(rup_chain)
+          raw_rat.push([])
+          raw_del.push(-1)
+          active.push(clause)
+          active_ids.push(cid)
+        } else {
+          if clause.length() == 0 {
+            return fail_rep
+          }
+          has_rat_step = true
+          let pivot = clause[0]
+          let neg_pivot = 0 - pivot
+          let rat_pairs : Array[(Int32, Array[Int32])] = []
+          for di in 0..<active.length() {
+            let d = active[di]
+            if !cdcl_clause_contains(d, neg_pivot) {
+              continue
+            }
+            let resolvent : Array[Int32] = []
+            for j in 0..<clause.length() {
+              if !cdcl_clause_contains(resolvent, clause[j]) {
+                resolvent.push(clause[j])
+              }
+            }
+            for j in 0..<d.length() {
+              if d[j] != neg_pivot && !cdcl_clause_contains(resolvent, d[j]) {
+                resolvent.push(d[j])
+              }
+            }
+            if cdcl_clause_is_tautology(resolvent) {
+              continue
+            }
+            let res_assump : Array[Int32] = []
+            for j in 0..<resolvent.length() {
+              res_assump.push(0 - resolvent[j])
+            }
+            let (sub_ok, sub_chain) = cdcl_up_conflict_ordered_chain(
+              active, active_ids, res_assump, max_var,
+            )
+            if !sub_ok {
+              return fail_rep
+            }
+            rat_pairs.push((active_ids[di], sub_chain))
+          }
+          raw_is_add.push(true)
+          raw_cid.push(cid)
+          raw_clause.push(clause)
+          raw_rup.push([])
+          raw_rat.push(rat_pairs)
+          raw_del.push(-1)
+          active.push(clause)
+          active_ids.push(cid)
+        }
+      }
+      CdclProofDelete(clause) => {
+        for j in 0..<clause.length() {
+          if clause[j] == 0 {
+            return fail_rep
+          }
+        }
+        let mut found = -1
+        for ci in 0..<active.length() {
+          if cdcl_clause_set_equal(active[ci], clause) {
+            found = ci
+            break
+          }
+        }
+        if found < 0 {
+          return fail_rep
+        }
+        let dcid = active_ids[found]
+        let next_c : Array[Array[Int32]] = []
+        let next_id : Array[Int32] = []
+        for ci in 0..<active.length() {
+          if ci != found {
+            next_c.push(active[ci])
+            next_id.push(active_ids[ci])
+          }
+        }
+        active = next_c
+        active_ids = next_id
+        raw_is_add.push(false)
+        raw_cid.push(next_cid - 1)
+        raw_clause.push([])
+        raw_rup.push([])
+        raw_rat.push([])
+        raw_del.push(dcid)
+      }
+    }
+  }
+
+  let out_steps : Array[FaceLratStep] = []
+  let mut add_count = 0
+  let mut del_count = 0
+  let mut hint_count = 0
+
+  if has_rat_step {
+    for si in 0..<raw_is_add.length() {
+      if raw_is_add[si] {
+        add_count = add_count + 1
+        hint_count = hint_count + raw_rup[si].length()
+        for ri in 0..<raw_rat[si].length() {
+          hint_count = hint_count + raw_rat[si][ri].1.length()
+        }
+        out_steps.push(
+          LratAdd(raw_cid[si], raw_clause[si], raw_rup[si], raw_rat[si]),
+        )
+      } else {
+        del_count = del_count + 1
+        out_steps.push(LratDelete(raw_cid[si], [raw_del[si]]))
+      }
+    }
+  } else {
+    // Pure DRUP proof: backward conflict-core trim + compact ID renumbering
+    // + automatic last-use `LratDelete` scheduling.
+    let step_by_cid : Array[Int32] = []
+    for _i in 0..<next_cid {
+      step_by_cid.push(-1)
+    }
+    for si in 0..<raw_is_add.length() {
+      if raw_is_add[si] {
+        step_by_cid[raw_cid[si]] = si
+      }
+    }
+    let needed_cid : Array[Bool] = []
+    for _i in 0..<next_cid {
+      needed_cid.push(false)
+    }
+    let final_cid = raw_cid[raw_is_add.length() - 1]
+    needed_cid[final_cid] = true
+    let mut cid_cursor = final_cid
+    while cid_cursor > orig_count {
+      if needed_cid[cid_cursor] {
+        let si = step_by_cid[cid_cursor]
+        if si >= 0 {
+          let chain = raw_rup[si]
+          for hi in 0..<chain.length() {
+            let dep_id = chain[hi]
+            if dep_id > 0 && dep_id < cid_cursor {
+              needed_cid[dep_id] = true
+            }
+          }
+        }
+      }
+      cid_cursor = cid_cursor - 1
+    }
+
+    let id_remap : Array[Int32] = []
+    for i in 0..<next_cid {
+      if i <= orig_count {
+        id_remap.push(i)
+      } else {
+        id_remap.push(-1)
+      }
+    }
+    let kept_steps : Array[Int32] = []
+    let mut compact_id = orig_count + 1
+    for si in 0..<raw_is_add.length() {
+      if raw_is_add[si] && needed_cid[raw_cid[si]] {
+        id_remap[raw_cid[si]] = compact_id
+        compact_id = compact_id + 1
+        kept_steps.push(si)
+      }
+    }
+    let total_compact_ids = compact_id - 1
+    let last_use : Array[Int32] = []
+    for _i in 0..<(total_compact_ids + 1) {
+      last_use.push(-1)
+    }
+    for ki in 0..<kept_steps.length() {
+      let si = kept_steps[ki]
+      let chain = raw_rup[si]
+      for hi in 0..<chain.length() {
+        let new_hid = id_remap[chain[hi]]
+        if new_hid > 0 {
+          last_use[new_hid] = ki
+        }
+      }
+    }
+    // Unused original clauses can be deleted before the first derived step
+    // (or after step 0 if step 0 is the final step).
+    let unused_orig : Array[Int32] = []
+    for oid in 1..<(orig_count + 1) {
+      if last_use[oid] < 0 {
+        unused_orig.push(oid)
+      }
+    }
+    if unused_orig.length() > 0 && kept_steps.length() > 1 {
+      del_count = del_count + 1
+      out_steps.push(LratDelete(orig_count, unused_orig))
+    }
+
+    for ki in 0..<kept_steps.length() {
+      let si = kept_steps[ki]
+      let new_cid = id_remap[raw_cid[si]]
+      let remapped_rup : Array[Int32] = []
+      for hi in 0..<raw_rup[si].length() {
+        remapped_rup.push(id_remap[raw_rup[si][hi]])
+      }
+      add_count = add_count + 1
+      hint_count = hint_count + remapped_rup.length()
+      out_steps.push(LratAdd(new_cid, raw_clause[si], remapped_rup, []))
+
+      if ki < kept_steps.length() - 1 {
+        let retiring : Array[Int32] = []
+        for id in 1..<(new_cid + 1) {
+          if id <= orig_count && last_use[id] < 0 {
+            continue
+          }
+          if last_use[id] == ki || (id > orig_count && last_use[id] < 0) {
+            retiring.push(id)
+          }
+        }
+        if retiring.length() > 0 {
+          del_count = del_count + 1
+          out_steps.push(LratDelete(new_cid, retiring))
+        }
+      }
+    }
+  }
+
+  let ok = face_cdcl_lrat_check(original_clauses, out_steps)
+  FaceLratElaborateReport::{
+    valid: ok,
+    original_clauses: orig_count,
+    input_steps: proof_steps.length(),
+    lrat_adds: if ok { add_count } else { 0 },
+    lrat_deletes: if ok { del_count } else { 0 },
+    total_hints: if ok { hint_count } else { 0 },
+    steps: if ok { out_steps } else { [] },
+  }
+}
+
+///|
+fn lrat_bin_push_i32(buf : Array[Byte], v : Int32) -> Unit {
+  buf.push((v & 0xFF).to_byte())
+  buf.push(((v >> 8) & 0xFF).to_byte())
+  buf.push(((v >> 16) & 0xFF).to_byte())
+  buf.push(((v >> 24) & 0xFF).to_byte())
+}
+
+///|
+fn lrat_bin_read_i32(bytes : Bytes, offset : Int32) -> Int32? {
+  if offset < 0 || offset + 4 > bytes.length() {
+    return None
+  }
+  let b0 = bytes[offset].to_int() & 0xFF
+  let b1 = bytes[offset + 1].to_int() & 0xFF
+  let b2 = bytes[offset + 2].to_int() & 0xFF
+  let b3 = bytes[offset + 3].to_int() & 0xFF
+  Some(b0 | (b1 << 8) | (b2 << 16) | (b3 << 24))
+}
+
+///|
+fn lrat_bin_checksum(payload : Array[Byte]) -> Int32 {
+  let mut h : Int32 = 5381
+  for i in 0..<payload.length() {
+    let b = payload[i].to_int() & 0xFF
+    h = ((h << 5) + h) ^ b
+  }
+  h
+}
+
+///|
+/// Serialize an indexed LRAT proof into the compact `CHLRATBN` v1 binary
+/// envelope (`8`-byte magic `"CHLRATBN"`, `u16` version `1`, `u16` flags `0`,
+/// `i32` payload byte length, `i32` DJB2-xor checksum, followed by step
+/// records `'a'` / `'d'`).
+pub fn face_lrat_to_binary(steps : Array[FaceLratStep]) -> Bytes {
+  let payload : Array[Byte] = []
+  lrat_bin_push_i32(payload, steps.length())
+  for i in 0..<steps.length() {
+    match steps[i] {
+      LratAdd(cid, clause, rup_hints, rat_hints) => {
+        payload.push((0x61).to_byte()) // 'a'
+        lrat_bin_push_i32(payload, cid)
+        lrat_bin_push_i32(payload, clause.length())
+        for j in 0..<clause.length() {
+          lrat_bin_push_i32(payload, clause[j])
+        }
+        lrat_bin_push_i32(payload, rup_hints.length())
+        for j in 0..<rup_hints.length() {
+          lrat_bin_push_i32(payload, rup_hints[j])
+        }
+        lrat_bin_push_i32(payload, rat_hints.length())
+        for j in 0..<rat_hints.length() {
+          let (dcid, sub) = rat_hints[j]
+          lrat_bin_push_i32(payload, dcid)
+          lrat_bin_push_i32(payload, sub.length())
+          for k in 0..<sub.length() {
+            lrat_bin_push_i32(payload, sub[k])
+          }
+        }
+      }
+      LratDelete(sid, del_ids) => {
+        payload.push((0x64).to_byte()) // 'd'
+        lrat_bin_push_i32(payload, sid)
+        lrat_bin_push_i32(payload, del_ids.length())
+        for j in 0..<del_ids.length() {
+          lrat_bin_push_i32(payload, del_ids[j])
+        }
+      }
+    }
+  }
+  let out : Array[Byte] = [
+    (0x43).to_byte(), // 'C'
+    (0x48).to_byte(), // 'H'
+    (0x4C).to_byte(), // 'L'
+    (0x52).to_byte(), // 'R'
+    (0x41).to_byte(), // 'A'
+    (0x54).to_byte(), // 'T'
+    (0x42).to_byte(), // 'B'
+    (0x4E).to_byte(), // 'N'
+    (0x01).to_byte(), // version lo = 1
+    (0x00).to_byte(), // version hi = 0
+    (0x00).to_byte(), // flags lo = 0
+    (0x00).to_byte(), // flags hi = 0
+  ]
+  lrat_bin_push_i32(out, payload.length())
+  lrat_bin_push_i32(out, lrat_bin_checksum(payload))
+  for i in 0..<payload.length() {
+    out.push(payload[i])
+  }
+  Bytes::from_array(out)
+}
+
+///|
+/// Parse and integrity-check a `CHLRATBN` v1 binary LRAT proof stream.
+/// Rejects corrupted magic, unsupported versions/flags, length mismatch,
+/// trailing bytes, negative/overflowing counts, unknown step tags, and
+/// checksum tampering.
+pub fn face_lrat_from_binary(bytes : Bytes) -> Array[FaceLratStep]? {
+  if bytes.length() < 20 {
+    return None
+  }
+  let magic = [0x43, 0x48, 0x4C, 0x52, 0x41, 0x54, 0x42, 0x4E]
+  for i in 0..<8 {
+    if (bytes[i].to_int() & 0xFF) != magic[i] {
+      return None
+    }
+  }
+  let ver = (bytes[8].to_int() & 0xFF) | ((bytes[9].to_int() & 0xFF) << 8)
+  let flags = (bytes[10].to_int() & 0xFF) | ((bytes[11].to_int() & 0xFF) << 8)
+  if ver != 1 || flags != 0 {
+    return None
+  }
+  let payload_len = match lrat_bin_read_i32(bytes, 12) {
+    Some(n) => n
+    None => return None
+  }
+  let expected_csum = match lrat_bin_read_i32(bytes, 16) {
+    Some(c) => c
+    None => return None
+  }
+  if payload_len < 4 || 20 + payload_len != bytes.length() {
+    return None
+  }
+  let payload_copy : Array[Byte] = []
+  for i in 0..<payload_len {
+    payload_copy.push(bytes[20 + i])
+  }
+  if lrat_bin_checksum(payload_copy) != expected_csum {
+    return None
+  }
+  let mut pos = 20
+  let step_count = match lrat_bin_read_i32(bytes, pos) {
+    Some(n) => n
+    None => return None
+  }
+  pos = pos + 4
+  if step_count < 0 || step_count > payload_len {
+    return None
+  }
+  let steps : Array[FaceLratStep] = []
+  for _si in 0..<step_count {
+    if pos >= bytes.length() {
+      return None
+    }
+    let tag = bytes[pos].to_int() & 0xFF
+    pos = pos + 1
+    if tag == 0x61 {
+      let cid = match lrat_bin_read_i32(bytes, pos) {
+        Some(v) => v
+        None => return None
+      }
+      pos = pos + 4
+      let clen = match lrat_bin_read_i32(bytes, pos) {
+        Some(v) => v
+        None => return None
+      }
+      pos = pos + 4
+      if clen < 0 || pos + 4 * clen > bytes.length() {
+        return None
+      }
+      let clause : Array[Int32] = []
+      for _j in 0..<clen {
+        match lrat_bin_read_i32(bytes, pos) {
+          Some(lit) => clause.push(lit)
+          None => return None
+        }
+        pos = pos + 4
+      }
+      let rlen = match lrat_bin_read_i32(bytes, pos) {
+        Some(v) => v
+        None => return None
+      }
+      pos = pos + 4
+      if rlen < 0 || pos + 4 * rlen > bytes.length() {
+        return None
+      }
+      let rup_hints : Array[Int32] = []
+      for _j in 0..<rlen {
+        match lrat_bin_read_i32(bytes, pos) {
+          Some(hid) => rup_hints.push(hid)
+          None => return None
+        }
+        pos = pos + 4
+      }
+      let rat_len = match lrat_bin_read_i32(bytes, pos) {
+        Some(v) => v
+        None => return None
+      }
+      pos = pos + 4
+      if rat_len < 0 || pos + 8 * rat_len > bytes.length() {
+        return None
+      }
+      let rat_hints : Array[(Int32, Array[Int32])] = []
+      for _j in 0..<rat_len {
+        let dcid = match lrat_bin_read_i32(bytes, pos) {
+          Some(v) => v
+          None => return None
+        }
+        pos = pos + 4
+        let sub_len = match lrat_bin_read_i32(bytes, pos) {
+          Some(v) => v
+          None => return None
+        }
+        pos = pos + 4
+        if sub_len < 0 || pos + 4 * sub_len > bytes.length() {
+          return None
+        }
+        let sub : Array[Int32] = []
+        for _k in 0..<sub_len {
+          match lrat_bin_read_i32(bytes, pos) {
+            Some(hid) => sub.push(hid)
+            None => return None
+          }
+          pos = pos + 4
+        }
+        rat_hints.push((dcid, sub))
+      }
+      steps.push(LratAdd(cid, clause, rup_hints, rat_hints))
+    } else if tag == 0x64 {
+      let sid = match lrat_bin_read_i32(bytes, pos) {
+        Some(v) => v
+        None => return None
+      }
+      pos = pos + 4
+      let dlen = match lrat_bin_read_i32(bytes, pos) {
+        Some(v) => v
+        None => return None
+      }
+      pos = pos + 4
+      if dlen <= 0 || pos + 4 * dlen > bytes.length() {
+        return None
+      }
+      let del_ids : Array[Int32] = []
+      for _j in 0..<dlen {
+        match lrat_bin_read_i32(bytes, pos) {
+          Some(did) => del_ids.push(did)
+          None => return None
+        }
+        pos = pos + 4
+      }
+      steps.push(LratDelete(sid, del_ids))
+    } else {
+      return None
+    }
+  }
+  if pos != bytes.length() {
+    return None
+  }
+  Some(steps)
+}
+
+///|
+/// Decode and zero-search verify a `CHLRATBN` v1 binary LRAT proof stream.
+pub fn face_cdcl_lrat_check_binary(
+  original_clauses : Array[Array[Int32]],
+  bytes : Bytes,
+) -> Bool {
+  match face_lrat_from_binary(bytes) {
+    Some(steps) => face_cdcl_lrat_check(original_clauses, steps)
+    None => false
+  }
+}
+
+///|
 pub fn face_sat_cdcl(
   f : Face,
   n : Int32,

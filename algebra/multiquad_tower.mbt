@@ -61,8 +61,8 @@ fn multiquad_slot_count_for(basis : Array[BigInt]) -> Int32 {
 }
 
 ///|
-fn multiquad_basis_valid(basis : Array[BigInt]) -> Bool {
-  if basis.length() > multiquad_max_generators() {
+fn multiquad_basis_valid_upto(basis : Array[BigInt], max_gens : Int32) -> Bool {
+  if max_gens < 0 || max_gens > 8 || basis.length() > max_gens {
     return false
   }
   for i in 0..<basis.length() {
@@ -82,6 +82,11 @@ fn multiquad_basis_valid(basis : Array[BigInt]) -> Bool {
     }
   }
   true
+}
+
+///|
+fn multiquad_basis_valid(basis : Array[BigInt]) -> Bool {
+  multiquad_basis_valid_upto(basis, multiquad_max_generators())
 }
 
 ///|
@@ -290,11 +295,18 @@ pub fn multiquad_reembed(
 }
 
 ///|
-fn multiquad_common_basis(
+fn multiquad_common_basis_upto(
   a : Array[BigInt],
   b : Array[BigInt],
+  max_gens : Int32,
 ) -> Array[BigInt]? {
+  if max_gens < 0 || max_gens > 8 {
+    return None
+  }
   let mut basis = biquad_sort_basis(a)
+  if basis.length() > max_gens {
+    return None
+  }
   for i in 0..<b.length() {
     let d = b[i]
     let mut spanned = false
@@ -305,13 +317,21 @@ fn multiquad_common_basis(
       }
     }
     if !spanned {
-      if basis.length() >= multiquad_max_generators() {
+      if basis.length() >= max_gens {
         return None
       }
       basis = biquad_sort_basis([..basis, d])
     }
   }
   Some(basis)
+}
+
+///|
+fn multiquad_common_basis(
+  a : Array[BigInt],
+  b : Array[BigInt],
+) -> Array[BigInt]? {
+  multiquad_common_basis_upto(a, b, multiquad_max_generators())
 }
 
 ///|

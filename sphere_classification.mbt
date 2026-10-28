@@ -86,53 +86,75 @@ fn integer_succ_nat_value(n : DValue) -> DValue {
 }
 
 ///|
-fn integer_pred_abs_or_zero(
-  n : DValue,
-  if_zero : DValue,
-  wrap : (DValue) -> DValue,
-) -> DValue {
-  match force_value(n) {
-    DVIntro(_, 1, _, args) =>
-      if args.length() == 1 {
-        wrap(args[0])
-      } else {
-        if_zero
-      }
-    _ => if_zero
-  }
-}
-
-///|
-/// Successor on canonical integer values.  The function is the
-/// constructor computation induced by the three integer cases.
+/// Internal inductive successor on `IntegerS`: computes canonically on
+/// `zero` / `posSucc` / `negSucc` and produces a genuine `DNInductiveElim`
+/// neutral on open/neutral integer variables (natural under substitution).
 pub fn integer_succ_value(value : DValue) -> DValue {
-  let spec = integer_schema()
-  match force_value(value) {
-    DVIntro(_, 0, _, _) => integer_value(1)
-    DVIntro(_, 1, _, args) =>
-      DVIntro(spec, 1, [], [integer_succ_nat_value(args[0])])
-    DVIntro(_, 2, _, args) =>
-      integer_pred_abs_or_zero(args[0], integer_value(0), n => {
-        DVIntro(spec, 2, [], [n])
-      })
-    _ => value
-  }
+  let z_spec = integer_schema()
+  let z_ty = integer_type_value()
+  let n_spec = nat_schema()
+  eval_inductive_elim(
+    z_spec,
+    (_, _) => z_ty,
+    [
+      integer_value(1),
+      DVLam(k => DVIntro(z_spec, 1, [], [integer_succ_nat_value(k)])),
+      DVLam(k => {
+        eval_inductive_elim(
+          n_spec,
+          (_, _) => z_ty,
+          [
+            integer_value(0),
+            DVLam(m => DVLam(_ih => DVIntro(z_spec, 2, [], [m]))),
+          ],
+          [],
+          [],
+          k,
+          0,
+        )
+      }),
+    ],
+    [],
+    [],
+    value,
+    0,
+  )
 }
 
 ///|
-/// Predecessor on canonical integer values.
+/// Internal inductive predecessor on `IntegerS`: computes canonically on
+/// `zero` / `posSucc` / `negSucc` and produces a genuine `DNInductiveElim`
+/// neutral on open/neutral integer variables.
 pub fn integer_pred_value(value : DValue) -> DValue {
-  let spec = integer_schema()
-  match force_value(value) {
-    DVIntro(_, 0, _, _) => integer_value(-1)
-    DVIntro(_, 1, _, args) =>
-      integer_pred_abs_or_zero(args[0], integer_value(0), n => {
-        DVIntro(spec, 1, [], [n])
-      })
-    DVIntro(_, 2, _, args) =>
-      DVIntro(spec, 2, [], [integer_succ_nat_value(args[0])])
-    _ => value
-  }
+  let z_spec = integer_schema()
+  let z_ty = integer_type_value()
+  let n_spec = nat_schema()
+  eval_inductive_elim(
+    z_spec,
+    (_, _) => z_ty,
+    [
+      integer_value(-1),
+      DVLam(k => {
+        eval_inductive_elim(
+          n_spec,
+          (_, _) => z_ty,
+          [
+            integer_value(0),
+            DVLam(m => DVLam(_ih => DVIntro(z_spec, 1, [], [m]))),
+          ],
+          [],
+          [],
+          k,
+          0,
+        )
+      }),
+      DVLam(k => DVIntro(z_spec, 2, [], [integer_succ_nat_value(k)])),
+    ],
+    [],
+    [],
+    value,
+    0,
+  )
 }
 
 // ---------------------------------------------------------------------------
@@ -235,21 +257,21 @@ pub fn dpath_trans_sym_cancel_value(
   dlevel : Int32,
 ) -> DValue {
   let square = dpath_trans_square_value(ty, p, dpath_sym_value(p), dlevel)
-  let at = (a : Dim, b : Dim) => dapp_dim(dapp_dim(square, a), b)
   DVPathLam(r => {
     DVPathLam(i => {
-      let not_r = dim_simplify(DNeg(r))
-      let a = dim_simplify(DAnd(i, not_r))
-      let b = dim_simplify(DOr(not_r, DAnd(i, r)))
       let branches = dsystem_of([
-        tube_branch(face_simplify(FEq0(i)), _ => start),
-        tube_branch(face_simplify(FEq1(i)), m => {
-          at(dim_simplify(DOr(not_r, m)), DOne)
+        tube_branch(face_simplify(FEq0(r)), k => {
+          dapp_dim(dapp_dim(square, i), k)
         }),
-        tube_branch(face_simplify(FEq0(r)), _ => at(i, DOne)),
-        tube_branch(face_simplify(FEq1(r)), _ => start),
+        tube_branch(face_simplify(FEq1(r)), k => {
+          dapp_dim(p, dim_simplify(DAnd(i, DNeg(k))))
+        }),
+        tube_branch(face_simplify(FEq0(i)), _ => start),
+        tube_branch(face_simplify(FEq1(i)), k => {
+          dapp_dim(p, dim_simplify(DNeg(k)))
+        }),
       ])
-      hcomp_value(ty, branches, at(a, b), dlevel + 4)
+      hcomp_value(ty, branches, dapp_dim(p, i), dlevel + 4)
     })
   })
 }

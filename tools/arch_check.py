@@ -154,8 +154,42 @@ def main() -> int:
     packages = {p["id"]: p for p in manifest["packages"]}
     moon_to_pkg = {p["moon"]: p["id"] for p in manifest["packages"]}
     components = {c["id"]: c for c in manifest["components"]}
+    federations = {f["id"]: f for f in manifest.get("federations", [])}
+    unification = manifest.get("unification")
 
     errors: list[str] = []
+
+    # ---- 5-federation + unification apex partition -----------------------
+    pkg_to_fed: dict[str, str] = {}
+    if federations or unification:
+        if len(federations) != 5:
+            errors.append(
+                f"expected exactly 5 federations in architecture.json, got {len(federations)}"
+            )
+        for fed_id, fed in federations.items():
+            for pkg_id in fed["packages"]:
+                if pkg_id not in packages:
+                    errors.append(f"federation {fed_id}: unknown package {pkg_id}")
+                elif pkg_id in pkg_to_fed:
+                    errors.append(
+                        f"package {pkg_id} assigned to both {pkg_to_fed[pkg_id]} and {fed_id}"
+                    )
+                else:
+                    pkg_to_fed[pkg_id] = fed_id
+        if unification is not None:
+            u_id = unification["id"]
+            for pkg_id in unification["packages"]:
+                if pkg_id not in packages:
+                    errors.append(f"unification {u_id}: unknown package {pkg_id}")
+                elif pkg_id in pkg_to_fed:
+                    errors.append(
+                        f"package {pkg_id} assigned to both {pkg_to_fed[pkg_id]} and {u_id}"
+                    )
+                else:
+                    pkg_to_fed[pkg_id] = u_id
+        for pkg_id in packages:
+            if pkg_id not in pkg_to_fed:
+                errors.append(f"package {pkg_id} is not assigned to any federation or unification")
 
     # ---- file assignment -------------------------------------------------
     assigned: dict[Path, str] = {}
@@ -215,6 +249,23 @@ def main() -> int:
         for dep in deps:
             if packages[dep]["layer"] >= pkg["layer"]:
                 errors.append(f"package layer violation: {pkg['id']} -> {dep}")
+            if pkg_to_fed:
+                src_fed = pkg_to_fed.get(pkg["id"])
+                dst_fed = pkg_to_fed.get(dep)
+                if src_fed and dst_fed and src_fed != dst_fed:
+                    if unification and dst_fed == unification["id"]:
+                        errors.append(
+                            f"reverse apex dependency forbidden: {pkg['id']} ({src_fed}) -> {dep} ({dst_fed})"
+                        )
+                    elif not (unification and src_fed == unification["id"]):
+                        allowed_ext = set(
+                            federations[src_fed].get("allowed_external_packages", [])
+                        )
+                        token = f"{dst_fed}:{dep}"
+                        if token not in allowed_ext:
+                            errors.append(
+                                f"cross-federation import forbidden: {pkg['id']} ({src_fed}) -> {dep} ({dst_fed}); allow via {token}"
+                            )
 
     # ---- source declarations, package-local first ------------------------
     root_package_id = next(
@@ -367,6 +418,7 @@ def main() -> int:
         return path.read_text().count("\n") + (0 if path.read_text().endswith("\n") else 1)
 
     metrics = {
+        "federations": {},
         "packages": {},
         "components": {},
         "totals": {
@@ -374,6 +426,23 @@ def main() -> int:
             "mbt_lines": sum(count_lines(p) for p in all_mbt),
         },
     }
+    for fed_id, fed in federations.items():
+        fed_pkgs = set(fed["packages"])
+        files = [p for p in all_mbt if package_of(p) in fed_pkgs]
+        metrics["federations"][fed_id] = {
+            "packages": fed["packages"],
+            "mbt_files": len(files),
+            "mbt_lines": sum(count_lines(p) for p in files),
+        }
+    if unification is not None:
+        u_pkgs = set(unification["packages"])
+        u_files = [p for p in all_mbt if package_of(p) in u_pkgs]
+        metrics["federations"][unification["id"]] = {
+            "packages": unification["packages"],
+            "observer": True,
+            "mbt_files": len(u_files),
+            "mbt_lines": sum(count_lines(p) for p in u_files),
+        }
     for pkg_id, pkg in packages.items():
         files = [p for p in all_mbt if package_of(p) == pkg_id]
         metrics["packages"][pkg_id] = {
@@ -405,10 +474,21 @@ def main() -> int:
         return 1
 
     total = metrics["totals"]
+    fed_label = (
+        f"{len(federations)} federations + unification apex, "
+        if federations
+        else ""
+    )
     print(
-        f"architecture ok: {len(packages)} packages, {len(components)} components, "
+        f"architecture ok: {fed_label}{len(packages)} packages, {len(components)} components, "
         f"{total['mbt_files']} .mbt files, {total['mbt_lines']} .mbt lines"
     )
+    for fed_id, fm in metrics["federations"].items():
+        role = "apex" if fm.get("observer") else "federation"
+        print(
+            f"  {role} {fed_id} ({len(fm['packages'])} pkgs): "
+            f"{fm['mbt_files']} files, {fm['mbt_lines']} lines"
+        )
     for pkg_id in sorted(metrics["packages"], key=lambda k: metrics["packages"][k]["layer"]):
         m = metrics["packages"][pkg_id]
         print(f"  package {pkg_id}: {m['mbt_files']} files, {m['mbt_lines']} lines")

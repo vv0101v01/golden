@@ -233,6 +233,23 @@ fn dterm_map_vars_at(
       }
       DGlueEquiv(dterm_map_vars_at(base, depth, f), out)
     }
+    DUnglueEquiv(term, base, branches) => {
+      let out : Array[DEquivBranch] = []
+      for i in 0..<branches.length() {
+        out.push(
+          d_equiv_branch(
+            branches[i].face,
+            dterm_map_vars_at(branches[i].ty, depth, f),
+            dterm_map_vars_at(branches[i].equiv, depth, f),
+          ),
+        )
+      }
+      DUnglueEquiv(
+        dterm_map_vars_at(term, depth, f),
+        dterm_map_vars_at(base, depth, f),
+        out,
+      )
+    }
     DUa(e) => DUa(dterm_map_vars_at(e, depth, f))
     other => other
   }
@@ -356,6 +373,14 @@ pub fn dterm_children(t : DTerm) -> Array[DTerm] {
       }
       out
     }
+    DUnglueEquiv(term, base, branches) => {
+      let out = [term, base]
+      for i in 0..<branches.length() {
+        out.push(branches[i].ty)
+        out.push(branches[i].equiv)
+      }
+      out
+    }
     DDecode(_, params, indices, code) => {
       let out = [code]
       for i in 0..<params.length() {
@@ -396,7 +421,7 @@ fn dterm_dim_vars_into(t : DTerm, acc : Array[Int32]) -> Unit {
       for i in 0..<dims.length() {
         dim_vars_into(dims[i], acc)
       }
-    DGlueEquiv(_, branches) =>
+    DGlueEquiv(_, branches) | DUnglueEquiv(_, _, branches) =>
       for i in 0..<branches.length() {
         face_vars_into(branches[i].face, acc)
       }

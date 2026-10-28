@@ -3,17 +3,17 @@
 語言：**中文正本** · [English](SPEC.en.md) · [中文逐符號附錄](SPEC-APPENDIX.md) · [English appendix](SPEC-APPENDIX.en.md) · [架構](ARCHITECTURE.md)
 
 > **聯邦範圍註記**：本文正文規格化 cubical 支柱（root＋精確 `algebra/`）；
-> symlib 與 semiring 的長文規格分別見 `docs/symlib.md`、
-> `docs/semiring/`，跨支柱橋見 `docs/BRIDGE.md`。逐符號附錄則覆蓋
-> 全倉 **25 個套件、5,054 個公開符號**。
+> symlib、semiring、topos、scheme 的長文規格分別見 `docs/symlib.md`、
+> `docs/semiring/` 與各聯邦程式碼註解，跨支柱與五聯邦大一統見 `docs/BRIDGE.md` 及 `bridge/`。逐符號附錄則覆蓋
+> 全倉 **27 個套件、6,177 個公開符號**。
 
 本文件對專案中**所有型別、算子、結構與規格逐樣**給出：
 
 - **規範形式（canonical / normal form）**：選定的標準代表，相等由比較規範形式判定；
-- **範疇化（categorification）**：該物件所屬／所生成的範疇結構（物件、態射、函子、自然變換、萬有性或相干律）；
+- **範疇化（categorification）**：該物件所屬／所生成的範疇結構（物件、態射、態射合成、函子、自然變換、萬有性或相干律）；
 - **判定（decision）**：其主導等式或謂詞的演算法。
 
-程式碼中的 `spec.mbt:spec_registry` 是本文件的條目級登記（101 條）。逐符號
+程式碼中的 `spec.mbt:spec_registry` 是本文件的條目級登記（121 條）。逐符號
 **附錄已拆成生成檔** [SPEC-APPENDIX.md](SPEC-APPENDIX.md)／[SPEC-APPENDIX.en.md](SPEC-APPENDIX.en.md)：
 `tools/audit_spec.py` 依 `architecture.json` 讀取每個套件的 `pkg.generated.mbti`
 （`moon info`），逐一列出公共宣告、列舉構造子與結構欄位、其規格族與所屬
@@ -24,8 +24,8 @@ MoonBit 套件；審計以集合相等保證附錄與介面**無遺漏、無重�
 ```text
 moon info && python3 tools/audit_spec.py --write   # 重新生成附錄並審計
 python3 tools/audit_spec.py --check                # 只審計，不改檔
-python3 tools/arch_check.py                        # 套件/元件依賴層級與檔案唯一歸位
-moon check --deny-warn && moon test --target wasm-gc && moon run cmd/main   # 全倉 336 tests（cubical 子集 111）、定理 90/90
+python3 tools/arch_check.py                        # 五聯邦＋大一統依賴層級與檔案唯一歸位
+moon check --deny-warn && moon test --release --target wasm-gc && moon run --release cmd/main --target wasm-gc && moon run --release cmd/showcase --target wasm-gc   # 單元測試 15/15、定理 110/110、大一統證書 39/39
 ```
 
 ---
@@ -1503,6 +1503,108 @@ recovery 回 -1、record-hash 或 blob 任一竄改令報告失效，
 驗收：`check_hou_residual_solver`、
 `check_artifact_manifest_integrity_chain`。
 
+### 1.17 第十四期：聯合 Σ 動機同時 IR 與展開正性見證、全部最大完成與有限閉型別切分、解耦 Torus 合成、增量 DAG 差分與共用 bundle、Hensel 因式分解與實代數根式及區塊消重根 Jacobi、剪枝 BDD 與 DRAT／正交表探針、Eckmann–Hilton／五邊形 4-胞／萬有覆疊截面／單值 Hopf 不變量、跨約束回溯枚舉與 TLV／認證 CAS／增量同步
+
+第十四期逐條推進第十三期 §四所保留的七大邊界。十四條正式定律檢查位於
+`phase14_laws.mbt`（配合代數層 `algebra/phase14_algebra.mbt`），全數登記於定理總表
+（104/104）與規格登記表（115 條）。
+
+#### 1.17.1 Schema：聯合 Σ 動機同時 IR 編譯與帶展開主體的正性見證（`schema_phase9.mbt`, `schema_positivity.mbt`, `schema_functor.mbt`）
+
+同時 IR 的個別消去器路線在第十三期無法處理前向引用、循環互依函數塊、非宇宙小上域與餘積槽 `DFunctorSum`。`simultaneous_ir_compile_joint_block` 與 `simultaneous_ir_compile_joint` 改將整組同步函數 `f₀,…,fₖ₋₁` 打包為單一聯合 `Σ` 元組動機 `M(x) = f₀(x) × ⋯ × fₖ₋₁(x)`：基礎歸納族只做一次高階消去，葉槽與經 `DFunctorProduct`/`DFunctorSum`/`DFunctorList`/`DFunctorPi` 嵌套的遞迴槽皆以投影提升同時擷取任意前向或後向同組函數的 IH，且允許一般依賴／小上域（宇宙層級 `≤ base.level`，由 `simultaneous_ir_general_eliminator_type` 自動決定目標層級）。在含葉槽與 `Sum` 分支槽的雙向循環偶／奇互遞迴樹，以及非宇宙小上域 `Bool`／依賴函數上，編譯出的閉項皆通過 `dep_check_closed` 並與同時語義正規形一致；高於基礎宇宙層級的 impredicative 上域或 `DFunctorContainer`/`DFunctorDecodedFunction` 外來巢狀仍明示回 `None`。
+
+不透明算子的正性不再只能依賴盲信宣告。`DPositivityWitness{declaration, definition}` 要求提交算子的閉合展開定義項，`dpositivity_witness_verify` 先獨立驗證閉合性、無宇宙層級懸空變數、嚴格正／正槽索引在界且互斥，再於新鮮引數脈絡下展開主體並逐槽檢查實際變數極性。把 `Bad(A) = A → Nat` 偽稱為嚴格正的見證立即被拒；協變容器 `Good(A,B) = A × B` 通過獨立驗證並由 `dterm_family_strictly_positive_certified` 認證自應用歸納定義。
+
+驗收：`check_phase14_joint_simultaneous_ir_mutual`、`check_phase14_positivity_witness_certificates`。
+
+#### 1.17.2 原始 `DSystem`、轉換與合成：全部最大相容完成、有限閉型別切分、語義圓座標與解耦 Torus 合成（`dsystem_compat.mbt`, `conv_case_split.mbt`, `kan_ast.mbt`）
+
+`dsystem_repair_maximum` 原只回單一最大團。`dsystem_repair_all_maxima` 先將候選分支限制於與 base 相合的精確面，再把分支衝突圖拆為獨立連通分量，於每一分量枚舉全部最大相容團並取笛卡兒積，回報 `DSystemRepairAllMaxima{systems, max_branch_count, total_maximum_count, conflict_components, all_compatible, exact}`。兩組獨立衝突對恰枚舉出 `2 × 2 = 4` 個相異最大相容系統且逐一通過相容檢驗。
+
+差異導引 case split 由 `Bool` 擴展至任意無遞迴有限閉合型別：`cs_finite_closed_inhabitants` 對 `Empty`、`Unit`、`Bool`、有限和積與無遞迴閉合歸納族（如三構造子 `Fin3`）遞迴生成全體閉合居民，`conv_terms_finite_case_split_report` 僅對兩側正規形真正產生差異的有限型別脈絡變量代入全體居民（相依型別同步代入）。`Fin3` 上的對稱查表等式以 `4` 次探針（初始 `1` 次＋`3` 居民）通過，單一構造子不等對立即拒絕，`Nat`/`List` 等無限遞迴型別維持不切分。
+
+Circle/Torus 合成新增 De Morgan 座標語義範形壓縮（冪等、互補與吸收律化簡），並將 Torus 二維方塊合成 `comp_torus_value` 的兩條圓環座標完全解耦：兩分量各自獨立枚舉候選座標並逐分支面驗證，免去雙座標同步耦合限制。對角雙重繞行（兩座標在 tube 面上同時推進、沿不同邊界獨立收束）算得 `DVPathLam` 並逐面轉換回原雙重環路；僅端點點相等（`0 ~ 1`）而無表達式帽者仍誠實停在 `DNComp`。
+
+驗收：`check_phase14_dsystem_all_maxima_and_finite_case_split`、`check_phase14_decoupled_torus_and_semantic_circle_norm`。
+
+#### 1.17.3 持久層：增量 intern DAG 差分與跨產物共用 DAG bundle（`dterm_dag_binary.mbt`, `module_binary.mbt`）
+
+`DTermInternTable` 的單調增長使舊快照成為新表的拓撲前綴。`dterm_dag_delta_compute` 以基表前綴雙雜湊摘要 `(base_digest_a, base_digest_b)` 為錨，只抽取索引 `≥ base_node_count` 的新增拓撲節點與新 roots，封裝為 `CHDAGDLT` v1（`DTermDagDelta`）。匯入時先核對目標表前綴摘要與拓撲邊界，不符則在修改目標表前拒絕；相符則只將新增節點 hash-cons 入表，payload 嚴格小於全量 `CHDAGBIN` 快照。
+
+第十三期中 `CHMODBIN` v3、`CHREGBIN` v2 與 `CHDAGBIN` 仍各自維護局部表。`SharedDagBundle`（`CHSHRBUN` v1）將單一全局 `DTermInternTable` 共用項池置於標頭，令任意多份已編譯模組與一份 `DSchemaRegistry` 快照共同引用同一組節點 ID，載入時更可直接灌入呼叫者的活 interner（回報 `shared_term_entries`、`interned_dag_nodes`、`reused_dag_nodes`）。雙模組加註冊表的共用封包位元組數嚴格小於分開序列化總和，重載入同一活表時既有節點零重複新增。
+
+驗收：`check_phase14_incremental_dag_delta_and_shared_bundle`。
+
+#### 1.17.4 精確代數：Hensel 提升有理因式分解、六生成元塔與實代數根式、區塊消重根 Jacobi（`algebra/phase14_algebra.mbt`）
+
+`QPoly` 一般因式分解擺脫指數級 Kronecker 整數除數枚舉：`qpoly_factor_hensel` 先取無平方因子本原部分，自動選取保持首項與無重根的素數 `p`，在 `𝔽_p[x]` 上執行完整 Berlekamp／Cantor–Zassenhaus 分解，再以線性 Hensel 提升將局部互質因式提升至 `p^k > 2 · MignotteBound(f)`，最後配合常數項整除剪枝在對稱餘數環中重組有理不可約本原因子。`qpoly_factor_certified` 進一步產出攜帶首項、帶重數因式與逐因式不可約證書的 `QPolyFactorCertificate`，由獨立檢查器 `qpoly_factor_certificate_check` 重驗展開乘積、次數正性、兩兩互質與不可約證書。八次複合多項式（兩個四次不可約因式乘積）在零 Kronecker 預算下直接分解並通過證書重驗。
+
+根式判等雙路推進：其一，參數化多二次塔 `multiquad_*_upto` 將獨立無平方因子生成元上限推至 `6`（`64` 槽乘積基底），五個獨立素數平方根 `√2, √3, √5, √7, √11` 的線性組合平方與開方精確閉合；其二，對超越二次塔的一般實根式引入 `RealAlgRadical{minpoly, root_index, lower, upper}`（本原不可約最小多項式＋Sturm 唯一隔離有理區間），以平移結式、尺度結式與 `p(yⁿ)` 無平方因子分解實作封閉的實代數體算術與任意正整數次實根 `real_alg_nth_root`。Pell 單位立方根恆等式 `∛(√2+1) · ∛(√2-1) = 1`（涉及不可約六次式 `x⁶ - 2x³ - 1`，二次塔與純三次體皆回 `None`）由 `radical_equal_algebraic` 精確判定為 `Some(true)`，微擾對判為 `Some(false)`，偶次負被開方數回 `None`。
+
+Hermitian 譜包絡新增區塊去耦與重根消除 `jacobi_block_deflated_certified`：先求伴隨非零圖的連通分量將矩陣正交直和拆為獨立子塊，對每塊特徵多項式 `f_B` 取無平方因子商 `g_B = f_B / gcd(f_B, f_B')` 把高重數退化簇化為單根 Sturm 隔離，再由因式分解次數差精確回填代數重數。含三重根與緊鄰雙根的 `6×6` 區塊矩陣拆為兩個 `3×3` 子塊後無須 `6×6` 全矩陣 Sturm 展開即精確回報重數 `3, 1, 1, 1` 且寬度達標。
+
+驗收：`check_phase14_qpoly_hensel_factor_and_certificates`、`check_phase14_algebraic_radicals_and_rank6_multiquad`、`check_phase14_jacobi_block_deflation_and_multiplicity`。
+
+#### 1.17.5 搜尋與宿主立方：上界剪枝 18 變量最佳 BDD 序、DRAT 檢查與證明裁剪、正交表覆蓋探針（`bdd_dag.mbt`, `face_sat_watched.mbt`, `dcube_filler.mbt`）
+
+精確最佳 BDD 變量序 `bdd_dag_of_face_optimal_pruned` 先以啟發式建構取得緊上界 `incumbent_size`，再於增量 cofactor 子集 DP 中以「當前累積寬度＋剩餘活躍支援集下界 ≥ incumbent」剪去不可達前綴子集，將精確上限由 `16` 推進至 `18` 變量。`14` 變量例與無剪枝 DP 得完全相同最小大小且 `pruned_subsets > 0`；`17` 與 `18` 變量公式精確回 `exact=true`（`19` 起如實 `exact=false`）。
+
+SAT 證明檢查器新增完整 DRAT 驗證 `face_cdcl_drat_check`（對 RUP 失敗的候選子句 `C` 以首字面 `l` 為 pivot，逐一檢驗含 `¬l` 的當前活躍子句 `D` 其解析式 `C ∪ (D \ {¬l})` 皆單位傳播蘊含）與反向依賴核心裁剪 `face_cdcl_drup_trim`（由空子句反向回溯標記必需引理，裁去冗餘學習步並輸出精簡證明）。純 RAT 阻斷子句被 DRUP 拒絕而通過 DRAT；含冗餘引理的證明經裁剪後步數嚴格減少且仍通過獨立 DRUP 重驗。
+
+高維宿主立方比較的指數爆炸由確定性正交表／覆蓋陣列化解：`dcube_cubes_conv_covering_report` 以有限射影直線 `ℙ¹(𝔽₈)` 構造強度 `t = 3`、字母表 `{0, 1, r₀, r₁ ∧ ¬r₂}` 的覆蓋探針集，保證任意三條座標軸的全部 `4³ = 64` 種非退化組合無遺漏覆蓋。`8` 維立方（全格需 `65,536` 點）僅用 `≤ 520` 次探針即達 `complete_for_strength=true`，精確攔截僅在三軸特定連接交互處偏離的反例宿主函數。
+
+驗收：`check_phase14_bdd_bnb_and_cdcl_drat`、`check_phase14_dcube_orthogonal_array_covering`。
+
+#### 1.17.6 球面同倫與萬有覆疊：Eckmann–Hilton 3-胞、五邊形 4-胞、中性環路截面與單值 Hopf 不變量（`cubical_algorithms.mbt`, `circle_classify.mbt`, `sphere_homotopy.mbt`, `nbe_dep.mbt`）
+
+高階道路廣群相干層補齊三項核心構造：`dpath_square_boundary3_value` 將共用四角與四邊的兩個路徑方塊連接為頂邊間的 3-胞；據此建立 `refl ⋅ refl` 上左右單位律重合 4-胞 `dpath_lr_unit_coherence4_value`、`Ω²(X)` 二階環路 `α ⋅ β ≡ β ⋅ α` 的完整 Eckmann–Hilton 交換 3-胞 `dpath_eckmann_hilton3_value`（水平與垂直合成經單位律插入與雙重連接互換），以及四段複合 `((p⋅q)⋅r)⋅s → p⋅(q⋅(r⋅s))` 兩條結合律 3-胞路徑之間的 Mac Lane 五邊形相干 4-胞 `dpath_pentagon4_value`。在 `S³` 的二階環路代表元與 `S²` 的四段環路複合上，3-胞兩端與五邊形 4-胞全部六個立方邊界面均通過型別化轉換核驗。
+
+圓的萬有覆疊補上對**任意閉／中性環路**（含自由環路變數 `p : Path S¹ base base`）的內部截面 `circle_encode_decode_sect_value`：結合一般終點自由路徑的右單位律 `dpath_right_unit_general_value`、複合傳輸分解 `dpath_subst_trans_value` 與核心 `DNInductiveElim` 沿 `ua` 路徑端點的計算規則，由路徑 `J` 消去給出 `decode(encode(p)) ≡ p`，完成合成 `π₁(S¹) ≃ ℤ` 的萬有覆疊分類截面。同時以圓上 8 段連接閉路建立自旋轉等價族 `rot : S¹ → (S¹ ≃ S¹)`，經 `ua` 在 `S² = Susp(S¹)` 子午線上黏合出內部單值 Hopf 纖維叢 `Hopf : S² → Type₀`（`hopf_family_value`），並由二階傳輸提取連接環路 `Ω³(S²) → Ω(S¹)` 再經萬有覆疊 `encode` 算出內部整數 Hopf 不變量 `hopf_invariant_value`（語義維度線搭配 `memo_dim_line` 記憶化消除多重 `ua` 合成重算）。在 `Ω³(S²)` 的 `0, 1, -1, 2` 階代表元上精確算出規範整數 `0, ±1, ∓1, ±2`。
+
+驗收：`check_phase14_eckmann_hilton_and_pentagon_coherence`、`check_phase14_internal_circle_sect_and_hopf_invariant`。
+
+#### 1.17.7 高階合一與模組儲存：跨約束回溯與合一子枚舉、TLV 向前相容封套、認證 CAS 與增量同步（`hou_elaborator.mbt`, `module_binary.mbt`, `artifact_repository.mbt`）
+
+第十三期 `hou_solve_constraints` 對單條殘差承諾首個找到的 Huet 分支，若該具體代換與後續約束衝突便停在 residual。`hou_solve_constraints_backtracking` 將 principal 傳播嵌入跨約束交易式 DFS 搜尋樹：某候選分支若令後續約束失敗，立即回滾 unifier 並嘗試同一殘差的其餘投影／模仿分支；`hou_enumerate_unifiers` 則在有界深度與預算下窮舉去重後的規範化合一子集合 `HouEnumerationReport{solutions, search_exhausted, capped, ...}`。首分支與第二方程衝突的雙約束系統現自動回溯得解，雙投影歧義方程枚舉出全部不等價閉合解且 `search_exhausted=true`。
+
+模組與工件協議補齊向前相容、認證並發與差量同步：`CHMODENV` v1（`ModuleTlvSection`）在核心 `CHMODBIN` v3 外包裹帶 `critical` 旗標的 TLV 擴充節，載入器安全跳過未知非關鍵節（記錄於 `skipped_noncritical_tags`）並對未知關鍵節 fail-closed 拒絕；`ArtifactAuthKey`（`CHARTAUT` v1）以雙秘密金鑰混合鏈頭與全部條目計算對稱 MAC 認證籤，`artifact_repository_put_cas_authenticated` 同時驗證金鑰真實性與樂觀並發 `expected_head`（過期錨回 `ArtifactCasConflict`、偽鑰回 `ArtifactCasAuthFailed`）；`artifact_repository_sync_incremental` 比對兩庫鏈歷史共同前綴，只傳輸目標缺失的 blob 與新增鏈項（`skipped_existing_blobs > 0`），同步傳播 tombstone 並使雙庫認證鏈頭完全一致。
+
+驗收：`check_phase14_hou_backtracking_and_enumeration`、`check_phase14_tlv_envelope_cas_and_incremental_sync`。
+
+### 1.18 第十五期：BDD、SAT 與宿主立方極限推進，以及一般雙向雙射認證、`π₁(S¹)≃ℤ`、基點環路—懸掛伴隨與 Freudenthal 懸掛定理
+
+第十五期雙軌並進：第一軌主攻第十四期保留的 **BDD、SAT 與宿主立方** 三大硬核瓶頸；第二軌在立方依賴核心內部完成**任意開放變數雙向雙射認證 `DVEquiv`**、**圓基本群同構 `π₁(S¹) = ‖Ω¹(S¹)‖₀ ≃ ℤ`**、**一般懸掛 `SuspS(A)` 與基點環路—懸掛伴隨 `(ΣA →* B) ≃ (A →* ΩB)`**，以及**0-連通 Freudenthal 懸掛定理 `‖Ω¹(Susp(A))‖₀ ≃ 1`**（實例化給出 `π₁(S²) ≃ 1` 與 `π₁(S³) ≃ 1`）與圓楔連通引理。六條正式定律位於 `phase15_laws.mbt`，全數納入定理總表（`110/110`）與規格登記表（`121` 條）。
+
+#### 1.18.1 搜尋與宿主立方：對稱軌道剪枝與 28 變量連通分解最佳 BDD、索引化線性時間 LRAT 精化與 CHLRATBN、強度 4 射影覆蓋陣列＋五色 PHF＋立方 Yoneda 審計（`bdd_dag.mbt`, `face_sat_watched.mbt`, `dcube_filler.mbt`）
+
+1. **對稱軌道剪枝與連通支援分解 ROBDD 最佳序**：`bdd_dag_of_face_optimal_pruned` 在增量 cofactor 子集 DP 中偵測同層剩餘變量的對換對稱等價類（交換兩變量不改變全部活躍 cofactor 集合），每個對稱軌道僅展開最小代表變量，單連通分量精確上限推至 `20` 變量（`19` 變量三組對稱對公式直接得 `exact=true, pruned_subsets > 0`）；`bdd_dag_of_face_optimal_decomposed` 進一步建立活躍變量共現交互圖，剔除不活躍死變量並分解獨立連通支援分量，對每個 `≤ 20` 變量分量各自求精確最佳排列再按區塊拼接全局共享 ROBDD。`28` 變量四分量獨立支援公式分解為 `4` 個 `≤ 7` 變量分量精確求解（`exact=true`），而 `22` 變量單一連通鏈誠實回退啟發式並標記 `exact=false`。
+2. **索引化線性時間 LRAT 檢查器、DRAT→LRAT 精化與 `CHLRATBN` v1 二進位編解碼**：針對 DRAT 無提示全庫傳播瓶頸，引入帶顯式傳播提示鏈的 `FaceLratStep`（`LratAdd(id, lits, rup_hints, rat_hints)` 與 `LratDelete(ids)`）。`face_cdcl_lrat_check` 僅沿給定子句 ID 陣列做索引查表單位傳播，消除全庫掃描；`face_cdcl_elaborate_lrat` 將 CDCL/DRAT 證明反向裁剪至空子句依賴核心、萃取確定性 RUP/RAT 提示鏈並自動插入垃圾回收 `LratDelete`；`face_lrat_to_binary`／`face_lrat_from_binary` 提供帶魔數 `"CHLRATBN"` v1 與變長整數編碼的無損位元組序列化。`PHP(6,5)` 與純 RAT 阻斷證明皆精化並通過二進位往返核驗，竄改提示 ID、刪去 RAT 見證或損毀位元組均被拒絕。
+3. **強度 `t ≤ 4` `ℙ¹(𝔽₈)` 正交覆蓋陣列、五色完美雜湊族 PHF、`CheckedDCube` 與立方 Yoneda 審計**：利用 `PGL₂(𝔽₈)` 在射影直線 `ℙ¹(𝔽₈)`（`9` 點）上的精確三重傳遞軌道結合線性擴張，構造強度 `t = 4` 的 `4` 元非退化維度字母表覆蓋陣列，搭配五色覆蓋完美雜湊族 `dcube_phf_5colors`，精確攔截 `t = 3` 漏放的 `9` 維四軸交互反例（`complete_for_strength=true`）。同時從根本範疇論解決黑盒閉包外延問題：`CheckedDCube` 將立方錨定於受型別檢查的語法項，透過通用維度變數讀回實現無探針精確外延等價 `checked_dcube_extensional_eq`；對一般宿主閉包，`dcube_yoneda_audit_report` 依據**立方範疇 `□` 上的米田引理（Cubical Yoneda Lemma）**檢驗通用對角讀回項在全體面／對角／連接維度代換下的自然性，直接揭穿偷看維度 AST 語法的病態非自然宿主閉包（`natural=false`），而自然閉包通過全部代換與忠實度審計。
+
+驗收：`check_phase15_bdd_symmetry_orbit_and_decomposed_optimal`、`check_phase15_cdcl_lrat_elaboration_and_binary_codec`、`check_phase15_dcube_strength4_phf_and_yoneda_audit`。
+
+#### 1.18.2 一般雙向雙射認證、集合截斷萬有性與圓基本群 `π₁(S¹) ≃ ℤ`（`cubical_algorithms.mbt`, `univalence.mbt`, `truncation.mbt`, `circle_classify.mbt`）
+
+在核心層補齊 CCHM `DUnglueEquiv`／`DNUnglueEquiv` 一等轉換規則、型別導向中性變數反射 `reflect_neutral_at_type` 與單例 J 消去 `dj_singleton_elim_value` 後，`equiv_bidirectional_certified_in` 在任意開放變數脈絡 `(env, ty_env, denv)` 下驗證一般型別對 `(A, B)` 的雙向同倫雙射資料 `(f : A → B, g : B → A, η : Πa. g(f a) ≡ a, ε : Πb. f(g b) ≡ b)` 經 Vogt 半伴隨化提升所得的 `DVEquiv` 及其逆等價、還有開放 `5` 變數等價合成 `equiv_compose_value`。
+
+`truncation.mbt` 引入 `0`-截斷（集合截斷）高階歸納型 `SetTruncS(A)`（由點構造子 `|a|₀`、圓心 `hub` 與車輻 `spoke` 生成 `‖A‖₀`），在核心內部證明 `set_trunc_is_set_value`（`‖A‖₀` 為 h-set）、向任意 h-set 的萬有消去 `set_trunc_rec_set_value`／`set_trunc_elim_set_value`，以及開放 `4` 變數定理 `set_trunc_equiv_of_equiv_set_value`：若 `X ≃ B` 且 `B` 為 h-set，則 `‖X‖₀ ≃ B`。在 `circle_classify.mbt` 中，展平單構造子歸納整數 `IntegerS` 並由觀察型別法內證 `integer_is_set_value`（`ℤ` 為 h-set），在開放變數脈絡下完成依賴萬有覆疊雙向同倫 `circle_path_equiv_cover_value`（`Πx:S¹. (base ≡ x) ≃ Cover(x)`），取 `x = base` 得 `Ω¹(S¹) ≃ ℤ`（`circle_loop_space_equiv_integer_value`），再與集合截斷定理合成，給出**完整內部認證等價 `π₁(S¹) = ‖Ω¹(S¹)‖₀ ≃ ℤ`**（`pi1_set_circle_equiv_integer_value`），正反向對 `0, ±1, ±2` 計算往返精確成立。
+
+驗收：`check_phase15_bidirectional_bijectivity_and_pi1_circle`。
+
+#### 1.18.3 一般懸掛 `SuspS(A)`、基點環路—懸掛伴隨 `Σ ⊣ Ω`、圓楔連通與 Freudenthal 懸掛定理（`sphere_homotopy.mbt`, `schema.mbt`）
+
+`sphere_homotopy.mbt` 定義參數化一般懸掛高階歸納型 `SuspS(A)`（`north`、`south` 與 `merid(a) : north ≡ south`），首先建立雙向認證等價 `Susp(Bool) ≃ S¹`（`susp_bool_equiv_circle_value`）與非基點餘錐萬有性質 `(Susp(A) → B) ≃ Cocone(A, B)`（`susp_universal_equiv_value`）。進而在基點類型 `(A, a₀)` 與 `(B, b₀)` 的 `5` 自由變數開放脈絡下，由 `south` 端點單例收縮消去自由餘錐點，建立**基點環路—懸掛伴隨定理** `loop_suspension_adjunction_equiv_value`：
+$$(\Sigma A \to_* B) \;\simeq\; (A \to_* \Omega B)$$
+並通過開放變數雙向雙射認證。
+
+同倫連通性與穩定化方面：
+1. **0-連通 Freudenthal 懸掛定理**：對任意具 0-連通證書 `c : Πx:A. ‖x ≡ a₀‖₀` 的有基點型別 `(A, a₀)`（`4` 自由變數開放脈絡），在 `Susp(A)` 上構造 h-set 覆疊族 `P(s) := (‖north ≡ s‖₀ ≡ |refl_north|₀)`，由 `c(x)` 將全部子午線 `merid(x)` 壓縮為與 `merid(a₀)` 相同的截斷路徑，從而證明每個環路的 0-截斷皆等於單位元，給出認證雙向等價 `freudenthal_pi1_susp_connected_equiv_unit_value`：
+   $$\|\Omega^1(\mathrm{Susp}(A))\|_0 \;\simeq\; \mathbf{1}$$
+   配合 `circle_0_connected_value`（`S¹` 為 0-連通）與 `susp_0_connected_of_pointed_value`（任意有基點型別的懸掛皆 0-連通），立即實例化導出高維球面基本群平凡化 **`π₁(S²) = ‖Ω¹(Susp(S¹))‖₀ ≃ 1`**（`pi1_susp_circle_equiv_unit_value`）與 **`π₁(S³) = ‖Ω¹(Susp²(S¹))‖₀ ≃ 1`**（`pi1_susp2_circle_equiv_unit_value`）。
+2. **圓楔連通引理與 Freudenthal 環路懸掛映射**：在 `7` 自由變數開放脈絡下建立 `S¹ × S¹` 向任意 h-set 纖維族的楔連通延伸 `wedge_connectivity_circle_set_ext_value` 及其左右軸相干路徑 `wedge_connectivity_circle_left_coh_value`／`wedge_connectivity_circle_right_coh_value`（配合 `schema.mbt` 中 `comp_hit_value` 對惰性 `branch_raw` 的強制求值修復），並構造 Freudenthal 一維環路懸掛映射 `σ₁ : Ω¹(S¹) → Ω²(Susp(S¹))`（`p ↦ merid(p(i)) ⋅ merid(base)⁻¹`）及其保單位環路 2-胞 `freudenthal_susp_loop1_preserves_refl_value`，與單值 Hopf 不變量度數 `k ∈ {-1, 0, 1}` 形成穩定化對照。
+
+驗收：`check_phase15_suspension_and_loop_suspension_adjunction`、`check_phase15_freudenthal_suspension_and_wedge_connectivity`。
+
 ## 二、規範形式目錄（逐結構）
 
 | 結構 | 規範形式 | 相等之判定 |
@@ -1582,8 +1684,15 @@ recovery 回 -1、record-hash 或 blob 任一竄改令報告失效，
 | 圓的覆疊纖維 | base 處 `IntegerS` 規範整數；loop 點處 `ua(succ)` 的 GlueEquiv 型別 | 宇宙層轉換等於 ℤ／ua 線 |
 | 繞數 | 規範整數 `zero/posSucc/negSucc` | ℤ 上轉換；複合環路以細分 transport 算 |
 | 交錯模組定義 | `ModuleDef.items : Array[ModuleItem]`（import/decl 交錯） | 依序 elaboration；legacy 排序必失敗的範例對照 |
-| 差異導引 case split | `CaseSplitReport{holds,probes,root_difference_variables,split_nodes}` | 先普通轉換，再只沿兩範形真正差異的 Bool 變量遞迴切分 |
-| 工件完整性鏈 | `ArtifactChainEntry{sequence,removed,record,previous,entry}` 的 CHARTCHN 前條摘要連結鏈；報告的 live records 為 replay 折疊 | 逐條 link/record/blob 雙雜湊重驗；以外部 expected head 鎖錨後 chained get/recovery |
+| 差異導引 case split | `CaseSplitReport{holds,probes,root_difference_variables,split_nodes}`（覆蓋 Bool 與無遞迴有限閉歸納族居民樹） | 先普通轉換，再只沿兩範形真正差異的有限型別變量遞迴代入全體閉居民 |
+| 工件完整性鏈／認證 CAS／增量同步 | `CHARTCHN` 前條摘要連結鏈＋`CHARTAUT` 雙金鑰 MAC 認證籤＋前綴差量 `ArtifactSyncReport` | 逐條雙雜湊與 MAC 重驗；認證 CAS 拒絕過期 head 或偽鑰，增量同步只搬移缺失 blob |
+| 正性見證／聯合同時 IR | `DPositivityWitness{declaration,definition}`；基礎歸納族上的單次聯合 `Σ` 元組動機消去器 | 閉合展開主體逐槽極性獨立核驗；互依同步函數投影自聯合消去並通過 `dep_check_closed` |
+| 增量 DAG 差分／共用 bundle／TLV 封套 | `CHDAGDLT` v1 基表摘要＋新增節點；`CHSHRBUN` v1 跨模組與註冊表單一項池；`CHMODENV` v1 帶 critical 位元之 TLV 節 | 前綴摘要匹配後無拷貝重灌活 interner；未知非關鍵 TLV 跳過、未知關鍵 TLV fail-closed 拒絕 |
+| Hensel 全分解證書／實代數根式／區塊 Jacobi | `QPolyFactorCertificate`（首項＋不可約因式＋證書）；`RealAlgRadical{minpoly,root_index,lower,upper}`；`JacobiBlockDeflatedReport` | 有限域分解經線性 Hensel 提升與獨立證書重驗；結式與 Sturm 唯一根區間算術；伴隨塊分解＋無平方因子消重根 |
+| 剪枝最佳 BDD／DRAT 與裁剪／正交表探針 | `BddPrunedOptimalBuild`（n≤18，對稱軌道剪枝達 n≤20）；`FaceDrupTrimReport`；`ℙ¹(𝔽₈)` 強度 3/4 正交表 `DCubeCoveringReport` | 啟發式上界＋對稱軌道剪枝子集 DP；首字面 pivot 解析環境 DRAT 驗證與反向依賴裁剪；高維任意三／四軸非退化組合全覆蓋 |
+| 連通分解最佳 BDD／索引化 LRAT／立方 Yoneda | `BddDecomposedOptimalBuild`（獨立支援分量拼接）；`FaceLratStep`＋`CHLRATBN` v1；`CheckedDCube` 與 `DCubeYonedaReport` | 共現交互圖連通分量各自精確 DP（28 變量 4 分量 exact）；提示 ID 線性時間查表傳播與 DRAT→LRAT 精化；通用對角讀回自然性與無探針精確外延 |
+| 高階道路相干／中性圓截面／單值 Hopf | Eckmann–Hilton 3-胞、五邊形 4-胞、中性 `decode(encode(p))≡p` 截面、單值 `Hopf:S²→Type₀` 與整數不變量 | 立方邊界面逐面型別化轉換；開放環路變數上 J 消去端點轉換；`Ω³(S²)` 代表元精確映至 `0,±1,∓1,±2` |
+| 雙向雙射認證／集合截斷／`π₁(S¹)≃ℤ`／`Σ⊣Ω`／Freudenthal | 開放脈絡認證 `DVEquiv`；`SetTruncS`（`‖A‖₀`）；`π₁(S¹)≃ℤ`；`(ΣA→*B)≃(A→*ΩB)`；`‖Ω¹(Susp(A))‖₀≃1` 與圓楔連通 | 開放變數下雙向截面／收縮轉換核驗；`ℤ` 與 `‖A‖₀` 內部 h-set 證書；0-連通懸掛導出 `π₁(S²)=π₁(S³)=1` 及 `S¹×S¹` 雙軸相干 |
 | 規格條目 | `SpecEntry` 六元組 | `spec_registry_sound` |
 
 ## 三、範疇目錄（逐範疇）
@@ -1609,71 +1718,25 @@ recovery 回 -1、record-hash 或 blob 任一竄改令報告失效，
 | AST 等價與 ua | AST 型別 | 一等 `Equiv` 四分量 | ua 的 coe 計算性；GlueEquiv 沿偏等價黏合；語義 `lemIso` 給出纖維收縮與 adjoint 三角形資料 | `equiv_ast.mbt`, `kan_ast.mbt`, `equivalence_phase10.mbt` |
 | 路徑運算與單值性 | AST 型別與宇宙層 | 路徑值與傳輸等價 | transitivity 由顯式 hcomp 方塊構造；ua/pathToEquiv 以 uaβ、retraction 同倫與 Glue 方塊互見證 | `cubical_algorithms.mbt`, `univalence.mbt` |
 | 代數擴張線性代數 | `AlgNum` 擴張上的向量空間 | `AlgMat` | 廣義特徵空間、primary 分解與 Jordan 型 | `algebra/algnum.mbt`, `algebra/Jordan.mbt` |
-| BDD DAG | 固定次序布林函數 | root ID 與 apply 格運算 | hash-consing 規範圖；候選序、有預算 sifting 與可證最優序（n≤8 全排列、n≤16 子集 DP）；後備 Tseitin 上的 watched DPLL 與帶 LBD 刪除與時序 DRUP 證明的 1-UIP 子句學習 CDCL | `bdd_dag.mbt`, `face_sat_watched.mbt` |
-| 球面懸掛 | 無索引 HIT | meridian 胞腔 | Susp 是端塌縮商；S³ 為兩次迭代 | `sphere3.mbt` |
+| BDD DAG | 固定次序布林函數 | root ID 與 apply 格運算 | hash-consing 規範圖；候選序、有預算 sifting 與可證最優序（n≤8 全排列、n≤16 子集 DP、對稱軌道剪枝單分量 n≤20、連通支援分解多分量精確拼接）；後備 Tseitin 上的 watched DPLL 與帶 LBD 刪除、DRUP/DRAT 檢查、核心裁剪、DRAT→LRAT 精化及索引化線性時間 LRAT（`CHLRATBN` v1）的 1-UIP CDCL | `bdd_dag.mbt`, `face_sat_watched.mbt` |
+| 球面懸掛與 `Σ⊣Ω` | 參數化 `SuspS(A)` 與基點類型 | 子午線胞腔、餘錐與基點態射 | `Susp` 為同倫推出商；`Susp(Bool)≃S¹`、`(Susp A→B)≃Cocone(A,B)`、開放 5 變數 `(ΣA→*B)≃(A→*ΩB)`，以及 0-連通 Freudenthal 定理 `‖Ω¹(Susp A)‖₀≃1`（`π₁(S²)=π₁(S³)=1`）與圓楔連通 | `sphere3.mbt`, `sphere_homotopy.mbt` |
 | 模組函子 | 參數模組與 import 圖 | 引數代換與內聯宣告 | telescope 為交錯的 import/宣告 items；open/alias 是名字投影；opaque 是邊界抽象 | `module_system.mbt` |
-| Q[x] 與分裂擴張 | 有限代數擴張塔 | `AlgPoly` 與根 | 唯一因式分解；多項式在分裂塔上完全線性化 | `algebra/qpoly_factor.mbt`, `algebra/splitting_field.mbt` |
-| 層級方案與同時宣告 | 層級脈絡中的宣告模板 | 層級代換、聯合消去與同步函數 | 宇宙 scheme 是層級指派函子；互歸納是向量初始代數 | `schema_phase9.mbt` |
-| 基點球面映射 | 懸掛球面（北極為基點） | 懸掛函子像與度數映射 | 單位環路 `meridian(x)∙meridian(*)⁻¹`；極交換等價資料；πₙ 商呈現，閉代表式由單位/逆元/結合律/sym 複合 3-胞正規化至同 degree 典範字（仍是代表元層） | `sphere_homotopy.mbt`, `sphere_classification.mbt` |
-| 圓上的覆疊族 | schema 圓 `S¹` 上的點 | 纖維中的 subst 提升 | helix 族（base↦ℤ、loop↦`ua(succ)`）；encode 是提升端點、decode 是整數消去的環路冪，往返在代表元上轉換 | `circle_classify.mbt`, `equiv_ast.mbt` |
-| 已編譯模組函子 | 已檢查參數模組物件 | 介面連結與 prefix 特化 | opaque body 不入介面 hash；部分套用產生殘餘函子；版本化 byte codec 是穩定外範形，工件另有 CHARTCHN 完整性鏈與以鏈頭作信任錨的 replay 復原 | `module_compilation.mbt`, `module_binary.mbt`, `artifact_repository.mbt` |
+| Q[x] 與分裂擴張 | 有限代數擴張塔与實代數數 | `AlgPoly`、`RealAlgRadical` 與根 | 唯一因式分解（Berlekamp/CZ＋線性 Hensel 提升＋全分解證書）；結式與 Sturm 隔離封閉實根式算術；分裂塔完全線性化 | `algebra/qpoly_factor.mbt`, `algebra/phase14_algebra.mbt`, `algebra/splitting_field.mbt` |
+| 層級方案與同時宣告 | 層級脈絡中的宣告模板 | 層級代換、聯合 Σ 元組消去與同步函數 | 宇宙 scheme 是層級指派函子；互歸納是向量初始代數；循環互依同時 IR 為基礎初始代數到相依乘積族的唯一截面 | `schema_phase9.mbt` |
+| 基點球面映射與單值 Hopf | 懸掛球面（北極為基點） | 懸掛函子像、度數映射、Freudenthal 環路懸掛映射與單值 `Hopf:S²→Type₀` | 單位環路、極交換等價、Eckmann–Hilton 3-胞與 Mac Lane 五邊形 4-胞；單值 Hopf 纖維叢將 `Ω³(S²)` 代表元映至整數不變量 | `cubical_algorithms.mbt`, `sphere_homotopy.mbt`, `sphere_classification.mbt` |
+| 圓上的覆疊族與基本群 | schema 圓 `S¹` 上的點 | 纖維中的 subst 提升、雙向 J/歸納同倫與 0-截斷反射 | helix 族（base↦ℤ、loop↦`ua(succ)`）；開放變數脈絡下完整證明 `Path S¹ base x ≃ Cover(x)`、`Ω¹(S¹)≃ℤ` 與 `π₁(S¹)=‖Ω¹(S¹)‖₀≃ℤ` | `circle_classify.mbt`, `truncation.mbt`, `univalence.mbt` |
+| 已編譯模組函子與認證儲存 | 已檢查參數模組物件與共用項池 | 介面連結、TLV 封套、認證 CAS 與增量同步 | `CHSHRBUN` 共用全局 DAG；`CHMODENV` 支援向前相容 TLV；`CHARTAUT` 對稱 MAC＋樂觀 CAS 與鏈前綴差量同步 | `module_compilation.mbt`, `module_binary.mbt`, `artifact_repository.mbt` |
 | Retract Kan 結構 | 特徵空間／子線 | 立方體 | 剪枝函子保持填充（在邊界恆等） | `cube.mbt`, `glue_comp.mbt` |
 
-## 四、第十三期後仍保留的邊界
+## 四、第十五期後仍保留的邊界
 
-- **Schema。** SelfFamily 參數嚴格正性已在 `DPositiveFunctor`
-  語法內以相互最小不動點判定，但不透明算子的正性宣告仍是受信
-  輸入；λ 驗證版只覆蓋結構上可見的函子。Foreign IH 的函子
-  映射覆蓋正性函子片斷中的巢狀引數，`decoded` 位置、函子語法
-  外的形狀以及真正不可 gather 的參數出現仍明示拒絕。同時 IR
-  的 eliminator 路線仍是 predicative 片斷（函數層級嚴格低於
-  base 層級），與 decode 路線併集不完備：前向引用、非宇宙
-  外來函數、層級不合或循環互賴函數塊仍無一般編譯。
-- **原始 `DSystem`、轉換與合成。** 相關維度下降消除的是無關
-  維度與無關滿足路徑，成本在真正相關支撐上仍可指數增長；最大
-  相容完成是最大團問題，`node_budget` 耗盡時只保證不差於順序
-  incumbent 並回 `exact=false`，不列舉其他最大元。Bool
-  差異導引切分仍是項層級工具，不屬覈心 `conv_at`，且成本隨
-  真正差異的 Bool 變量指數增長；Nat 等非有限離散型別沒有
-  對應切分。Circle/Torus 方塊 comp 只在某一個候選座標能逐
-  分支面驗證時計算；任意宿主資料或只以端點點相等相合的盒子
-  仍可停在 `DNComp`，不宣稱原始 HIT 上任意維資料的合成完備。
-- **持久層。** `CHDAGBIN` 已讓位元組與進程內 interner 共用
-  同一 DAG；但 `CHMODBIN` v3／`CHREGBIN` v2 仍只是各
-  payload 內的 back-reference，三種格式之間沒有共同圖或增量
-  delta。工件儲存仍是抽象鍵位元組協議，沒有 OS 檔案系統
-  後端、fsync 耐久政策、網路傳輸或多寫者並發。`CHARTCHN`
-  的雙雜湊是校驗而非密碼簽章：它證明「鏈與目前 index/blob
-  對某個外部保存的 head 信任錨一致」；若攻擊者可同時改
-  寫整個儲存與信任錨，鏈本身無法建立真實性。Legacy bootstrap
-  對遷移當下的 index 取信，鏈化之前的歷史仍不可稽核。
-- **精確代數。** 聯合次數圖樣只是證書族的一員，無任何證書時
-  最壞成本仍由 Kronecker 列舉與 BigInt 位長決定，證書只判定
-  不可約性而不加速一般分解輸出。`MultiQuadNum` 以四個平方類
-  獨立生成元為上界；需要第五個生成元、被開方數沒有已處理的
-  同域/有理平方調整形狀、真正需要非多二次二次擴張或一般代數
-  數根時仍回 `None`。純三次路徑維持獨立片斷，`radical_to_multiquad` 本身不吞非二次根。
-- **BDD、SAT、宿主立方與 Jacobi。** 精確 BDD 序 DP 的硬上
-  限現為 n≤16，但其工作與記憶仍是 `O(n·2^n)` 量級；CDCL
-  的證明是 DRUP 而非 DRAT——可稽核真正學習子句的 Add/Delete
-  時序，不接受任意 RAT 引入，且完整 proof replay 本身亦有
-  成本。宿主立方 Tier D 仍是有限探針：更高 arity 會跳過該
-  層並回 `complete=false`，未探及的維度表式與宿主函數內部
-  狀態原則上可藏分歧。自適應 Jacobi 的精確後援以特徵多項式
-  與 Sturm 為代價，位數不足就如實未達標；高重數/極小分離與
-  區間膨脹的根本成本不變。
-- **球面與環路分類。** 單位、逆元、結合律與 sym 複合現已有
-  代表元 3-胞，閉 `SphereLoopExpr` 語言亦可正規化至同次數
-  典範字；但把任意中性環路判至代表元的分類引理仍缺，完整的
-  內部 `π₁(S¹)≃ℤ`、一般 `π_n(S^m)`、Eckmann–Hilton/
-  交換律及 pentagon 等更高相干未建構。內部 Hopf 映射、Hopf
-  不變量與 `π₃(S²)` 分類仍在代表元證據之外。
-- **HOU 與模組。** 殘差求解器會交錯 principal 傳播與有界
-  Huet 搜尋並在成功時重驗整組方程式，但搜尋給出的一般只是
-  specific unifier，不是 complete set of unifiers 或非 pattern
-  形狀的 MGU；殘差/預算耗盡仍不表示無解，一般 HOU 不可判
-  定性不變。版本協商與 artifact 傳輸仍是協議模型：尚不支持
-  未宣告的未來格式、沒有身份簽章或遠端傳送。
+- **Schema。** 聯合 `Σ` 元組動機編譯已覆蓋雙向循環互遞迴、`DFunctorSum` 與層級不高於基礎族的小／依賴上域，不透明算子亦可透過 `DPositivityWitness` 展開主體做結構極性驗證；但超越基礎宇宙層級的 impredicative 同時 IR 上域、同時修改基礎歸納族構造子型別與互遞迴函數的完整 Dybjer–Setzer 開放式同時歸納遞迴（open simultaneous IR where constructors depend on the mutually defined decoding functions in arbitrary nested ways beyond `decode` positions），以及無展開定義之純外部公理化算子的語義正性模型，仍不在封閉項消去器編譯範圍內。
+- **原始 `DSystem`、轉換與合成。** `dsystem_repair_all_maxima` 已按衝突連通分量枚舉全部最大相容完成，`conv_terms_finite_case_split` 已覆蓋任意無遞迴閉合有限型別居民樹，`comp_torus_value` 亦已解耦兩條圓座標並作 De Morgan 語義壓縮；但單一稠密衝突分量的最大團列舉最壞仍為指數級，有限居民窮舉仍是項層級外延工具而非核心 `conv_at` 規則（`Nat`/`List` 等無限型別不可窮舉），且當高維開盒邊界僅以端點點相等（`0 ~ 1`）耦合而無統一 De Morgan 表達式帽時，原始 HIT 合成仍如實保留形式中性 `DNComp`。
+- **持久層。** `CHDAGDLT` 增量差分、`CHSHRBUN` 跨模組／註冊表共用 DAG bundle、`CHARTAUT` 雙金鑰對稱 MAC 認證 CAS 與 `artifact_repository_sync_incremental` 差量同步均已就位；但底層儲存仍為確定性純記憶體位元組映射協議（刻意不綁定特定作業系統 POSIX 檔案鎖、mmap、fsync 或網路 socket），且 `CHARTAUT` 為共享秘密對稱 MAC 而非公開金鑰非對稱簽章（如 Ed25519）或抗碰撞標準雜湊（如 SHA-256）。
+- **精確代數。** `qpoly_factor_hensel` 已以有限域分解＋線性 Hensel 提升取代低效 Kronecker 枚舉並附完整分解證書，多二次塔上限已升至 `6` 生成元（`64` 維基底），`RealAlgRadical` 已以結式與 Sturm 隔離封閉任意實代數根式判等，`jacobi_block_deflated_certified` 已消除區塊對角與重根退化瓶頸；但對極高次 Swinnerton-Dyer 型局部處處可約多項式，Hensel 子集重組在無 LLL 格基約化（Lenstra–Lenstra–Lovász）時最壞仍需指數子集測試；`RealAlgRadical` 僅覆蓋實代數數 `ℚ̄ ∩ ℝ`（含非實複根分支選擇的一般複根式與超越函數不在體內）；不可約稠密高維 Hermitian 矩陣的特徵多項式展開仍受精確有理係數位長成長制約。
+- **BDD、SAT 與宿主立方。** 第十五期已以對稱軌道剪枝與變量共現連通支援分解將多分量／對稱公式的可證最佳 BDD 序推過 `n = 18`（如 `19` 變量對稱公式與 `28` 變量四分量公式皆 `exact=true`），補齊索引化線性時間 LRAT 檢查器、DRAT→LRAT 精化器與 `CHLRATBN` v1 二進位編解碼，並以 `ℙ¹(𝔽₈)` 強度 `t = 4` 正交覆蓋陣列、五色 PHF、`CheckedDCube` 語法錨定與立方 Yoneda 自然性審計封堵四軸交互與病態非自然閉包；但單一不可分解且無對稱性的稠密連通布林函數在 `n > 20` 時一般最佳 ROBDD 排序仍屬 NP-hard（誠實回報 `exact=false` 並回退啟發式／sifting），而對刻意通過自然性抽樣卻僅在 `5` 軸以上特定同時賦值偏離的純黑盒宿主閉包，唯有提升為 `CheckedDCube` 才享有絕對無探針外延保證。
+- **球面同倫與高階相干。** 第十五期已在開放變數脈絡下完成一般雙向雙射認證 `DVEquiv`、集合截斷 `‖A‖₀` 萬有性、完整內部圓基本群同構 `π₁(S¹) = ‖Ω¹(S¹)‖₀ ≃ ℤ`、基點環路—懸掛伴隨 `(ΣA →* B) ≃ (A →* ΩB)`、0-連通 Freudenthal 懸掛定理 `‖Ω¹(Susp(A))‖₀ ≃ 1`（導出 `π₁(S²) ≃ 1` 與 `π₁(S³) ≃ 1`）、圓楔連通引理與一維環路懸掛映射 `σ₁ : Ω¹(S¹) → Ω²(Susp(S¹))`；但高連通度（`n ≥ 1`，2-截斷／`n`-截斷）完整 Blakers–Massey／一般高階 Freudenthal 滿同構 `π_k(X) ≃ π_{k+1}(ΣX)`（`k ≤ 2n`）、由其串聯單值 Hopf 纖維長正合序列導出的完整 `π₃(S²) ≃ π₃(S³) ≃ ℤ` 全雙向同構、撓率同倫群（如 `π₄(S³) ≃ ℤ/2ℤ`）及五維以上 Stasheff 結合多面體 `K_n` 無限相干塔仍待後續形式化。
+- **HOU 與模組系統。** 跨約束交易式回溯與有界合一子枚舉已解決單約束貪心承諾與多解歧義，`CHMODENV` TLV 封套亦已提供 critical/non-critical 向前相容演進；但一般高階合一（三階以上）受 Goldfarb 定理限制本質不可判定（無有限完備合一子集的方程仍受節點／深度預算截斷），且模組系統維持靜態非循環依賴圖與確定性單機連結，不含動態載入或分散式共識協議。
 
 ---
 

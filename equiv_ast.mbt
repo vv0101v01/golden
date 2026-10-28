@@ -38,11 +38,21 @@ pub struct DEquivParts {
 }
 
 ///|
+fn unwrap_equiv_neutral(n : DNeutral) -> DNeutral {
+  match n {
+    DNEquivAnn(inner, _, _) => unwrap_equiv_neutral(inner)
+    other => other
+  }
+}
+
+///|
 pub fn equiv_fwd_value(e : DValue, src : DValue, dst : DValue) -> DValue {
   match force_value(e) {
     DVEquiv(_, _, f, _, _, _) => f
-    DVNeutral(n) =>
-      DVLam(x => DVNeutral(DNApp(DNEquivFwd(n, src, dst), x, src)))
+    DVNeutral(n) => {
+      let inner = unwrap_equiv_neutral(n)
+      DVLam(x => DVNeutral(DNApp(DNEquivFwd(inner, src, dst), x, src)))
+    }
     _ => DVLam(_ => DVUnit)
   }
 }
@@ -51,8 +61,10 @@ pub fn equiv_fwd_value(e : DValue, src : DValue, dst : DValue) -> DValue {
 pub fn equiv_bwd_value(e : DValue, src : DValue, dst : DValue) -> DValue {
   match force_value(e) {
     DVEquiv(_, _, _, g, _, _) => g
-    DVNeutral(n) =>
-      DVLam(y => DVNeutral(DNApp(DNEquivBwd(n, src, dst), y, dst)))
+    DVNeutral(n) => {
+      let inner = unwrap_equiv_neutral(n)
+      DVLam(y => DVNeutral(DNApp(DNEquivBwd(inner, src, dst), y, dst)))
+    }
     _ => DVLam(_ => DVUnit)
   }
 }
@@ -61,8 +73,10 @@ pub fn equiv_bwd_value(e : DValue, src : DValue, dst : DValue) -> DValue {
 pub fn equiv_sect_value(e : DValue, src : DValue, dst : DValue) -> DValue {
   match force_value(e) {
     DVEquiv(_, _, _, _, s, _) => s
-    DVNeutral(n) =>
-      DVLam(y => DVNeutral(DNApp(DNEquivSect(n, src, dst), y, dst)))
+    DVNeutral(n) => {
+      let inner = unwrap_equiv_neutral(n)
+      DVLam(y => DVNeutral(DNApp(DNEquivSect(inner, src, dst), y, dst)))
+    }
     _ => DVLam(_ => DVPathLam(_ => DVUnit))
   }
 }
@@ -71,8 +85,10 @@ pub fn equiv_sect_value(e : DValue, src : DValue, dst : DValue) -> DValue {
 pub fn equiv_retr_value(e : DValue, src : DValue, dst : DValue) -> DValue {
   match force_value(e) {
     DVEquiv(_, _, _, _, _, r) => r
-    DVNeutral(n) =>
-      DVLam(x => DVNeutral(DNApp(DNEquivRetr(n, src, dst), x, src)))
+    DVNeutral(n) => {
+      let inner = unwrap_equiv_neutral(n)
+      DVLam(x => DVNeutral(DNApp(DNEquivRetr(inner, src, dst), x, src)))
+    }
     _ => DVLam(_ => DVPathLam(_ => DVUnit))
   }
 }
@@ -261,22 +277,28 @@ fn glue_equiv_stored_values(
 
 ///|
 pub fn glue_equiv_base_of(parts : DGlueEquivParts, v : DValue) -> DValue {
-  match force_value(v) {
+  let fv = force_value(v)
+  match fv {
     DVPair(_, _) => {
       let first_ty = if parts.branches.length() > 0 {
         parts.branches[0].ty
       } else {
         DVUnitTy
       }
-      dsnd_typed(v, first_ty, _ => parts.base)
+      dsnd_typed(fv, first_ty, _ => parts.base)
     }
     _ => {
       let top = glue_equiv_top_index(parts)
       if top >= 0 {
         let branch = parts.branches[top]
-        equiv_fun_value(branch.equiv, branch.ty, parts.base, v)
+        equiv_fun_value(branch.equiv, branch.ty, parts.base, fv)
+      } else if face_is_bot_sem(parts.face) {
+        fv
       } else {
-        v
+        match fv {
+          DVNeutral(neu) => DVNeutral(DNUnglueEquiv(neu, parts))
+          _ => fv
+        }
       }
     }
   }
@@ -287,32 +309,24 @@ pub fn glue_equiv_partial_values(
   parts : DGlueEquivParts,
   v : DValue,
 ) -> Array[DValue] {
-  match force_value(v) {
+  let fv = force_value(v)
+  match fv {
     DVPair(first, _) => glue_equiv_stored_values(parts, first)
     _ => {
       let top = glue_equiv_top_index(parts)
-      if top >= 0 {
-        let base = glue_equiv_base_of(parts, v)
-        let out : Array[DValue] = []
-        for i in 0..<parts.branches.length() {
-          let branch = parts.branches[i]
-          out.push(
-            if i == top {
-              v
-            } else {
-              equiv_inv_fun_value(branch.equiv, branch.ty, parts.base, base)
-            },
-          )
-        }
-        out
-      } else {
-        let out : Array[DValue] = []
-        for i in 0..<parts.branches.length() {
-          let branch = parts.branches[i]
-          out.push(equiv_inv_fun_value(branch.equiv, branch.ty, parts.base, v))
-        }
-        out
+      let base = glue_equiv_base_of(parts, fv)
+      let out : Array[DValue] = []
+      for i in 0..<parts.branches.length() {
+        let branch = parts.branches[i]
+        out.push(
+          if i == top {
+            fv
+          } else {
+            equiv_inv_fun_value(branch.equiv, branch.ty, parts.base, base)
+          },
+        )
       }
+      out
     }
   }
 }
@@ -416,9 +430,25 @@ pub fn eval_glue_equiv_term(
 }
 
 ///|
+pub fn eval_unglue_equiv_term(
+  term : DTerm,
+  base : DTerm,
+  branches : Array[DEquivBranch],
+  env : DEnv,
+  denv : DDimEnv,
+) -> DValue {
+  let glue_val = eval_glue_equiv_term(base, branches, env, denv)
+  match as_glue_equiv(glue_val) {
+    Some(parts) => glue_equiv_base_of(parts, deval_dim(term, env, denv))
+    None => deval_dim(term, env, denv)
+  }
+}
+
+///|
 fn equiv_types_of_value(e : DValue) -> (DValue, DValue) {
   match force_value(e) {
     DVEquiv(src, dst, _, _, _, _) => (src, dst)
+    DVNeutral(DNEquivAnn(_, src, dst)) => (src, dst)
     _ => (DVUnitTy, DVUnitTy)
   }
 }
@@ -591,6 +621,33 @@ pub fn infer_glue_equiv(
         ty: DVUniv(level),
       })
     }
+    None => None
+  }
+}
+
+///|
+pub fn infer_unglue_equiv(
+  term : DTerm,
+  base : DTerm,
+  branches : Array[DEquivBranch],
+  ctx : DEnv,
+  env : DEnv,
+  denv : DDimEnv,
+) -> DInfer? {
+  match infer_glue_equiv(base, branches, ctx, env, denv) {
+    Some(gi) =>
+      match as_glue_equiv(gi.value) {
+        Some(parts) =>
+          match d_check(term, gi.value, ctx, env, denv) {
+            Some(tv) =>
+              Some(DInfer::{
+                value: glue_equiv_base_of(parts, tv),
+                ty: parts.base,
+              })
+            None => None
+          }
+        None => None
+      }
     None => None
   }
 }
@@ -788,6 +845,21 @@ pub fn quote_glue_equiv_type(
     )
   }
   DGlueEquiv(quote_ty(level, dlevel, parts.base), branches)
+}
+
+///|
+pub fn quote_unglue_equiv_neutral(
+  level : Int32,
+  dlevel : Int32,
+  inner : DNeutral,
+  parts : DGlueEquivParts,
+) -> DTerm {
+  let glue_ty = DVGlueEquiv(parts.branches, parts.base, parts.level)
+  let inner_term = quote_dneutral(level, dlevel, inner, glue_ty)
+  match quote_glue_equiv_type(level, dlevel, parts) {
+    DGlueEquiv(base_t, branches_t) => DUnglueEquiv(inner_term, base_t, branches_t)
+    _ => inner_term
+  }
 }
 
 ///|
@@ -1030,6 +1102,80 @@ pub fn comp_glue_equiv_value(
 }
 
 ///|
+/// Under a tube branch face `face`, unwrap a `DVPair(partial, base_out)` of a
+/// `DVGlueEquiv` domain whenever every cubical subcube of `face` selects a
+/// single partial branch (yielding that partial component) or falsifies the
+/// entire Glue extent (yielding the base component).
+pub fn glue_equiv_restrict_arg_under_face(
+  face : Face,
+  dom : DValue,
+  x : DValue,
+) -> DValue {
+  match (as_glue_equiv(dom), force_value(x)) {
+    (Some(parts), DVPair(_, a_out)) => {
+      if parts.branches.length() == 0 {
+        return x
+      }
+      let mut dl : Int32 = 0
+      for v in face_vars(face) {
+        if v + 1 > dl {
+          dl = v + 1
+        }
+      }
+      for v in face_vars(parts.face) {
+        if v + 1 > dl {
+          dl = v + 1
+        }
+      }
+      let cubes = cubical_face_subcubes(face, dl)
+      if cubes.length() == 0 {
+        return x
+      }
+      let mut all_bot = true
+      for cube in cubes {
+        let mut f_sub = parts.face
+        for v in 0..<cube.length() {
+          if cube[v] == 0 {
+            f_sub = face_subst(f_sub, v, false)
+          } else if cube[v] == 1 {
+            f_sub = face_subst(f_sub, v, true)
+          }
+        }
+        if !face_is_bot_sem(face_simplify(f_sub)) {
+          all_bot = false
+        }
+      }
+      if all_bot {
+        return a_out
+      }
+      let pvals = glue_equiv_partial_values(parts, x)
+      for idx in 0..<parts.branches.length() {
+        let bface = parts.branches[idx].face
+        let mut all_top = true
+        for cube in cubes {
+          let mut f_sub = bface
+          for v in 0..<cube.length() {
+            if cube[v] == 0 {
+              f_sub = face_subst(f_sub, v, false)
+            } else if cube[v] == 1 {
+              f_sub = face_subst(f_sub, v, true)
+            }
+          }
+          if !face_is_top_sem(face_simplify(f_sub)) {
+            all_top = false
+          }
+        }
+        if all_top && idx < pvals.length() {
+          return pvals[idx]
+        }
+      }
+      x
+    }
+    _ => x
+  }
+}
+
+///|
 fn equiv_type_at(line : (Dim) -> DValue, d : Dim) -> DEquivTypeParts {
   match as_equiv_type(line(d)) {
     Some(parts) => parts
@@ -1139,3 +1285,4 @@ pub fn bool_not_equiv_term() -> DTerm {
     bool_not_not_proof_term(),
   )
 }
+

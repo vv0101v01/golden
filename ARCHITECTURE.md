@@ -6,16 +6,18 @@
 
 > English summary: MoonBit compiles each package as one mutually
 > recursive unit, so files inside a package have no compilation
-> order.  This project nevertheless fixes a logical dependency DAG.
-> The federation has 25 packages / 34 components.  Within the cubical
-> pillar the physical subgraph remains `cmd/main → root → algebra`;
-> its 13 components in layers 0–9 are the detailed table below.
-> `architecture.json` assigns every `.mbt` file to exactly one
-> component, and `tools/arch_check.py` rejects
-> unassigned files, duplicate ownership, upward component edges and
-> package imports that violate the manifest.  Counts are produced by
-> the checker and by `tools/audit_spec.py`; they are not maintained
-> by hand in this document.
+> order.  This project nevertheless fixes a governed **5-Federation
+> Architecture + Unification Apex** (`cubical`, `symlib`, `semiring`,
+> `topos`, `scheme` + `unification`) spanning **27 packages / 36 components**.
+> Within the `cubical` federation the physical subgraph remains
+> `cmd/main → root → algebra`; its 13 components in layers 0–9 are the
+> detailed table below.  `architecture.json` partitions all packages across
+> the 5 federations + unification apex, assigns every `.mbt` file to
+> exactly one component, and `tools/arch_check.py` rejects unassigned files,
+> duplicate ownership, unauthorized cross-federation imports, upward
+> component edges and package imports that violate the manifest.  Counts
+> are produced by the checker and by `tools/audit_spec.py`; they are not
+> maintained by hand in this document.
 
 ## 1. 先回答：「60+ 個檔案之間有沒有先後依賴？」
 
@@ -47,15 +49,25 @@ MoonBit 以 package 為編譯單位：同一目錄的 `.mbt` 宣告共同求解�
 `architecture.json` 是唯一清單來源；本文件只解釋規則，不複製
 每次都會變的總行數。
 
-## 2. Component 層級
+## 2. 五聯邦架構與 Component 層級
 
-下表詳列 cubical 支柱的 13 個 component。全倉現為 34 個 component；其餘
-symlib、semiring、bridge、host/report 與 app component 的即時明細以
-`architecture.json` 與 checker 輸出為唯一來源，不在本表手抄複製。
+全倉以 **五聯邦＋大一統頂層（5 Federations + Unification Apex）** 治理 **27 個套件、36 個 component**：
+
+| 聯邦／頂層 | 套件數 | 實體套件 | 跨聯邦允許匯入 | 核心職責 |
+|---|---:|---|---|---|
+| **F1 `cubical`** | 3 | `algebra`、`root`、`cmd-main` | `[]` | 立方依賴型別論、計算性單值性、ROBDD 面格、Hermitian 譜投影與精確代數塔 |
+| **F2 `symlib`** | 3 | `symlib`、`cmd-symdemo`、`cmd-symbench` | `[]` | 有限置換群、著色規範標號、Burnside 標記、`G-Set` 單子、有限範疇與 Kan 擴張 |
+| **F3 `semiring`** | 17 | `semiring/*`（16 包）＋`cmd-semiringreport` | `[]` | 冪等／星閉／熱帶半環、分塊／Lehmann 矩陣閉包、加權 CSR 圖與 Brzozowski DFA 正規形 |
+| **F4 `topos`** | 1 | `topos` | `cubical:algebra`、`symlib:symlib` | Grothendieck 與初等 Topos、子 Topos 核、Kripke–Joyal 語義、群胚疊與神經上同調 |
+| **F5 `scheme`** | 1 | `scheme` | `cubical:algebra` | 多變量 Gröbner 理想、黏合概形、Kähler 微分與 Eisenbud Fitting 平滑性、Serre 對偶、吹脹與動機 |
+| **Apex `unification`** | 2 | `bridge`、`cmd-showcase` | 單向觀察全部五聯邦（禁止反向匯入） | `K_5` 全 10 條跨聯邦雙邊橋、五聯邦五角大一統定理與 `ATLAS-01..18` 幾何—邏輯精細圖譜 |
+
+下表詳列 `cubical` 聯邦的 13 個 component；其餘聯邦與 `unification` 頂層 component 的即時明細以
+`architecture.json` 與 `tools/arch_check.py` 輸出為唯一來源。
 
 | 層 | Component | 實體套件 | 職責 | 可依賴 |
 |---:|---|---|---|---|
-| 0 | `foundation` | root | De Morgan 維度、面公式、ROBDD、DAG BDD、sifting／精確序 DP，與 Tseitin／watched-literal DPLL、CDCL+DRUP | — |
+| 0 | `foundation` | root | De Morgan 維度、面公式、ROBDD、DAG BDD、sifting／對稱軌道剪枝與連通分解精確序 DP，與 Tseitin／watched-literal DPLL、CDCL+DRUP/DRAT/索引化 LRAT（`CHLRATBN`） | — |
 | 1 | `numeric-hermitian` | root | 浮點複線性代數、投影、向量系統、仿射立方體 | foundation |
 | 1 | `exact-algebra` | **algebra** | BigInt 精確多項式、完整因式分解與聯合圖樣證書、根隔離、分裂域、多二次塔去巢、Q 線性代數、代數數、Jordan、譜恆等式、任意精度／自適應 Jacobi | —（Moon core 以外） |
 | 2 | `finite-cubical` | root | 簡單型別 NbE/HOAS、有限宇宙、wiring、PathP、Glue、J | foundation |
@@ -63,7 +75,7 @@ symlib、semiring、bridge、host/report 與 app component 的即時明細以
 | 4 | `dependent-kan-lines` | root | 宿主層 `DLine`、維度代換與簡單／有限型別嵌入 | foundation、dependent-kernel、finite-cubical |
 | 4 | `models` | root | 範疇模型、有限／子空間 Glue comp、認證數值影子與一般代數認證 | foundation、numeric、finite、exact-algebra |
 | 5 | `frontend` | root | pattern／有界 Huet／殘差 HOU elaborator、參數化模組、已編譯介面、增量快取、穩定 byte codec、CHDAGBIN 共圖與 CHARTCHN 工件鏈 | dependent-kernel、foundation（模組 codec 內的 `Dim`／`Face`） |
-| 5 | `cubical` | root | S³／同倫代表元、IntegerS／π 商呈現、環路 3-胞與閉代表式分類、命題截斷、adjoint 與一般纖維、立方體演算法、計算性單值性 | foundation、finite、dependent-kernel、exact-algebra（第十二期精確有理 Hopf 的 `Rat`） |
+| 5 | `cubical` | root | S³／一般 `SuspS(A)`、環路—懸掛伴隨 `Σ⊣Ω`、Freudenthal 0-連通定理與圓楔連通、`π₁(S¹)≃ℤ`、單值 Hopf、命題與集合截斷 `SetTruncS`、開放雙向雙射認證 `DVEquiv`、立方體演算法與計算性單值性 | foundation、finite、dependent-kernel、exact-algebra（精確有理 Hopf 的 `Rat`） |
 | 6 | `laws` | mixed | `*_laws.mbt` 行為律見證 | 同套件內較低層 |
 | 7 | `registry` | root | theorem/spec 登記表與 root→algebra 的集中匯入邊界 | 全部較低層 |
 | 8 | `tests` | mixed | `*_wbtest.mbt` / `*_test.mbt` | 被測套件 |

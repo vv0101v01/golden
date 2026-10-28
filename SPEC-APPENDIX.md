@@ -7,7 +7,7 @@
 > `architecture.json` 登記的 MoonBit 套件。
 
 <!-- APPENDIX:BEGIN -->
-共 **5054** 個公共符號（宣告＋構造子＋欄位），分屬 86 個規格族；按套件：`algebra` 860、`bridge` 87、`cmd-semiringreport` 42、`root` 2678、`semiring-algebra` 287、`semiring-app` 24、`semiring-bp` 22、`semiring-cat` 33、`semiring-examples` 18、`semiring-graph` 40、`semiring-io` 9、`semiring-matrix` 60、`semiring-monoid` 85、`semiring-nf` 43、`semiring-par` 18、`semiring-par-host` 4、`semiring-ratelimit` 64、`semiring-sim` 42、`semiring-spline` 17、`semiring-trop` 84、`symlib` 537。
+共 **6177** 個公共符號（宣告＋構造子＋欄位），分屬 98 個規格族；按套件：`algebra` 918、`bridge` 172、`cmd-semiringreport` 42、`root` 2992、`scheme` 314、`semiring-algebra` 287、`semiring-app` 24、`semiring-bp` 22、`semiring-cat` 33、`semiring-examples` 18、`semiring-graph` 40、`semiring-io` 9、`semiring-matrix` 60、`semiring-monoid` 85、`semiring-nf` 43、`semiring-par` 18、`semiring-par-host` 4、`semiring-ratelimit` 64、`semiring-sim` 42、`semiring-spline` 17、`semiring-trop` 84、`symlib` 537、`topos` 352。
 
 ### 複數標量
 
@@ -202,6 +202,7 @@
 | `face_eq_decide` | root | 函數 |
 | `face_eq_mod` | root | 函數 |
 | `face_holds` | root | 函數 |
+| `face_is_cubical_top` | root | 函數 |
 | `face_join_universal` | root | 函數 |
 | `face_le` | root | 函數 |
 | `face_maps_commute` | root | 函數 |
@@ -362,6 +363,7 @@
 | `eval_mk_equiv_term` | root | 函數 |
 | `eval_mutual_elim` | root | 函數 |
 | `eval_ua_term` | root | 函數 |
+| `eval_unglue_equiv_term` | root | 函數 |
 | `nbe_single_valued` | root | 函數 |
 | `nf` | root | 函數 |
 | `quote` | root | 函數 |
@@ -369,6 +371,7 @@
 | `quote_glue_equiv_type` | root | 函數 |
 | `quote_neutral` | root | 函數 |
 | `quote_schema_args_full` | root | 函數 |
+| `quote_unglue_equiv_neutral` | root | 函數 |
 | `swap_involutive_on_element` | root | 函數 |
 | `tm_const` | root | 函數 |
 | `tm_id` | root | 函數 |
@@ -480,6 +483,7 @@
 | `DNeutral::DNCircleElim` | root | 構造子 |
 | `DNeutral::DNComp` | root | 構造子 |
 | `DNeutral::DNDecode` | root | 構造子 |
+| `DNeutral::DNEquivAnn` | root | 構造子 |
 | `DNeutral::DNEquivBwd` | root | 構造子 |
 | `DNeutral::DNEquivFwd` | root | 構造子 |
 | `DNeutral::DNEquivRetr` | root | 構造子 |
@@ -492,6 +496,7 @@
 | `DNeutral::DNNatElim` | root | 構造子 |
 | `DNeutral::DNSnd` | root | 構造子 |
 | `DNeutral::DNTorusElim` | root | 構造子 |
+| `DNeutral::DNUnglueEquiv` | root | 構造子 |
 | `DNeutral::DNVar` | root | 構造子 |
 | `DTerm` | root | 列舉 |
 | `DTerm::DAnn` | root | 構造子 |
@@ -548,6 +553,7 @@
 | `DTerm::DTorusSquare` | root | 構造子 |
 | `DTerm::DTorusTy` | root | 構造子 |
 | `DTerm::DUa` | root | 構造子 |
+| `DTerm::DUnglueEquiv` | root | 構造子 |
 | `DTerm::DUnitLit` | root | 構造子 |
 | `DTerm::DUnitTy` | root | 構造子 |
 | `DTerm::DUniv` | root | 構造子 |
@@ -604,8 +610,11 @@
 | `conv_neutral` | root | 函數 |
 | `conv_terms_case_split` | root | 函數 |
 | `conv_terms_case_split_report` | root | 函數 |
+| `conv_terms_finite_case_split` | root | 函數 |
+| `conv_terms_finite_case_split_report` | root | 函數 |
 | `conv_terms_plain` | root | 函數 |
 | `conv_ty` | root | 函數 |
+| `cs_finite_closed_inhabitants` | root | 函數 |
 | `d_as_type` | root | 函數 |
 | `d_check` | root | 函數 |
 | `d_infer` | root | 函數 |
@@ -623,6 +632,8 @@
 | `quote_at` | root | 函數 |
 | `quote_dneutral` | root | 函數 |
 | `quote_ty` | root | 函數 |
+| `reflect_neutral_at_type` | root | 函數 |
+| `reflect_var` | root | 函數 |
 
 ### 立方 AST 與維度 NbE
 
@@ -683,6 +694,7 @@
 | `check_ast_kan_types` | root | 函數 |
 | `check_circle_torus_point_comp` | root | 函數 |
 | `check_circle_torus_square_comp` | root | 函數 |
+| `check_phase14_decoupled_torus_and_semantic_circle_norm` | root | 函數 |
 | `coe_value` | root | 函數 |
 | `comp_glue_value` | root | 函數 |
 | `comp_path_value` | root | 函數 |
@@ -753,6 +765,21 @@
 | `DTermDagBinaryLoad::equal` | root | 函數 |
 | `DTermDagBinaryLoad::not_equal` | root | 函數 |
 | `DTermDagBinaryLoad::to_repr` | root | 函數 |
+| `DTermDagDelta` | root | 結構 |
+| `DTermDagDelta.base_digest_a` | root | 欄位 |
+| `DTermDagDelta.base_digest_b` | root | 欄位 |
+| `DTermDagDelta.base_node_count` | root | 欄位 |
+| `DTermDagDelta.delta_nodes` | root | 欄位 |
+| `DTermDagDelta.roots` | root | 欄位 |
+| `DTermDagDelta::equal` | root | 函數 |
+| `DTermDagDelta::not_equal` | root | 函數 |
+| `DTermDagDelta::to_repr` | root | 函數 |
+| `DTermDagDeltaBinaryLoad` | root | 結構 |
+| `DTermDagDeltaBinaryLoad.delta` | root | 欄位 |
+| `DTermDagDeltaBinaryLoad.status` | root | 欄位 |
+| `DTermDagDeltaBinaryLoad::equal` | root | 函數 |
+| `DTermDagDeltaBinaryLoad::not_equal` | root | 函數 |
+| `DTermDagDeltaBinaryLoad::to_repr` | root | 函數 |
 | `DTermDagImportReport` | root | 結構 |
 | `DTermDagImportReport.added_nodes` | root | 欄位 |
 | `DTermDagImportReport.node_ids` | root | 欄位 |
@@ -784,6 +811,7 @@
 | `check_dterm_hash_consing` | root | 函數 |
 | `check_interned_dag_byte_sharing` | root | 函數 |
 | `check_persistent_env_lazy_cache` | root | 函數 |
+| `check_phase14_incremental_dag_delta_and_shared_bundle` | root | 函數 |
 | `ddim_at` | root | 函數 |
 | `ddim_cons` | root | 函數 |
 | `ddim_empty` | root | 函數 |
@@ -807,6 +835,12 @@
 | `dterm_dag_binary_to_hex` | root | 函數 |
 | `dterm_dag_binary_version_of` | root | 函數 |
 | `dterm_dag_binary_version_policy` | root | 函數 |
+| `dterm_dag_delta_apply` | root | 函數 |
+| `dterm_dag_delta_compute` | root | 函數 |
+| `dterm_dag_delta_import_binary` | root | 函數 |
+| `dterm_dag_delta_load_binary_report` | root | 函數 |
+| `dterm_dag_delta_to_binary` | root | 函數 |
+| `dterm_dag_delta_validate` | root | 函數 |
 | `dterm_dag_import` | root | 函數 |
 | `dterm_dag_import_binary` | root | 函數 |
 | `dterm_dag_snapshot` | root | 函數 |
@@ -822,6 +856,7 @@
 | `dterm_intern_node` | root | 函數 |
 | `dterm_intern_table_children` | root | 函數 |
 | `dterm_intern_table_new` | root | 函數 |
+| `dterm_intern_table_prefix_digest` | root | 函數 |
 | `dterm_intern_table_size` | root | 函數 |
 | `dterm_intern_table_snapshot` | root | 函數 |
 | `dterm_intern_table_term` | root | 函數 |
@@ -879,7 +914,9 @@
 | `dsystem_checked_of` | root | 函數 |
 | `dsystem_compatibility` | root | 函數 |
 | `dsystem_compatibility_report` | root | 函數 |
+| `dsystem_compatibility_report_in` | root | 函數 |
 | `dsystem_compatible_with_base` | root | 函數 |
+| `dsystem_compatible_with_base_in` | root | 函數 |
 | `dsystem_domain_face` | root | 函數 |
 | `dsystem_empty` | root | 函數 |
 | `dsystem_first_match_checked` | root | 函數 |
@@ -994,6 +1031,9 @@
 | `dinductive_recursive_spec` | root | 函數 |
 | `dinductive_spec` | root | 函數 |
 | `dtelescope_entry` | root | 函數 |
+| `empty_inductive_elim_value` | root | 函數 |
+| `empty_inductive_schema` | root | 函數 |
+| `empty_inductive_type_value` | root | 函數 |
 | `eval_inductive_elim` | root | 函數 |
 | `eval_inductive_elim_term` | root | 函數 |
 | `eval_inductive_type_term` | root | 函數 |
@@ -1511,9 +1551,12 @@
 | `check_ua_coe` | root | 函數 |
 | `coe_computes` | root | 函數 |
 | `coe_upath` | root | 函數 |
+| `equiv_bidirectional_certified` | root | 函數 |
+| `equiv_bidirectional_certified_in` | root | 函數 |
 | `equiv_bool_not` | root | 函數 |
 | `equiv_bwd_value` | root | 函數 |
 | `equiv_comp` | root | 函數 |
+| `equiv_compose_value` | root | 函數 |
 | `equiv_ext_eq` | root | 函數 |
 | `equiv_ext_eq_oracle` | root | 函數（差分測試 oracle，非判定路徑） |
 | `equiv_fun_value` | root | 函數 |
@@ -1610,6 +1653,7 @@
 | `glue_equiv_collapse` | root | 函數 |
 | `glue_equiv_domain_face` | root | 函數 |
 | `glue_equiv_partial_values` | root | 函數 |
+| `glue_equiv_restrict_arg_under_face` | root | 函數 |
 | `glue_equiv_store_partial` | root | 函數 |
 | `glue_equiv_systems_conv` | root | 函數 |
 | `glue_equiv_term` | root | 函數 |
@@ -1691,9 +1735,9 @@
 
 ### BDD DAG、預算與 DPLL
 
-- 規範形式：hash-consed DAG 節點 ID；root 的 reachable node count 為 ROBDD 大小；apply cache 於 apply_misses 超過桶數四倍時 doubling rehash；sifting 逐變量試全部插入位置並以 reachable size 衡量 並回報 initial/final/attempts/improved；CNF 以 Tseitin 門變量線性編碼
-- 範疇化：布林函數在固定變量次序下的共享規範圖；apply 是格運算的 memoized 實現；watched-literal DPLL 是面格可滿足性的搜尋判定
-- 判定：同 manager root-id 相等、root≠0 的 sat、節點預算 FaceDecision、或有步數預算的 DPLL（舊掃描式與 watched-literal）；另有候選變量次序最小化與 3ⁿ 最壞節點界；watched/list DPLL 以 2^n brute force 差分驗證，sifting 以恆等哨兵避免大小同分時誤稱改善；CDCL 在 watched 傳播上加 1-UIP 子句學習、VSIDS 與 Luby 重啟、LBD 子句刪除（僅 decision level 0、reason 子句保留）與 RUP/DRUP 證明輸出（刪除步驟按字面集合身分記錄，獨立核驗器在演進中的 active 子句庫上重播單位傳播），於生成面與鴿洞實例對驗；精確最佳變量序於 n≤8 全排列枚舉、n≤16 改以增量 cofactor 子集 DP 對各前綴子集求最小上層寬度，超出上限明示非精確
+- 規範形式：hash-consed DAG 節點 ID；root 的 reachable node count 為 ROBDD 大小；apply cache 於 apply_misses 超過桶數四倍時 doubling rehash；sifting 逐變量試全部插入位置並以 reachable size 衡量 並回報 initial/final/attempts/improved；CNF 以 Tseitin 門變量線性編碼；LRAT 證明步驟為帶顯式傳播提示鏈的 LratAdd/LratDelete 及 CHLRATBN v1 二進位範形
+- 範疇化：布林函數在固定變量次序下的共享規範圖；apply 是格運算的 memoized 實現；watched-literal DPLL/CDCL 是面格可滿足性的搜尋判定，DRAT→LRAT 精化則是到帶顯式見證鏈證明範疇的函子提升
+- 判定：同 manager root-id 相等、root≠0 的 sat、節點預算 FaceDecision、或有步數預算的 DPLL（舊掃描式與 watched-literal）；另有候選變量次序最小化與 3ⁿ 最壞節點界；watched/list DPLL 以 2^n brute force 差分驗證，sifting 以恆等哨兵避免大小同分時誤稱改善；CDCL 在 watched 傳播上加 1-UIP 子句學習、VSIDS 與 Luby 重啟、LBD 子句刪除、DRUP/DRAT 核驗、反向核心裁剪，以及 DRAT→LRAT 精化器與索引化線性時間 LRAT 檢查器；精確最佳變量序結合啟發式上界剪枝、cofactor 對稱軌道剪枝（單連通分量達 n≤20）與變量共現交互圖連通支援分解（獨立支援分量各自精確求解並拼接，單分量超限明示 exact=false）
 
 | 符號 | 套件 | 類別 |
 |---|---|---|
@@ -1713,6 +1757,16 @@
 | `BddDagNode.hi` | root | 欄位 |
 | `BddDagNode.lo` | root | 欄位 |
 | `BddDagNode.rank` | root | 欄位 |
+| `BddDecomposedOptimalBuild` | root | 結構 |
+| `BddDecomposedOptimalBuild.active_vars` | root | 欄位 |
+| `BddDecomposedOptimalBuild.built` | root | 欄位 |
+| `BddDecomposedOptimalBuild.component_count` | root | 欄位 |
+| `BddDecomposedOptimalBuild.exact` | root | 欄位 |
+| `BddDecomposedOptimalBuild.max_component_vars` | root | 欄位 |
+| `BddDecomposedOptimalBuild.order` | root | 欄位 |
+| `BddDecomposedOptimalBuild.pruned_subsets` | root | 欄位 |
+| `BddDecomposedOptimalBuild.size` | root | 欄位 |
+| `BddDecomposedOptimalBuild.tried` | root | 欄位 |
 | `BddManager` | root | 結構 |
 | `BddManager.apply_buckets` | root | 欄位 |
 | `BddManager.apply_hits` | root | 欄位 |
@@ -1738,6 +1792,15 @@
 | `BddOptimizedBuild.initial_reachable` | root | 欄位 |
 | `BddOptimizedBuild.order` | root | 欄位 |
 | `BddOptimizedBuild.reachable` | root | 欄位 |
+| `BddPrunedOptimalBuild` | root | 結構 |
+| `BddPrunedOptimalBuild.active_vars` | root | 欄位 |
+| `BddPrunedOptimalBuild.built` | root | 欄位 |
+| `BddPrunedOptimalBuild.exact` | root | 欄位 |
+| `BddPrunedOptimalBuild.incumbent_size` | root | 欄位 |
+| `BddPrunedOptimalBuild.order` | root | 欄位 |
+| `BddPrunedOptimalBuild.pruned_subsets` | root | 欄位 |
+| `BddPrunedOptimalBuild.size` | root | 欄位 |
+| `BddPrunedOptimalBuild.tried` | root | 欄位 |
 | `FaceBoolExpr::equal` | root | 函數 |
 | `FaceBoolExpr::not_equal` | root | 函數 |
 | `FaceBoolExpr::to_repr` | root | 函數 |
@@ -1780,6 +1843,28 @@
 | `FaceDecision::equal` | root | 函數 |
 | `FaceDecision::not_equal` | root | 函數 |
 | `FaceDecision::to_repr` | root | 函數 |
+| `FaceDrupTrimReport` | root | 結構 |
+| `FaceDrupTrimReport.original_steps` | root | 欄位 |
+| `FaceDrupTrimReport.steps` | root | 欄位 |
+| `FaceDrupTrimReport.trimmed_steps` | root | 欄位 |
+| `FaceDrupTrimReport.valid` | root | 欄位 |
+| `FaceLratElaborateReport` | root | 結構 |
+| `FaceLratElaborateReport.input_steps` | root | 欄位 |
+| `FaceLratElaborateReport.lrat_adds` | root | 欄位 |
+| `FaceLratElaborateReport.lrat_deletes` | root | 欄位 |
+| `FaceLratElaborateReport.original_clauses` | root | 欄位 |
+| `FaceLratElaborateReport.steps` | root | 欄位 |
+| `FaceLratElaborateReport.total_hints` | root | 欄位 |
+| `FaceLratElaborateReport.valid` | root | 欄位 |
+| `FaceLratElaborateReport::equal` | root | 函數 |
+| `FaceLratElaborateReport::not_equal` | root | 函數 |
+| `FaceLratElaborateReport::to_repr` | root | 函數 |
+| `FaceLratStep` | root | 列舉 |
+| `FaceLratStep::LratAdd` | root | 構造子 |
+| `FaceLratStep::LratDelete` | root | 構造子 |
+| `FaceLratStep::equal` | root | 函數 |
+| `FaceLratStep::not_equal` | root | 函數 |
+| `FaceLratStep::to_repr` | root | 函數 |
 | `FaceSatDecision` | root | 列舉 |
 | `FaceSatDecision::FaceSat` | root | 構造子 |
 | `FaceSatDecision::FaceSearchBudgetExceeded` | root | 構造子 |
@@ -1800,7 +1885,9 @@
 | `bdd_dag_of_face` | root | 函數 |
 | `bdd_dag_of_face_best` | root | 函數 |
 | `bdd_dag_of_face_optimal` | root | 函數 |
+| `bdd_dag_of_face_optimal_decomposed` | root | 函數 |
 | `bdd_dag_of_face_optimal_dp` | root | 函數 |
+| `bdd_dag_of_face_optimal_pruned` | root | 函數 |
 | `bdd_dag_of_face_optimized` | root | 函數 |
 | `bdd_dag_or` | root | 函數 |
 | `bdd_dag_reachable_count` | root | 函數 |
@@ -1825,12 +1912,22 @@
 | `check_bdd_optimal_order_exact` | root | 函數 |
 | `check_cdcl_clause_learning` | root | 函數 |
 | `check_cdcl_drup_proof_with_deletions` | root | 函數 |
+| `check_phase14_bdd_bnb_and_cdcl_drat` | root | 函數 |
+| `check_phase15_bdd_symmetry_orbit_and_decomposed_optimal` | root | 函數 |
+| `check_phase15_cdcl_lrat_elaboration_and_binary_codec` | root | 函數 |
+| `face_cdcl_drat_check` | root | 函數 |
 | `face_cdcl_drup_check` | root | 函數 |
+| `face_cdcl_drup_trim` | root | 函數 |
+| `face_cdcl_elaborate_lrat` | root | 函數 |
+| `face_cdcl_lrat_check` | root | 函數 |
+| `face_cdcl_lrat_check_binary` | root | 函數 |
 | `face_cnf_stats` | root | 函數 |
 | `face_eq_cdcl` | root | 函數 |
 | `face_eq_dpll` | root | 函數 |
 | `face_eq_watched_dpll` | root | 函數 |
 | `face_eq_within_budget` | root | 函數 |
+| `face_lrat_from_binary` | root | 函數 |
+| `face_lrat_to_binary` | root | 函數 |
 | `face_sat_cdcl` | root | 函數 |
 | `face_sat_cdcl_proof` | root | 函數 |
 | `face_sat_cdcl_report` | root | 函數 |
@@ -1871,6 +1968,13 @@
 | `DSystemRepair.compatible` | root | 欄位 |
 | `DSystemRepair.repaired_branches` | root | 欄位 |
 | `DSystemRepair.system` | root | 欄位 |
+| `DSystemRepairAllMaxima` | root | 結構 |
+| `DSystemRepairAllMaxima.all_compatible` | root | 欄位 |
+| `DSystemRepairAllMaxima.conflict_components` | root | 欄位 |
+| `DSystemRepairAllMaxima.exact` | root | 欄位 |
+| `DSystemRepairAllMaxima.max_branch_count` | root | 欄位 |
+| `DSystemRepairAllMaxima.systems` | root | 欄位 |
+| `DSystemRepairAllMaxima.total_maximum_count` | root | 欄位 |
 | `DSystemRepairExact` | root | 結構 |
 | `DSystemRepairExact.base_removed_region` | root | 欄位 |
 | `DSystemRepairExact.compatible` | root | 欄位 |
@@ -1903,14 +2007,20 @@
 | `check_dsystem_maximum_completion` | root | 函數 |
 | `check_dsystem_repair_phase9` | root | 函數 |
 | `check_face_agreement_and_exact_repair` | root | 函數 |
+| `check_phase14_dsystem_all_maxima_and_finite_case_split` | root | 函數 |
 | `conv_at_under_face` | root | 函數 |
+| `conv_at_under_face_in` | root | 函數 |
 | `conv_at_under_face_report` | root | 函數 |
+| `conv_at_under_face_report_in` | root | 函數 |
+| `cubical_face_subcubes` | root | 函數 |
+| `dsystem_repair_all_maxima` | root | 函數 |
 | `dsystem_repair_maximum` | root | 函數 |
 | `dtube_nf_class` | root | 函數 |
 | `face_agreement_face` | root | 函數 |
 | `face_agreement_face_sound` | root | 函數 |
 | `face_agreement_region` | root | 函數 |
 | `tube_paths_conv_under_face` | root | 函數 |
+| `tube_paths_conv_under_face_in` | root | 函數 |
 
 ### AST 一等 Equiv 與 GlueEquiv
 
@@ -1962,6 +2072,7 @@
 | `infer_glue_equiv` | root | 函數 |
 | `infer_mk_equiv` | root | 函數 |
 | `infer_ua` | root | 函數 |
+| `infer_unglue_equiv` | root | 函數 |
 | `mk_equiv_term` | root | 函數 |
 
 ### 受檢查語義型別線
@@ -2100,9 +2211,16 @@
 | `DPositivityReport::equal` | root | 函數 |
 | `DPositivityReport::not_equal` | root | 函數 |
 | `DPositivityReport::to_repr` | root | 函數 |
+| `DPositivityWitness` | root | 結構 |
+| `DPositivityWitness.declaration` | root | 欄位 |
+| `DPositivityWitness.definition` | root | 欄位 |
+| `DPositivityWitness::equal` | root | 函數 |
+| `DPositivityWitness::not_equal` | root | 函數 |
+| `DPositivityWitness::to_repr` | root | 函數 |
 | `check_container_functor_tree` | root | 函數 |
 | `check_family_nested_functors` | root | 函數 |
 | `check_nested_rose_tree` | root | 函數 |
+| `check_phase14_positivity_witness_certificates` | root | 函數 |
 | `check_self_family_positivity_fixpoint` | root | 函數 |
 | `check_structural_positivity` | root | 函數 |
 | `check_tarski_induction_recursion` | root | 函數 |
@@ -2126,11 +2244,14 @@
 | `dpositivity_declaration` | root | 函數 |
 | `dpositivity_declaration_from_lambda` | root | 函數 |
 | `dpositivity_report` | root | 函數 |
+| `dpositivity_witness` | root | 函數 |
+| `dpositivity_witness_verify` | root | 函數 |
 | `dterm_children` | root | 函數 |
 | `dterm_family_occurs` | root | 函數 |
 | `dterm_family_positivity` | root | 函數 |
 | `dterm_family_positivity_declared` | root | 函數 |
 | `dterm_family_strictly_positive` | root | 函數 |
+| `dterm_family_strictly_positive_certified` | root | 函數 |
 | `dterm_family_strictly_positive_declared` | root | 函數 |
 | `dterm_shift` | root | 函數 |
 | `dterm_substitute` | root | 函數 |
@@ -2302,7 +2423,6 @@
 | `qpoly_irreducibility_certificate_check` | algebra | 函數 |
 | `qpoly_irreducible_by_mod_patterns` | algebra | 函數 |
 | `qpoly_irreducible_certified` | algebra | 函數 |
-| `qpoly_irreducible_upto3` | algebra | 函數 |
 | `qpoly_is_one` | algebra | 函數 |
 | `qpoly_is_squarefree` | algebra | 函數 |
 | `qpoly_is_zero` | algebra | 函數 |
@@ -2374,6 +2494,14 @@
 | `QuadNum::equal` | algebra | 函數 |
 | `QuadNum::not_equal` | algebra | 函數 |
 | `QuadNum::to_repr` | algebra | 函數 |
+| `RealAlgRadical` | algebra | 結構 |
+| `RealAlgRadical.lower` | algebra | 欄位 |
+| `RealAlgRadical.minpoly` | algebra | 欄位 |
+| `RealAlgRadical.root_index` | algebra | 欄位 |
+| `RealAlgRadical.upper` | algebra | 欄位 |
+| `RealAlgRadical::equal` | algebra | 函數 |
+| `RealAlgRadical::not_equal` | algebra | 函數 |
+| `RealAlgRadical::to_repr` | algebra | 函數 |
 | `TriquadNum` | algebra | 結構 |
 | `TriquadNum.coeffs` | algebra | 欄位 |
 | `TriquadNum.gens` | algebra | 欄位 |
@@ -2412,7 +2540,9 @@
 | `alg_to_rat` | algebra | 函數 |
 | `alg_trace` | algebra | 函數 |
 | `alg_zero` | algebra | 函數 |
+| `check_algebraic_radicals_and_rank6_multiquad` | algebra | 函數 |
 | `check_multiquadratic_tower` | algebra | 函數 |
+| `check_phase14_algebraic_radicals_and_rank6_multiquad` | root | 函數 |
 | `cubic_add` | algebra | 函數 |
 | `cubic_cuberoot_rat` | algebra | 函數 |
 | `cubic_div` | algebra | 函數 |
@@ -2431,14 +2561,19 @@
 | `int_sqrt_exact` | algebra | 函數 |
 | `int_squarefree_decomp` | algebra | 函數 |
 | `multiquad_add` | algebra | 函數 |
+| `multiquad_add_upto` | algebra | 函數 |
 | `multiquad_align` | algebra | 函數 |
+| `multiquad_align_upto` | algebra | 函數 |
 | `multiquad_div` | algebra | 函數 |
 | `multiquad_eq` | algebra | 函數 |
+| `multiquad_eq_upto` | algebra | 函數 |
 | `multiquad_inv` | algebra | 函數 |
 | `multiquad_is_rat` | algebra | 函數 |
 | `multiquad_is_zero` | algebra | 函數 |
 | `multiquad_make` | algebra | 函數 |
+| `multiquad_make_upto` | algebra | 函數 |
 | `multiquad_mul` | algebra | 函數 |
+| `multiquad_mul_upto` | algebra | 函數 |
 | `multiquad_neg` | algebra | 函數 |
 | `multiquad_of_biquad` | algebra | 函數 |
 | `multiquad_of_quad` | algebra | 函數 |
@@ -2448,6 +2583,7 @@
 | `multiquad_reembed` | algebra | 函數 |
 | `multiquad_sign` | algebra | 函數 |
 | `multiquad_sqrt_extended` | algebra | 函數 |
+| `multiquad_sqrt_extended_upto` | algebra | 函數 |
 | `multiquad_sqrt_in_field` | algebra | 函數 |
 | `multiquad_sqrt_rat` | algebra | 函數 |
 | `multiquad_sub` | algebra | 函數 |
@@ -2480,6 +2616,16 @@
 | `quad_to_rat` | algebra | 函數 |
 | `quad_trace` | algebra | 函數 |
 | `quad_zero` | algebra | 函數 |
+| `real_alg_add` | algebra | 函數 |
+| `real_alg_div` | algebra | 函數 |
+| `real_alg_eq` | algebra | 函數 |
+| `real_alg_inv` | algebra | 函數 |
+| `real_alg_mul` | algebra | 函數 |
+| `real_alg_neg` | algebra | 函數 |
+| `real_alg_nth_root` | algebra | 函數 |
+| `real_alg_of_rat` | algebra | 函數 |
+| `real_alg_sign` | algebra | 函數 |
+| `real_alg_sub` | algebra | 函數 |
 | `triquad_add` | algebra | 函數 |
 | `triquad_align` | algebra | 函數 |
 | `triquad_div` | algebra | 函數 |
@@ -2742,13 +2888,23 @@
 
 ### 球面與懸掛 HIT
 
-- 規範形式：Susp(X) 的 north/south 兩點與每點一條 meridian；S²=Susp(S¹)、S³=Susp(S²)
-- 範疇化：懸掛是把 X×I 兩端各塌縮為一點的 HIT 商；迭代懸掛給出球面族
-- 判定：generic HIT schema 驗證、meridian 端點 face 化簡、依賴消去與 hcomp
+- 規範形式：一般參數化懸掛 SuspS(A) 的 north/south 兩點與每點 a:A 一條 meridian；S²=Susp(S¹)、S³=Susp(S²)；Susp(Bool)≃S¹、餘錐 Cocone(A,B) 與基點環路—懸掛伴隨 (ΣA→*B)≃(A→*ΩB)
+- 範疇化：懸掛是把 A×I 兩端各塌縮為一點的同倫推出 HIT 商，映出態射由餘錐萬有性分類；在基點類型範疇 Type* 中 Σ 與 Ω 構成典範同倫伴隨 Σ⊣Ω
+- 判定：generic HIT schema 驗證、meridian 端點 face 化簡、依賴消去與 hcomp；0-連通空間的懸掛基本群由 Freudenthal 0-連通定理證為平凡群 ‖Ω¹(Susp(A))‖₀≃1（導出 π₁(S²)≃1 與 π₁(S³)≃1），並具圓楔連通延伸及相干見證
 
 | 符號 | 套件 | 類別 |
 |---|---|---|
+| `based_map_type_value` | root | 函數 |
+| `check_phase15_freudenthal_suspension_and_wedge_connectivity` | root | 函數 |
+| `check_phase15_suspension_and_loop_suspension_adjunction` | root | 函數 |
 | `check_sphere3` | root | 函數 |
+| `circle_0_connected_value` | root | 函數 |
+| `circle_to_susp_bool_value` | root | 函數 |
+| `cocone_to_based_loop_equiv_value` | root | 函數 |
+| `freudenthal_pi1_susp_connected_equiv_unit_value` | root | 函數 |
+| `loop_suspension_adjunction_equiv_value` | root | 函數 |
+| `pi1_susp2_circle_equiv_unit_value` | root | 函數 |
+| `pi1_susp_circle_equiv_unit_value` | root | 函數 |
 | `sphere2_north_term` | root | 函數 |
 | `sphere2_north_value` | root | 函數 |
 | `sphere2_schema` | root | 函數 |
@@ -2762,7 +2918,22 @@
 | `sphere3_type_term` | root | 函數 |
 | `sphere3_type_value` | root | 函數 |
 | `sphere_schema` | root | 函數 |
+| `susp_0_connected_of_pointed_value` | root | 函數 |
+| `susp_based_to_cocone_equiv_value` | root | 函數 |
+| `susp_bool_equiv_circle_value` | root | 函數 |
+| `susp_bool_to_circle_value` | root | 函數 |
+| `susp_cocone_type_value` | root | 函數 |
+| `susp_merid_path_value` | root | 函數 |
+| `susp_north_value` | root | 函數 |
+| `susp_south_value` | root | 函數 |
+| `susp_type_schema` | root | 函數 |
+| `susp_type_schema_at` | root | 函數 |
+| `susp_type_value` | root | 函數 |
+| `susp_universal_equiv_value` | root | 函數 |
 | `suspension_schema` | root | 函數 |
+| `wedge_connectivity_circle_left_coh_value` | root | 函數 |
+| `wedge_connectivity_circle_right_coh_value` | root | 函數 |
+| `wedge_connectivity_circle_set_ext_value` | root | 函數 |
 
 ### Jacobi 區間譜迭代
 
@@ -2795,6 +2966,13 @@
 | `JacobiAdaptiveReport::equal` | algebra | 函數 |
 | `JacobiAdaptiveReport::not_equal` | algebra | 函數 |
 | `JacobiAdaptiveReport::to_repr` | algebra | 函數 |
+| `JacobiBlockDeflatedReport` | algebra | 結構 |
+| `JacobiBlockDeflatedReport.block_reports` | algebra | 欄位 |
+| `JacobiBlockDeflatedReport.blocks` | algebra | 欄位 |
+| `JacobiBlockDeflatedReport.intervals` | algebra | 欄位 |
+| `JacobiBlockDeflatedReport.max_block_dimension` | algebra | 欄位 |
+| `JacobiBlockDeflatedReport.max_interval_width` | algebra | 欄位 |
+| `JacobiBlockDeflatedReport.target_met` | algebra | 欄位 |
 | `JacobiCertificate` | algebra | 結構 |
 | `JacobiCertificate.eigenvalues` | algebra | 欄位 |
 | `JacobiCertificate.final_matrix` | algebra | 欄位 |
@@ -2875,7 +3053,9 @@
 | `SeparatedEigenInterval::not_equal` | algebra | 函數 |
 | `SeparatedEigenInterval::to_repr` | algebra | 函數 |
 | `check_jacobi_adaptive_exact_fallback` | algebra | 函數 |
+| `check_jacobi_block_deflation_and_multiplicity` | algebra | 函數 |
 | `check_jacobi_cluster_separation` | algebra | 函數 |
+| `check_phase14_jacobi_block_deflation_and_multiplicity` | root | 函數 |
 | `cinterval` | algebra | 函數 |
 | `cinterval_add` | algebra | 函數 |
 | `cinterval_conj` | algebra | 函數 |
@@ -2891,6 +3071,9 @@
 | `cinterval_subset` | algebra | 函數 |
 | `cinterval_zero` | algebra | 函數 |
 | `eigen_interval_contains` | algebra | 函數 |
+| `jacobi_block_components` | algebra | 函數 |
+| `jacobi_block_deflated_certified` | algebra | 函數 |
+| `jacobi_block_deflated_eigen` | algebra | 函數 |
 | `jacobi_certificate_sound` | algebra | 函數 |
 | `jacobi_cluster_separation_certified` | algebra | 函數 |
 | `jacobi_coefficients` | algebra | 函數 |
@@ -2978,6 +3161,16 @@
 | `HouConstraint::equal` | root | 函數 |
 | `HouConstraint::not_equal` | root | 函數 |
 | `HouConstraint::to_repr` | root | 函數 |
+| `HouEnumerationReport` | root | 結構 |
+| `HouEnumerationReport.branches_tried` | root | 欄位 |
+| `HouEnumerationReport.capped` | root | 欄位 |
+| `HouEnumerationReport.max_depth_reached` | root | 欄位 |
+| `HouEnumerationReport.nodes` | root | 欄位 |
+| `HouEnumerationReport.search_exhausted` | root | 欄位 |
+| `HouEnumerationReport.solutions` | root | 欄位 |
+| `HouEnumerationReport::equal` | root | 函數 |
+| `HouEnumerationReport::not_equal` | root | 函數 |
+| `HouEnumerationReport::to_repr` | root | 函數 |
 | `HouIterativeReport` | root | 結構 |
 | `HouIterativeReport.report` | root | 欄位 |
 | `HouIterativeReport.rounds` | root | 欄位 |
@@ -3083,11 +3276,13 @@
 | `check_hou_phase9_extensions` | root | 函數 |
 | `check_hou_residual_solver` | root | 函數 |
 | `check_hou_search_extensions` | root | 函數 |
+| `check_phase14_hou_backtracking_and_enumeration` | root | 函數 |
 | `elab_check` | root | 函數 |
 | `elab_infer` | root | 函數 |
 | `elab_result_to_dterm` | root | 函數 |
 | `elab_type_to_dterm` | root | 函數 |
 | `elaborator_new` | root | 函數 |
+| `hou_enumerate_unifiers` | root | 函數 |
 | `hou_fresh_meta` | root | 函數 |
 | `hou_search_unify` | root | 函數 |
 | `hou_search_unify_bool` | root | 函數 |
@@ -3095,6 +3290,7 @@
 | `hou_search_unify_iterative_bool` | root | 函數 |
 | `hou_semantic_optimize` | root | 函數 |
 | `hou_solve_constraints` | root | 函數 |
+| `hou_solve_constraints_backtracking` | root | 函數 |
 | `hou_unify` | root | 函數 |
 | `hou_unify_mgu` | root | 函數 |
 | `hou_unify_residual` | root | 函數 |
@@ -3244,20 +3440,34 @@
 | `KanBox.line` | root | 欄位 |
 | `KanBox.system` | root | 欄位 |
 | `check_cubical_algorithms` | root | 函數 |
+| `check_phase14_eckmann_hilton_and_pentagon_coherence` | root | 函數 |
 | `dfunext_term` | root | 函數 |
+| `dj_singleton_elim_value` | root | 函數 |
 | `dpath_assoc3_value` | root | 函數 |
+| `dpath_assoc_path3_value` | root | 函數 |
 | `dpath_at_value` | root | 函數 |
 | `dpath_cong_term` | root | 函數 |
 | `dpath_cong_value` | root | 函數 |
+| `dpath_eckmann_hilton3_value` | root | 函數 |
 | `dpath_funext_value` | root | 函數 |
 | `dpath_left_inverse3_value` | root | 函數 |
 | `dpath_left_unit3_value` | root | 函數 |
+| `dpath_lr_unit_coherence4_value` | root | 函數 |
+| `dpath_of_pathp_value` | root | 函數 |
+| `dpath_pentagon4_value` | root | 函數 |
+| `dpath_pentagon_bot3_value` | root | 函數 |
+| `dpath_pentagon_path_bot3_value` | root | 函數 |
+| `dpath_pentagon_path_top3_value` | root | 函數 |
+| `dpath_pentagon_top3_value` | root | 函數 |
 | `dpath_prefix_value` | root | 函數 |
 | `dpath_refl_term` | root | 函數 |
 | `dpath_refl_value` | root | 函數 |
 | `dpath_right_inverse3_value` | root | 函數 |
 | `dpath_right_unit3_value` | root | 函數 |
+| `dpath_right_unit_general_value` | root | 函數 |
 | `dpath_segment_value` | root | 函數 |
+| `dpath_square_boundary3_value` | root | 函數 |
+| `dpath_subst_trans_value` | root | 函數 |
 | `dpath_sym_compose3_value` | root | 函數 |
 | `dpath_sym_term` | root | 函數 |
 | `dpath_sym_value` | root | 函數 |
@@ -3265,6 +3475,8 @@
 | `dpath_trans_term` | root | 函數 |
 | `dpath_trans_value` | root | 函數 |
 | `dpath_triple_square_value` | root | 函數 |
+| `dpathp_eq_in_set_family_value` | root | 函數 |
+| `dpathp_of_transport_eq_value` | root | 函數 |
 | `dtransport_back_term` | root | 函數 |
 | `dtransport_term` | root | 函數 |
 | `kan_box` | root | 函數 |
@@ -3349,12 +3561,27 @@
 | `ComplexRootIsolation.disk` | algebra | 欄位 |
 | `ComplexRootIsolation.multiplicity` | algebra | 欄位 |
 | `ComplexRootIsolation.polynomial` | algebra | 欄位 |
+| `QPolyCertifiedFactor` | algebra | 結構 |
+| `QPolyCertifiedFactor.certificate` | algebra | 欄位 |
+| `QPolyCertifiedFactor.factor` | algebra | 欄位 |
+| `QPolyCertifiedFactor.multiplicity` | algebra | 欄位 |
+| `QPolyCertifiedFactor::equal` | algebra | 函數 |
+| `QPolyCertifiedFactor::not_equal` | algebra | 函數 |
+| `QPolyCertifiedFactor::to_repr` | algebra | 函數 |
 | `QPolyCompleteFactorization` | algebra | 結構 |
 | `QPolyCompleteFactorization.factors` | algebra | 欄位 |
 | `QPolyCompleteFactorization.leading` | algebra | 欄位 |
 | `QPolyDegreePattern` | algebra | 結構 |
 | `QPolyDegreePattern.degrees` | algebra | 欄位 |
 | `QPolyDegreePattern.prime` | algebra | 欄位 |
+| `QPolyFactorCertificate` | algebra | 結構 |
+| `QPolyFactorCertificate.factors` | algebra | 欄位 |
+| `QPolyFactorCertificate.hensel_exponent` | algebra | 欄位 |
+| `QPolyFactorCertificate.hensel_prime` | algebra | 欄位 |
+| `QPolyFactorCertificate.leading` | algebra | 欄位 |
+| `QPolyFactorCertificate::equal` | algebra | 函數 |
+| `QPolyFactorCertificate::not_equal` | algebra | 函數 |
+| `QPolyFactorCertificate::to_repr` | algebra | 函數 |
 | `QPolyIrreducibilityCertificate` | algebra | 列舉 |
 | `QPolyIrreducibilityCertificate::CertEisenstein` | algebra | 構造子 |
 | `QPolyIrreducibilityCertificate::CertLinear` | algebra | 構造子 |
@@ -3430,8 +3657,10 @@
 | `biquad_to_radical` | algebra | 函數 |
 | `biquad_zero` | algebra | 函數 |
 | `check_biquadratic_denesting` | algebra | 函數 |
+| `check_phase14_qpoly_hensel_factor_and_certificates` | root | 函數 |
 | `check_qpoly_degree_pattern_certificates` | algebra | 函數 |
 | `check_qpoly_factor_complete` | algebra | 函數 |
+| `check_qpoly_hensel_factor_and_certificates` | algebra | 函數 |
 | `check_qpoly_mod_pattern_pruning` | algebra | 函數 |
 | `check_radical_denesting` | algebra | 函數 |
 | `check_root_isolation` | algebra | 函數 |
@@ -3441,8 +3670,12 @@
 | `qcpx_hermitian_eigenvalue_isolations` | algebra | 函數 |
 | `qmat_symmetric_eigenvalue_isolations` | algebra | 函數 |
 | `qpoly_complete_factorization_expand` | algebra | 函數 |
+| `qpoly_factor_certificate_check` | algebra | 函數 |
+| `qpoly_factor_certified` | algebra | 函數 |
 | `qpoly_factor_complete` | algebra | 函數 |
 | `qpoly_factor_complete_with_budget` | algebra | 函數 |
+| `qpoly_factor_hensel` | algebra | 函數 |
+| `qpoly_irreducible_upto3` | algebra | 函數 |
 | `qpoly_is_irreducible` | algebra | 函數 |
 | `qpoly_isolate_complex_roots` | algebra | 函數 |
 | `qpoly_isolate_real_roots` | algebra | 函數 |
@@ -3450,6 +3683,7 @@
 | `qpoly_splitting_field` | algebra | 函數 |
 | `qpoly_sturm_sequence` | algebra | 函數 |
 | `qpoly_sturm_variations` | algebra | 函數 |
+| `radical_equal_algebraic` | algebra | 函數 |
 | `radical_equal_exact` | algebra | 函數 |
 | `radical_int` | algebra | 函數 |
 | `radical_rat` | algebra | 函數 |
@@ -3458,6 +3692,8 @@
 | `radical_to_biquad` | algebra | 函數 |
 | `radical_to_cubic` | algebra | 函數 |
 | `radical_to_multiquad` | algebra | 函數 |
+| `radical_to_multiquad_upto` | algebra | 函數 |
+| `radical_to_real_alg` | algebra | 函數 |
 | `radical_to_triquad` | algebra | 函數 |
 | `real_root_isolation_refine` | algebra | 函數 |
 | `real_root_isolations_are_certified` | algebra | 函數 |
@@ -3533,6 +3769,7 @@
 | `check_level_polymorphic_declarations` | root | 函數 |
 | `check_mutual_declaration_positivity` | root | 函數 |
 | `check_nested_iter_datatype` | root | 函數 |
+| `check_phase14_joint_simultaneous_ir_mutual` | root | 函數 |
 | `check_simultaneous_induction_recursion` | root | 函數 |
 | `check_simultaneous_ir_compiled_decode` | root | 函數 |
 | `check_simultaneous_ir_nested_foreign` | root | 函數 |
@@ -3569,8 +3806,11 @@
 | `simultaneous_ir_compile_decode` | root | 函數 |
 | `simultaneous_ir_compile_eliminator` | root | 函數 |
 | `simultaneous_ir_compile_eliminator_block` | root | 函數 |
+| `simultaneous_ir_compile_joint` | root | 函數 |
+| `simultaneous_ir_compile_joint_block` | root | 函數 |
 | `simultaneous_ir_eliminator_type` | root | 函數 |
 | `simultaneous_ir_function_universe_level` | root | 函數 |
+| `simultaneous_ir_general_eliminator_type` | root | 函數 |
 | `simultaneous_ir_uses_other_hypotheses` | root | 函數 |
 | `simultaneous_ir_validate` | root | 函數 |
 | `type_operator_is_strictly_positive` | root | 函數 |
@@ -3578,9 +3818,9 @@
 
 ### Adjoint 等價、纖維與命題截斷
 
-- 規範形式：quasi-inverse 上加三角形 Path(Path)；improved counit；一般 fiber 的 Σ 點、lemIso 路徑與中心的收縮 (center, contraction)；PropTrunc 的 point/squash HIT
-- 範疇化：half-adjoint equivalence、contractible fiber 的等價刻畫與到命題的截斷反射
-- 判定：adjointify_equiv_value 與 equiv_contractible_fibers_value 由 hfill/hcomp/dpath 構造，端點與 Path(Path) 三角形以依賴檢查／轉換驗證（circle-中點等深層調整點按面-restriction 檢查）
+- 規範形式：quasi-inverse 上加三角形 Path(Path)；improved counit；一般 fiber 的 Σ 點、lemIso 路徑與中心的收縮 (center, contraction)；PropTrunc 的 point/squash HIT；SetTruncS 的 point/hub/spoke 集合截斷 ‖A‖₀ 與開放雙向雙射認證 DVEquiv
+- 範疇化：half-adjoint equivalence、contractible fiber 的等價刻畫、到命題與到 h-set（0-群胚）的左伴隨截斷反射
+- 判定：adjointify_equiv_value、equiv_bidirectional_certified_in 與 equiv_contractible_fibers_value 由 hfill/hcomp/dpath 在開放脈絡構造並以依賴轉換核驗；SetTruncS 具內部 h-set 證書與向任意 h-set 的萬有消去及 ‖X‖₀≃B 等價提升
 
 | 符號 | 套件 | 類別 |
 |---|---|---|
@@ -3597,6 +3837,7 @@
 | `check_lemiso_generic_points` | root | 函數 |
 | `check_propositional_truncation` | root | 函數 |
 | `contractible_fibers_type_term` | root | 函數 |
+| `dprop_is_set_value` | root | 函數 |
 | `equiv_contractible_fibers_value` | root | 函數 |
 | `equiv_fiber_center_value` | root | 函數 |
 | `equiv_fiber_contraction_value` | root | 函數 |
@@ -3608,8 +3849,26 @@
 | `fiber_type_term` | root | 函數 |
 | `identity_fibers_contractible_value` | root | 函數 |
 | `is_contr_type_term` | root | 函數 |
+| `prop_trunc_elim_prop_value` | root | 函數 |
+| `prop_trunc_point_value` | root | 函數 |
 | `prop_trunc_schema` | root | 函數 |
 | `prop_trunc_schema_at` | root | 函數 |
+| `prop_trunc_squash_path_value` | root | 函數 |
+| `prop_trunc_type_value` | root | 函數 |
+| `set_trunc_elim_prop_value` | root | 函數 |
+| `set_trunc_elim_set_value` | root | 函數 |
+| `set_trunc_equiv_of_equiv_set_value` | root | 函數 |
+| `set_trunc_hub_value` | root | 函數 |
+| `set_trunc_is_set_value` | root | 函數 |
+| `set_trunc_loop_trivial_value` | root | 函數 |
+| `set_trunc_point_term` | root | 函數 |
+| `set_trunc_point_value` | root | 函數 |
+| `set_trunc_rec_set_value` | root | 函數 |
+| `set_trunc_schema` | root | 函數 |
+| `set_trunc_schema_at` | root | 函數 |
+| `set_trunc_spoke_path_value` | root | 函數 |
+| `set_trunc_type_term` | root | 函數 |
+| `set_trunc_type_value` | root | 函數 |
 | `singleton_contraction_value` | root | 函數 |
 | `trunc_point_term` | root | 函數 |
 | `trunc_rec_unit_term` | root | 函數 |
@@ -3619,9 +3878,9 @@
 
 ### 球面同倫代表元與 Hopf 不變量
 
-- 規範形式：Ωⁿ 的巢狀 Path；懸掛迭代的整數度數映射；極交換 S³ 的 HIT；C² 單位球上的 Hopf 映射與相位纖維；IntegerS 的 zero/posSucc/negSucc 唯一構造子範形與語義 succ/pred；π₃ 以 Ω³(Sphereₙ) 模命題截斷 Path 關係的 QuotientS 商呈現；SphereLoopExpr 的 generator 冪
-- 範疇化：懸掛函子、基點映射與 loop space 的代表元；Hopf S¹-纖維化及其連結數；π₃ 商型是 loop space 模存在路徑關係的商呈現
-- 判定：生成 meridian 轉換；三重迭代 suspension_unit 沿 transitivity-square cancellation 以 subst rebase 為懸掛的 loop；代表元運算的整數冪次以 end-to-end 檢查求值；環路單位、逆元、結合律與 sym 複合反同態均以明示 3-胞在代表元上逐面驗證，任意閉代表式另有遞迴正規化 3-胞連至同次數典範字（Eckmann–Hilton/交換律仍未建構）；Hopf 像/纖維除浮點代數檢查與 Gauss 連結積分 |lk|=1 外，於有理點與有理相位旋轉下以精確有理算術驗證落球、纖維不變與極點纖維恆等式。此層是代表元與典範冪，不宣稱一般合成 encode/decode 證明 π₃(S³)≅ℤ、以 Hopf 不變量證明 π₃(S²)≅ℤ 或內部 Hopf 映射
+- 規範形式：Ωⁿ 的巢狀 Path；懸掛迭代的整數度數映射；極交換 S³ 的 HIT；C² 單位球上的幾何 Hopf 映射及 S² 上由圓自旋轉 ua 黏合的內部單值 Hopf 纖維叢 H:S²→Type₀；IntegerS 的 zero/posSucc/negSucc 唯一構造子範形、語義 succ/pred 與內部 h-set 證書；π₃ 以 Ω³(Sphereₙ) 模命題截斷 Path 關係的 QuotientS 商呈現；SphereLoopExpr 的 generator 冪
+- 範疇化：懸掛函子、基點映射與 loop space 的代表元；幾何與內部單值 Hopf S¹-纖維化及其連結數／連接同態 Ω³(S²)→Ω(S¹)→ℤ；π₃ 商型是 loop space 模存在路徑關係的商呈現
+- 判定：生成 meridian 轉換；三重迭代 suspension_unit 沿 transitivity-square cancellation 以 subst rebase 為懸掛的 loop；代表元運算的整數冪次以 end-to-end 檢查求值；環路單位、逆元、結合律、sym 複合反同態與 Ω² Eckmann–Hilton／Mac Lane 五邊形相干胞均在代表元上逐面驗證，任意閉代表式另有遞迴正規化 3-胞連至同次數典範字；內部單值 Hopf 不變量在 Ω³(S²) 代表元上算出精確整數度數，並具 Freudenthal 一維環路懸掛映射 σ₁:Ω¹(S¹)→Ω²(Susp(S¹))（仍不宣稱完整高維 π₃(S²)≃ℤ 全雙向分類）
 
 | 符號 | 套件 | 類別 |
 |---|---|---|
@@ -3636,14 +3895,22 @@
 | `based_map_type_term` | root | 函數 |
 | `check_hopf_numeric` | root | 函數 |
 | `check_loop_inverse_assoc_and_classification` | root | 函數 |
+| `check_phase14_internal_circle_sect_and_hopf_invariant` | root | 函數 |
 | `check_sphere_homotopy_representatives` | root | 函數 |
 | `check_sphere_loop_representatives_internal` | root | 函數 |
 | `circle_degree_value` | root | 函數 |
 | `circle_hit_base_value` | root | 函數 |
 | `circle_hit_loop_path_value` | root | 函數 |
 | `circle_hit_loop_power_value` | root | 函數 |
+| `circle_rot_equiv_value` | root | 函數 |
+| `circle_self_loop_value` | root | 函數 |
 | `dpath_trans_sym_cancel_value` | root | 函數 |
+| `freudenthal_susp_loop1_preserves_refl_value` | root | 函數 |
+| `freudenthal_susp_loop1_to_loop2_value` | root | 函數 |
 | `homotopy_group_type_term` | root | 函數 |
+| `hopf_connecting_loop_value` | root | 函數 |
+| `hopf_family_value` | root | 函數 |
+| `hopf_invariant_value` | root | 函數 |
 | `hopf_linking_number_numeric` | root | 函數 |
 | `hopf_map_rat` | root | 函數 |
 | `hopf_map_s3_to_s2` | root | 函數 |
@@ -3703,11 +3970,26 @@
 
 | 符號 | 套件 | 類別 |
 |---|---|---|
+| `ArtifactAuthKey` | root | 結構 |
+| `ArtifactAuthKey.key_id` | root | 欄位 |
+| `ArtifactAuthKey.secret_a` | root | 欄位 |
+| `ArtifactAuthKey.secret_b` | root | 欄位 |
+| `ArtifactAuthKey::equal` | root | 函數 |
+| `ArtifactAuthKey::not_equal` | root | 函數 |
+| `ArtifactAuthKey::to_repr` | root | 函數 |
 | `ArtifactByteStore` | root | 結構 |
 | `ArtifactByteStore.list` | root | 欄位 |
 | `ArtifactByteStore.read` | root | 欄位 |
 | `ArtifactByteStore.remove` | root | 欄位 |
 | `ArtifactByteStore.write` | root | 欄位 |
+| `ArtifactCasStatus` | root | 列舉 |
+| `ArtifactCasStatus::ArtifactCasAuthFailed` | root | 構造子 |
+| `ArtifactCasStatus::ArtifactCasCommitted` | root | 構造子 |
+| `ArtifactCasStatus::ArtifactCasConflict` | root | 構造子 |
+| `ArtifactCasStatus::ArtifactCasIoError` | root | 構造子 |
+| `ArtifactCasStatus::equal` | root | 函數 |
+| `ArtifactCasStatus::not_equal` | root | 函數 |
+| `ArtifactCasStatus::to_repr` | root | 函數 |
 | `ArtifactChainEntry` | root | 結構 |
 | `ArtifactChainEntry.entry_a` | root | 欄位 |
 | `ArtifactChainEntry.entry_b` | root | 欄位 |
@@ -3753,6 +4035,16 @@
 | `ArtifactRepositoryStats::equal` | root | 函數 |
 | `ArtifactRepositoryStats::not_equal` | root | 函數 |
 | `ArtifactRepositoryStats::to_repr` | root | 函數 |
+| `ArtifactSyncReport` | root | 結構 |
+| `ArtifactSyncReport.final_head_a` | root | 欄位 |
+| `ArtifactSyncReport.final_head_b` | root | 欄位 |
+| `ArtifactSyncReport.ok` | root | 欄位 |
+| `ArtifactSyncReport.skipped_existing_blobs` | root | 欄位 |
+| `ArtifactSyncReport.tombstones_applied` | root | 欄位 |
+| `ArtifactSyncReport.transferred_blobs` | root | 欄位 |
+| `ArtifactSyncReport::equal` | root | 函數 |
+| `ArtifactSyncReport::not_equal` | root | 函數 |
+| `ArtifactSyncReport::to_repr` | root | 函數 |
 | `BinaryVersionPolicy` | root | 結構 |
 | `BinaryVersionPolicy.current` | root | 欄位 |
 | `BinaryVersionPolicy.oldest_writable` | root | 欄位 |
@@ -3779,6 +4071,14 @@
 | `CompiledModuleEnv::equal` | root | 函數 |
 | `CompiledModuleEnv::not_equal` | root | 函數 |
 | `CompiledModuleEnv::to_repr` | root | 函數 |
+| `CompiledModuleEnvelopeLoad` | root | 結構 |
+| `CompiledModuleEnvelopeLoad.module_` | root | 欄位 |
+| `CompiledModuleEnvelopeLoad.recognized_sections` | root | 欄位 |
+| `CompiledModuleEnvelopeLoad.skipped_noncritical_tags` | root | 欄位 |
+| `CompiledModuleEnvelopeLoad.status` | root | 欄位 |
+| `CompiledModuleEnvelopeLoad::equal` | root | 函數 |
+| `CompiledModuleEnvelopeLoad::not_equal` | root | 函數 |
+| `CompiledModuleEnvelopeLoad::to_repr` | root | 函數 |
 | `CompiledModuleStore` | root | 結構 |
 | `CompiledModuleStore.blobs` | root | 欄位 |
 | `CompiledModuleStore.hits` | root | 欄位 |
@@ -3827,6 +4127,22 @@
 | `ModuleDependencyFingerprint::equal` | root | 函數 |
 | `ModuleDependencyFingerprint::not_equal` | root | 函數 |
 | `ModuleDependencyFingerprint::to_repr` | root | 函數 |
+| `ModuleTlvSection` | root | 結構 |
+| `ModuleTlvSection.critical` | root | 欄位 |
+| `ModuleTlvSection.payload` | root | 欄位 |
+| `ModuleTlvSection.tag` | root | 欄位 |
+| `ModuleTlvSection::equal` | root | 函數 |
+| `ModuleTlvSection::not_equal` | root | 函數 |
+| `ModuleTlvSection::to_repr` | root | 函數 |
+| `SharedDagBundle` | root | 結構 |
+| `SharedDagBundle.modules` | root | 欄位 |
+| `SharedDagBundle.registry` | root | 欄位 |
+| `SharedDagBundleLoad` | root | 結構 |
+| `SharedDagBundleLoad.bundle` | root | 欄位 |
+| `SharedDagBundleLoad.interned_dag_nodes` | root | 欄位 |
+| `SharedDagBundleLoad.reused_dag_nodes` | root | 欄位 |
+| `SharedDagBundleLoad.shared_term_entries` | root | 欄位 |
+| `SharedDagBundleLoad.status` | root | 欄位 |
 | `abstract_point_module` | root | 函數 |
 | `artifact_byte_store_new` | root | 函數 |
 | `artifact_kind_compiled_module` | root | 函數 |
@@ -3845,6 +4161,7 @@
 | `artifact_repository_list` | root | 函數 |
 | `artifact_repository_new` | root | 函數 |
 | `artifact_repository_put` | root | 函數 |
+| `artifact_repository_put_cas_authenticated` | root | 函數 |
 | `artifact_repository_put_compiled_module` | root | 函數 |
 | `artifact_repository_put_dterm_dag_snapshot` | root | 函數 |
 | `artifact_repository_put_dterm_dag_terms` | root | 函數 |
@@ -3854,13 +4171,17 @@
 | `artifact_repository_recover` | root | 函數 |
 | `artifact_repository_recover_chained` | root | 函數 |
 | `artifact_repository_remove` | root | 函數 |
+| `artifact_repository_seal_authenticated` | root | 函數 |
 | `artifact_repository_stats` | root | 函數 |
+| `artifact_repository_sync_incremental` | root | 函數 |
 | `artifact_repository_verify_all` | root | 函數 |
+| `artifact_repository_verify_authenticated` | root | 函數 |
 | `binary_negotiate_version` | root | 函數 |
 | `check_artifact_manifest_integrity_chain` | root | 函數 |
 | `check_module_binary_format` | root | 函數 |
 | `check_module_binary_versions_and_store` | root | 函數 |
 | `check_module_compilation` | root | 函數 |
+| `check_phase14_tlv_envelope_cas_and_incremental_sync` | root | 函數 |
 | `compiled_module_binary_format_version` | root | 函數 |
 | `compiled_module_binary_from_hex` | root | 函數 |
 | `compiled_module_binary_negotiate_version` | root | 函數 |
@@ -3872,6 +4193,8 @@
 | `compiled_module_env_find` | root | 函數 |
 | `compiled_module_env_new` | root | 函數 |
 | `compiled_module_env_to_module_env` | root | 函數 |
+| `compiled_module_envelope_load_binary` | root | 函數 |
+| `compiled_module_envelope_to_binary` | root | 函數 |
 | `compiled_module_format_version` | root | 函數 |
 | `compiled_module_from_binary` | root | 函數 |
 | `compiled_module_instantiate` | root | 函數 |
@@ -3906,6 +4229,8 @@
 | `module_source_fingerprint` | root | 函數 |
 | `point_client_module` | root | 函數 |
 | `point_implementation_module` | root | 函數 |
+| `shared_dag_bundle_load_binary_report` | root | 函數 |
+| `shared_dag_bundle_to_binary` | root | 函數 |
 
 ### 範疇化總檢
 
@@ -3987,29 +4312,53 @@
 
 ### 圓的萬有覆疊與 encode/decode
 
-- 規範形式：覆疊纖維在 base 是 IntegerS 規範整數、在 loop 點是 ua 線的 GlueEquiv 型別；環路代表元為 schema 圓的 DVHitCell 路徑，繞數為規範整數值
-- 範疇化：helix 是圓到宇宙的纖維化族；encode 是沿環路在覆疊中的 subst 提升端點，decode 是整數消去給出的環路冪
-- 判定：base 纖維以宇宙層轉換等於 ℤ；生成元/逆/refl 的 subst 直接計算；單次 subst 越過複合環路的 trans 點現經端點 Glue 線合成串接等價而正確累積繞數（loop²↦2、loop³↦3、loop⁻²↦−2、抵消↦0 以轉換檢查），transport 函子性細分仍作為對照路徑保留；兩向往返在代表元上以轉換檢查（任意中性環路的完整 π₁(S¹)≃ℤ 內部證明仍未完成）
+- 規範形式：覆疊纖維在 base 是 IntegerS 規範整數、在 loop 點是 ua 線的 GlueEquiv 型別；環路代表元為 schema 圓的 DVHitCell 路徑，繞數為規範整數值；π₁(S¹)=‖Ω¹(S¹)‖₀≃ℤ 以認證 DVEquiv 呈現
+- 範疇化：helix 是圓到宇宙的纖維化族；encode 是沿環路在覆疊中的 subst 提升端點，decode 是整數消去給出的環路冪；結合 ℤ 為 h-set 與集合截斷萬有性給出基本群同構
+- 判定：base 纖維以宇宙層轉換等於 ℤ；生成元/逆/refl 及複合環路跨 trans 點的 subst 直接累積繞數；在自由環路與自由整數開放脈絡下內部構造雙向同倫 decode(encode(p))≡p 與 encode(decode(z))≡z，完成 Path S¹ base x ≃ Cover(x)、Ω¹(S¹)≃ℤ 與 π₁(S¹)=‖Ω¹(S¹)‖₀≃ℤ 的完整內部證明
 
 | 符號 | 套件 | 類別 |
 |---|---|---|
 | `check_circle_encode_decode` | root | 函數 |
+| `check_phase15_bidirectional_bijectivity_and_pi1_circle` | root | 函數 |
 | `circle_cover_value` | root | 函數 |
+| `circle_decode_encode_retr_value` | root | 函數 |
+| `circle_decode_encode_x_retr_value` | root | 函數 |
+| `circle_decode_step_value` | root | 函數 |
 | `circle_decode_value` | root | 函數 |
+| `circle_decode_x_value` | root | 函數 |
+| `circle_encode_decode_sect_value` | root | 函數 |
+| `circle_encode_decode_x_sect_value` | root | 函數 |
+| `circle_encode_decode_x_sect_with_zset_value` | root | 函數 |
 | `circle_encode_pieces_value` | root | 函數 |
 | `circle_encode_value` | root | 函數 |
+| `circle_encode_x_value` | root | 函數 |
 | `circle_hit_type_value` | root | 函數 |
+| `circle_loop_space_equiv_integer_value` | root | 函數 |
 | `circle_loop_space_type_value` | root | 函數 |
+| `circle_path_equiv_cover_value` | root | 函數 |
+| `circle_path_equiv_cover_with_zset_value` | root | 函數 |
+| `integer_is_set_value` | root | 函數 |
+| `integer_pred_succ_retr_value` | root | 函數 |
 | `integer_succ_equiv_value` | root | 函數 |
+| `integer_succ_pred_sect_value` | root | 函數 |
+| `pi1_set_circle_equiv_integer_value` | root | 函數 |
 
 ### 宿主不透明立方與開盒填充
 
-- 規範形式：立方是宿主函數（維度列→語義值／有理多項式座標）；開盒為缺一面的邊界資料，帽是填充在缺面的限制
-- 範疇化：□ 上外部立方資料與 Kan 填充條件的宿主實作；多項式立方是精確有理座標系中的立方映射，迭代開盒填充以 F += w·(S − F|face) 逐面修正
-- 判定：邊界完整性與重疊相容以型別轉換／規範多項式相等逐面驗證；除一般點探針外，分層外延檢查於面內部、對角（共享/環境維度）、連接（¬、∧、∨）與逐軸深層連接四層有限探針上比較宿主立方函數，分層開盒驗證與填充隨之提供（超出探針預算的層以 complete=false 明示）；不相容或不完整給出失敗計數與拒絕
+- 規範形式：立方是宿主函數（維度列→語義值／有理多項式座標）或受型別檢查語法錨定的 CheckedDCube；開盒為缺一面的邊界資料，帽是填充在缺面的限制
+- 範疇化：□ 上外部立方資料與 Kan 填充條件的宿主實作，自然變換由立方 Yoneda 引理在通用對角元上唯一決定；多項式立方是精確有理座標系中的立方映射，迭代開盒填充以 F += w·(S − F|face) 逐面修正
+- 判定：邊界完整性與重疊相容以型別轉換／規範多項式相等逐面驗證；外延比較提供四層分層探針、基於 P¹(𝔽₈) 的強度 t≤4 正交覆蓋陣列與五色完美雜湊族 PHF、揭穿非自然閉包的 Yoneda 自然性與忠實度審計，以及 CheckedDCube 的無探針精確語法讀回判定
 
 | 符號 | 套件 | 類別 |
 |---|---|---|
+| `CheckedDCube` | root | 結構 |
+| `CheckedDCube.arity` | root | 欄位 |
+| `CheckedDCube.body` | root | 欄位 |
+| `CheckedDCube.ctx` | root | 欄位 |
+| `CheckedDCube.cube` | root | 欄位 |
+| `CheckedDCube.denv` | root | 欄位 |
+| `CheckedDCube.env` | root | 欄位 |
+| `CheckedDCube.ty` | root | 欄位 |
 | `DCubeBoxFace` | root | 結構 |
 | `DCubeBoxFace.axis` | root | 欄位 |
 | `DCubeBoxFace.cube` | root | 欄位 |
@@ -4018,6 +4367,12 @@
 | `DCubeBoxReport.complete` | root | 欄位 |
 | `DCubeBoxReport.failed_overlaps` | root | 欄位 |
 | `DCubeBoxReport.overlaps_ok` | root | 欄位 |
+| `DCubeCoveringReport` | root | 結構 |
+| `DCubeCoveringReport.complete_for_strength` | root | 欄位 |
+| `DCubeCoveringReport.equal` | root | 欄位 |
+| `DCubeCoveringReport.failed` | root | 欄位 |
+| `DCubeCoveringReport.interaction_strength` | root | 欄位 |
+| `DCubeCoveringReport.probes` | root | 欄位 |
 | `DCubeFunction` | root | 結構 |
 | `DCubeFunction.arity` | root | 欄位 |
 | `DCubeFunction.at` | root | 欄位 |
@@ -4031,6 +4386,14 @@
 | `DCubeStratifiedReport.equal` | root | 欄位 |
 | `DCubeStratifiedReport.failed` | root | 欄位 |
 | `DCubeStratifiedReport.probes` | root | 欄位 |
+| `DCubeYonedaReport` | root | 結構 |
+| `DCubeYonedaReport.audited_substitutions` | root | 欄位 |
+| `DCubeYonedaReport.failed_substitutions` | root | 欄位 |
+| `DCubeYonedaReport.generic_reified_term` | root | 欄位 |
+| `DCubeYonedaReport.natural` | root | 欄位 |
+| `DCubeYonedaReport::equal` | root | 函數 |
+| `DCubeYonedaReport::not_equal` | root | 函數 |
+| `DCubeYonedaReport::to_repr` | root | 函數 |
 | `PolyBoxFace` | algebra | 結構 |
 | `PolyBoxFace.axis` | algebra | 欄位 |
 | `PolyBoxFace.cube` | algebra | 欄位 |
@@ -4043,7 +4406,12 @@
 | `PolyOpenBox.faces` | algebra | 欄位 |
 | `check_dcube_open_box_filler` | root | 函數 |
 | `check_dcube_stratified_tier_d` | root | 函數 |
+| `check_phase14_dcube_orthogonal_array_covering` | root | 函數 |
+| `check_phase15_dcube_strength4_phf_and_yoneda_audit` | root | 函數 |
 | `check_poly_cubes` | algebra | 函數 |
+| `checked_dcube_closed` | root | 函數 |
+| `checked_dcube_extensional_eq` | root | 函數（差分測試 oracle，非判定路徑） |
+| `checked_dcube_make` | root | 函數 |
 | `dcube_at` | root | 函數 |
 | `dcube_box_cap` | root | 函數 |
 | `dcube_box_complete` | root | 函數 |
@@ -4056,6 +4424,8 @@
 | `dcube_box_validate_stratified` | root | 函數 |
 | `dcube_constant` | root | 函數 |
 | `dcube_cubes_conv` | root | 函數 |
+| `dcube_cubes_conv_covering_phf_report` | root | 函數 |
+| `dcube_cubes_conv_covering_report` | root | 函數 |
 | `dcube_cubes_conv_stratified` | root | 函數 |
 | `dcube_cubes_conv_stratified_report` | root | 函數 |
 | `dcube_degenerate` | root | 函數 |
@@ -4067,6 +4437,8 @@
 | `dcube_of_path` | root | 函數 |
 | `dcube_of_point` | root | 函數 |
 | `dcube_open_box` | root | 函數 |
+| `dcube_phf_5colors` | root | 函數 |
+| `dcube_yoneda_audit_report` | root | 函數 |
 | `poly_box_cap` | algebra | 函數 |
 | `poly_box_face` | algebra | 函數 |
 | `poly_box_face_of` | algebra | 函數 |
@@ -5836,4 +6208,863 @@
 | `tropical_optimal_assignments` | bridge | 函數 |
 | `weighted_graph_report` | bridge | 函數 |
 | `wiring_output_signs` | bridge | 函數 |
+
+### 拓撲斯：景、篩、Grothendieck 拓撲與預層
+
+- 規範形式：排序無重態射篩、覆蓋篩閉包、自然變換分量表與相容匹配族
+- 範疇化：小範疇景 (C,J)、米田嵌入 C↪PSh(C) 與預層極限／餘極限雙完備結構
+- 判定：篩右理想律、Grothendieck 拓撲三公理（極大／穩定／傳遞）與一般米田雙射窮舉檢驗
+
+| 符號 | 套件 | 類別 |
+|---|---|---|
+| `GrothendieckTopology` | topos | 結構 |
+| `GrothendieckTopology.covers` | topos | 欄位 |
+| `GrothendieckTopology.nobj` | topos | 欄位 |
+| `GrothendieckTopology::equal` | topos | 函數 |
+| `GrothendieckTopology::not_equal` | topos | 函數 |
+| `GrothendieckTopology::to_repr` | topos | 函數 |
+| `MatchingFamily` | topos | 結構 |
+| `MatchingFamily.sieve` | topos | 欄位 |
+| `MatchingFamily.values` | topos | 欄位 |
+| `MatchingFamily::equal` | topos | 函數 |
+| `MatchingFamily::not_equal` | topos | 函數 |
+| `MatchingFamily::to_repr` | topos | 函數 |
+| `PresheafHom` | topos | 結構 |
+| `PresheafHom.cat` | topos | 欄位 |
+| `PresheafHom.cod_size` | topos | 欄位 |
+| `PresheafHom.components` | topos | 欄位 |
+| `PresheafHom.dom_size` | topos | 欄位 |
+| `Sieve` | topos | 結構 |
+| `Sieve.arrows` | topos | 欄位 |
+| `Sieve.target` | topos | 欄位 |
+| `Sieve::equal` | topos | 函數 |
+| `Sieve::not_equal` | topos | 函數 |
+| `Sieve::to_repr` | topos | 函數 |
+| `Site` | topos | 結構 |
+| `Site.cat` | topos | 欄位 |
+| `Site.topology` | topos | 欄位 |
+| `all_sieves_on` | topos | 函數 |
+| `cat_circle_open_poset` | topos | 函數 |
+| `cat_has_pullbacks` | topos | 函數 |
+| `cat_opposite` | topos | 函數 |
+| `cat_satisfies_right_ore` | topos | 函數 |
+| `enumerate_matching_families` | topos | 函數 |
+| `is_matching_family` | topos | 函數 |
+| `presheaf_are_isomorphic` | topos | 函數 |
+| `presheaf_coequalizer` | topos | 函數 |
+| `presheaf_constant_raw` | topos | 函數 |
+| `presheaf_coproduct` | topos | 函數 |
+| `presheaf_equalizer` | topos | 函數 |
+| `presheaf_hom_compose` | topos | 函數 |
+| `presheaf_hom_enumerate` | topos | 函數 |
+| `presheaf_hom_eq` | topos | 函數 |
+| `presheaf_hom_id` | topos | 函數 |
+| `presheaf_hom_is_epi_presheaf` | topos | 函數 |
+| `presheaf_hom_is_iso` | topos | 函數 |
+| `presheaf_hom_is_mono` | topos | 函數 |
+| `presheaf_hom_is_natural` | topos | 函數 |
+| `presheaf_initial` | topos | 函數 |
+| `presheaf_of_sieve` | topos | 函數 |
+| `presheaf_product` | topos | 函數 |
+| `presheaf_product_hom` | topos | 函數 |
+| `presheaf_pullback` | topos | 函數 |
+| `presheaf_representable` | topos | 函數 |
+| `presheaf_representable_with_table` | topos | 函數 |
+| `presheaf_terminal` | topos | 函數 |
+| `section_to_matching_family` | topos | 函數 |
+| `sieve_contains` | topos | 函數 |
+| `sieve_empty` | topos | 函數 |
+| `sieve_generate` | topos | 函數 |
+| `sieve_heyting_implies` | topos | 函數 |
+| `sieve_inter` | topos | 函數 |
+| `sieve_is_j_closed` | topos | 函數 |
+| `sieve_is_valid` | topos | 函數 |
+| `sieve_j_closure` | topos | 函數 |
+| `sieve_maximal` | topos | 函數 |
+| `sieve_pullback` | topos | 函數 |
+| `sieve_subset` | topos | 函數 |
+| `sieve_union` | topos | 函數 |
+| `site_circle_good_cover` | topos | 函數 |
+| `site_is_valid` | topos | 函數 |
+| `site_new` | topos | 函數 |
+| `topology_atomic` | topos | 函數 |
+| `topology_covers` | topos | 函數 |
+| `topology_dense` | topos | 函數 |
+| `topology_from_coverage` | topos | 函數 |
+| `topology_is_valid` | topos | 函數 |
+| `topology_trivial` | topos | 函數 |
+| `verify_general_yoneda_lemma` | topos | 函數 |
+| `yoneda_elem_to_hom` | topos | 函數 |
+
+### 拓撲斯：層化、笛卡兒閉性、子物件分類子與一般拓撲斯
+
+- 規範形式：J-閉篩真值格 Ω_J、兩步 Grothendieck Plus 層化 a(P)=(P^+)^+ 與米田指數 G^F
+- 範疇化：Grothendieck 層拓撲斯 Sh(C,J)、笛卡兒閉結構、子物件分類子拉回與 Lawvere–Tierney 子拓撲斯雙射
+- 判定：分離／黏合層條件、層化泛性質、CCC 柯里化同構、特徵態射拉回與 Giraud 不交餘積穩定性判定
+
+| 符號 | 套件 | 類別 |
+|---|---|---|
+| `ExponentialData` | topos | 結構 |
+| `ExponentialData.eval_hom` | topos | 欄位 |
+| `ExponentialData.exp` | topos | 欄位 |
+| `ExponentialData.prod_exp_dom` | topos | 欄位 |
+| `ExponentialData.thetas_by_obj` | topos | 欄位 |
+| `SheafificationResult` | topos | 結構 |
+| `SheafificationResult.plus_once` | topos | 欄位 |
+| `SheafificationResult.sheaf` | topos | 欄位 |
+| `SheafificationResult.unit` | topos | 欄位 |
+| `SubobjectClassifierData` | topos | 結構 |
+| `SubobjectClassifierData.closed_sieves` | topos | 欄位 |
+| `SubobjectClassifierData.omega` | topos | 欄位 |
+| `SubobjectClassifierData.terminal` | topos | 欄位 |
+| `SubobjectClassifierData.true_hom` | topos | 欄位 |
+| `characteristic_morphism` | topos | 函數 |
+| `exponential_curry` | topos | 函數 |
+| `exponential_uncurry` | topos | 函數 |
+| `is_boolean_topos` | topos | 函數 |
+| `is_de_morgan_topos` | topos | 函數 |
+| `is_lawvere_tierney_operator` | topos | 函數 |
+| `is_separated_presheaf` | topos | 函數 |
+| `is_sheaf` | topos | 函數 |
+| `lawvere_tierney_of_site` | topos | 函數 |
+| `omega_j_join` | topos | 函數 |
+| `omega_j_neg` | topos | 函數 |
+| `plus_construction` | topos | 函數 |
+| `presheaf_exponential` | topos | 函數 |
+| `sheafify` | topos | 函數 |
+| `subobject_classifier_presheaf` | topos | 函數 |
+| `subobject_classifier_sheaf` | topos | 函數 |
+| `topology_of_lawvere_tierney` | topos | 函數 |
+| `verify_elementary_and_giraud_topos` | topos | 函數 |
+| `verify_sheaf_cartesian_closed` | topos | 函數 |
+| `verify_sheafification_universal_property` | topos | 函數 |
+| `verify_subobject_classifier_pullback` | topos | 函數 |
+
+### 拓撲斯：幾何態射、局部／連通／原子／緊緻相干性質
+
+- 規範形式：左正合逆像 f^*=a∘Lan_{u^{op}}、右伴隨直像 f_*、平坦張量點函子與局部焦點
+- 範疇化：幾何態射伴隨 f^*⊣f_*、局部 Topos 三重伴隨 Δ⊣Γ⊣Γ^!、π_0 連通性、原子 Galois 群胚與相干緊緻覆蓋
+- 判定：伴隨雙射、左正合極限保持、Diaconescu 點平坦／覆蓋保持判準、局部／連通／原子／De Morgan／Boolean 性質檢定
+
+| 符號 | 套件 | 類別 |
+|---|---|---|
+| `AtomicToposReport` | topos | 結構 |
+| `AtomicToposReport.is_atomic` | topos | 欄位 |
+| `AtomicToposReport.is_boolean` | topos | 欄位 |
+| `AtomicToposReport.representable_atom_count` | topos | 欄位 |
+| `AtomicToposReport.site_right_ore` | topos | 欄位 |
+| `CompactCoherentReport` | topos | 結構 |
+| `CompactCoherentReport.has_enough_points` | topos | 欄位 |
+| `CompactCoherentReport.is_coherent` | topos | 欄位 |
+| `CompactCoherentReport.is_compact` | topos | 欄位 |
+| `CompactCoherentReport.max_minimal_cover_arity` | topos | 欄位 |
+| `CompactCoherentReport.point_count` | topos | 欄位 |
+| `CompactCoherentReport.site_has_pullbacks` | topos | 欄位 |
+| `CompactCoherentReport.terminal_irredundant_cover_degree` | topos | 欄位 |
+| `ConnectedToposReport` | topos | 結構 |
+| `ConnectedToposReport.clopen_subobjects_of_one` | topos | 欄位 |
+| `ConnectedToposReport.connected_components` | topos | 欄位 |
+| `ConnectedToposReport.delta_two_global_sections` | topos | 欄位 |
+| `ConnectedToposReport.is_connected` | topos | 欄位 |
+| `FlatPointFunctor` | topos | 結構 |
+| `FlatPointFunctor.cat` | topos | 欄位 |
+| `FlatPointFunctor.map` | topos | 欄位 |
+| `FlatPointFunctor.size` | topos | 欄位 |
+| `LocalToposReport` | topos | 結構 |
+| `LocalToposReport.focal_point` | topos | 欄位 |
+| `LocalToposReport.global_initial_sections` | topos | 欄位 |
+| `LocalToposReport.global_terminal_sections` | topos | 欄位 |
+| `LocalToposReport.is_local` | topos | 欄位 |
+| `LocalToposReport.preserves_coequalizers` | topos | 欄位 |
+| `LocalToposReport.preserves_coproducts` | topos | 欄位 |
+| `LocalToposReport.triple_adjunction_holds` | topos | 欄位 |
+| `analyze_atomic_topos` | topos | 函數 |
+| `analyze_compact_coherent_topos` | topos | 函數 |
+| `analyze_connected_topos` | topos | 函數 |
+| `analyze_local_topos` | topos | 函數 |
+| `covariant_representable_point` | topos | 函數 |
+| `direct_image_presheaf` | topos | 函數 |
+| `enumerate_canonical_points` | topos | 函數 |
+| `global_sections_count` | topos | 函數 |
+| `inverse_image_presheaf` | topos | 函數 |
+| `inverse_image_sheaf` | topos | 函數 |
+| `is_atom_sheaf` | topos | 函數 |
+| `is_covariant_point_functor` | topos | 函數 |
+| `is_cover_preserving_functor` | topos | 函數 |
+| `is_diaconescu_point` | topos | 函數 |
+| `is_flat_point_functor` | topos | 函數 |
+| `point_skyscraper_sheaf` | topos | 函數 |
+| `point_stalk_cardinality` | topos | 函數 |
+| `verify_geometric_morphism` | topos | 函數 |
+
+### 拓撲斯：幾何邏輯規範形式、分類 Topos 與範疇化
+
+- 規範形式：Joyal–Reyes 析取存在合取幾何規範形 ⋁∃⋀、伴隨量詞 Σ_f⊣f^*⊣Π_f 與命題分類景
+- 範疇化：Kripke–Joyal 層語義、分類 Topos B(T)（Pt(B(T))≃Mod_Set(T)）與元素範疇範疇化 PSh(C)/P≃PSh(∫P)
+- 判定：Kripke–Joyal 強迫語義、幾何規範形等價性、Beck–Chevalley 正合方塊、分類 Topos 點與模型雙射及切片範疇化檢驗
+
+| 符號 | 套件 | 類別 |
+|---|---|---|
+| `ClassifyingToposData` | topos | 結構 |
+| `ClassifyingToposData.generic_prop_sheaves` | topos | 欄位 |
+| `ClassifyingToposData.obj_theories` | topos | 欄位 |
+| `ClassifyingToposData.site` | topos | 欄位 |
+| `ClassifyingToposData.theory` | topos | 欄位 |
+| `GeoAtom` | topos | 列舉 |
+| `GeoAtom::AtomEq` | topos | 構造子 |
+| `GeoAtom::AtomPred` | topos | 構造子 |
+| `GeoAtom::equal` | topos | 函數 |
+| `GeoAtom::not_equal` | topos | 函數 |
+| `GeoAtom::to_repr` | topos | 函數 |
+| `GeoConjClause` | topos | 結構 |
+| `GeoConjClause.atoms` | topos | 欄位 |
+| `GeoConjClause.num_exists` | topos | 欄位 |
+| `GeoConjClause::equal` | topos | 函數 |
+| `GeoConjClause::not_equal` | topos | 函數 |
+| `GeoConjClause::to_repr` | topos | 函數 |
+| `GeoFormula` | topos | 列舉 |
+| `GeoFormula::GAnd` | topos | 構造子 |
+| `GeoFormula::GEq` | topos | 構造子 |
+| `GeoFormula::GExists` | topos | 構造子 |
+| `GeoFormula::GFalse` | topos | 構造子 |
+| `GeoFormula::GForall` | topos | 構造子 |
+| `GeoFormula::GImplies` | topos | 構造子 |
+| `GeoFormula::GOr` | topos | 構造子 |
+| `GeoFormula::GPred` | topos | 構造子 |
+| `GeoFormula::GTrue` | topos | 構造子 |
+| `GeoFormula::equal` | topos | 函數 |
+| `GeoFormula::not_equal` | topos | 函數 |
+| `GeoFormula::to_repr` | topos | 函數 |
+| `GeoNormalForm` | topos | 結構 |
+| `GeoNormalForm.clauses` | topos | 欄位 |
+| `GeoNormalForm.free_arity` | topos | 欄位 |
+| `GeoNormalForm::equal` | topos | 函數 |
+| `GeoNormalForm::not_equal` | topos | 函數 |
+| `GeoNormalForm::to_repr` | topos | 函數 |
+| `GeoSequent` | topos | 結構 |
+| `GeoSequent.arity` | topos | 欄位 |
+| `GeoSequent.conclusion` | topos | 欄位 |
+| `GeoSequent.premise` | topos | 欄位 |
+| `GeoSequent::equal` | topos | 函數 |
+| `GeoSequent::not_equal` | topos | 函數 |
+| `GeoSequent::to_repr` | topos | 函數 |
+| `GeometricTheory` | topos | 結構 |
+| `GeometricTheory.axioms` | topos | 欄位 |
+| `GeometricTheory.pred_arities` | topos | 欄位 |
+| `PropGeoAxiom` | topos | 結構 |
+| `PropGeoAxiom.branches` | topos | 欄位 |
+| `PropGeoAxiom.premise_atoms` | topos | 欄位 |
+| `PropGeoAxiom::equal` | topos | 函數 |
+| `PropGeoAxiom::not_equal` | topos | 函數 |
+| `PropGeoAxiom::to_repr` | topos | 函數 |
+| `PropGeoTheory` | topos | 結構 |
+| `PropGeoTheory.axioms` | topos | 欄位 |
+| `PropGeoTheory.num_props` | topos | 欄位 |
+| `SheafStructure` | topos | 結構 |
+| `SheafStructure.carrier` | topos | 欄位 |
+| `SheafStructure.pred_arities` | topos | 欄位 |
+| `SheafStructure.relations` | topos | 欄位 |
+| `SliceCategoryData` | topos | 結構 |
+| `SliceCategoryData.obj_arrow` | topos | 欄位 |
+| `SliceCategoryData.proj_mor` | topos | 欄位 |
+| `SliceCategoryData.proj_obj` | topos | 欄位 |
+| `SliceCategoryData.slice_cat` | topos | 欄位 |
+| `Subpresheaf` | topos | 結構 |
+| `Subpresheaf.ambient` | topos | 欄位 |
+| `Subpresheaf.members` | topos | 欄位 |
+| `build_propositional_classifying_topos` | topos | 函數 |
+| `cat_slice` | topos | 函數 |
+| `category_of_elements` | topos | 函數 |
+| `enumerate_set_models_prop` | topos | 函數 |
+| `geo_normal_form_to_formula` | topos | 函數 |
+| `geometric_normal_form` | topos | 函數 |
+| `is_valid_subpresheaf` | topos | 函數 |
+| `kripke_joyal_forces` | topos | 函數 |
+| `model_satisfies_sequent` | topos | 函數 |
+| `model_satisfies_theory` | topos | 函數 |
+| `subpresheaf_exists` | topos | 函數 |
+| `subpresheaf_forall` | topos | 函數 |
+| `subpresheaf_pullback` | topos | 函數 |
+| `verify_beck_chevalley_quantifiers` | topos | 函數 |
+| `verify_classifying_topos_universal_property` | topos | 函數 |
+| `verify_elements_slice_categorification` | topos | 函數 |
+| `verify_geometric_normal_form_soundness` | topos | 函數 |
+
+### 拓撲斯：廣群棧、下降理論、層上同調與同倫類型
+
+- 規範形式：Čech 下降上閉鏈 g_{ij}·g_{jk}=g_{ik}、Roos／單純上鏈複形與整數 Smith 撓率不變因子
+- 範疇化：纖維化廣群棧與 G-主叢下降、有理阿貝爾層上同調 H^•(C;F)、蛇引理長正合序列與神經同倫類型
+- 判定：2-範疇下降上閉鏈相容、有效下降黏合雙射、d^{n+1}∘d^n=0、Euler–Poincaré 恆等式、蛇引理連接同態正合性與 Betti／π_1 計算
+
+| 符號 | 套件 | 類別 |
+|---|---|---|
+| `AbelianPresheafQ` | topos | 結構 |
+| `AbelianPresheafQ.cat` | topos | 欄位 |
+| `AbelianPresheafQ.dims` | topos | 欄位 |
+| `AbelianPresheafQ.res_mats` | topos | 欄位 |
+| `CochainComplexQ` | topos | 結構 |
+| `CochainComplexQ.differentials` | topos | 欄位 |
+| `CochainComplexQ.dims` | topos | 欄位 |
+| `CoverDescentDiagram` | topos | 結構 |
+| `CoverDescentDiagram.cleavage_transitions` | topos | 欄位 |
+| `CoverDescentDiagram.cover_arrows` | topos | 欄位 |
+| `CoverDescentDiagram.overlap_obj` | topos | 欄位 |
+| `CoverDescentDiagram.proj1` | topos | 欄位 |
+| `CoverDescentDiagram.proj12` | topos | 欄位 |
+| `CoverDescentDiagram.proj13` | topos | 欄位 |
+| `CoverDescentDiagram.proj2` | topos | 欄位 |
+| `CoverDescentDiagram.proj23` | topos | 欄位 |
+| `CoverDescentDiagram.target` | topos | 欄位 |
+| `CoverDescentDiagram.triple_obj` | topos | 欄位 |
+| `DescentDatum` | topos | 結構 |
+| `DescentDatum.local_objs` | topos | 欄位 |
+| `DescentDatum.transitions` | topos | 欄位 |
+| `DescentDatum::equal` | topos | 函數 |
+| `DescentDatum::not_equal` | topos | 函數 |
+| `DescentDatum::to_repr` | topos | 函數 |
+| `FiniteGroupoid` | topos | 結構 |
+| `FiniteGroupoid.cat` | topos | 欄位 |
+| `FiniteGroupoid.inv` | topos | 欄位 |
+| `GroupoidFibration` | topos | 結構 |
+| `GroupoidFibration.base` | topos | 欄位 |
+| `GroupoidFibration.fibers` | topos | 欄位 |
+| `GroupoidFibration.pullbacks` | topos | 欄位 |
+| `HomotopyTypeSummary` | topos | 結構 |
+| `HomotopyTypeSummary.betti_numbers` | topos | 欄位 |
+| `HomotopyTypeSummary.euler_characteristic` | topos | 欄位 |
+| `HomotopyTypeSummary.pi0_components` | topos | 欄位 |
+| `HomotopyTypeSummary.pi1_free_rank` | topos | 欄位 |
+| `HomotopyTypeSummary.pi1_torsion_invariants` | topos | 欄位 |
+| `HomotopyTypeSummary::equal` | topos | 函數 |
+| `HomotopyTypeSummary::not_equal` | topos | 函數 |
+| `HomotopyTypeSummary::to_repr` | topos | 函數 |
+| `RectQMat` | topos | 結構 |
+| `RectQMat.ncols` | topos | 欄位 |
+| `RectQMat.nrows` | topos | 欄位 |
+| `RectQMat.rows` | topos | 欄位 |
+| `RectQMat::equal` | topos | 函數 |
+| `RectQMat::not_equal` | topos | 函數 |
+| `RectQMat::to_repr` | topos | 函數 |
+| `SimplicialNerve` | topos | 結構 |
+| `SimplicialNerve.edges` | topos | 欄位 |
+| `SimplicialNerve.num_vertices` | topos | 欄位 |
+| `SimplicialNerve.tetrahedra` | topos | 欄位 |
+| `SimplicialNerve.triangles` | topos | 欄位 |
+| `abelian_presheaf_constant_q` | topos | 函數 |
+| `boundary_simplex_nerve` | topos | 函數 |
+| `build_circle_z2_torsor_stack` | topos | 函數 |
+| `canonical_descent_datum` | topos | 函數 |
+| `circle_mobius_double_cover_sheaf` | topos | 函數 |
+| `classify_group_torsor_cohomology` | topos | 函數 |
+| `classifying_nerve_of_poset` | topos | 函數 |
+| `cochain_complex_is_valid` | topos | 函數 |
+| `cohomology_dimensions` | topos | 函數 |
+| `compute_nerve_homotopy_type` | topos | 函數 |
+| `descent_data_isomorphic` | topos | 函數 |
+| `groupoid_of_fincat` | topos | 函數 |
+| `is_valid_abelian_presheaf` | topos | 函數 |
+| `is_valid_groupoid` | topos | 函數 |
+| `nerve_constant_cochain_complex_q` | topos | 函數 |
+| `rect_qmat_id` | topos | 函數 |
+| `rect_qmat_zero` | topos | 函數 |
+| `roos_site_cochain_complex` | topos | 函數 |
+| `rp2_minimal_nerve` | topos | 函數 |
+| `verify_descent_cocycle` | topos | 函數 |
+| `verify_euler_poincare` | topos | 函數 |
+| `verify_snake_lemma_cohomology_les` | topos | 函數 |
+| `verify_stack_effective_descent` | topos | 函數 |
+
+### 拓撲斯：第2輪結構導出演算法（本徵三重伴隨、開閉子拓撲斯核、稠密比較引理、內蘊主叢與杯積環）
+
+- 規範形式：右 Kan 擴展預層 Ran_{u^{op}}、開閉 Lawvere–Tierney 核算子 j_o/j_c、誘導子景拓撲 J_C、內蘊置換群作用與 Alexander–Whitney 2-上鏈杯積
+- 範疇化：本徵幾何態射 Lan_{u^{op}}⊣u^*⊣Ran_{u^{op}}、餘 Heyting 開閉子拓撲斯互補分解、Grothendieck–Verdier 稠密子景 Morita 等價、Diaconescu 內蘊 G-主叢層與分次微分代數 H^•(U;Q)
+- 判定：三重伴隨 Hom 雙射、無排中律下 J_o∧J_c=J_triv 與 J_o∨J_c=J_⊥ 互補、稠密層重構同構、剪映射雙射 T×G≅T×T 與 Koszul 符號 Leibniz 律及 T^2 對 S^1∨S^1∨S^2 杯積秩區分
+
+| 符號 | 套件 | 類別 |
+|---|---|---|
+| `InternalGroupTorsor` | topos | 結構 |
+| `InternalGroupTorsor.action` | topos | 欄位 |
+| `InternalGroupTorsor.carrier` | topos | 欄位 |
+| `InternalGroupTorsor.group_elems` | topos | 欄位 |
+| `InternalGroupTorsor.site` | topos | 欄位 |
+| `SubtoposComplementReport` | topos | 結構 |
+| `SubtoposComplementReport.closed_lt_valid` | topos | 欄位 |
+| `SubtoposComplementReport.internal_lem_holds` | topos | 欄位 |
+| `SubtoposComplementReport.join_is_inconsistent` | topos | 欄位 |
+| `SubtoposComplementReport.meet_is_ambient` | topos | 欄位 |
+| `SubtoposComplementReport.open_lt_valid` | topos | 欄位 |
+| `SubtoposComplementReport.subtopos_boolean_complement_holds` | topos | 欄位 |
+| `SubtoposComplementReport::equal` | topos | 函數 |
+| `SubtoposComplementReport::not_equal` | topos | 函數 |
+| `SubtoposComplementReport::to_repr` | topos | 函數 |
+| `build_mobius_internal_z2_torsor` | topos | 函數 |
+| `closed_subtopos_lt_operator` | topos | 函數 |
+| `induced_dense_subsite_topology` | topos | 函數 |
+| `is_connected_essential_functor` | topos | 函數 |
+| `is_internal_group_torsor_sheaf` | topos | 函數 |
+| `open_subtopos_lt_operator` | topos | 函數 |
+| `right_kan_presheaf` | topos | 函數 |
+| `simplicial_cup_1_1` | topos | 函數 |
+| `simplicial_cup_h1_h1_rank` | topos | 函數 |
+| `topology_lattice_join` | topos | 函數 |
+| `topology_lattice_meet` | topos | 函數 |
+| `torus_t2_minimal_nerve` | topos | 函數 |
+| `verify_alexander_whitney_leibniz` | topos | 函數 |
+| `verify_essential_geometric_triple_adjunction` | topos | 函數 |
+| `verify_grothendieck_comparison_lemma` | topos | 函數 |
+| `verify_open_closed_subtopos_complementarity` | topos | 函數 |
+| `wedge_s1_s1_s2_nerve` | topos | 函數 |
+
+### 概形：多元多項式、約化 Gröbner 基規範形與根理想
+
+- 規範形式：稀疏規範多元多項式 MPoly、單ic 完全互約 Gröbner 基與標準單項式商基底
+- 範疇化：多元多項式環 Q[x_1,…,x_n] 上的理想運算（和／積／交／商／飽和／消元／根理想）
+- 判定：Buchberger S-多項式演算法、多元除法餘式唯一性、Rabinowitsch 根理想成員與 Hilbert–Krull 維數判定
+
+| 符號 | 套件 | 類別 |
+|---|---|---|
+| `Ideal` | scheme | 結構 |
+| `Ideal.nvars` | scheme | 欄位 |
+| `Ideal.rgb` | scheme | 欄位 |
+| `Ideal::equal` | scheme | 函數 |
+| `Ideal::not_equal` | scheme | 函數 |
+| `Ideal::to_repr` | scheme | 函數 |
+| `MPoly` | scheme | 結構 |
+| `MPoly.nvars` | scheme | 欄位 |
+| `MPoly.terms` | scheme | 欄位 |
+| `MPoly::equal` | scheme | 函數 |
+| `MPoly::not_equal` | scheme | 函數 |
+| `MPoly::to_repr` | scheme | 函數 |
+| `MTerm` | scheme | 結構 |
+| `MTerm.coeff` | scheme | 欄位 |
+| `MTerm.exps` | scheme | 欄位 |
+| `MTerm::equal` | scheme | 函數 |
+| `MTerm::not_equal` | scheme | 函數 |
+| `MTerm::to_repr` | scheme | 函數 |
+| `MonomialOrder` | scheme | 列舉 |
+| `MonomialOrder::Elim` | scheme | 構造子 |
+| `MonomialOrder::GRevLex` | scheme | 構造子 |
+| `MonomialOrder::Lex` | scheme | 構造子 |
+| `MonomialOrder::equal` | scheme | 函數 |
+| `MonomialOrder::not_equal` | scheme | 函數 |
+| `MonomialOrder::to_repr` | scheme | 函數 |
+| `ReducedGroebnerBasis` | scheme | 結構 |
+| `ReducedGroebnerBasis.gens` | scheme | 欄位 |
+| `ReducedGroebnerBasis.nvars` | scheme | 欄位 |
+| `ReducedGroebnerBasis.order` | scheme | 欄位 |
+| `ReducedGroebnerBasis::equal` | scheme | 函數 |
+| `ReducedGroebnerBasis::not_equal` | scheme | 函數 |
+| `ReducedGroebnerBasis::to_repr` | scheme | 函數 |
+| `ideal_add` | scheme | 函數 |
+| `ideal_contains` | scheme | 函數 |
+| `ideal_eliminate_first_k` | scheme | 函數 |
+| `ideal_eq` | scheme | 函數 |
+| `ideal_intersect` | scheme | 函數 |
+| `ideal_is_unit` | scheme | 函數 |
+| `ideal_is_zero` | scheme | 函數 |
+| `ideal_krull_dimension` | scheme | 函數 |
+| `ideal_mul` | scheme | 函數 |
+| `ideal_new` | scheme | 函數 |
+| `ideal_normal_form` | scheme | 函數 |
+| `ideal_quotient` | scheme | 函數 |
+| `ideal_quotient_poly` | scheme | 函數 |
+| `ideal_quotient_vector_space_dim` | scheme | 函數 |
+| `ideal_radical` | scheme | 函數 |
+| `ideal_radical_contains` | scheme | 函數 |
+| `ideal_saturate` | scheme | 函數 |
+| `ideal_standard_monomials` | scheme | 函數 |
+| `ideal_subset` | scheme | 函數 |
+| `monomial_cmp` | scheme | 函數 |
+| `mpoly_add` | scheme | 函數 |
+| `mpoly_const` | scheme | 函數 |
+| `mpoly_dehomogenize` | scheme | 函數 |
+| `mpoly_div_exact` | scheme | 函數 |
+| `mpoly_eval` | scheme | 函數 |
+| `mpoly_extend_vars` | scheme | 函數 |
+| `mpoly_from_terms` | scheme | 函數 |
+| `mpoly_int` | scheme | 函數 |
+| `mpoly_is_zero` | scheme | 函數 |
+| `mpoly_leading_term` | scheme | 函數 |
+| `mpoly_monic` | scheme | 函數 |
+| `mpoly_mul` | scheme | 函數 |
+| `mpoly_neg` | scheme | 函數 |
+| `mpoly_of_poly` | scheme | 函數 |
+| `mpoly_partial_deriv` | scheme | 函數 |
+| `mpoly_pow` | scheme | 函數 |
+| `mpoly_reduce` | scheme | 函數 |
+| `mpoly_scale` | scheme | 函數 |
+| `mpoly_sub` | scheme | 函數 |
+| `mpoly_subst` | scheme | 函數 |
+| `mpoly_to_poly` | scheme | 函數 |
+| `mpoly_to_qpoly_univariate` | scheme | 函數 |
+| `mpoly_total_degree` | scheme | 函數 |
+| `mpoly_var` | scheme | 函數 |
+| `mpoly_zero` | scheme | 函數 |
+| `qpoly_to_mpoly_var` | scheme | 函數 |
+| `reduced_groebner_basis` | scheme | 函數 |
+| `s_polynomial` | scheme | 函數 |
+
+### 概形：座標環、Zariski 層化、既約概形與準凝聚模
+
+- 規範形式：模約化 Gröbner 基商餘式規範形、主開集局部化截面 a/f^m 與冪零根簡化理想 √I
+- 範疇化：仿射概形 Spec(Q[x]/I)、Zariski 結構層 O_X、既約伴隨概形 X_red↪X 與準凝聚模局部化範疇
+- 判定：Zariski 開覆蓋 1∈⟨f_i⟩ 單位分解、局部截面相容與全局多項式黏合唯一性、冪零見證搜尋與既約泛性質檢驗
+
+| 符號 | 套件 | 類別 |
+|---|---|---|
+| `AffineScheme` | scheme | 結構 |
+| `AffineScheme.ring` | scheme | 欄位 |
+| `AffineScheme::equal` | scheme | 函數 |
+| `AffineScheme::not_equal` | scheme | 函數 |
+| `AffineScheme::to_repr` | scheme | 函數 |
+| `CoordRing` | scheme | 結構 |
+| `CoordRing.ideal` | scheme | 欄位 |
+| `CoordRing.nvars` | scheme | 欄位 |
+| `CoordRing::equal` | scheme | 函數 |
+| `CoordRing::not_equal` | scheme | 函數 |
+| `CoordRing::to_repr` | scheme | 函數 |
+| `LocalizedSection` | scheme | 結構 |
+| `LocalizedSection.den_base` | scheme | 欄位 |
+| `LocalizedSection.exp` | scheme | 欄位 |
+| `LocalizedSection.num` | scheme | 欄位 |
+| `LocalizedSection::equal` | scheme | 函數 |
+| `LocalizedSection::not_equal` | scheme | 函數 |
+| `LocalizedSection::to_repr` | scheme | 函數 |
+| `QuasiCoherentModule` | scheme | 結構 |
+| `QuasiCoherentModule.ncols` | scheme | 欄位 |
+| `QuasiCoherentModule.nrows` | scheme | 欄位 |
+| `QuasiCoherentModule.rel_matrix` | scheme | 欄位 |
+| `QuasiCoherentModule.ring` | scheme | 欄位 |
+| `RingHom` | scheme | 結構 |
+| `RingHom.dst` | scheme | 欄位 |
+| `RingHom.src` | scheme | 欄位 |
+| `RingHom.var_images` | scheme | 欄位 |
+| `RingHom::equal` | scheme | 函數 |
+| `RingHom::not_equal` | scheme | 函數 |
+| `RingHom::to_repr` | scheme | 函數 |
+| `affine_is_reduced` | scheme | 函數 |
+| `affine_nilpotent_witness` | scheme | 函數 |
+| `affine_reduction` | scheme | 函數 |
+| `affine_scheme` | scheme | 函數 |
+| `coord_ring_eq` | scheme | 函數 |
+| `coord_ring_new` | scheme | 函數 |
+| `coord_ring_nf` | scheme | 函數 |
+| `glue_zariski_structure_sections` | scheme | 函數 |
+| `is_zariski_open_cover` | scheme | 函數 |
+| `localize_quasicoherent_module` | scheme | 函數 |
+| `localized_section_eq` | scheme | 函數 |
+| `principal_open_subset` | scheme | 函數 |
+| `restrict_localized_section` | scheme | 函數 |
+| `ring_hom_apply` | scheme | 函數 |
+| `ring_hom_compose` | scheme | 函數 |
+| `ring_hom_id` | scheme | 函數 |
+| `ring_hom_is_surjective` | scheme | 函數 |
+| `ring_hom_is_valid` | scheme | 函數 |
+| `ring_hom_kernel` | scheme | 函數 |
+| `solve_ideal_linear_combination` | scheme | 函數 |
+| `verify_affine_reduction_universal_property` | scheme | 函數 |
+
+### 概形：黏合概形、概形態射、仿射態射與 DVR 真概形
+
+- 規範形式：局部仿射圖冊 (U_i,U_{ij})、圖冊回拉同態環圖與截斷形式 Laurent 級數 Q((t)) 賦值展開
+- 範疇化：一般黏合概形範疇 Sch/Q（A^n, P^n, 射影閉子概形, A^2\0, 雙重原點線）、纖維積、仿射態射與對角浸入 Δ_X
+- 判定：上閉鏈黏合相容、仿射開逆像覆蓋局部性、對角閉浸入分離性與離散賦值環 Q[[t]]⊂Q((t)) 真概形唯一延拓判準
+
+| 符號 | 套件 | 類別 |
+|---|---|---|
+| `ChartOverlap` | scheme | 結構 |
+| `ChartOverlap.from_i` | scheme | 欄位 |
+| `ChartOverlap.from_j` | scheme | 欄位 |
+| `ChartOverlap.is_empty` | scheme | 欄位 |
+| `ChartOverlap.ring` | scheme | 欄位 |
+| `ChartOverlap::equal` | scheme | 函數 |
+| `ChartOverlap::not_equal` | scheme | 函數 |
+| `ChartOverlap::to_repr` | scheme | 函數 |
+| `LaurentSeries` | scheme | 結構 |
+| `LaurentSeries.coeffs` | scheme | 欄位 |
+| `LaurentSeries.prec` | scheme | 欄位 |
+| `LaurentSeries.val` | scheme | 欄位 |
+| `LaurentSeries::equal` | scheme | 函數 |
+| `LaurentSeries::not_equal` | scheme | 函數 |
+| `LaurentSeries::to_repr` | scheme | 函數 |
+| `PropernessReport` | scheme | 結構 |
+| `PropernessReport.existence_holds` | scheme | 欄位 |
+| `PropernessReport.is_proper` | scheme | 欄位 |
+| `PropernessReport.is_separated` | scheme | 欄位 |
+| `PropernessReport.uniqueness_holds` | scheme | 欄位 |
+| `PropernessReport::equal` | scheme | 函數 |
+| `PropernessReport::not_equal` | scheme | 函數 |
+| `PropernessReport::to_repr` | scheme | 函數 |
+| `Scheme` | scheme | 結構 |
+| `Scheme.charts` | scheme | 欄位 |
+| `Scheme.overlaps` | scheme | 欄位 |
+| `Scheme::equal` | scheme | 函數 |
+| `Scheme::not_equal` | scheme | 函數 |
+| `Scheme::to_repr` | scheme | 函數 |
+| `SchemeMorphism` | scheme | 結構 |
+| `SchemeMorphism.chart_map` | scheme | 欄位 |
+| `SchemeMorphism.dst` | scheme | 欄位 |
+| `SchemeMorphism.ring_maps` | scheme | 欄位 |
+| `SchemeMorphism.src` | scheme | 欄位 |
+| `SchemeMorphism::equal` | scheme | 函數 |
+| `SchemeMorphism::not_equal` | scheme | 函數 |
+| `SchemeMorphism::to_repr` | scheme | 函數 |
+| `affine_fiber_product` | scheme | 函數 |
+| `analyze_scheme_properness` | scheme | 函數 |
+| `global_sections_dimension_upto_deg` | scheme | 函數 |
+| `is_affine_morphism` | scheme | 函數 |
+| `is_proper_morphism` | scheme | 函數 |
+| `is_proper_scheme` | scheme | 函數 |
+| `is_separated_scheme` | scheme | 函數 |
+| `laurent_add` | scheme | 函數 |
+| `laurent_const` | scheme | 函數 |
+| `laurent_inv` | scheme | 函數 |
+| `laurent_is_integral_dvr` | scheme | 函數 |
+| `laurent_is_zero` | scheme | 函數 |
+| `laurent_monomial` | scheme | 函數 |
+| `laurent_mul` | scheme | 函數 |
+| `laurent_sub` | scheme | 函數 |
+| `morphism_closed_immersion_in_projective_space` | scheme | 函數 |
+| `morphism_hopf_punctured_plane_to_p1` | scheme | 函數 |
+| `morphism_punctured_plane_to_a2` | scheme | 函數 |
+| `morphism_to_spec_q` | scheme | 函數 |
+| `mpoly_eval_laurent` | scheme | 函數 |
+| `scheme_affine_space` | scheme | 函數 |
+| `scheme_doubled_origin_line` | scheme | 函數 |
+| `scheme_fat_point` | scheme | 函數 |
+| `scheme_from_affine` | scheme | 函數 |
+| `scheme_is_reduced` | scheme | 函數 |
+| `scheme_is_valid` | scheme | 函數 |
+| `scheme_morphism_compose` | scheme | 函數 |
+| `scheme_morphism_is_valid` | scheme | 函數 |
+| `scheme_projective_space` | scheme | 函數 |
+| `scheme_projective_subscheme` | scheme | 函數 |
+| `scheme_punctured_plane` | scheme | 函數 |
+| `scheme_reduction` | scheme | 函數 |
+| `valuative_extension_classes_for_arc` | scheme | 函數 |
+
+### 概形：有理等價、對偶複形、點函子法與動機範疇化
+
+- 規範形式：P^1 正規化 Weil 除子與有理等價類 CH^1、P^1/P^2/平面曲線 Čech 上同調維數、雙齊次對應理想與有限交換環點集
+- 範疇化：有理函數主除子商群、Grothendieck–Serre 對偶複形 ω_{P^1}≅O(-2)[1]／ω_{P^2}≅O(-3)[2]／ω_C≅O_C(d-3)[1]、米田點函子 h_X:CRing→Set 與多射影 Gröbner Chow 對應動機範疇
+- 判定：有理等價顯式函數 f/g 構造、局部重數 Bézout 定理、Riemann–Roch 與 Serre 對偶配對、F_p[ε] 切空間維數與 6 變元 Gröbner 飽和消元 h(P^1)=1⊕L 動機分解檢驗
+
+| 符號 | 套件 | 類別 |
+|---|---|---|
+| `FiniteCommRing` | scheme | 結構 |
+| `FiniteCommRing.add_table` | scheme | 欄位 |
+| `FiniteCommRing.mul_table` | scheme | 欄位 |
+| `FiniteCommRing.neg_table` | scheme | 欄位 |
+| `FiniteCommRing.one` | scheme | 欄位 |
+| `FiniteCommRing.size` | scheme | 欄位 |
+| `FiniteCommRing.zero` | scheme | 欄位 |
+| `FiniteCommRing::equal` | scheme | 函數 |
+| `FiniteCommRing::not_equal` | scheme | 函數 |
+| `FiniteCommRing::to_repr` | scheme | 函數 |
+| `FiniteRingHom` | scheme | 結構 |
+| `FiniteRingHom.dst` | scheme | 欄位 |
+| `FiniteRingHom.src` | scheme | 欄位 |
+| `FiniteRingHom.values` | scheme | 欄位 |
+| `FiniteRingHom::equal` | scheme | 函數 |
+| `FiniteRingHom::not_equal` | scheme | 函數 |
+| `FiniteRingHom::to_repr` | scheme | 函數 |
+| `P1LineBundleCohomology` | scheme | 結構 |
+| `P1LineBundleCohomology.chi` | scheme | 欄位 |
+| `P1LineBundleCohomology.h0` | scheme | 欄位 |
+| `P1LineBundleCohomology.h1` | scheme | 欄位 |
+| `P1LineBundleCohomology.twist` | scheme | 欄位 |
+| `P1LineBundleCohomology::equal` | scheme | 函數 |
+| `P1LineBundleCohomology::not_equal` | scheme | 函數 |
+| `P1LineBundleCohomology::to_repr` | scheme | 函數 |
+| `P2LineBundleCohomology` | scheme | 結構 |
+| `P2LineBundleCohomology.chi` | scheme | 欄位 |
+| `P2LineBundleCohomology.h0` | scheme | 欄位 |
+| `P2LineBundleCohomology.h1` | scheme | 欄位 |
+| `P2LineBundleCohomology.h2` | scheme | 欄位 |
+| `P2LineBundleCohomology.twist` | scheme | 欄位 |
+| `P2LineBundleCohomology::equal` | scheme | 函數 |
+| `P2LineBundleCohomology::not_equal` | scheme | 函數 |
+| `P2LineBundleCohomology::to_repr` | scheme | 函數 |
+| `PlaneCurveDualizingReport` | scheme | 結構 |
+| `PlaneCurveDualizingReport.arithmetic_genus` | scheme | 欄位 |
+| `PlaneCurveDualizingReport.canonical_twist` | scheme | 欄位 |
+| `PlaneCurveDualizingReport.degree` | scheme | 欄位 |
+| `PlaneCurveDualizingReport.h0_oc` | scheme | 欄位 |
+| `PlaneCurveDualizingReport.h0_omega` | scheme | 欄位 |
+| `PlaneCurveDualizingReport.h1_oc` | scheme | 欄位 |
+| `PlaneCurveDualizingReport.h1_omega` | scheme | 欄位 |
+| `PlaneCurveDualizingReport.serre_duality_holds` | scheme | 欄位 |
+| `PlaneCurveDualizingReport::equal` | scheme | 函數 |
+| `PlaneCurveDualizingReport::not_equal` | scheme | 函數 |
+| `PlaneCurveDualizingReport::to_repr` | scheme | 函數 |
+| `PrimeDivisorP1` | scheme | 列舉 |
+| `PrimeDivisorP1::FiniteIrreducible` | scheme | 構造子 |
+| `PrimeDivisorP1::PointAtInfinity` | scheme | 構造子 |
+| `PrimeDivisorP1::equal` | scheme | 函數 |
+| `PrimeDivisorP1::not_equal` | scheme | 函數 |
+| `PrimeDivisorP1::to_repr` | scheme | 函數 |
+| `WeilDivisorP1` | scheme | 結構 |
+| `WeilDivisorP1.terms` | scheme | 欄位 |
+| `WeilDivisorP1::equal` | scheme | 函數 |
+| `WeilDivisorP1::not_equal` | scheme | 函數 |
+| `WeilDivisorP1::to_repr` | scheme | 函數 |
+| `are_rationally_equivalent_p1` | scheme | 函數 |
+| `bezout_intersection_number_p2` | scheme | 函數 |
+| `cech_cohomology_p1_line_bundle` | scheme | 函數 |
+| `cech_cohomology_p2_line_bundle` | scheme | 函數 |
+| `compose_p1_correspondences_groebner` | scheme | 函數 |
+| `eval_affine_functor_of_points` | scheme | 函數 |
+| `eval_scheme_functor_of_points` | scheme | 函數 |
+| `fcomm_dual_numbers` | scheme | 函數 |
+| `fcomm_fp` | scheme | 函數 |
+| `fcomm_product` | scheme | 函數 |
+| `finite_ring_hom_is_valid` | scheme | 函數 |
+| `mpoly_eval_finite_ring` | scheme | 函數 |
+| `p1_correspondence_bidegree` | scheme | 函數 |
+| `plane_curve_dualizing_complex` | scheme | 函數 |
+| `plane_curve_line_bundle_cohomology` | scheme | 函數 |
+| `principal_divisor_p1` | scheme | 函數 |
+| `pushforward_affine_point` | scheme | 函數 |
+| `quasicoherent_fitting_ideal` | scheme | 函數 |
+| `rational_equivalence_witness_p1` | scheme | 函數 |
+| `verify_bezout_theorem_p2` | scheme | 函數 |
+| `verify_motivic_p1_categorification` | scheme | 函數 |
+| `verify_serre_duality_and_riemann_roch_p1` | scheme | 函數 |
+| `verify_serre_duality_p2` | scheme | 函數 |
+| `weil_divisor_p1_add` | scheme | 函數 |
+| `weil_divisor_p1_degree` | scheme | 函數 |
+| `weil_divisor_p1_normalize` | scheme | 函數 |
+| `weil_divisor_p1_sub` | scheme | 函數 |
+| `zariski_tangent_dimension_fp` | scheme | 函數 |
+
+### 概形：第2輪結構導出演算法（Kähler 微分、平展判準、Hilbert 多項式、爆炸奇點解消與 Frobenius 下降）
+
+- 規範形式：Kähler 微分呈現矩陣 Ω^1_{B/A}、零階 Fitting 與 Jacobi 子式理想、符號 Hilbert 多項式 P_X(t)∈Q[t]、雙圖冊嚴格變換概形與二次有限域 F_{p^2} 乘法表
+- 範疇化：相對微分模與無分歧／光滑／平展態射、Tjurina 孤立奇點代數 τ(X)、任意餘維射影度數與算術虧格、Rees 爆炸 Bl_{(0,0)}(A^2) 奇點解消及 Galois–Frobenius 點計數下降
+- 判定：Fitting 零化 1∈Fitt_0(Ω^1) 局部化交換性、Macaulay 初理想容斥與齊次單項式計數互校、Gröbner 飽和嚴格變換光滑性與例外纖維既約性區分及 F_3⊂F_9 算術有理點跳躍檢驗
+
+| 符號 | 套件 | 類別 |
+|---|---|---|
+| `PlaneCurveBlowupReport` | scheme | 結構 |
+| `PlaneCurveBlowupReport.exceptional_fiber_is_reduced` | scheme | 欄位 |
+| `PlaneCurveBlowupReport.exceptional_fiber_length` | scheme | 欄位 |
+| `PlaneCurveBlowupReport.origin_was_singular` | scheme | 欄位 |
+| `PlaneCurveBlowupReport.strict_transform` | scheme | 欄位 |
+| `PlaneCurveBlowupReport.strict_transform_is_smooth` | scheme | 欄位 |
+| `ProjectiveHilbertReport` | scheme | 結構 |
+| `ProjectiveHilbertReport.ambient_dim` | scheme | 欄位 |
+| `ProjectiveHilbertReport.arithmetic_genus` | scheme | 欄位 |
+| `ProjectiveHilbertReport.degree` | scheme | 欄位 |
+| `ProjectiveHilbertReport.hilbert_poly` | scheme | 欄位 |
+| `ProjectiveHilbertReport.matches_hilbert_function` | scheme | 欄位 |
+| `ProjectiveHilbertReport.projective_dim` | scheme | 欄位 |
+| `affine_is_smooth` | scheme | 函數 |
+| `affine_jacobian_ideal` | scheme | 函數 |
+| `affine_kahler_differentials` | scheme | 函數 |
+| `affine_singular_locus_ideal` | scheme | 函數 |
+| `affine_tjurina_number` | scheme | 函數 |
+| `blowup_plane_curve_at_origin` | scheme | 函數 |
+| `fcomm_fp2` | scheme | 函數 |
+| `is_etale_ring_hom_between_smooth` | scheme | 函數 |
+| `is_unramified_ring_hom` | scheme | 函數 |
+| `kahler_differentials_module` | scheme | 函數 |
+| `projective_hilbert_function` | scheme | 函數 |
+| `projective_hilbert_report` | scheme | 函數 |
+| `quasicoherent_fitting_zero_ideal` | scheme | 函數 |
+| `quasicoherent_module_is_zero` | scheme | 函數 |
+| `verify_weil_zeta_and_galois_frobenius_descent` | scheme | 函數 |
+
+### 六支柱大一統：邏輯理論轉譯與幾何邏輯精細圖譜
+
+- 規範形式：跨立方類型論／Topos／概形／熱帶半環之規範形與幾何公式轉譯及 18 項精細圖譜條目
+- 範疇化：Glivenko ¬¬ 稠密布林子拓撲斯、Stone–Zariski 分類景對偶、Kapranov 熱帶賦值、平展主叢 Galois 橋、子拓撲斯與爆炸切除橋及 S^1/P^1/Galois/動機六支柱合成
+- 判定：跨支柱語義保持、見證與反例雙向非平凡檢驗及 30 項統一大一統證書全數實算裁決
+
+| 符號 | 套件 | 類別 |
+|---|---|---|
+| `FederationDescriptor` | bridge | 結構 |
+| `FederationDescriptor.canonical_normal_form` | bridge | 欄位 |
+| `FederationDescriptor.categorification_role` | bridge | 欄位 |
+| `FederationDescriptor.id` | bridge | 欄位 |
+| `FederationDescriptor.live_health_ok` | bridge | 欄位 |
+| `FederationDescriptor.packages` | bridge | 欄位 |
+| `FederationDescriptor.slug` | bridge | 欄位 |
+| `FederationDescriptor.summary` | bridge | 欄位 |
+| `FederationDescriptor::equal` | bridge | 函數 |
+| `FederationDescriptor::not_equal` | bridge | 函數 |
+| `FederationDescriptor::to_repr` | bridge | 函數 |
+| `FederationId` | bridge | 列舉 |
+| `FederationId::Cubical` | bridge | 構造子 |
+| `FederationId::Scheme` | bridge | 構造子 |
+| `FederationId::Semiring` | bridge | 構造子 |
+| `FederationId::Symlib` | bridge | 構造子 |
+| `FederationId::Topos` | bridge | 構造子 |
+| `FederationId::equal` | bridge | 函數 |
+| `FederationId::not_equal` | bridge | 函數 |
+| `FederationId::to_repr` | bridge | 函數 |
+| `FederationPairBridge` | bridge | 結構 |
+| `FederationPairBridge.bridge_theorem` | bridge | 欄位 |
+| `FederationPairBridge.holds` | bridge | 欄位 |
+| `FederationPairBridge.id` | bridge | 欄位 |
+| `FederationPairBridge.lhs` | bridge | 欄位 |
+| `FederationPairBridge.quantitative_witness` | bridge | 欄位 |
+| `FederationPairBridge.rhs` | bridge | 欄位 |
+| `FederationPairBridge::equal` | bridge | 函數 |
+| `FederationPairBridge::not_equal` | bridge | 函數 |
+| `FederationPairBridge::to_repr` | bridge | 函數 |
+| `GeometryLogicAtlasEntry` | bridge | 結構 |
+| `GeometryLogicAtlasEntry.contrast_holds` | bridge | 欄位 |
+| `GeometryLogicAtlasEntry.correspondence_theorem` | bridge | 欄位 |
+| `GeometryLogicAtlasEntry.domain` | bridge | 欄位 |
+| `GeometryLogicAtlasEntry.geometric_structure` | bridge | 欄位 |
+| `GeometryLogicAtlasEntry.id` | bridge | 欄位 |
+| `GeometryLogicAtlasEntry.logical_counterpart` | bridge | 欄位 |
+| `GeometryLogicAtlasEntry.quantitative_summary` | bridge | 欄位 |
+| `GeometryLogicAtlasEntry.witness_holds` | bridge | 欄位 |
+| `GeometryLogicAtlasEntry::equal` | bridge | 函數 |
+| `GeometryLogicAtlasEntry::not_equal` | bridge | 函數 |
+| `GeometryLogicAtlasEntry::to_repr` | bridge | 函數 |
+| `GrandUnificationReport` | bridge | 結構 |
+| `GrandUnificationReport.all_ok` | bridge | 欄位 |
+| `GrandUnificationReport.atlas_verified_count` | bridge | 欄位 |
+| `GrandUnificationReport.federations_verified_count` | bridge | 欄位 |
+| `GrandUnificationReport.five_federation_pentagon_ok` | bridge | 欄位 |
+| `GrandUnificationReport.five_federations_ok` | bridge | 欄位 |
+| `GrandUnificationReport.geometry_logic_atlas_ok` | bridge | 欄位 |
+| `GrandUnificationReport.k5_bridges_verified_count` | bridge | 欄位 |
+| `GrandUnificationReport.k5_pairwise_bridges_ok` | bridge | 欄位 |
+| `GrandUnificationReport.logic_translation_ok` | bridge | 欄位 |
+| `GrandUnificationReport.six_pillar_circle_sphere_ok` | bridge | 欄位 |
+| `GrandUnificationReport.total_certificates_count` | bridge | 欄位 |
+| `GrandUnificationReport.total_certificates_passed` | bridge | 欄位 |
+| `GrandUnificationReport::equal` | bridge | 函數 |
+| `GrandUnificationReport::not_equal` | bridge | 函數 |
+| `GrandUnificationReport::to_repr` | bridge | 函數 |
+| `build_cchm_interval_classifying_topos` | bridge | 函數 |
+| `build_fine_grained_geometry_logic_atlas` | bridge | 函數 |
+| `five_federation_descriptors` | bridge | 函數 |
+| `glivenko_double_negation_formula` | bridge | 函數 |
+| `grand_unification_certificates` | bridge | 函數 |
+| `run_grand_unification_system` | bridge | 函數 |
+| `translate_coord_ring_to_zariski_theory` | bridge | 函數 |
+| `translate_cubical_dim_to_mpoly` | bridge | 函數 |
+| `translate_cubical_dterm_to_geo_formula` | bridge | 函數 |
+| `translate_cubical_face_to_geo_formula` | bridge | 函數 |
+| `translate_cubical_face_to_zariski_ideal` | bridge | 函數 |
+| `translate_sexpr_to_geo_formula` | bridge | 函數 |
+| `verify_cubical_algebra_scheme_bridge` | bridge | 函數 |
+| `verify_dependent_cubical_topos_bridge` | bridge | 函數 |
+| `verify_excision_subtopos_blowup_bridge` | bridge | 函數 |
+| `verify_five_federation_pentagon_unification` | bridge | 函數 |
+| `verify_geometry_logic_atlas` | bridge | 函數 |
+| `verify_glivenko_topos_subtopos_bridge` | bridge | 函數 |
+| `verify_k5_federation_bridges` | bridge | 函數 |
+| `verify_kapranov_tropical_laurent_bridge` | bridge | 函數 |
+| `verify_quadratic_etale_torsor_galois_bridge` | bridge | 函數 |
+| `verify_quaternary_normal_forms` | bridge | 函數 |
+| `verify_semiring_kleene_alexandroff_topos_bridge` | bridge | 函數 |
+| `verify_six_pillar_circle_sphere_unification` | bridge | 函數 |
+| `verify_symlib_galois_topos_bridge` | bridge | 函數 |
+| `verify_symlib_symmetric_scheme_bridge` | bridge | 函數 |
+| `verify_zariski_topos_invariance_vs_nilpotent_points` | bridge | 函數 |
 <!-- APPENDIX:END -->

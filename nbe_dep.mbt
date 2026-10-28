@@ -161,6 +161,7 @@ pub enum DTerm {
   DEquivSect(DTerm)
   DEquivRetr(DTerm)
   DGlueEquiv(DTerm, Array[DEquivBranch]) // base type, equiv branches
+  DUnglueEquiv(DTerm, DTerm, Array[DEquivBranch]) // glue term, base type, equiv branches
   DUa(DTerm) // an equivalence as a path in the universe
 } derive(Debug, Eq)
 
@@ -203,6 +204,8 @@ pub enum DNeutral {
   DNEquivBwd(DNeutral, DValue, DValue)
   DNEquivSect(DNeutral, DValue, DValue)
   DNEquivRetr(DNeutral, DValue, DValue)
+  DNEquivAnn(DNeutral, DValue, DValue)
+  DNUnglueEquiv(DNeutral, DGlueEquivParts)
   DNComp((Dim) -> DValue, DSystem, DValue)
   DNHComp(DValue, DSystem, DValue)
 }
@@ -676,15 +679,458 @@ pub fn lazy_force_count(v : DValue) -> Int32 {
 }
 
 ///|
-/// Stable cache keys.  DTerm keys use the derived Debug representation;
-/// dimension keys first pass through the existing De Morgan simplifier.
+let dind_spec_key_registry : Array[DInductiveSpec] = []
+
+///|
+let dhit_spec_key_registry : Array[DHitSpec] = []
+
+///|
+fn dind_spec_key_id(spec : DInductiveSpec) -> Int {
+  for i in 0..<dind_spec_key_registry.length() {
+    let entry = dind_spec_key_registry[i]
+    if entry.name == spec.name &&
+      entry.constructors.length() == spec.constructors.length() &&
+      entry == spec {
+      return i
+    }
+  }
+  let id = dind_spec_key_registry.length()
+  dind_spec_key_registry.push(spec)
+  id
+}
+
+///|
+fn dhit_spec_key_id(spec : DHitSpec) -> Int {
+  for i in 0..<dhit_spec_key_registry.length() {
+    let entry = dhit_spec_key_registry[i]
+    if entry.name == spec.name && entry == spec {
+      return i
+    }
+  }
+  let id = dhit_spec_key_registry.length()
+  dhit_spec_key_registry.push(spec)
+  id
+}
+
+///|
+fn dim_write_key(buf : StringBuilder, r : Dim) -> Unit {
+  match r {
+    DZero => buf.write_char('0')
+    DOne => buf.write_char('1')
+    DVar(v) => {
+      buf.write_char('v')
+      buf.write_string(v.to_string())
+      buf.write_char(';')
+    }
+    DNeg(x) => {
+      buf.write_char('~')
+      dim_write_key(buf, x)
+    }
+    DAnd(a, b) => {
+      buf.write_char('&')
+      dim_write_key(buf, a)
+      dim_write_key(buf, b)
+    }
+    DOr(a, b) => {
+      buf.write_char('|')
+      dim_write_key(buf, a)
+      dim_write_key(buf, b)
+    }
+  }
+}
+
+///|
+fn face_write_key(buf : StringBuilder, f : Face) -> Unit {
+  match f {
+    FTop => buf.write_char('T')
+    FBot => buf.write_char('F')
+    FEq0(r) => {
+      buf.write_char('z')
+      dim_write_key(buf, r)
+    }
+    FEq1(r) => {
+      buf.write_char('o')
+      dim_write_key(buf, r)
+    }
+    FAnd(a, b) => {
+      buf.write_char('a')
+      face_write_key(buf, a)
+      face_write_key(buf, b)
+    }
+    FOr(a, b) => {
+      buf.write_char('r')
+      face_write_key(buf, a)
+      face_write_key(buf, b)
+    }
+  }
+}
+
+///|
+fn dlevel_write_key(buf : StringBuilder, lv : DLevelExpr) -> Unit {
+  match lv {
+    DLevelConst(k) => {
+      buf.write_char('c')
+      buf.write_string(k.to_string())
+      buf.write_char(';')
+    }
+    DLevelVar(v) => {
+      buf.write_char('v')
+      buf.write_string(v.to_string())
+      buf.write_char(';')
+    }
+    DLevelSucc(e) => {
+      buf.write_char('s')
+      dlevel_write_key(buf, e)
+    }
+    DLevelMax(a, b) => {
+      buf.write_char('m')
+      dlevel_write_key(buf, a)
+      dlevel_write_key(buf, b)
+    }
+  }
+}
+
+///|
+fn dterm_array_write_key(buf : StringBuilder, ts : Array[DTerm]) -> Unit {
+  buf.write_char('[')
+  buf.write_string(ts.length().to_string())
+  buf.write_char(':')
+  for t in ts {
+    dterm_write_key(buf, t)
+  }
+  buf.write_char(']')
+}
+
+///|
+fn dtube_array_write_key(buf : StringBuilder, ts : Array[DTubeTerm]) -> Unit {
+  buf.write_char('[')
+  buf.write_string(ts.length().to_string())
+  buf.write_char(':')
+  for tb in ts {
+    face_write_key(buf, tb.face)
+    dterm_write_key(buf, tb.body)
+  }
+  buf.write_char(']')
+}
+
+///|
+fn dequiv_branches_write_key(
+  buf : StringBuilder,
+  bs : Array[DEquivBranch],
+) -> Unit {
+  buf.write_char('[')
+  buf.write_string(bs.length().to_string())
+  buf.write_char(':')
+  for b in bs {
+    face_write_key(buf, b.face)
+    dterm_write_key(buf, b.ty)
+    dterm_write_key(buf, b.equiv)
+  }
+  buf.write_char(']')
+}
+
+///|
+fn dterm_write_key(buf : StringBuilder, t : DTerm) -> Unit {
+  match t {
+    DTVar(i) => {
+      buf.write_string("V")
+      buf.write_string(i.to_string())
+      buf.write_char(';')
+    }
+    DUniv(k) => {
+      buf.write_string("U")
+      buf.write_string(k.to_string())
+      buf.write_char(';')
+    }
+    DUnivLevel(lv) => {
+      buf.write_string("UL")
+      dlevel_write_key(buf, lv)
+    }
+    DBoolTy => buf.write_string("BT;")
+    DUnitTy => buf.write_string("UT;")
+    DPi(a, b) => {
+      buf.write_string("Pi")
+      dterm_write_key(buf, a)
+      dterm_write_key(buf, b)
+    }
+    DSigma(a, b) => {
+      buf.write_string("Sg")
+      dterm_write_key(buf, a)
+      dterm_write_key(buf, b)
+    }
+    DLam(a, b) => {
+      buf.write_string("Lm")
+      dterm_write_key(buf, a)
+      dterm_write_key(buf, b)
+    }
+    DApp(f, x) => {
+      buf.write_string("Ap")
+      dterm_write_key(buf, f)
+      dterm_write_key(buf, x)
+    }
+    DPair(a, b) => {
+      buf.write_string("Pr")
+      dterm_write_key(buf, a)
+      dterm_write_key(buf, b)
+    }
+    DFst(p) => {
+      buf.write_string("F1")
+      dterm_write_key(buf, p)
+    }
+    DSnd(p) => {
+      buf.write_string("F2")
+      dterm_write_key(buf, p)
+    }
+    DBoolLit(b) => buf.write_string(if b { "B1;" } else { "B0;" })
+    DBoolElim(m, t1, t0, s) => {
+      buf.write_string("BE")
+      dterm_write_key(buf, m)
+      dterm_write_key(buf, t1)
+      dterm_write_key(buf, t0)
+      dterm_write_key(buf, s)
+    }
+    DUnitLit => buf.write_string("u0;")
+    DAnn(e, ty) => {
+      buf.write_string("An")
+      dterm_write_key(buf, e)
+      dterm_write_key(buf, ty)
+    }
+    DPartial(fs) => {
+      buf.write_string("Pt[")
+      buf.write_string(fs.length().to_string())
+      buf.write_char(':')
+      for ft in fs {
+        face_write_key(buf, ft.face)
+        dterm_write_key(buf, ft.body)
+      }
+      buf.write_char(']')
+    }
+    DPathP(l, a, b) => {
+      buf.write_string("PP")
+      dterm_write_key(buf, l)
+      dterm_write_key(buf, a)
+      dterm_write_key(buf, b)
+    }
+    DPath(ty, a, b) => {
+      buf.write_string("Pa")
+      dterm_write_key(buf, ty)
+      dterm_write_key(buf, a)
+      dterm_write_key(buf, b)
+    }
+    DLamDim(b) => {
+      buf.write_string("LD")
+      dterm_write_key(buf, b)
+    }
+    DAppDim(p, r) => {
+      buf.write_string("AD")
+      dterm_write_key(buf, p)
+      dim_write_key(buf, r)
+    }
+    DCoe(l, r0, r1, v) => {
+      buf.write_string("Co")
+      dterm_write_key(buf, l)
+      dim_write_key(buf, r0)
+      dim_write_key(buf, r1)
+      dterm_write_key(buf, v)
+    }
+    DComp(l, ts, b) => {
+      buf.write_string("Cp")
+      dterm_write_key(buf, l)
+      dtube_array_write_key(buf, ts)
+      dterm_write_key(buf, b)
+    }
+    DHComp(ty, ts, b) => {
+      buf.write_string("HC")
+      dterm_write_key(buf, ty)
+      dtube_array_write_key(buf, ts)
+      dterm_write_key(buf, b)
+    }
+    DHFill(ty, ts, b, r) => {
+      buf.write_string("HF")
+      dterm_write_key(buf, ty)
+      dtube_array_write_key(buf, ts)
+      dterm_write_key(buf, b)
+      dim_write_key(buf, r)
+    }
+    DNatTy => buf.write_string("NT;")
+    DNatZero => buf.write_string("NZ;")
+    DSucc(n) => {
+      buf.write_string("NS")
+      dterm_write_key(buf, n)
+    }
+    DNatElim(m, z, s, n) => {
+      buf.write_string("NE")
+      dterm_write_key(buf, m)
+      dterm_write_key(buf, z)
+      dterm_write_key(buf, s)
+      dterm_write_key(buf, n)
+    }
+    DListTy(a) => {
+      buf.write_string("LT")
+      dterm_write_key(buf, a)
+    }
+    DNil => buf.write_string("LN;")
+    DCons(h, tl) => {
+      buf.write_string("LC")
+      dterm_write_key(buf, h)
+      dterm_write_key(buf, tl)
+    }
+    DListElim(m, n, c, l) => {
+      buf.write_string("LE")
+      dterm_write_key(buf, m)
+      dterm_write_key(buf, n)
+      dterm_write_key(buf, c)
+      dterm_write_key(buf, l)
+    }
+    DCircleTy => buf.write_string("S1;")
+    DCircleBase => buf.write_string("Sb;")
+    DCircleLoop => buf.write_string("Sl;")
+    DCircleElim(m, b, l, x) => {
+      buf.write_string("SE")
+      dterm_write_key(buf, m)
+      dterm_write_key(buf, b)
+      dterm_write_key(buf, l)
+      dterm_write_key(buf, x)
+    }
+    DTorusTy => buf.write_string("T2;")
+    DTorusBase => buf.write_string("Tb;")
+    DTorusLoopA => buf.write_string("Ta;")
+    DTorusLoopB => buf.write_string("Tc;")
+    DTorusSquare => buf.write_string("Tq;")
+    DTorusElim(m, q, x) => {
+      buf.write_string("TE")
+      dterm_write_key(buf, m)
+      dterm_write_key(buf, q)
+      dterm_write_key(buf, x)
+    }
+    DInductive(spec, args) => {
+      buf.write_string("IT")
+      buf.write_string(dind_spec_key_id(spec).to_string())
+      buf.write_char(';')
+      dterm_array_write_key(buf, args)
+    }
+    DIntro(spec, c, ps, args) => {
+      buf.write_string("II")
+      buf.write_string(dind_spec_key_id(spec).to_string())
+      buf.write_char(',')
+      buf.write_string(c.to_string())
+      buf.write_char(';')
+      dterm_array_write_key(buf, ps)
+      dterm_array_write_key(buf, args)
+    }
+    DInductiveElim(spec, m, ps, bs, ix, sc) => {
+      buf.write_string("IE")
+      buf.write_string(dind_spec_key_id(spec).to_string())
+      buf.write_char(';')
+      dterm_write_key(buf, m)
+      dterm_array_write_key(buf, ps)
+      dterm_array_write_key(buf, bs)
+      dterm_array_write_key(buf, ix)
+      dterm_write_key(buf, sc)
+    }
+    DHitType(spec, args) => {
+      buf.write_string("HT")
+      buf.write_string(dhit_spec_key_id(spec).to_string())
+      buf.write_char(';')
+      dterm_array_write_key(buf, args)
+    }
+    DHitIntro(spec, c, ps, args, ds) => {
+      buf.write_string("HI")
+      buf.write_string(dhit_spec_key_id(spec).to_string())
+      buf.write_char(',')
+      buf.write_string(c.to_string())
+      buf.write_char(';')
+      dterm_array_write_key(buf, ps)
+      dterm_array_write_key(buf, args)
+      buf.write_char('[')
+      buf.write_string(ds.length().to_string())
+      buf.write_char(':')
+      for d in ds {
+        dim_write_key(buf, d)
+      }
+      buf.write_char(']')
+    }
+    DHitElim(spec, m, ps, bs, ix, sc) => {
+      buf.write_string("HE")
+      buf.write_string(dhit_spec_key_id(spec).to_string())
+      buf.write_char(';')
+      dterm_write_key(buf, m)
+      dterm_array_write_key(buf, ps)
+      dterm_array_write_key(buf, bs)
+      dterm_array_write_key(buf, ix)
+      dterm_write_key(buf, sc)
+    }
+    DDecode(spec, ps, ix, code) => {
+      buf.write_string("DC")
+      buf.write_string(dind_spec_key_id(spec).to_string())
+      buf.write_char(';')
+      dterm_array_write_key(buf, ps)
+      dterm_array_write_key(buf, ix)
+      dterm_write_key(buf, code)
+    }
+    DEquivTy(a, b) => {
+      buf.write_string("ET")
+      dterm_write_key(buf, a)
+      dterm_write_key(buf, b)
+    }
+    DMkEquiv(a, b, f, g, s, r) => {
+      buf.write_string("ME")
+      dterm_write_key(buf, a)
+      dterm_write_key(buf, b)
+      dterm_write_key(buf, f)
+      dterm_write_key(buf, g)
+      dterm_write_key(buf, s)
+      dterm_write_key(buf, r)
+    }
+    DEquivFwd(e) => {
+      buf.write_string("Ef")
+      dterm_write_key(buf, e)
+    }
+    DEquivBwd(e) => {
+      buf.write_string("Eb")
+      dterm_write_key(buf, e)
+    }
+    DEquivSect(e) => {
+      buf.write_string("Es")
+      dterm_write_key(buf, e)
+    }
+    DEquivRetr(e) => {
+      buf.write_string("Er")
+      dterm_write_key(buf, e)
+    }
+    DGlueEquiv(b, bs) => {
+      buf.write_string("GE")
+      dterm_write_key(buf, b)
+      dequiv_branches_write_key(buf, bs)
+    }
+    DUnglueEquiv(g, b, bs) => {
+      buf.write_string("UG")
+      dterm_write_key(buf, g)
+      dterm_write_key(buf, b)
+      dequiv_branches_write_key(buf, bs)
+    }
+    DUa(e) => {
+      buf.write_string("Ua")
+      dterm_write_key(buf, e)
+    }
+  }
+}
+
+///|
+/// Stable injective cache keys.  DTerm keys use a compact prefix-free
+/// structural encoding with interned schema IDs; dimension keys first pass
+/// through the De Morgan simplifier.
 pub fn dterm_cache_key(t : DTerm) -> String {
-  Repr(t).to_string()
+  let buf = StringBuilder()
+  dterm_write_key(buf, t)
+  buf.to_string()
 }
 
 ///|
 pub fn dim_cache_key(r : Dim) -> String {
-  Repr(dim_simplify(r)).to_string()
+  let buf = StringBuilder()
+  dim_write_key(buf, dim_simplify(r))
+  buf.to_string()
 }
 
 ///|
@@ -733,7 +1179,21 @@ pub fn memo_family(
 pub fn dapp_typed(f : DValue, arg : DValue, arg_ty : DValue) -> DValue {
   match force_value(f) {
     DVLam(g) => g(arg)
-    DVNeutral(n) => DVNeutral(DNApp(n, arg, arg_ty))
+    DVNeutral(n) => {
+      let real_arg_ty = match force_value(arg_ty) {
+        DVUnitTy =>
+          match neutral_inferred_type(n) {
+            Some(fty) =>
+              match as_pi(fty) {
+                Some(parts) => parts.dom
+                None => arg_ty
+              }
+            None => arg_ty
+          }
+        _ => arg_ty
+      }
+      DVNeutral(DNApp(n, arg, real_arg_ty))
+    }
     _ => DVUnit
   }
 }
@@ -742,7 +1202,17 @@ pub fn dapp_typed(f : DValue, arg : DValue, arg_ty : DValue) -> DValue {
 pub fn dfst_typed(v : DValue, fam : (DValue) -> DValue) -> DValue {
   match force_value(v) {
     DVPair(a, _) => a
-    DVNeutral(n) => DVNeutral(DNFst(n, fam))
+    DVNeutral(n) => {
+      let real_fam = match neutral_inferred_type(n) {
+        Some(sty) =>
+          match as_sigma(sty) {
+            Some(parts) => parts.fam
+            None => fam
+          }
+        None => fam
+      }
+      DVNeutral(DNFst(n, real_fam))
+    }
     _ => DVUnit
   }
 }
@@ -755,7 +1225,21 @@ pub fn dsnd_typed(
 ) -> DValue {
   match force_value(v) {
     DVPair(_, b) => b
-    DVNeutral(n) => DVNeutral(DNSnd(n, fst_ty, fam))
+    DVNeutral(n) => {
+      let (real_fst_ty, real_fam) = match force_value(fst_ty) {
+        DVUnitTy =>
+          match neutral_inferred_type(n) {
+            Some(sty) =>
+              match as_sigma(sty) {
+                Some(parts) => (parts.dom, parts.fam)
+                None => (fst_ty, fam)
+              }
+            None => (fst_ty, fam)
+          }
+        _ => (fst_ty, fam)
+      }
+      DVNeutral(DNSnd(n, real_fst_ty, real_fam))
+    }
     _ => DVUnit
   }
 }
@@ -770,6 +1254,66 @@ pub fn dsnd_typed(
 /// congruence from an abstract equivalence (for example the
 /// triangle coherence of an adjoint equivalence) cannot be checked
 /// against its stated endpoint type.
+fn neutral_inferred_type(neu : DNeutral) -> DValue? {
+  match neu {
+    DNBoolElim(motive, _, _, scrut) => Some(motive(DVNeutral(scrut)))
+    DNNatElim(motive, _, _, scrut) => Some(motive(DVNeutral(scrut)))
+    DNListElim(_, motive, _, _, scrut) => Some(motive(DVNeutral(scrut)))
+    DNCircleElim(motive, _, _, scrut) => Some(motive(DVNeutral(scrut)))
+    DNTorusElim(motive, _, scrut) => Some(motive(DVNeutral(scrut)))
+    DNInductiveElim(_, motive, _, _, indices, scrut) =>
+      Some(motive(indices, DVNeutral(scrut)))
+    DNHitElim(_, motive, _, _, indices, scrut) =>
+      Some(motive(indices, DVNeutral(scrut)))
+    DNDecode(spec, params, indices, _) =>
+      Some(DVInductive(spec, params, indices))
+    DNComp(line, _, _) => Some(line(DOne))
+    DNHComp(ty, _, _) => Some(ty)
+    DNApp(inner, arg, _) =>
+      match neutral_inferred_type(inner) {
+        Some(fty) =>
+          match as_pi(fty) {
+            Some(parts) => Some((parts.fam)(arg))
+            None => None
+          }
+        None => None
+      }
+    DNFst(inner, _) =>
+      match neutral_inferred_type(inner) {
+        Some(sty) =>
+          match as_sigma(sty) {
+            Some(parts) => Some(parts.dom)
+            None => None
+          }
+        None => None
+      }
+    DNSnd(inner, _, _) =>
+      match neutral_inferred_type(inner) {
+        Some(sty) =>
+          match as_sigma(sty) {
+            Some(parts) =>
+              Some((parts.fam)(dfst_typed(DVNeutral(inner), parts.fam)))
+            None => None
+          }
+        None => None
+      }
+    DNAppDim(inner, s) =>
+      match neutral_inferred_type(inner) {
+        Some(pty) =>
+          match as_path(pty) {
+            Some(parts) => Some((parts.line)(s))
+            None => None
+          }
+        None => None
+      }
+    DNEquivFwd(_, src, dst) => Some(DVPi(src, _ => dst))
+    DNEquivBwd(_, src, dst) => Some(DVPi(dst, _ => src))
+    DNUnglueEquiv(_, parts) => Some(parts.base)
+    _ => None
+  }
+}
+
+///|
 fn neutral_equiv_path_endpoint(n : DNeutral, r : Dim) -> DValue? {
   match n {
     DNApp(DNEquivSect(e, src, dst), y, _) =>
@@ -804,8 +1348,60 @@ fn neutral_equiv_path_endpoint(n : DNeutral, r : Dim) -> DValue? {
       } else {
         None
       }
-    _ => None
+    other =>
+      if dim_is_zero(r) || dim_is_one(r) {
+        match neutral_inferred_type(other) {
+          Some(ty) =>
+            match as_path(ty) {
+              Some(parts) =>
+                Some(if dim_is_zero(r) { parts.left } else { parts.right })
+              None => None
+            }
+          None => None
+        }
+      } else {
+        None
+      }
   }
+}
+
+///|
+/// Type-directed CCHM reflection of a neutral expression `neu` at semantic
+/// type `ty`: path variables reduce judgementally to `left` / `right` at
+/// dimension endpoints `0` / `1` (recursively across iterated path spaces),
+/// function variables η-reflect with typed domain applications, and
+/// dependent-pair variables reflect both projections so path components
+/// of pointed structures inherit judgemental boundary computation.
+pub fn reflect_neutral_at_type(neu : DNeutral, ty : DValue) -> DValue {
+  match force_value(ty) {
+    DVPathTy(line, left, right) =>
+      DVPathLam(r => {
+        let rs = dim_simplify(r)
+        if dim_is_zero(rs) {
+          left
+        } else if dim_is_one(rs) {
+          right
+        } else {
+          reflect_neutral_at_type(DNAppDim(neu, rs), line(rs))
+        }
+      })
+    DVPi(dom, fam) =>
+      DVLam(arg => {
+        let a = force_value(arg)
+        reflect_neutral_at_type(DNApp(neu, a, dom), fam(a))
+      })
+    DVSigma(dom, fam) => {
+      let fst_v = reflect_neutral_at_type(DNFst(neu, fam), dom)
+      DVPair(fst_v, reflect_neutral_at_type(DNSnd(neu, dom, fam), fam(fst_v)))
+    }
+    DVEquivTy(src, dst, _) => DVNeutral(DNEquivAnn(neu, src, dst))
+    _ => DVNeutral(neu)
+  }
+}
+
+///|
+pub fn reflect_var(level : Int32, ty : DValue) -> DValue {
+  reflect_neutral_at_type(DNVar(level), ty)
 }
 
 ///|
@@ -985,20 +1581,112 @@ fn tube_paths_conv(
   q : (Dim) -> DValue,
 ) -> Bool {
   let fresh = DVar(dlevel)
+  conv_at(level, dlevel, line(DOne), p(DOne), q(DOne)) &&
   conv_at(level, dlevel, line(DZero), p(DZero), q(DZero)) &&
-  conv_at(level, dlevel + 1, line(fresh), p(fresh), q(fresh)) &&
-  conv_at(level, dlevel, line(DOne), p(DOne), q(DOne))
+  conv_at(level, dlevel + 1, line(fresh), p(fresh), q(fresh))
 }
 
 ///|
-fn dsystem_body_key(
-  level : Int32,
-  dlevel : Int32,
-  line : (Dim) -> DValue,
-  br : DTubeBranch,
-) -> String {
-  let fresh = DVar(dlevel)
-  dterm_cache_key(quote_at(level, dlevel + 1, line(fresh), (br.path)(fresh)))
+fn dterm_conv_plausible(a : DTerm, b : DTerm) -> Bool {
+  match (a, b) {
+    (DPartial(_), _)
+    | (_, DPartial(_))
+    | (DGlueEquiv(_, _), _)
+    | (_, DGlueEquiv(_, _))
+    | (DHComp(DUniv(_), _, _), _)
+    | (_, DHComp(DUniv(_), _, _)) => true
+    (DTVar(x), DTVar(y)) => x == y
+    (DUnitLit, DUnitLit) => true
+    (DBoolLit(x), DBoolLit(y)) => x == y
+    (DLam(_, b1), DLam(_, b2)) => dterm_conv_plausible(b1, b2)
+    (DApp(f1, a1), DApp(f2, a2)) =>
+      dterm_conv_plausible(f1, f2) && dterm_conv_plausible(a1, a2)
+    (DPair(a1, b1), DPair(a2, b2)) =>
+      dterm_conv_plausible(a1, a2) && dterm_conv_plausible(b1, b2)
+    (DFst(p1), DFst(p2)) => dterm_conv_plausible(p1, p2)
+    (DSnd(p1), DSnd(p2)) => dterm_conv_plausible(p1, p2)
+    (DUnglueEquiv(g1, _, _), DUnglueEquiv(g2, _, _)) =>
+      dterm_conv_plausible(g1, g2)
+    (DLamDim(b1), DLamDim(b2)) => dterm_conv_plausible(b1, b2)
+    (DAppDim(DCircleLoop, _), DCircleBase)
+    | (DCircleBase, DAppDim(DCircleLoop, _)) => true
+    (DTorusBase, _)
+    | (_, DTorusBase)
+    | (DAppDim(DTorusLoopA, _), _)
+    | (_, DAppDim(DTorusLoopA, _))
+    | (DAppDim(DTorusLoopB, _), _)
+    | (_, DAppDim(DTorusLoopB, _))
+    | (DAppDim(DAppDim(DTorusSquare, _), _), _)
+    | (_, DAppDim(DAppDim(DTorusSquare, _), _)) => true
+    (DAppDim(f1, _), DAppDim(f2, _)) => dterm_conv_plausible(f1, f2)
+    (DNatZero, DNatZero) => true
+    (DSucc(x), DSucc(y)) => dterm_conv_plausible(x, y)
+    (DNil, DNil) => true
+    (DCons(x1, xs1), DCons(x2, xs2)) =>
+      dterm_conv_plausible(x1, x2) && dterm_conv_plausible(xs1, xs2)
+    (DCircleBase, DCircleBase) => true
+    (DComp(_, br1, base1), DComp(_, br2, base2)) =>
+      br1.length() == br2.length() && dterm_conv_plausible(base1, base2)
+    (DHComp(_, br1, base1), DHComp(_, br2, base2)) =>
+      br1.length() == br2.length() && dterm_conv_plausible(base1, base2)
+    (DIntro(s1, c1, _, a1), DIntro(s2, c2, _, a2)) => {
+      if s1 != s2 || c1 != c2 || a1.length() != a2.length() {
+        return false
+      }
+      for idx in 0..<a1.length() {
+        if !dterm_conv_plausible(a1[idx], a2[idx]) {
+          return false
+        }
+      }
+      true
+    }
+    (DHitIntro(s1, c1, _, a1, d1), DHitIntro(s2, c2, _, a2, d2)) => {
+      if s1 != s2 ||
+        c1 != c2 ||
+        a1.length() != a2.length() ||
+        d1.length() != d2.length() {
+        return false
+      }
+      for idx in 0..<a1.length() {
+        if !dterm_conv_plausible(a1[idx], a2[idx]) {
+          return false
+        }
+      }
+      true
+    }
+    (DInductiveElim(s1, _, _, _, _, n1), DInductiveElim(s2, _, _, _, _, n2)) =>
+      s1 == s2 && dterm_conv_plausible(n1, n2)
+    (DHitElim(s1, _, _, _, _, n1), DHitElim(s2, _, _, _, _, n2)) =>
+      s1 == s2 && dterm_conv_plausible(n1, n2)
+    (DBoolElim(_, _, _, n1), DBoolElim(_, _, _, n2))
+    | (DNatElim(_, _, _, n1), DNatElim(_, _, _, n2))
+    | (DListElim(_, _, _, n1), DListElim(_, _, _, n2))
+    | (DCircleElim(_, _, _, n1), DCircleElim(_, _, _, n2))
+    | (DTorusElim(_, _, n1), DTorusElim(_, _, n2)) =>
+      dterm_conv_plausible(n1, n2)
+    (DDecode(s1, _, _, n1), DDecode(s2, _, _, n2)) =>
+      s1 == s2 && dterm_conv_plausible(n1, n2)
+    (DEquivFwd(x), DEquivFwd(y))
+    | (DEquivBwd(x), DEquivBwd(y))
+    | (DEquivSect(x), DEquivSect(y))
+    | (DEquivRetr(x), DEquivRetr(y)) => dterm_conv_plausible(x, y)
+    (DUniv(_), DUniv(_))
+    | (DBoolTy, DBoolTy)
+    | (DUnitTy, DUnitTy)
+    | (DPi(_, _), DPi(_, _))
+    | (DSigma(_, _), DSigma(_, _))
+    | (DPathP(_, _, _), DPathP(_, _, _))
+    | (DPath(_, _, _), DPath(_, _, _))
+    | (DNatTy, DNatTy)
+    | (DListTy(_), DListTy(_))
+    | (DCircleTy, DCircleTy)
+    | (DTorusTy, DTorusTy)
+    | (DEquivTy(_, _), DEquivTy(_, _))
+    | (DMkEquiv(_, _, _, _, _, _), DMkEquiv(_, _, _, _, _, _)) => true
+    (DInductive(s1, _), DInductive(s2, _)) => s1 == s2
+    (DHitType(s1, _), DHitType(s2, _)) => s1 == s2
+    _ => false
+  }
 }
 
 ///|
@@ -1006,6 +1694,81 @@ fn dsystem_face_key(br : DTubeBranch) -> String {
   // Use the BDD, not face syntax, so semantically equal faces have the
   // same tie-breaking key.
   Repr(bdd_of_face(face_simplify(br.face), face_nvars_sem(br.face))).to_string()
+}
+
+///|
+fn dsystem_canonical_quoted(
+  level : Int32,
+  dlevel : Int32,
+  line : (Dim) -> DValue,
+  system : DSystem,
+) -> (DSystem, Array[DTerm]) {
+  let fresh = DVar(dlevel)
+  let line_fresh = line(fresh)
+  let faces : Array[Face] = []
+  let paths : Array[(Dim) -> DValue] = []
+  let quoted : Array[DTerm] = []
+  let keys : Array[String] = []
+  for i in 0..<system.branches.length() {
+    let br = system.branches[i]
+    if face_is_bot_sem(br.face) {
+      continue
+    }
+    let q_i = quote_at(level, dlevel + 1, line_fresh, (br.path)(fresh))
+    let key_i = dterm_cache_key(q_i)
+    let mut merged = false
+    for k in 0..<paths.length() {
+      let same = if keys[k] == key_i {
+        conv_at(level, dlevel, line(DOne), paths[k](DOne), (br.path)(DOne)) &&
+        conv_at(level, dlevel, line(DZero), paths[k](DZero), (br.path)(DZero))
+      } else if dterm_conv_plausible(quoted[k], q_i) {
+        tube_paths_conv(level, dlevel, line, paths[k], br.path)
+      } else {
+        false
+      }
+      if same {
+        faces[k] = face_simplify(FOr(faces[k], br.face))
+        merged = true
+        break
+      }
+    }
+    if !merged {
+      faces.push(face_simplify(br.face))
+      paths.push(br.path)
+      quoted.push(q_i)
+      keys.push(key_i)
+    }
+  }
+  let out : Array[DTubeBranch] = []
+  let face_keys : Array[String] = []
+  for i in 0..<paths.length() {
+    let br = tube_branch(faces[i], paths[i])
+    out.push(br)
+    face_keys.push(dsystem_face_key(br))
+  }
+  // Sort lexicographically by (body, face).  Comparing a concatenated
+  // key would let total string length interfere with the primary key.
+  for _pass in 0..<out.length() {
+    for j in 0..<(out.length() - 1) {
+      let swap = keys[j + 1] < keys[j] ||
+        (keys[j + 1] == keys[j] && face_keys[j + 1] < face_keys[j])
+      if swap {
+        let tmp_branch = out[j]
+        out[j] = out[j + 1]
+        out[j + 1] = tmp_branch
+        let tmp_q = quoted[j]
+        quoted[j] = quoted[j + 1]
+        quoted[j + 1] = tmp_q
+        let tmp_body = keys[j]
+        keys[j] = keys[j + 1]
+        keys[j + 1] = tmp_body
+        let tmp_face = face_keys[j]
+        face_keys[j] = face_keys[j + 1]
+        face_keys[j + 1] = tmp_face
+      }
+    }
+  }
+  (DSystem::{ branches: out, }, quoted)
 }
 
 ///|
@@ -1018,55 +1781,8 @@ pub fn dsystem_canonical(
   line : (Dim) -> DValue,
   system : DSystem,
 ) -> DSystem {
-  let faces : Array[Face] = []
-  let paths : Array[(Dim) -> DValue] = []
-  for i in 0..<system.branches.length() {
-    let br = system.branches[i]
-    if face_is_bot_sem(br.face) {
-      continue
-    }
-    let mut merged = false
-    for k in 0..<paths.length() {
-      if tube_paths_conv(level, dlevel, line, paths[k], br.path) {
-        faces[k] = face_simplify(FOr(faces[k], br.face))
-        merged = true
-        break
-      }
-    }
-    if !merged {
-      faces.push(face_simplify(br.face))
-      paths.push(br.path)
-    }
-  }
-  let out : Array[DTubeBranch] = []
-  let body_keys : Array[String] = []
-  let face_keys : Array[String] = []
-  for i in 0..<paths.length() {
-    let br = tube_branch(faces[i], paths[i])
-    out.push(br)
-    body_keys.push(dsystem_body_key(level, dlevel, line, br))
-    face_keys.push(dsystem_face_key(br))
-  }
-  // Sort lexicographically by (body, face).  Comparing a concatenated
-  // key would let total string length interfere with the primary key.
-  for _pass in 0..<out.length() {
-    for j in 0..<(out.length() - 1) {
-      let swap = body_keys[j + 1] < body_keys[j] ||
-        (body_keys[j + 1] == body_keys[j] && face_keys[j + 1] < face_keys[j])
-      if swap {
-        let tmp_branch = out[j]
-        out[j] = out[j + 1]
-        out[j + 1] = tmp_branch
-        let tmp_body = body_keys[j]
-        body_keys[j] = body_keys[j + 1]
-        body_keys[j + 1] = tmp_body
-        let tmp_face = face_keys[j]
-        face_keys[j] = face_keys[j + 1]
-        face_keys[j + 1] = tmp_face
-      }
-    }
-  }
-  DSystem::{ branches: out, }
+  let (canon, _) = dsystem_canonical_quoted(level, dlevel, line, system)
+  canon
 }
 
 ///|
@@ -1491,6 +2207,8 @@ pub fn deval_dim(t : DTerm, env : DEnv, denv : DDimEnv) -> DValue {
     }
     DGlueEquiv(base, branches) =>
       eval_glue_equiv_term(base, branches, env, denv)
+    DUnglueEquiv(term, base, branches) =>
+      eval_unglue_equiv_term(term, base, branches, env, denv)
     DUa(e) => eval_ua_term(e, env, denv)
     DTorusElim(motive, square, scrut) =>
       eval_torus_elim(
@@ -1744,6 +2462,109 @@ fn dtype_of_fam(
 }
 
 ///|
+fn dim_subst_assignment(d : Dim, asgn : Array[Int32]) -> Dim {
+  match d {
+    DZero => DZero
+    DOne => DOne
+    DVar(v) =>
+      if v >= 0 && v < asgn.length() {
+        if asgn[v] == 0 {
+          DZero
+        } else if asgn[v] == 1 {
+          DOne
+        } else {
+          DVar(v)
+        }
+      } else {
+        DVar(v)
+      }
+    DNeg(a) => dim_simplify(DNeg(dim_subst_assignment(a, asgn)))
+    DAnd(a, b) =>
+      dim_simplify(
+        DAnd(dim_subst_assignment(a, asgn), dim_subst_assignment(b, asgn)),
+      )
+    DOr(a, b) =>
+      dim_simplify(
+        DOr(dim_subst_assignment(a, asgn), dim_subst_assignment(b, asgn)),
+      )
+  }
+}
+
+///|
+fn d_check_tube_under_face(
+  body : DTerm,
+  sem_face : Face,
+  line_fn : (Dim) -> DValue,
+  ctx : DEnv,
+  env : DEnv,
+  denv : DDimEnv,
+) -> Bool {
+  let dl = ddim_len(denv)
+  let fresh = DVar(dl)
+  if !(d_check(body, line_fn(fresh), ctx, env, ddim_cons(fresh, denv)) is None) {
+    return true
+  }
+  if face_is_bot_sem(sem_face) {
+    return true
+  }
+  let face_vars = face_nvars_sem(sem_face)
+  let sub_dl = if dl > face_vars { dl } else { face_vars }
+  let subcubes = cubical_face_subcubes(sem_face, sub_dl)
+  if subcubes.length() == 0 {
+    return false
+  }
+  let level = denv_len(ctx)
+  let fresh_sub = DVar(sub_dl)
+  let line_term = quote_ty(level, sub_dl + 1, line_fn(fresh_sub))
+  let orig_dims = ddim_to_array(denv)
+  for s in 0..<subcubes.length() {
+    let asgn = subcubes[s]
+    let sub_dim_env = cube_dim_env(asgn)
+    let mut ctx_sub = denv_empty()
+    let mut env_sub = denv_empty()
+    for lvl in 0..<level {
+      let orig_ty = match denv_at(ctx, level - 1 - lvl) {
+        Some(t) => t
+        None => DVUnitTy
+      }
+      let ty_term = quote_ty(lvl, sub_dl, orig_ty)
+      let sub_ty = deval_dim(ty_term, env_sub, sub_dim_env)
+      let sub_var = reflect_var(lvl, sub_ty)
+      let sub_val = match denv_at(env, level - 1 - lvl) {
+        Some(orig_v) => {
+          let v_term = quote_at(lvl + 1, sub_dl, orig_ty, orig_v)
+          deval_dim(v_term, denv_cons(sub_var, env_sub), sub_dim_env)
+        }
+        None => sub_var
+      }
+      ctx_sub = denv_cons(sub_ty, ctx_sub)
+      env_sub = denv_cons(sub_val, env_sub)
+    }
+    let sub_dims : Array[Dim] = []
+    for k in 0..<orig_dims.length() {
+      sub_dims.push(dim_subst_assignment(orig_dims[k], asgn))
+    }
+    let denv_sub = ddim_from_array(sub_dims)
+    let expected_sub = deval_dim(
+      line_term,
+      env_sub,
+      ddim_cons(fresh_sub, sub_dim_env),
+    )
+    if d_check(
+        body,
+        expected_sub,
+        ctx_sub,
+        env_sub,
+        ddim_cons(fresh_sub, denv_sub),
+      )
+      is None {
+      return false
+    }
+  }
+  true
+}
+
+///|
 fn d_checked_branches(
   tubes : Array[DTubeTerm],
   line_fn : (Dim) -> DValue,
@@ -1752,19 +2573,15 @@ fn d_checked_branches(
   denv : DDimEnv,
 ) -> DSystem? {
   let out : Array[DTubeBranch] = []
-  let fresh = DVar(ddim_len(denv))
   for i in 0..<tubes.length() {
     let tube = tubes[i]
-    match d_check(tube.body, line_fn(fresh), ctx, env, ddim_cons(fresh, denv)) {
-      Some(_) =>
-        out.push(
-          tube_branch(face_eval_env(tube.face, denv), d => {
-            dv_unwrap(
-              d_check(tube.body, line_fn(d), ctx, env, ddim_cons(d, denv)),
-            )
-          }),
-        )
-      None => return None
+    let sem_face = face_eval_env(tube.face, denv)
+    if d_check_tube_under_face(tube.body, sem_face, line_fn, ctx, env, denv) {
+      out.push(
+        tube_branch(sem_face, d => deval_dim(tube.body, env, ddim_cons(d, denv))),
+      )
+    } else {
+      return None
     }
   }
   Some(
@@ -1774,6 +2591,7 @@ fn d_checked_branches(
 
 ///|
 fn d_system_compat(
+  env : DEnv,
   branches : DSystem,
   line_fn : (Dim) -> DValue,
   base : DValue,
@@ -1782,8 +2600,8 @@ fn d_system_compat(
 ) -> Bool {
   // Face-relative compatibility (dsystem_compat.mbt): branches need
   // only agree on their actual overlaps, and with the base on their
-  // own faces.
-  dsystem_compatible_with_base(level, dlevel, line_fn, branches, base)
+  // own faces, evaluated in the typed reflected environment `env`.
+  dsystem_compatible_with_base_in(env, level, dlevel, line_fn, branches, base)
 }
 
 ///|
@@ -1806,7 +2624,7 @@ pub fn d_infer(t : DTerm, ctx : DEnv, env : DEnv, denv : DDimEnv) -> DInfer? {
     DPi(a, b) | DSigma(a, b) =>
       match d_as_type(a, ctx, env, denv) {
         Some(at) => {
-          let fresh = DVNeutral(DNVar(denv_len(ctx)))
+          let fresh = reflect_var(denv_len(ctx), at.value)
           match
             d_as_type(b, denv_cons(at.value, ctx), denv_cons(fresh, env), denv) {
             Some(bt) => {
@@ -1831,7 +2649,7 @@ pub fn d_infer(t : DTerm, ctx : DEnv, env : DEnv, denv : DDimEnv) -> DInfer? {
     DLam(dom, body) =>
       match d_as_type(dom, ctx, env, denv) {
         Some(at) => {
-          let fresh = DVNeutral(DNVar(denv_len(ctx)))
+          let fresh = reflect_var(denv_len(ctx), at.value)
           match
             d_infer(body, denv_cons(at.value, ctx), denv_cons(fresh, env), denv) {
             Some(_) =>
@@ -2051,6 +2869,7 @@ pub fn d_infer(t : DTerm, ctx : DEnv, env : DEnv, denv : DDimEnv) -> DInfer? {
           match d_check(base, line_fn(DZero), ctx, env, denv) {
             Some(bv) =>
               if d_system_compat(
+                  env,
                   branches,
                   line_fn,
                   bv,
@@ -2077,6 +2896,7 @@ pub fn d_infer(t : DTerm, ctx : DEnv, env : DEnv, denv : DDimEnv) -> DInfer? {
               match d_check(base, at.value, ctx, env, denv) {
                 Some(bv) =>
                   if d_system_compat(
+                      env,
                       branches,
                       _ => at.value,
                       bv,
@@ -2316,6 +3136,8 @@ pub fn d_infer(t : DTerm, ctx : DEnv, env : DEnv, denv : DDimEnv) -> DInfer? {
     DEquivRetr(e) => infer_equiv_projection(3, e, ctx, env, denv)
     DGlueEquiv(base, branches) =>
       infer_glue_equiv(base, branches, ctx, env, denv)
+    DUnglueEquiv(term, base, branches) =>
+      infer_unglue_equiv(term, base, branches, ctx, env, denv)
     DUa(e) => infer_ua(e, ctx, env, denv)
     DPair(_, _) | DNil | DPartial(_) => None // introduction forms are check-only
   }
@@ -2398,19 +3220,21 @@ pub fn d_check(
           match d_as_type(dom, ctx, env, denv) {
             Some(at) =>
               if conv_ty(denv_len(ctx), ddim_len(denv), at.value, parts.dom) {
-                Some(
-                  DVLam(arg => {
-                    dv_unwrap(
-                      d_check(
-                        body,
-                        (parts.fam)(arg),
-                        denv_cons(parts.dom, ctx),
-                        denv_cons(arg, env),
-                        denv,
-                      ),
+                let fresh_x = reflect_var(denv_len(ctx), at.value)
+                match
+                  d_check(
+                    body,
+                    (parts.fam)(fresh_x),
+                    denv_cons(at.value, ctx),
+                    denv_cons(fresh_x, env),
+                    denv,
+                  ) {
+                  Some(_) =>
+                    Some(
+                      DVLam(arg => deval_dim(body, denv_cons(arg, env), denv)),
                     )
-                  }),
-                )
+                  None => None
+                }
               } else {
                 None
               }
@@ -2510,30 +3334,34 @@ pub fn d_check(
     DLamDim(body) =>
       match as_path(expected) {
         Some(parts) => {
-          let path_val = DVPathLam(d => {
-            dv_unwrap(
-              d_check(body, (parts.line)(d), ctx, env, ddim_cons(d, denv)),
-            )
-          })
-          let at0 = dapp_dim(path_val, DZero)
-          let at1 = dapp_dim(path_val, DOne)
-          if conv_at(
-              denv_len(ctx),
-              ddim_len(denv),
-              (parts.line)(DZero),
-              at0,
-              parts.left,
-            ) &&
-            conv_at(
-              denv_len(ctx),
-              ddim_len(denv),
-              (parts.line)(DOne),
-              at1,
-              parts.right,
-            ) {
-            Some(path_val)
-          } else {
-            None
+          let fd = fresh_dim(denv)
+          match d_check(body, (parts.line)(fd), ctx, env, ddim_cons(fd, denv)) {
+            Some(_) => {
+              let path_val = DVPathLam(d => {
+                deval_dim(body, env, ddim_cons(d, denv))
+              })
+              let at0 = dapp_dim(path_val, DZero)
+              let at1 = dapp_dim(path_val, DOne)
+              if conv_at(
+                  denv_len(ctx),
+                  ddim_len(denv),
+                  (parts.line)(DZero),
+                  at0,
+                  parts.left,
+                ) &&
+                conv_at(
+                  denv_len(ctx),
+                  ddim_len(denv),
+                  (parts.line)(DOne),
+                  at1,
+                  parts.right,
+                ) {
+                Some(path_val)
+              } else {
+                None
+              }
+            }
+            None => None
           }
         }
         None => None
@@ -2757,6 +3585,10 @@ pub fn conv_neutral(
       conv_neutral(level, dlevel, x, y)
     (DNEquivRetr(x, _, _), DNEquivRetr(y, _, _)) =>
       conv_neutral(level, dlevel, x, y)
+    (DNEquivAnn(x, _, _), y) => conv_neutral(level, dlevel, x, y)
+    (x, DNEquivAnn(y, _, _)) => conv_neutral(level, dlevel, x, y)
+    (DNUnglueEquiv(x, _), DNUnglueEquiv(y, _)) =>
+      conv_neutral(level, dlevel, x, y)
     (DNComp(line, branches, base), DNComp(line2, branches2, base2)) => {
       let sys1 = dsystem_canonical(level, dlevel, line, branches)
       let sys2 = dsystem_canonical(level, dlevel, line2, branches2)
@@ -2815,7 +3647,7 @@ pub fn conv_at(
       }
     DVUnitTy => true
     DVPi(dom, fam) => {
-      let fresh = DVNeutral(DNVar(level))
+      let fresh = reflect_var(level, dom)
       conv_at(
         level + 1,
         dlevel,
@@ -2995,12 +3827,12 @@ pub fn conv_ty(level : Int32, dlevel : Int32, a : DValue, b : DValue) -> Bool {
     (DVBoolTy, DVBoolTy) => true
     (DVUnitTy, DVUnitTy) => true
     (DVPi(a1, f1), DVPi(a2, f2)) => {
-      let fresh = DVNeutral(DNVar(level))
+      let fresh = reflect_var(level, a1)
       conv_ty(level, dlevel, a1, a2) &&
       conv_ty(level + 1, dlevel, f1(fresh), f2(fresh))
     }
     (DVSigma(a1, f1), DVSigma(a2, f2)) => {
-      let fresh = DVNeutral(DNVar(level))
+      let fresh = reflect_var(level, a1)
       conv_ty(level, dlevel, a1, a2) &&
       conv_ty(level + 1, dlevel, f1(fresh), f2(fresh))
     }
@@ -3052,17 +3884,13 @@ pub fn quote_tube_branches(
   line : (Dim) -> DValue,
   branches0 : DSystem,
 ) -> Array[DTubeTerm] {
-  let branches = dsystem_canonical(level, dlevel, line, branches0)
+  let (branches, quoted) = dsystem_canonical_quoted(
+    level, dlevel, line, branches0,
+  )
   let out : Array[DTubeTerm] = []
-  let fresh = DVar(dlevel)
   for i in 0..<branches.branches.length() {
     let br = branches.branches[i]
-    out.push(
-      d_tube(
-        face_quote(br.face, dlevel),
-        quote_at(level, dlevel + 1, line(fresh), (br.path)(fresh)),
-      ),
-    )
+    out.push(d_tube(face_quote(br.face, dlevel), quoted[i]))
   }
   out
 }
@@ -3189,6 +4017,9 @@ pub fn quote_dneutral(
       DEquivSect(quote_dneutral(level, dlevel, inner, DVEquivTy(src, dst, 0)))
     DNEquivRetr(inner, src, dst) =>
       DEquivRetr(quote_dneutral(level, dlevel, inner, DVEquivTy(src, dst, 0)))
+    DNEquivAnn(inner, _, _) => quote_dneutral(level, dlevel, inner, ty)
+    DNUnglueEquiv(inner, parts) =>
+      quote_unglue_equiv_neutral(level, dlevel, inner, parts)
     DNComp(line, branches, base) => {
       let line_body = quote_ty(level, dlevel + 1, line(DVar(dlevel)))
       let base_term = quote_at(level, dlevel, line(DZero), base)
@@ -3226,12 +4057,12 @@ pub fn quote_ty(level : Int32, dlevel : Int32, ty : DValue) -> DTerm {
     DVPi(a, fam) =>
       DPi(
         quote_ty(level, dlevel, a),
-        quote_ty(level + 1, dlevel, fam(DVNeutral(DNVar(level)))),
+        quote_ty(level + 1, dlevel, fam(reflect_var(level, a))),
       )
     DVSigma(a, fam) =>
       DSigma(
         quote_ty(level, dlevel, a),
-        quote_ty(level + 1, dlevel, fam(DVNeutral(DNVar(level)))),
+        quote_ty(level + 1, dlevel, fam(reflect_var(level, a))),
       )
     DVPathTy(line, l, r) =>
       DPathP(
@@ -3262,12 +4093,7 @@ pub fn quote_ty(level : Int32, dlevel : Int32, ty : DValue) -> DTerm {
     DVGlue(system, base, lvl) =>
       DHComp(
         DUniv(lvl),
-        quote_tube_branches(
-          level,
-          dlevel,
-          _ => DVUniv(lvl),
-          dsystem_canonical(level, dlevel, _ => DVUniv(lvl), system),
-        ),
+        quote_tube_branches(level, dlevel, _ => DVUniv(lvl), system),
         quote_ty(level, dlevel, base),
       )
     DVNeutral(n) => quote_dneutral(level, dlevel, n, DVUniv(0))
@@ -3310,7 +4136,7 @@ pub fn quote_at(
       }
     DVUnitTy => DUnitLit
     DVPi(dom, fam) => {
-      let fresh = DVNeutral(DNVar(level))
+      let fresh = reflect_var(level, dom)
       DLam(
         quote_ty(level, dlevel, dom),
         quote_at(level + 1, dlevel, fam(fresh), dapp_typed(v, fresh, dom)),
@@ -3401,7 +4227,7 @@ pub fn quote_at(
       } else if face_is_bot_sem(parts.face) {
         quote_at(level, dlevel, base, glue_equiv_base_of(parts, v))
       } else {
-        match v {
+        match force_value(v) {
           DVNeutral(n) => quote_dneutral(level, dlevel, n, ty)
           _ => {
             let values = glue_equiv_partial_values(parts, v)

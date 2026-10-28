@@ -121,9 +121,52 @@ fn dim_is_one(r : Dim) -> Bool {
 // ---------------------------------------------------------------------------
 
 ///|
+fn dim_barycenter_tag(r : Dim) -> Int32 {
+  match r {
+    DZero => 0
+    DOne => 2
+    DVar(_) => 1
+    DNeg(a) => 2 - dim_barycenter_tag(a)
+    DAnd(a, b) => {
+      let ta = dim_barycenter_tag(a)
+      let tb = dim_barycenter_tag(b)
+      if ta < tb {
+        ta
+      } else {
+        tb
+      }
+    }
+    DOr(a, b) => {
+      let ta = dim_barycenter_tag(a)
+      let tb = dim_barycenter_tag(b)
+      if ta > tb {
+        ta
+      } else {
+        tb
+      }
+    }
+  }
+}
+
+///|
+/// Exact decision for `φ = 1_𝔽` in the CCHM De Morgan face lattice `𝔽`
+/// (interior barycenter `(1/2, ..., 1/2)` evaluation), distinguishing the
+/// full cube `1_𝔽` from proper boundary disjunctions such as `(i = 0) ∨ (i = 1)`.
+pub fn face_is_cubical_top(f : Face) -> Bool {
+  match f {
+    FTop => true
+    FBot => false
+    FEq0(r) => dim_barycenter_tag(r) == 0
+    FEq1(r) => dim_barycenter_tag(r) == 2
+    FAnd(a, b) => face_is_cubical_top(a) && face_is_cubical_top(b)
+    FOr(a, b) => face_is_cubical_top(a) || face_is_cubical_top(b)
+  }
+}
+
+///|
 fn top_branch(system : DSystem) -> DTubeBranch? {
   for i in 0..<system.branches.length() {
-    if face_is_top_sem(system.branches[i].face) {
+    if face_is_cubical_top(system.branches[i].face) {
       return Some(system.branches[i])
     }
   }
@@ -218,7 +261,17 @@ pub fn hfill_value(
   base : DValue,
   dlevel : Int32,
 ) -> (Dim) -> DValue {
-  fill_value(_ => ty, branches, base, dlevel)
+  r => {
+    if dim_is_zero(r) {
+      base
+    } else {
+      let mapped = map_branches(branches, p => {
+        (j : Dim) => p(dim_simplify(DAnd(j, r)))
+      })
+      mapped.branches.push(tube_branch(face_simplify(FEq0(r)), _ => base))
+      hcomp_value(ty, mapped, base, dlevel + 1)
+    }
+  }
 }
 
 ///|
@@ -289,13 +342,51 @@ pub fn comp_value(
 ///|
 pub fn hcomp_value(
   ty : DValue,
-  branches : DSystem,
+  branches0 : DSystem,
   base : DValue,
   dlevel : Int32,
 ) -> DValue {
-  match comp_value(_ => ty, branches, base, dlevel) {
-    DVNeutral(DNComp(_, bs, b)) => DVNeutral(DNHComp(ty, bs, b))
-    other => other
+  let branches = dsystem_of(branches0.branches)
+  match top_branch(branches) {
+    Some(br) => return (br.path)(DOne)
+    None => ()
+  }
+  match force_value(ty) {
+    DVUnitTy => DVUnit
+    _ if branches.branches.length() == 0 => base
+    DVPi(dom, fam) =>
+      DVLam(y => {
+        let b_branches = map_branches(branches, p => {
+          (j : Dim) => dapp_typed(p(j), y, dom)
+        })
+        hcomp_value(fam(y), b_branches, dapp_typed(base, y, dom), dlevel)
+      })
+    DVSigma(dom, fam) => {
+      let fst_branches = map_branches(branches, p => {
+        (j : Dim) => dfst_typed(p(j), fam)
+      })
+      let a_fill = hfill_value(dom, fst_branches, dfst_typed(base, fam), dlevel)
+      let b_line = (j : Dim) => fam(a_fill(j))
+      let snd_branches = map_branches(branches, p => {
+        (j : Dim) => dsnd_typed(p(j), dom, fam)
+      })
+      DVPair(
+        a_fill(DOne),
+        comp_value(b_line, snd_branches, dsnd_typed(base, dom, fam), dlevel),
+      )
+    }
+    DVPathTy(pline, left, right) =>
+      DVPathLam(k => {
+        let mapped = map_branches(branches, p => (j : Dim) => dapp_dim(p(j), k))
+        mapped.branches.push(tube_branch(face_simplify(FEq0(k)), _ => left))
+        mapped.branches.push(tube_branch(face_simplify(FEq1(k)), _ => right))
+        hcomp_value(pline(k), mapped, dapp_dim(base, k), dlevel + 1)
+      })
+    _ =>
+      match comp_value(_ => ty, branches, base, dlevel) {
+        DVNeutral(DNComp(_, bs, b)) => DVNeutral(DNHComp(ty, bs, b))
+        other => other
+      }
   }
 }
 
@@ -311,9 +402,19 @@ pub fn comp_pi_value(
     let rev_fill = fill_value(j => a_line(DNeg(j)), dsystem_empty(), y, dlevel)
     let x_path = (j : Dim) => rev_fill(dim_simplify(DNeg(j)))
     let b_line = (j : Dim) => (line_pi_at(line, j).fam)(x_path(j))
-    let b_branches = map_branches(branches, p => {
-      (j : Dim) => dapp_typed(p(j), x_path(j), a_line(j))
-    })
+    let out_bs : Array[DTubeBranch] = []
+    for br in branches.branches {
+      let bface = br.face
+      let bp = br.path
+      out_bs.push(
+        tube_branch(bface, (j : Dim) => {
+          let dom_j = a_line(j)
+          let xj = glue_equiv_restrict_arg_under_face(bface, dom_j, x_path(j))
+          dapp_typed(bp(j), xj, dom_j)
+        }),
+      )
+    }
+    let b_branches = dsystem_of(out_bs)
     comp_value(
       b_line,
       b_branches,
@@ -753,7 +854,7 @@ pub fn comp_bool_value(
 
 ///|
 fn pred_of(v : DValue) -> DValue? {
-  match v {
+  match force_value(v) {
     DVSucc(n) => Some(n)
     _ => None
   }
@@ -793,11 +894,11 @@ pub fn comp_nat_value(
   if branches.branches.length() == 0 {
     return base
   }
-  match base {
+  match force_value(base) {
     DVZeroNat => {
       let mut ok = true
       for i in 0..<branches.branches.length() {
-        match (branches.branches[i].path)(DVar(dlevel)) {
+        match force_value((branches.branches[i].path)(DVar(dlevel))) {
           DVZeroNat => ()
           _ => ok = false
         }
@@ -831,7 +932,7 @@ pub fn comp_nat_value(
 
 ///|
 fn cons_head(v : DValue) -> DValue? {
-  match v {
+  match force_value(v) {
     DVCons(x, _) => Some(x)
     _ => None
   }
@@ -839,7 +940,7 @@ fn cons_head(v : DValue) -> DValue? {
 
 ///|
 fn cons_tail(v : DValue) -> DValue? {
-  match v {
+  match force_value(v) {
     DVCons(_, xs) => Some(xs)
     _ => None
   }
@@ -855,11 +956,11 @@ pub fn comp_list_value(
   if branches.branches.length() == 0 {
     return base
   }
-  match base {
+  match force_value(base) {
     DVNil => {
       let mut ok = true
       for i in 0..<branches.branches.length() {
-        match (branches.branches[i].path)(DVar(dlevel)) {
+        match force_value((branches.branches[i].path)(DVar(dlevel))) {
           DVNil => ()
           _ => ok = false
         }
@@ -973,7 +1074,51 @@ fn circle_coord_candidates(
   out.push(dim_simplify(DOr(damped, DAnd(none, base_coord))))
   // 5. Damped join over the base.
   out.push(dim_simplify(DOr(base_coord, damped)))
+  // 6. Active non-base loop selection: base-valued branches (`0` or `1`)
+  //    identify `0 ~ 1` in `S^1`, so damping only non-base branches avoids
+  //    turning higher-cube endpoint tubes into tents while covering-lifted
+  //    variants lift up to 4 base-point caps from `0` to `1`.
+  let mut active_damped : Dim = DZero
+  let mut active_none : Dim = DOne
+  let base_indices : Array[Int32] = []
+  for i in 0..<n {
+    if dim_is_zero(caps[i]) || dim_is_one(caps[i]) {
+      base_indices.push(i)
+    } else {
+      active_damped = DOr(active_damped, DAnd(deltas[i], caps[i]))
+      active_none = DAnd(active_none, DNeg(deltas[i]))
+    }
+  }
+  out.push(dim_simplify(DOr(active_damped, DAnd(active_none, base_coord))))
+  if base_indices.length() > 0 && base_indices.length() <= 4 {
+    let mask_count = 1 << base_indices.length()
+    for mask in 1..<mask_count {
+      let mut lifted = base_coord
+      for i in 0..<n {
+        let mut cap_i = caps[i]
+        for bi in 0..<base_indices.length() {
+          if base_indices[bi] == i && (mask & (1 << bi)) != 0 {
+            cap_i = DOne
+          }
+        }
+        lifted = dim_simplify(
+          DOr(DAnd(deltas[i], cap_i), DAnd(DNeg(deltas[i]), lifted)),
+        )
+      }
+      out.push(lifted)
+    }
+  }
   out
+}
+
+///|
+fn circle_sem_coord_norm(r : Dim) -> Dim {
+  let s = dim_simplify(r)
+  if dim_is_zero(s) || dim_is_one(s) {
+    DZero
+  } else {
+    circle_dim_of(circle_point(s))
+  }
 }
 
 ///|
@@ -982,8 +1127,9 @@ fn circle_coord_candidates(
 /// circle points (endpoint coordinates identified)?  Checked
 /// by substituting each cube's assigned dimensions and
 /// comparing endpoint-normalised coordinates with vertex
-/// semantics.  Returns false (do not trust the selection) when
-/// the face has more cubes than the audit budget.
+/// semantics (including semantically constant `1` expressions
+/// such as `¬i ∨ i`).  Returns false (do not trust the selection)
+/// when the face has more cubes than the audit budget.
 fn circle_coord_agrees_on_face(coord : Dim, face : Face, q : Dim) -> Bool {
   let mut n = face_nvars_sem(face)
   let nc = dim_nvars_sem(coord)
@@ -1011,8 +1157,8 @@ fn circle_coord_agrees_on_face(coord : Dim, face : Face, q : Dim) -> Bool {
         rq = dim_subst(rq, v, true)
       }
     }
-    let nc2 = circle_dim_of(circle_point(dim_simplify(rc)))
-    let nq2 = circle_dim_of(circle_point(dim_simplify(rq)))
+    let nc2 = circle_sem_coord_norm(rc)
+    let nq2 = circle_sem_coord_norm(rq)
     if !dim_eq_sem(nc2, nq2) {
       return false
     }
@@ -1201,17 +1347,36 @@ pub fn comp_torus_value(
   }
   let cands_a = circle_coord_candidates(start.0, deltas, caps_a)
   let cands_b = circle_coord_candidates(start.1, deltas, caps_b)
-  for ci in 0..<cands_a.length() {
-    let mut verified = true
+  let mut chosen_a : Dim? = None
+  for ca in 0..<cands_a.length() {
+    let mut ok_a = true
     for i in 0..<faces.length() {
-      if !circle_coord_agrees_on_face(cands_a[ci], faces[i], caps_a[i]) ||
-        !circle_coord_agrees_on_face(cands_b[ci], faces[i], caps_b[i]) {
-        verified = false
+      if !circle_coord_agrees_on_face(cands_a[ca], faces[i], caps_a[i]) {
+        ok_a = false
+        break
       }
     }
-    if verified {
-      return torus_point(cands_a[ci], cands_b[ci])
+    if ok_a {
+      chosen_a = Some(cands_a[ca])
+      break
     }
   }
-  DVNeutral(DNComp(line, branches, base))
+  let mut chosen_b : Dim? = None
+  for cb in 0..<cands_b.length() {
+    let mut ok_b = true
+    for i in 0..<faces.length() {
+      if !circle_coord_agrees_on_face(cands_b[cb], faces[i], caps_b[i]) {
+        ok_b = false
+        break
+      }
+    }
+    if ok_b {
+      chosen_b = Some(cands_b[cb])
+      break
+    }
+  }
+  match (chosen_a, chosen_b) {
+    (Some(ca), Some(cb)) => torus_point(ca, cb)
+    _ => DVNeutral(DNComp(line, branches, base))
+  }
 }

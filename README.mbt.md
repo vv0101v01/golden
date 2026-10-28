@@ -1,32 +1,79 @@
 # cubical-hermitian
 
-A three-pillar MoonBit structural-algorithms platform:
+A governed **Five-Federation Architecture & Grand Unification** MoonBit platform
+for structural algorithms, geometry, and logic (`5 federations + unification apex`,
+`27 packages`, `36 components`):
 
-1. **Cubical paths and spectra** (the root package and exact `algebra/`):
+1. **Federation 1 — `cubical`: Cubical paths, univalence and exact spectra**
+   (the root package, `algebra/`, and `cmd/main`):
    a dependent cubical kernel, Kan operations, computational univalence,
    exact BigInt algebra and Hermitian spectral certificates.
-2. **Finite symmetry** (`symlib/`): graph canonical forms, automorphism
+2. **Federation 2 — `symlib`: Finite symmetry and categorical Kan extensions**
+   (`symlib/`, `cmd/symdemo`, `cmd/symbench`): graph canonical forms, automorphism
    groups, finite categories, presheaves, G-sets and executable certificates.
-3. **Semiring path algebra** (`semiring/*`): semiring traits, generic
+3. **Federation 3 — `semiring`: Semiring path algebra and tropical geometry**
+   (`semiring/*`, `cmd/semiringreport`): semiring traits, generic
    dense/CSR matrices and star closure, weighted directed graphs, tropical
    geometry, regular-language and idempotent-semiring normal forms, factor
    graphs and measured performance infrastructure.
+4. **Federation 4 — `topos`: Grothendieck & elementary toposes** (`topos/`): sites, sieves,
+   two-step Plus sheafification, Cartesian closedness, subobject classifiers,
+   Lawvere–Tierney & co-Heyting open/closed subtopos nuclei (`J_o(U) ∧ J_c(U) = J_triv`,
+   `J_o(U) ∨ J_c(U) = J_⊥`), geometric & essential morphisms (`Lan_{u^{op}} ⊣ u* ⊣ Ran_{u^{op}}`
+   via `@sym.lan` and `@sym.ran`), Grothendieck–Verdier dense subsite Comparison
+   Lemma, Diaconescu points & internal `G`-torsor sheaves (`T × G ≅ T × T`),
+   local/connected/atomic/compact-coherent invariants, Kripke–Joyal semantics,
+   Joyal–Reyes geometric normal forms, classifying toposes,
+   category-of-elements categorification, groupoid stacks, general non-abelian
+   `G`-torsor Čech 1-cohomology (`H^1(U, G)`), Roos/Čech sheaf cohomology,
+   Alexander–Whitney simplicial cup-product DG-algebras (`H^1 ⌣ H^1 -> H^2`,
+   separating `T^2` from `S^1 ∨ S^1 ∨ S^2`) and order-independent simplicial
+   nerve homotopy types (`∂Δ^d` spheres, `RP^2`, `T^2`).
+5. **Federation 5 — `scheme`: Algebraic schemes and motives** (`scheme/`): Buchberger reduced Gröbner
+   bases, elimination/saturation/radical ideals, Zariski partition-of-unity
+   gluing, reduced schemes (`X_red ↪ X`), Kähler differentials (`Ω^1_{B/A}`),
+   general `i`-th Fitting ideals (`Fitt_i(M)`) & Eisenbud Theorem 20.8 pure-dimensional
+   smoothness (rejecting mixed-dimension schemes alongside singularities),
+   Tjurina singularity numbers (`τ = 0, 1, 2, 3`), unramified/smooth/étale morphism
+   criteria, general `n`-dimensional projective gluing (`P^n`, projective subschemes,
+   `A^n`, `A^2 \ {0}`, doubled-origin line) and morphisms, affine morphisms,
+   diagonal separatedness, `Q[[t]] ⊂ Q((t))` DVR valuative properness,
+   Macaulay–Taylor symbolic Hilbert polynomials `P_X(t) ∈ Q[t]` (degree & arithmetic
+   genus in arbitrary codimension, including the twisted cubic in `P^3`), Rees blow-up
+   `Bl_{(0,0)}(A^2)` curve desingularization, rational equivalence (`CH^1`, Bézout),
+   Grothendieck–Serre dualizing complexes (`ω_{P^1} = O(-2)[1]`, `ω_{P^2} = O(-3)[2]`,
+   and plane-curve `ω_C = O_C(d-3)[1]`), functor of points (`h_X(R)` including
+   `F_p[ε]` tangents and `F_3 ⊂ F_9` Galois–Frobenius descent) and 6-variable
+   multi-projective Gröbner Chow correspondences (`h(P^1) ≅ 1 ⊕ L`).
+6. **Unification Apex — `unification`: Complete `K_5` cross-federation bridges &
+   geometry-logic correspondence** (`bridge/`, `cmd/showcase`):
+   all $\binom{5}{2} = 10$ pairwise cross-federation bridges (`K5-01` .. `K5-10`),
+   the Five-Federation Pentagon Quadratic Galois–Étale Double-Cover Unification
+   Theorem, cross-pillar logical theory translations, the 18-entry Fine-Grained
+   Geometry–Logic Correspondence Atlas (`ATLAS-01` .. `ATLAS-18`), and the
+   `S^1` / `P^1` / `P^2` / Galois / motivic synthesis.
 
-Cross-pillar constructions live only in `bridge/`; the pillars do not import
-one another.  See the [migration guide](docs/MIGRATION.md), the
+Cross-federation constructions live only in `bridge/`; no federation may import
+`bridge/`, and `tools/arch_check.py` enforces strict inter-federation import
+allowlists.  See the [migration guide](docs/MIGRATION.md), the
 [finite-symmetry document](docs/symlib.md), the
 [semiring documents](docs/semiring/README.md), and the
 [bridge guide](docs/BRIDGE.md).
 
 ## Verified federation snapshot
 
-The governed manifest currently contains **25 packages, 34 components,
-215 `.mbt` files and 101,847 `.mbt` lines**; the generated bilingual
-appendices classify **5,054 public symbols**.  Final local gates:
-`moon check --deny-warn` on js/wasm/wasm-gc/native, full tests
-**336/336 on wasm-gc** and **340/340 on native** (the extra four are the
-native-only semiring host tests), `moon run cmd/main` **90/90**, and
-`moon run cmd/showcase` **5/5 bridge certificates**.  The native
+The governed manifest (`architecture.json` v2) partitions **5 federations +
+1 unification apex, 27 packages, 36 components** (`187` `.mbt` files,
+`126,219` `.mbt` lines), and the generated bilingual appendices classify
+**6,177 public symbols** across `SPEC-APPENDIX.md` and
+`SPEC-APPENDIX.en.md` (`spec_registry`: **121** entries).  Fast local gates:
+`moon check --deny-warn --target wasm-gc`,
+`moon test --release --target wasm-gc` (**15/15** consolidated `L8` tests across all federations),
+`moon run --release cmd/main --target wasm-gc` (**110/110** theorems),
+`moon run --release cmd/showcase --target wasm-gc` (**5/5 federations, 10/10 `K_5` pairwise bridges,
+39/39 grand-unification certificates**, including Phase-15 cubical certificates and all **18/18** Geometry–Logic
+Atlas entries), `python3 tools/arch_check.py`, and
+`moon info && python3 tools/audit_spec.py --check`.  The native
 semiring report (`moon run cmd/semiringreport --target native`) is a
 separate slow gate, not part of the fast gate.
 
@@ -91,7 +138,7 @@ and cluster-aware interval Jacobi iteration; subset-DP exact BDD orders
 stratified extensionality checks for host cube functions; single
 substitutions accumulating circle windings; connection-rotation unit-law
 3-cells on sphere representatives and exact rational Hopf identities; and
-a three-state principal-unifier semantics for Miller patterns; a least-fixed-point decision for SelfFamily parameter positivity and term-level functor maps for nested foreign simultaneous-IR hypotheses; relevant-dimension descent and maximum-clique DSystem completion; difference-guided Bool case splitting and face-verified square-valued Circle/Torus composition; a persistent `CHDAGBIN` form sharing the live DTerm intern DAG; jointly checked mod-p degree-pattern irreducibility certificates and multiquadratic fields with up to four independent generators; exact BDD orders to n<=16, chronological DRUP proofs with clause deletions, deep-connection Tier-D host-cube probes and adaptive Jacobi with exact Sturm fallback; inverse, associativity and symmetry-of-composite loop 3-cells with normalization of closed sphere-loop expressions to canonical degree words; a solver for whole residual HOU constraint sets; and an append-only `CHARTCHN` artifact-manifest integrity chain with externally anchored recovery; host-level
+a three-state principal-unifier semantics for Miller patterns; a least-fixed-point decision for SelfFamily parameter positivity and term-level functor maps for nested foreign simultaneous-IR hypotheses; relevant-dimension descent and maximum-clique DSystem completion; difference-guided Bool case splitting and face-verified square-valued Circle/Torus composition; a persistent `CHDAGBIN` form sharing the live DTerm intern DAG; jointly checked mod-p degree-pattern irreducibility certificates and multiquadratic fields with up to four independent generators; exact BDD orders to n<=16, chronological DRUP proofs with clause deletions, deep-connection Tier-D host-cube probes and adaptive Jacobi with exact Sturm fallback; inverse, associativity and symmetry-of-composite loop 3-cells with normalization of closed sphere-loop expressions to canonical degree words; a solver for whole residual HOU constraint sets; an append-only `CHARTCHN` artifact-manifest integrity chain with externally anchored recovery; Phase-14 joint `Σ`-tuple simultaneous IR, unfolded positivity witnesses, Hensel polynomial factorization certificates, rank-6 multiquadratic + real algebraic radicals, Hermitian block-deflated Jacobi certificates, `Ω²` Eckmann–Hilton 3-cells, Mac Lane pentagon 4-cells, Brunerie's internal univalent Hopf fibration & integer invariant, transactional cross-constraint HOU backtracking/enumeration, and `CHMODENV`/`CHARTAUT` authenticated CAS + incremental sync; and Phase-15 symmetry-orbit + connected-support decomposed exact ROBDD ordering (up to 28-variable multi-component formulas), linear-time indexed LRAT proof checking + DRAT→LRAT elaboration + `CHLRATBN` v1 binary codec, strength-4 `ℙ¹(𝔽₈)` covering arrays + 5-color PHF + `CheckedDCube` & cubical Yoneda naturality/faithfulness audit, general open-variable bidirectional bijectivity (`DVEquiv`), set truncation `‖A‖₀`, the complete internal circle fundamental-group isomorphism `π₁(S¹) = ‖Ω¹(S¹)‖₀ ≃ ℤ`, parameterized suspension `SuspS(A)` with the pointed loop-suspension adjunction `(ΣA →* B) ≃ (A →* ΩB)`, and the 0-connected Freudenthal suspension theorem `‖Ω¹(Susp(A))‖₀ ≃ 1` (`π₁(S²) ≃ 1`, `π₁(S³) ≃ 1`) with circle wedge connectivity; host-level
 cubical algorithms (KanBox transport/fillers, path algebra, funext and subst);
 computational univalence (decidable finite-universe wiring univalence and
 checked ua/pathToEquiv, ua-beta, and round-trip certificates for the dependent
@@ -99,10 +146,9 @@ AST); a federated multi-package architecture governed by
 `architecture.json`; and audited bilingual per-symbol
 canonical-form/categorification specifications.
 
-Run: `moon check --deny-warn`, `moon test --target wasm-gc` (336 tests;
-use `--target native` for all 340 including the native-only host),
-`moon run cmd/main` (expected: 90/90 cubical registry checks),
-`moon run cmd/showcase`, `python3 tools/arch_check.py`, and
+Run: `moon check --deny-warn --target wasm-gc`, `moon test --release --target wasm-gc` (15 consolidated `L8` tests across all federations),
+`moon run --release cmd/main --target wasm-gc` (expected: 110/110 cubical registry checks),
+`moon run --release cmd/showcase --target wasm-gc` (expected: 39/39 grand-unification certificates), `python3 tools/arch_check.py`, and
 `moon info && python3 tools/audit_spec.py --check` (the generated
 appendices are the authoritative public-symbol count).  Documentation:
 [English guide](GUIDE.en.md), [English specification](SPEC.en.md),

@@ -266,7 +266,8 @@ fn conv_relevant_walk(
 /// (open conversion at each partial assignment prunes the whole
 /// remaining subcube), so irrelevant face dimensions cost no
 /// vertex probes.
-pub fn conv_at_under_face_report(
+pub fn conv_at_under_face_report_in(
+  term_env : DEnv,
   level : Int32,
   dlevel : Int32,
   face : Face,
@@ -311,7 +312,7 @@ pub fn conv_at_under_face_report(
     ty_term,
     a_term,
     b_term,
-    fresh_term_env(level),
+    term_env,
     counters,
   )
   DFaceConvReport::{
@@ -320,6 +321,221 @@ pub fn conv_at_under_face_report(
     pruned_nodes: counters[1],
     leaf_checks: counters[2],
   }
+}
+
+///|
+pub fn conv_at_under_face_report(
+  level : Int32,
+  dlevel : Int32,
+  face : Face,
+  ty : DValue,
+  a : DValue,
+  b : DValue,
+) -> DFaceConvReport {
+  conv_at_under_face_report_in(
+    fresh_term_env(level),
+    level,
+    dlevel,
+    face,
+    ty,
+    a,
+    b,
+  )
+}
+
+///|
+fn subcube_top(dl : Int32) -> Array[Int32] {
+  let out : Array[Int32] = []
+  for _i in 0..<dl {
+    out.push(-1)
+  }
+  out
+}
+
+///|
+fn subcube_subsumes(general : Array[Int32], specific : Array[Int32]) -> Bool {
+  for i in 0..<general.length() {
+    if general[i] != -1 && general[i] != specific[i] {
+      return false
+    }
+  }
+  true
+}
+
+///|
+fn subcubes_push_irredundant(
+  list : Array[Array[Int32]],
+  cand : Array[Int32],
+) -> Array[Array[Int32]] {
+  for i in 0..<list.length() {
+    if subcube_subsumes(list[i], cand) {
+      return list
+    }
+  }
+  let out : Array[Array[Int32]] = []
+  for i in 0..<list.length() {
+    if !subcube_subsumes(cand, list[i]) {
+      out.push(list[i])
+    }
+  }
+  out.push(cand)
+  out
+}
+
+///|
+fn subcubes_union(
+  a : Array[Array[Int32]],
+  b : Array[Array[Int32]],
+) -> Array[Array[Int32]] {
+  let mut out = a
+  for i in 0..<b.length() {
+    out = subcubes_push_irredundant(out, b[i])
+  }
+  out
+}
+
+///|
+fn subcubes_meet(
+  a : Array[Array[Int32]],
+  b : Array[Array[Int32]],
+  dl : Int32,
+) -> Array[Array[Int32]] {
+  let mut out : Array[Array[Int32]] = []
+  for i in 0..<a.length() {
+    for j in 0..<b.length() {
+      let merged : Array[Int32] = []
+      let mut ok = true
+      for k in 0..<dl {
+        let va = a[i][k]
+        let vb = b[j][k]
+        if va == -1 {
+          merged.push(vb)
+        } else if vb == -1 || va == vb {
+          merged.push(va)
+        } else {
+          ok = false
+          break
+        }
+      }
+      if ok {
+        out = subcubes_push_irredundant(out, merged)
+      }
+    }
+  }
+  out
+}
+
+///|
+fn cubical_dim_eq_subcubes(
+  r : Dim,
+  target : Int32,
+  dl : Int32,
+) -> Array[Array[Int32]] {
+  match r {
+    DZero => if target == 0 { [subcube_top(dl)] } else { [] }
+    DOne => if target == 1 { [subcube_top(dl)] } else { [] }
+    DVar(v) =>
+      if v < 0 || v >= dl {
+        if target == 0 {
+          [subcube_top(dl)]
+        } else {
+          []
+        }
+      } else {
+        let c = subcube_top(dl)
+        c[v] = target
+        [c]
+      }
+    DNeg(a) => cubical_dim_eq_subcubes(a, 1 - target, dl)
+    DAnd(a, b) =>
+      if target == 1 {
+        subcubes_meet(
+          cubical_dim_eq_subcubes(a, 1, dl),
+          cubical_dim_eq_subcubes(b, 1, dl),
+          dl,
+        )
+      } else {
+        subcubes_union(
+          cubical_dim_eq_subcubes(a, 0, dl),
+          cubical_dim_eq_subcubes(b, 0, dl),
+        )
+      }
+    DOr(a, b) =>
+      if target == 0 {
+        subcubes_meet(
+          cubical_dim_eq_subcubes(a, 0, dl),
+          cubical_dim_eq_subcubes(b, 0, dl),
+          dl,
+        )
+      } else {
+        subcubes_union(
+          cubical_dim_eq_subcubes(a, 1, dl),
+          cubical_dim_eq_subcubes(b, 1, dl),
+        )
+      }
+  }
+}
+
+///|
+/// Irredundant maximal cubical subcubes of `f` in CCHM's De Morgan face
+/// lattice `𝔽` (preserving proper boundary joins such as `(i = 0) ∨ (i = 1)`
+/// as two distinct subcubes rather than collapsing them to the full cube).
+pub fn cubical_face_subcubes(f : Face, dl : Int32) -> Array[Array[Int32]] {
+  match f {
+    FTop => [subcube_top(dl)]
+    FBot => []
+    FEq0(r) => cubical_dim_eq_subcubes(r, 0, dl)
+    FEq1(r) => cubical_dim_eq_subcubes(r, 1, dl)
+    FAnd(a, b) =>
+      subcubes_meet(
+        cubical_face_subcubes(a, dl),
+        cubical_face_subcubes(b, dl),
+        dl,
+      )
+    FOr(a, b) =>
+      subcubes_union(cubical_face_subcubes(a, dl), cubical_face_subcubes(b, dl))
+  }
+}
+
+///|
+/// Exact CCHM face-relative conversion `Γ, φ ⊢ a ≡ b : ty` in typed term
+/// environment `term_env`: decomposes `φ` into irredundant maximal subcubes
+/// in `𝔽` and checks open conversion under each subcube substitution.
+pub fn conv_at_under_face_in(
+  term_env : DEnv,
+  level : Int32,
+  dlevel : Int32,
+  face : Face,
+  ty : DValue,
+  a : DValue,
+  b : DValue,
+) -> Bool {
+  if face_is_bot_sem(face) || conv_at(level, dlevel, ty, a, b) {
+    return true
+  }
+  let face_vars = face_nvars_sem(face)
+  let dl = if dlevel > face_vars { dlevel } else { face_vars }
+  let cubes = cubical_face_subcubes(face, dl)
+  if cubes.length() == 0 {
+    return true
+  }
+  let ty_term = quote_ty(level, dl, ty)
+  let a_term = quote_at(level, dl, ty, a)
+  let b_term = quote_at(level, dl, ty, b)
+  for i in 0..<cubes.length() {
+    if !restricted_terms_conv(
+        level,
+        dl,
+        ty_term,
+        a_term,
+        b_term,
+        term_env,
+        cubes[i],
+      ) {
+      return false
+    }
+  }
+  true
 }
 
 ///|
@@ -338,6 +554,46 @@ pub fn conv_at_under_face(
 }
 
 ///|
+pub fn tube_paths_conv_under_face_in(
+  term_env : DEnv,
+  level : Int32,
+  dlevel : Int32,
+  face : Face,
+  line : (Dim) -> DValue,
+  p : (Dim) -> DValue,
+  q : (Dim) -> DValue,
+) -> Bool {
+  let fresh = DVar(dlevel)
+  conv_at_under_face_in(
+    term_env,
+    level,
+    dlevel,
+    face,
+    line(DZero),
+    p(DZero),
+    q(DZero),
+  ) &&
+  conv_at_under_face_in(
+    term_env,
+    level,
+    dlevel + 1,
+    face,
+    line(fresh),
+    p(fresh),
+    q(fresh),
+  ) &&
+  conv_at_under_face_in(
+    term_env,
+    level,
+    dlevel,
+    face,
+    line(DOne),
+    p(DOne),
+    q(DOne),
+  )
+}
+
+///|
 /// Tube-path conversion under a face, at both endpoints and at a
 /// fresh generic composition dimension.
 pub fn tube_paths_conv_under_face(
@@ -348,10 +604,15 @@ pub fn tube_paths_conv_under_face(
   p : (Dim) -> DValue,
   q : (Dim) -> DValue,
 ) -> Bool {
-  let fresh = DVar(dlevel)
-  conv_at_under_face(level, dlevel, face, line(DZero), p(DZero), q(DZero)) &&
-  conv_at_under_face(level, dlevel + 1, face, line(fresh), p(fresh), q(fresh)) &&
-  conv_at_under_face(level, dlevel, face, line(DOne), p(DOne), q(DOne))
+  tube_paths_conv_under_face_in(
+    fresh_term_env(level),
+    level,
+    dlevel,
+    face,
+    line,
+    p,
+    q,
+  )
 }
 
 ///|
@@ -404,6 +665,25 @@ pub fn dsystem_pairwise_compatible(
 }
 
 ///|
+pub fn dsystem_compatible_with_base_in(
+  term_env : DEnv,
+  level : Int32,
+  dlevel : Int32,
+  line : (Dim) -> DValue,
+  system : DSystem,
+  base : DValue,
+) -> Bool {
+  dsystem_compatibility_report_in(
+    term_env,
+    level,
+    dlevel,
+    line,
+    system,
+    Some(base),
+  ).compatible
+}
+
+///|
 /// Full composition compatibility: pairwise agreement on overlaps
 /// and agreement of every branch with `base` at dimension 0 on its
 /// face.
@@ -414,13 +694,19 @@ pub fn dsystem_compatible_with_base(
   system : DSystem,
   base : DValue,
 ) -> Bool {
-  dsystem_compatibility_report(level, dlevel, line, system, Some(base)).compatible
+  dsystem_compatible_with_base_in(
+    fresh_term_env(level),
+    level,
+    dlevel,
+    line,
+    system,
+    base,
+  )
 }
 
 ///|
-/// Compatibility decision with the first mismatching branch (or pair
-/// of branches) as a witness.
-pub fn dsystem_compatibility_report(
+pub fn dsystem_compatibility_report_in(
+  term_env : DEnv,
   level : Int32,
   dlevel : Int32,
   line : (Dim) -> DValue,
@@ -434,7 +720,8 @@ pub fn dsystem_compatibility_report(
     }
     match base {
       Some(base_value) =>
-        if !conv_at_under_face(
+        if !conv_at_under_face_in(
+            term_env,
             level,
             dlevel,
             br.face,
@@ -458,7 +745,8 @@ pub fn dsystem_compatibility_report(
       }
       let overlap = face_simplify(FAnd(br.face, other.face))
       if face_is_sat_sem(overlap) &&
-        !tube_paths_conv_under_face(
+        !tube_paths_conv_under_face_in(
+          term_env,
           level,
           dlevel,
           overlap,
@@ -481,6 +769,26 @@ pub fn dsystem_compatibility_report(
     branch: -1,
     other_branch: -1,
   }
+}
+
+///|
+/// Compatibility decision with the first mismatching branch (or pair
+/// of branches) as a witness.
+pub fn dsystem_compatibility_report(
+  level : Int32,
+  dlevel : Int32,
+  line : (Dim) -> DValue,
+  system : DSystem,
+  base : DValue?,
+) -> DSystemCompatibility {
+  dsystem_compatibility_report_in(
+    fresh_term_env(level),
+    level,
+    dlevel,
+    line,
+    system,
+    base,
+  )
 }
 
 ///|
@@ -559,7 +867,11 @@ pub fn dsystem_first_match_normal_form(
   let system = dsystem_of(system0.branches)
   let nvars = dsystem_nvars(system, dlevel)
   let regions : Array[Bdd] = []
+  let fresh = DVar(dlevel)
+  let line_fresh = line(fresh)
   let paths : Array[(Dim) -> DValue] = []
+  let quoted : Array[DTerm] = []
+  let body_keys : Array[String] = []
   let mut covered = BddZero
   for i in 0..<system.branches.length() {
     let br = system.branches[i]
@@ -569,9 +881,19 @@ pub fn dsystem_first_match_normal_form(
     if effective == BddZero {
       continue
     }
+    let q_i = quote_at(level, dlevel + 1, line_fresh, (br.path)(fresh))
+    let key_i = dterm_cache_key(q_i)
     let mut merged = false
     for k in 0..<paths.length() {
-      if tube_paths_conv(level, dlevel, line, paths[k], br.path) {
+      let same = if body_keys[k] == key_i {
+        conv_at(level, dlevel, line(DOne), paths[k](DOne), (br.path)(DOne)) &&
+        conv_at(level, dlevel, line(DZero), paths[k](DZero), (br.path)(DZero))
+      } else if dterm_conv_plausible(quoted[k], q_i) {
+        tube_paths_conv(level, dlevel, line, paths[k], br.path)
+      } else {
+        false
+      }
+      if same {
         regions[k] = bdd_or(regions[k], effective)
         merged = true
         break
@@ -580,14 +902,12 @@ pub fn dsystem_first_match_normal_form(
     if !merged {
       regions.push(effective)
       paths.push(br.path)
+      quoted.push(q_i)
+      body_keys.push(key_i)
     }
   }
-  let body_keys : Array[String] = []
   let region_keys : Array[String] = []
   for i in 0..<paths.length() {
-    body_keys.push(
-      dsystem_body_key(level, dlevel, line, tube_branch(FTop, paths[i])),
-    )
     region_keys.push(Repr(regions[i]).to_string())
   }
   for _pass in 0..<paths.length() {
@@ -1618,6 +1938,290 @@ pub fn dsystem_repair_maximum(
     compatible: dsystem_compatible_with_base(
       level, dlevel, line, repaired_system, base,
     ),
+    exact,
+  }
+}
+
+///|
+/// Report of conflict-component decomposed enumeration of *all*
+/// maximum-cardinality pairwise-compatible completions of a repaired
+/// `DSystem`.
+pub struct DSystemRepairAllMaxima {
+  systems : Array[DSystem]
+  max_branch_count : Int32
+  total_maximum_count : Int32
+  conflict_components : Int32
+  all_compatible : Bool
+  exact : Bool
+}
+
+///|
+fn maxclique_all_component(
+  adj : Array[Array[Bool]],
+  comp : Array[Int32],
+  budget : Int32,
+) -> (Array[Array[Int32]], Bool) {
+  let k = comp.length()
+  if k == 0 {
+    return ([[]], true)
+  }
+  if k == 1 {
+    return ([[comp[0]]], true)
+  }
+  let (incumbent, exact1) = maxclique_exact(adj, comp, budget)
+  if !exact1 {
+    return ([incumbent], false)
+  }
+  let target = incumbent.length()
+  let all_cliques : Array[Array[Int32]] = []
+  let cur : Array[Int32] = []
+  let nodes = [0, 0] // [visited_nodes, exceeded]
+  fn dfs(start : Int32) -> Unit {
+    if nodes[1] != 0 {
+      return
+    }
+    if cur.length() == target {
+      let snap : Array[Int32] = []
+      for i in 0..<cur.length() {
+        snap.push(cur[i])
+      }
+      all_cliques.push(snap)
+      return
+    }
+    let rem = k - start
+    if cur.length() + rem < target {
+      return
+    }
+    for idx in start..<k {
+      if cur.length() + (k - idx) < target {
+        break
+      }
+      nodes[0] = nodes[0] + 1
+      if nodes[0] > budget {
+        nodes[1] = 1
+        return
+      }
+      let v = comp[idx]
+      let mut ok = true
+      for j in 0..<cur.length() {
+        if !adj[v][cur[j]] {
+          ok = false
+          break
+        }
+      }
+      if ok {
+        cur.push(v)
+        dfs(idx + 1)
+        ignore(cur.pop())
+      }
+    }
+  }
+  dfs(0)
+  if nodes[1] != 0 || all_cliques.length() == 0 {
+    ([incumbent], false)
+  } else {
+    (all_cliques, true)
+  }
+}
+
+///|
+/// Decompose the pairwise conflict graph (complement of `adj`) into
+/// connected components, enumerate all maximum-cardinality compatible
+/// branch subsets within each component independently, and take their
+/// Cartesian product (up to `max_solutions` materialized `DSystem`s,
+/// while reporting the exact `total_maximum_count`).
+pub fn dsystem_repair_all_maxima(
+  level : Int32,
+  dlevel : Int32,
+  line : (Dim) -> DValue,
+  system : DSystem,
+  base : DValue,
+  candidates : Array[DTubeBranch],
+  max_solutions~ : Int32 = 32,
+  node_budget~ : Int32 = 200000,
+) -> DSystemRepairAllMaxima {
+  let pool : Array[DTubeBranch] = []
+  for i in 0..<system.branches.length() {
+    let br = system.branches[i]
+    if face_is_bot_sem(br.face) {
+      continue
+    }
+    let agreement = face_agreement_face(
+      level,
+      dlevel,
+      br.face,
+      line(DZero),
+      (br.path)(DZero),
+      base,
+    )
+    if agreement != FBot {
+      pool.push(tube_branch(agreement, br.path))
+    }
+  }
+  for i in 0..<candidates.length() {
+    let br = candidates[i]
+    if face_is_bot_sem(br.face) {
+      continue
+    }
+    let agreement = face_agreement_face(
+      level,
+      dlevel,
+      br.face,
+      line(DZero),
+      (br.path)(DZero),
+      base,
+    )
+    if agreement != FBot {
+      pool.push(tube_branch(agreement, br.path))
+    }
+  }
+  let n = pool.length()
+  if n == 0 {
+    let empty_sys = dsystem_of([])
+    return DSystemRepairAllMaxima::{
+      systems: if max_solutions > 0 {
+        [empty_sys]
+      } else {
+        []
+      },
+      max_branch_count: 0,
+      total_maximum_count: 1,
+      conflict_components: 0,
+      all_compatible: true,
+      exact: true,
+    }
+  }
+  let adj : Array[Array[Bool]] = []
+  for _i in 0..<n {
+    let row : Array[Bool] = []
+    for _j in 0..<n {
+      row.push(false)
+    }
+    adj.push(row)
+  }
+  for i in 0..<n {
+    adj[i][i] = true
+    for j in (i + 1)..<n {
+      let overlap = face_simplify(FAnd(pool[i].face, pool[j].face))
+      let ok = !face_is_sat_sem(overlap) ||
+        tube_paths_conv_under_face(
+          level,
+          dlevel,
+          overlap,
+          line,
+          pool[i].path,
+          pool[j].path,
+        )
+      adj[i][j] = ok
+      adj[j][i] = ok
+    }
+  }
+  // Connected components in the CONFLICT graph (!adj[u][v]).
+  let visited : Array[Bool] = []
+  for _i in 0..<n {
+    visited.push(false)
+  }
+  let components : Array[Array[Int32]] = []
+  for start in 0..<n {
+    if visited[start] {
+      continue
+    }
+    visited[start] = true
+    let comp : Array[Int32] = [start]
+    let mut head = 0
+    while head < comp.length() {
+      let u = comp[head]
+      head = head + 1
+      for v in 0..<n {
+        if !visited[v] && !adj[u][v] {
+          visited[v] = true
+          comp.push(v)
+        }
+      }
+    }
+    // Sort component indices in pool order for deterministic output.
+    for _p in 0..<comp.length() {
+      for q in 0..<(comp.length() - 1) {
+        if comp[q + 1] < comp[q] {
+          let tmp = comp[q]
+          comp[q] = comp[q + 1]
+          comp[q + 1] = tmp
+        }
+      }
+    }
+    components.push(comp)
+  }
+  let comp_solutions : Array[Array[Array[Int32]]] = []
+  let mut exact = true
+  let mut max_branches = 0
+  let mut total_count = 1
+  for ci in 0..<components.length() {
+    let (sols, ex) = maxclique_all_component(adj, components[ci], node_budget)
+    if !ex {
+      exact = false
+    }
+    max_branches = max_branches + sols[0].length()
+    total_count = total_count * sols.length()
+    comp_solutions.push(sols)
+  }
+  let cap = if max_solutions < 0 { 0 } else { max_solutions }
+  let chosen_sets : Array[Array[Int32]] = [[]]
+  for ci in 0..<comp_solutions.length() {
+    let sols = comp_solutions[ci]
+    let next_sets : Array[Array[Int32]] = []
+    for a in 0..<chosen_sets.length() {
+      for b in 0..<sols.length() {
+        if next_sets.length() >= cap && cap > 0 {
+          break
+        }
+        let merged : Array[Int32] = []
+        for x in 0..<chosen_sets[a].length() {
+          merged.push(chosen_sets[a][x])
+        }
+        for y in 0..<sols[b].length() {
+          merged.push(sols[b][y])
+        }
+        next_sets.push(merged)
+      }
+      if next_sets.length() >= cap && cap > 0 {
+        break
+      }
+    }
+    chosen_sets.clear()
+    for x in 0..<next_sets.length() {
+      chosen_sets.push(next_sets[x])
+    }
+  }
+  let out_systems : Array[DSystem] = []
+  let mut all_ok = true
+  if cap > 0 {
+    for s in 0..<chosen_sets.length() {
+      let in_set : Array[Bool] = []
+      for _i in 0..<n {
+        in_set.push(false)
+      }
+      for k in 0..<chosen_sets[s].length() {
+        in_set[chosen_sets[s][k]] = true
+      }
+      let accepted : Array[DTubeBranch] = []
+      for i in 0..<n {
+        if in_set[i] {
+          accepted.push(pool[i])
+        }
+      }
+      let sys = dsystem_of(accepted)
+      if !dsystem_compatible_with_base(level, dlevel, line, sys, base) {
+        all_ok = false
+      }
+      out_systems.push(sys)
+    }
+  }
+  DSystemRepairAllMaxima::{
+    systems: out_systems,
+    max_branch_count: max_branches,
+    total_maximum_count: total_count,
+    conflict_components: components.length(),
+    all_compatible: all_ok,
     exact,
   }
 }

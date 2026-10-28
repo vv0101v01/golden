@@ -3730,3 +3730,375 @@ pub fn hou_unify_residual(
     max_rounds~,
   )
 }
+
+// ---------------------------------------------------------------------------
+// Phase 14: Multi-constraint Huet backtracking solver & bounded complete
+// normal-form unifier enumeration
+// ---------------------------------------------------------------------------
+
+///|
+/// Report returned by bounded complete unifier enumeration (`hou_enumerate_unifiers`).
+/// `solutions` contains pairwise-distinct substitutions normalized over the
+/// initial metavariables; `search_exhausted` is `true` iff no branch hit the
+/// depth/node/solution cap, certifying completeness within the Huet search tree.
+pub(all) struct HouEnumerationReport {
+  solutions : Array[Array[(Int32, UTerm)]]
+  search_exhausted : Bool
+  capped : Bool
+  nodes : Int32
+  branches_tried : Int32
+  max_depth_reached : Int32
+} derive(Debug, Eq)
+
+///|
+pub extend HouEnumerationReport with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend HouEnumerationReport with Eq::{not_equal, equal}
+
+///|
+fn hou_pick_branch_constraint(
+  residual : Array[HouConstraint],
+  unifier : Unifier,
+) -> Int32 {
+  // Prefer flex-rigid over flex-flex because flex-rigid branching is finite
+  // and Huet-complete at fixed projection arity.
+  for i in 0..<residual.length() {
+    let c = residual[i]
+    let la = meta_head_spine(c.lhs, unifier) != None
+    let rb = meta_head_spine(c.rhs, unifier) != None
+    if la != rb {
+      return i
+    }
+  }
+  0
+}
+
+///|
+fn hou_contains_solution(
+  solutions : Array[Array[(Int32, UTerm)]],
+  cand : Array[(Int32, UTerm)],
+) -> Bool {
+  for s in solutions {
+    if s == cand {
+      return true
+    }
+  }
+  false
+}
+
+///|
+/// Candidate single-step metavariable assignments for a flexible equation
+/// `(lhs, rhs)` at `depth` in `unifier`. Each thunk mutates `unifier` and
+/// returns `true` when the assignment succeeded.
+fn hou_flex_step_candidates(
+  meta_id : Int32,
+  args : Array[UTerm],
+  other_side : UTerm,
+  max_projection_args : Int32,
+) -> Array[(Unifier) -> Bool] {
+  let arity = args.length()
+  let steps : Array[(Unifier) -> Bool] = []
+  steps.push(u => {
+    match huet_imitation_template(u, other_side, arity, 0) {
+      Some(body) => huet_assign_solution(u, meta_id, body, arity)
+      None => false
+    }
+  })
+  steps.push(u => {
+    let probe_u = hou_clone_unifier(u)
+    let shallow = huet_imitation_template(probe_u, other_side, arity, 0)
+    match huet_imitation_template_deep(u, other_side, arity, 0) {
+      Some(body) =>
+        if Some(body) != shallow {
+          huet_assign_solution(u, meta_id, body, arity)
+        } else {
+          false
+        }
+      None => false
+    }
+  })
+  let proj_limit = (if max_projection_args < 0 {
+      0
+    } else {
+      max_projection_args
+    }) +
+    1
+  for applied_args in 0..<proj_limit {
+    for position in 0..<arity {
+      let app_n = applied_args
+      let pos_n = position
+      steps.push(u => {
+        let body = huet_projection_template(u, arity, pos_n, app_n)
+        huet_assign_solution(u, meta_id, body, arity)
+      })
+    }
+  }
+  match other_side {
+    ULam(_, _) =>
+      steps.push(u => {
+        let body = ULam(UConst("PatternDomain"), huet_fresh_over(u, arity, 1))
+        huet_assign_solution(u, meta_id, body, arity)
+      })
+    _ => ()
+  }
+  if arity > 0 {
+    steps.push(u => {
+      let body = UMeta(hou_fresh_meta_id(u), [])
+      huet_assign_solution(u, meta_id, body, arity)
+    })
+  }
+  steps
+}
+
+///|
+fn hou_multi_backtrack_dfs(
+  all_constraints : Array[HouConstraint],
+  initial : Unifier,
+  unifier : Unifier,
+  search_depth : Int32,
+  max_depth : Int32,
+  max_nodes : Int32,
+  max_projection_args : Int32,
+  round_budget : Int32,
+  max_solutions : Int32,
+  solutions : Array[Array[(Int32, UTerm)]],
+  first_unifier_out : Array[Unifier],
+  counters : Array[Int32], // [nodes, branches, max_depth_seen, incomplete_flag, capped_flag]
+) -> Unit {
+  if counters[4] != 0 {
+    return
+  }
+  if counters[0] >= max_nodes {
+    counters[3] = 1
+    return
+  }
+  counters[0] = counters[0] + 1
+  if search_depth > counters[2] {
+    counters[2] = search_depth
+  }
+  let (code, residual) = hou_residual_propagate(
+    all_constraints, unifier, round_budget,
+  )
+  if code == -1 {
+    return
+  }
+  if code == -2 {
+    counters[3] = 1
+    return
+  }
+  if residual.length() == 0 {
+    if hou_constraints_all_solved(all_constraints, unifier) {
+      let sub = hou_substitution_since(initial, unifier)
+      if !hou_contains_solution(solutions, sub) {
+        if first_unifier_out.length() == 0 {
+          first_unifier_out.push(hou_clone_unifier(unifier))
+        }
+        solutions.push(sub)
+        if solutions.length() >= max_solutions {
+          counters[4] = 1
+        }
+      }
+    } else {
+      counters[3] = 1
+    }
+    return
+  }
+  if search_depth >= max_depth {
+    counters[3] = 1
+    return
+  }
+  let idx = hou_pick_branch_constraint(residual, unifier)
+  let eq = residual[idx]
+  let lhs = uterm_whnf(eq.lhs, unifier)
+  let rhs = uterm_whnf(eq.rhs, unifier)
+  let a_head = meta_head_spine(lhs, unifier)
+  let b_head = meta_head_spine(rhs, unifier)
+
+  let run_step = (step : (Unifier) -> Bool) => {
+    if counters[4] != 0 {
+      return
+    }
+    let snap = hou_clone_unifier(unifier)
+    counters[1] = counters[1] + 1
+    if step(unifier) {
+      hou_multi_backtrack_dfs(
+        all_constraints,
+        initial,
+        unifier,
+        search_depth + 1,
+        max_depth,
+        max_nodes,
+        max_projection_args,
+        round_budget,
+        max_solutions,
+        solutions,
+        first_unifier_out,
+        counters,
+      )
+    }
+    hou_restore_unifier(unifier, snap)
+  }
+
+  match (a_head, b_head) {
+    (Some((id_a, args_a)), None) =>
+      for
+        step in hou_flex_step_candidates(id_a, args_a, rhs, max_projection_args) {
+        run_step(step)
+      }
+    (None, Some((id_b, args_b))) =>
+      for
+        step in hou_flex_step_candidates(id_b, args_b, lhs, max_projection_args) {
+        run_step(step)
+      }
+    (Some((id_a, args_a)), Some((id_b, args_b))) => {
+      if id_a == id_b && args_a.length() == args_b.length() {
+        run_step(u => {
+          let fixed : Array[Int32] = []
+          for i in 0..<args_a.length() {
+            let bp = hou_clone_unifier(u)
+            if hou_unify(args_a[i], args_b[i], eq.depth, u) &&
+              hou_semantic_optimize(args_a[i], u) ==
+              hou_semantic_optimize(args_b[i], u) {
+              fixed.push(i)
+            } else {
+              hou_restore_unifier(u, bp)
+            }
+          }
+          let cid = hou_fresh_meta_id(u)
+          let cargs : Array[UTerm] = []
+          for pos in fixed {
+            cargs.push(UVar(huet_formal_index(args_a.length(), 0, pos)))
+          }
+          huet_assign_solution(u, id_a, UMeta(cid, cargs), args_a.length())
+        })
+      }
+      for
+        step in hou_flex_step_candidates(id_a, args_a, rhs, max_projection_args) {
+        run_step(step)
+      }
+      if id_a != id_b {
+        for
+          step in hou_flex_step_candidates(
+            id_b, args_b, lhs, max_projection_args,
+          ) {
+          run_step(step)
+        }
+        run_step(u => {
+          let cid = hou_fresh_meta_id(u)
+          huet_assign_solution(u, id_a, UMeta(cid, []), args_a.length()) &&
+          huet_assign_solution(u, id_b, UMeta(cid, []), args_b.length())
+        })
+      }
+    }
+    (None, None) =>
+      // Rigid-rigid residual that failed `hou_unify` either needs eta/binder
+      // decomposition or is a rigid clash; delegate one step to `hou_search_go`.
+      run_step(u => {
+        let st : Array[Int32] = [0, 0, 0, max_projection_args]
+        hou_search_go(lhs, rhs, eq.depth, u, st, 64, 0, 2) == 1
+      })
+  }
+}
+
+///|
+/// Bounded complete unifier enumeration modulo normal form over simultaneous
+/// higher-order unification constraints. Leaves `unifier` unchanged.
+pub fn hou_enumerate_unifiers(
+  constraints : Array[HouConstraint],
+  unifier : Unifier,
+  max_solutions~ : Int32 = 16,
+  max_nodes~ : Int32 = 2000,
+  max_depth~ : Int32 = 4,
+  max_projection_args~ : Int32 = 2,
+  round_budget~ : Int32 = 64,
+) -> HouEnumerationReport {
+  let initial = hou_clone_unifier(unifier)
+  let work = hou_clone_unifier(unifier)
+  let solutions : Array[Array[(Int32, UTerm)]] = []
+  let first_out : Array[Unifier] = []
+  let counters : Array[Int32] = [0, 0, 0, 0, 0]
+  if max_solutions > 0 && max_nodes > 0 {
+    hou_multi_backtrack_dfs(
+      constraints, initial, work, 0, max_depth, max_nodes, max_projection_args, round_budget,
+      max_solutions, solutions, first_out, counters,
+    )
+  } else {
+    counters[3] = 1
+  }
+  let capped = counters[4] != 0
+  HouEnumerationReport::{
+    solutions,
+    search_exhausted: counters[3] == 0 && !capped,
+    capped,
+    nodes: counters[0],
+    branches_tried: counters[1],
+    max_depth_reached: counters[2],
+  }
+}
+
+///|
+/// Solve a system of higher-order unification constraints with full
+/// cross-constraint backtracking: when one Huet unifier of an earlier residual
+/// equation clashes with a later equation, search backtracks to alternative
+/// imitation/projection unifiers until a joint solution is found.
+pub fn hou_solve_constraints_backtracking(
+  constraints : Array[HouConstraint],
+  unifier : Unifier,
+  max_nodes~ : Int32 = 2000,
+  max_depth~ : Int32 = 5,
+  max_projection_args~ : Int32 = 2,
+  round_budget~ : Int32 = 64,
+) -> HouResidualSolveReport {
+  let initial = hou_clone_unifier(unifier)
+  let work = hou_clone_unifier(unifier)
+  let solutions : Array[Array[(Int32, UTerm)]] = []
+  let first_out : Array[Unifier] = []
+  let counters : Array[Int32] = [0, 0, 0, 0, 0]
+  if max_nodes > 0 {
+    hou_multi_backtrack_dfs(
+      constraints, initial, work, 0, max_depth, max_nodes, max_projection_args, round_budget,
+      1, solutions, first_out, counters,
+    )
+  } else {
+    counters[3] = 1
+  }
+  if first_out.length() > 0 {
+    hou_restore_unifier(unifier, first_out[0])
+    return HouResidualSolveReport::{
+      status: HouSolved,
+      substitution: solutions[0],
+      residual: [],
+      initial_constraints: constraints.length(),
+      solved_constraints: constraints.length(),
+      search_rounds: 1,
+      nodes: counters[0],
+      branches_tried: counters[1],
+      max_depth_reached: counters[2],
+    }
+  }
+  hou_restore_unifier(unifier, initial)
+  let (_, rem) = hou_residual_propagate(
+    constraints,
+    hou_clone_unifier(initial),
+    round_budget,
+  )
+  let status = if counters[0] >= max_nodes {
+    HouBudgetExceeded
+  } else if counters[3] == 0 {
+    HouNoUnifier
+  } else {
+    HouResidual
+  }
+  HouResidualSolveReport::{
+    status,
+    substitution: [],
+    residual: rem,
+    initial_constraints: constraints.length(),
+    solved_constraints: 0,
+    search_rounds: 1,
+    nodes: counters[0],
+    branches_tried: counters[1],
+    max_depth_reached: counters[2],
+  }
+}

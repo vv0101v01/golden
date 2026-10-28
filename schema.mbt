@@ -1499,6 +1499,54 @@ fn schema_motive_type_loop(
 }
 
 ///|
+fn peel_motive_univ_level(
+  ty : DValue,
+  arity : Int32,
+  level : Int32,
+) -> Int32? {
+  if arity <= 0 {
+    as_univ_level(ty)
+  } else {
+    match as_pi(ty) {
+      Some(parts) =>
+        peel_motive_univ_level(
+          (parts.fam)(reflect_var(level, parts.dom)),
+          arity - 1,
+          level + 1,
+        )
+      None => None
+    }
+  }
+}
+
+///|
+fn check_schema_motive(
+  motive_term : DTerm,
+  entries : Array[DTelescopeEntry],
+  param_types : Array[DValue],
+  params : Array[DValue],
+  family : (Array[DValue]) -> DValue,
+  default_level : Int32,
+  ctx : DEnv,
+  env : DEnv,
+  denv : DDimEnv,
+) -> DValue? {
+  let chosen_level = match d_infer(motive_term, ctx, env, denv) {
+    Some(inf) =>
+      match
+        peel_motive_univ_level(inf.ty, entries.length() + 1, denv_len(ctx)) {
+        Some(lvl) => lvl
+        None => default_level
+      }
+    None => default_level
+  }
+  let mot_ty = schema_motive_type_loop(
+    entries, 0, param_types, params, [], [], family, chosen_level,
+  )
+  d_check(motive_term, mot_ty, ctx, env, denv)
+}
+
+///|
 pub fn inductive_motive_type(
   spec : DInductiveSpec,
   params : Array[DValue],
@@ -1727,39 +1775,6 @@ pub fn eval_inductive_elim(
           (idx, x) => eval_inductive_decode(spec, params2, idx, x, dlevel),
         )
       }
-    DVNeutral(DNComp(line, branches, base)) => {
-      let scrut_fill = fill_value(line, branches, base, dlevel)
-      let mapped = dsystem_map(branches, p => {
-        (d : Dim) => {
-          let (p_d, i_d) = inductive_family_parts(line(d), params, indices)
-          eval_inductive_elim(spec, motive, cases, p_d, i_d, p(d), dlevel)
-        }
-      })
-      let (p0, i0) = inductive_family_parts(line(DZero), params, indices)
-      comp_value(
-        d => {
-          let (_, i_d) = inductive_family_parts(line(d), params, indices)
-          motive(i_d, scrut_fill(d))
-        },
-        mapped,
-        eval_inductive_elim(spec, motive, cases, p0, i0, base, dlevel),
-        dlevel,
-      )
-    }
-    DVNeutral(DNHComp(ty, branches, base)) => {
-      let (p_ty, i_ty) = inductive_family_parts(ty, params, indices)
-      let mapped = dsystem_map(branches, p => {
-        (d : Dim) => {
-          eval_inductive_elim(spec, motive, cases, p_ty, i_ty, p(d), dlevel)
-        }
-      })
-      hcomp_value(
-        motive(i_ty, scrut),
-        mapped,
-        eval_inductive_elim(spec, motive, cases, p_ty, i_ty, base, dlevel),
-        dlevel,
-      )
-    }
     DVNeutral(n) =>
       DVNeutral(DNInductiveElim(spec, motive, cases, params, indices, n))
     _ => DVUnit
@@ -1972,11 +1987,16 @@ pub fn infer_inductive_elim(
         ) {
         Some(indices) => {
           let target = DVInductive(spec, params, indices)
+          let param_types = inductive_param_types(spec, params)
           match
             (
-              d_check(
+              check_schema_motive(
                 motive_term,
-                inductive_motive_type(spec, params),
+                spec.indices,
+                param_types,
+                params,
+                idx => DVInductive(spec, params, idx),
+                spec.level,
                 ctx,
                 env,
                 denv,
@@ -2238,11 +2258,16 @@ pub fn infer_hit_elim(
         ) {
         Some(indices) => {
           let target = DVHitType(spec, params, indices)
+          let param_types = hit_param_types(spec, params)
           match
             (
-              d_check(
+              check_schema_motive(
                 motive_term,
-                hit_motive_type(spec, params),
+                spec.indices,
+                param_types,
+                params,
+                idx => DVHitType(spec, params, idx),
+                spec.level,
                 ctx,
                 env,
                 denv,
@@ -3120,6 +3145,11 @@ pub fn comp_inductive_value(
 ) -> DValue {
   match force_value(line(DVar(dlevel))) {
     DVInductive(spec, _params, _indices) => {
+      if spec.params.length() == 0 &&
+        spec.indices.length() == 0 &&
+        branches.branches.length() == 0 {
+        return base
+      }
       let mut ctor = -1
       let mut base_args : Array[DValue] = []
       let mut ok = true
@@ -3306,8 +3336,10 @@ pub fn comp_hit_value(
         // the same target dimensions.  Compositions that genuinely
         // traverse between different cells remain formal HIT points.
         for i in 0..<branches.branches.length() {
-          let branch_raw = (branches.branches[i].path)(DVar(dlevel))
-          let branch_value = match force_value(branch_raw) {
+          let branch_raw = force_value(
+            (branches.branches[i].path)(DVar(dlevel)),
+          )
+          let branch_value = match branch_raw {
             DVHitCell(_, c, _, _, _) =>
               if c == cell_index {
                 branch_raw
@@ -3769,6 +3801,16 @@ pub fn eval_hit_elim(
 }
 
 ///|
+fn schema_concat_opt_ih(ihs : Array[DValue?], v : DValue?) -> Array[DValue?] {
+  let out : Array[DValue?] = []
+  for i in 0..<ihs.length() {
+    out.push(ihs[i])
+  }
+  out.push(v)
+  out
+}
+
+///|
 fn hit_endpoint_value(
   spec : DHitSpec,
   motive : (Array[DValue], DValue) -> DValue,
@@ -3776,6 +3818,7 @@ fn hit_endpoint_value(
   params : Array[DValue],
   cell_index : Int32,
   args : Array[DValue],
+  prior_ihs : Array[DValue?],
   face_dim : Int32,
   face_end : Int32,
   fixed_dims : Array[Dim],
@@ -3791,6 +3834,7 @@ fn hit_endpoint_value(
         params,
         cell_index,
         args,
+        prior_ihs,
         face_dim,
         face_end,
         schema_concat_dims(fixed_dims, d),
@@ -3799,6 +3843,99 @@ fn hit_endpoint_value(
     })
   } else {
     let face_index = 2 * face_dim + face_end
+    if face_index >= 0 && face_index < cell.faces.length() {
+      let face = cell.faces[face_index]
+      let total = params.length() + args.length()
+      if face.cell < 0 && face.args.length() == 1 {
+        match face.args[0] {
+          DTVar(v_idx) => {
+            let arg_pos = total - 1 - v_idx - params.length()
+            if arg_pos >= 0 &&
+              arg_pos < prior_ihs.length() &&
+              arg_pos < cell.args.length() {
+              match (cell.args[arg_pos].kind, prior_ihs[arg_pos]) {
+                (DArgRecursive, Some(ih_x)) => return ih_x
+                _ => ()
+              }
+            }
+          }
+          DApp(DTVar(f_idx), arg_term) => {
+            let f_pos = total - 1 - f_idx - params.length()
+            if f_pos >= 0 &&
+              f_pos < prior_ihs.length() &&
+              f_pos < cell.args.length() {
+              match (cell.args[f_pos].kind, prior_ihs[f_pos]) {
+                (DArgFunction, Some(ih_f)) => {
+                  let values = schema_concat_values(params, args)
+                  let a_val = deval_dim(
+                    arg_term,
+                    schema_env(values),
+                    schema_dim_env(fixed_dims),
+                  )
+                  let dom = schema_eval_under(
+                    cell.args[f_pos].ty,
+                    schema_concat_values(
+                      params,
+                      schema_value_prefix(args, f_pos),
+                    ),
+                    [],
+                  )
+                  return dapp_typed(ih_f, a_val, dom)
+                }
+                _ => ()
+              }
+            }
+          }
+          _ => ()
+        }
+      } else if face.cell >= 0 &&
+        face.cell < spec.cells.length() &&
+        face.cell < cases.length() &&
+        face.args.length() == 1 {
+        let target_cell = spec.cells[face.cell]
+        if target_cell.dim_count == 0 &&
+          target_cell.args.length() == 1 &&
+          target_cell.constraints.length() == 0 {
+          match face.args[0] {
+            DTVar(f_idx) => {
+              let f_pos = total - 1 - f_idx - params.length()
+              if f_pos >= 0 && f_pos < prior_ihs.length() {
+                match (target_cell.args[0].kind, prior_ihs[f_pos]) {
+                  (DArgFunction, Some(ih_f)) => {
+                    let fn_arg_ty = hit_arg_type(
+                      spec,
+                      target_cell.args[0],
+                      params,
+                      [],
+                    )
+                    let dom = schema_eval_under(
+                      target_cell.args[0].ty,
+                      params,
+                      [],
+                    )
+                    let ih_ty = DVPi(dom, a => {
+                      let idx = schema_eval_index_terms(
+                        params,
+                        [a],
+                        target_cell.args[0].index,
+                      )
+                      motive(idx, dapp_typed(args[f_pos], a, dom))
+                    })
+                    return dapp_typed(
+                      dapp_typed(cases[face.cell], args[f_pos], fn_arg_ty),
+                      ih_f,
+                      ih_ty,
+                    )
+                  }
+                  _ => ()
+                }
+              }
+            }
+            _ => ()
+          }
+        }
+      }
+    }
     let scrut = if face_index >= 0 && face_index < cell.faces.length() {
       hit_face_instantiate(
         spec,
@@ -3834,6 +3971,7 @@ fn hit_path_type_loop(
   params : Array[DValue],
   cell_index : Int32,
   args : Array[DValue],
+  prior_ihs : Array[DValue?],
   fixed_dims : Array[Dim],
   dlevel : Int32,
 ) -> DValue {
@@ -3854,6 +3992,7 @@ fn hit_path_type_loop(
           params,
           cell_index,
           args,
+          prior_ihs,
           schema_concat_dims(fixed_dims, d),
           dlevel,
         )
@@ -3865,6 +4004,7 @@ fn hit_path_type_loop(
         params,
         cell_index,
         args,
+        prior_ihs,
         dim_index,
         0,
         schema_concat_dims(fixed_dims, DZero),
@@ -3877,6 +4017,7 @@ fn hit_path_type_loop(
         params,
         cell_index,
         args,
+        prior_ihs,
         dim_index,
         1,
         schema_concat_dims(fixed_dims, DOne),
@@ -3896,6 +4037,7 @@ fn hit_case_type_loop(
   cell : DHitCellSpec,
   pos : Int32,
   prior : Array[DValue],
+  prior_ihs : Array[DValue?],
   dlevel : Int32,
 ) -> DValue {
   if pos >= cell.args.length() {
@@ -3910,6 +4052,7 @@ fn hit_case_type_loop(
         params,
         cell_index,
         prior,
+        prior_ihs,
         [],
         dlevel,
       ),
@@ -3930,11 +4073,12 @@ fn hit_case_type_loop(
             cell,
             pos + 1,
             next,
+            schema_concat_opt_ih(prior_ihs, None),
             dlevel,
           )
         DArgRecursive => {
           let idx = schema_eval_index_terms(params, prior, arg.index)
-          DVPi(motive(idx, x), _ => {
+          DVPi(motive(idx, x), ih_x => {
             hit_case_type_loop(
               spec,
               motive,
@@ -3944,6 +4088,7 @@ fn hit_case_type_loop(
               cell,
               pos + 1,
               next,
+              schema_concat_opt_ih(prior_ihs, Some(ih_x)),
               dlevel,
             )
           })
@@ -3962,7 +4107,7 @@ fn hit_case_type_loop(
             )
             motive(idx, dapp_typed(x, a, dom))
           })
-          DVPi(ih_ty, _ => {
+          DVPi(ih_ty, ih_f => {
             hit_case_type_loop(
               spec,
               motive,
@@ -3972,6 +4117,7 @@ fn hit_case_type_loop(
               cell,
               pos + 1,
               next,
+              schema_concat_opt_ih(prior_ihs, Some(ih_f)),
               dlevel,
             )
           })
@@ -3995,6 +4141,7 @@ fn hit_case_type_loop(
               cell,
               pos + 1,
               next,
+              schema_concat_opt_ih(prior_ihs, None),
               dlevel,
             )
           })
@@ -4010,6 +4157,7 @@ fn hit_case_type_loop(
             cell,
             pos + 1,
             next,
+            schema_concat_opt_ih(prior_ihs, None),
             dlevel,
           )
       }
@@ -4037,6 +4185,7 @@ pub fn hit_case_type(
       cell_index,
       spec.cells[cell_index],
       0,
+      [],
       [],
       dlevel,
     )

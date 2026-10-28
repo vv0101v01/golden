@@ -939,3 +939,1256 @@ pub fn check_hopf_exact_rational() -> Bool {
   }
   true
 }
+
+// ---------------------------------------------------------------------------
+// Phase 14: Internal univalent Hopf fibration `Hopf : S^2 -> Type_0` and
+// synthetic Hopf invariant `Omega^2(S^2) -> IntegerS`
+// ---------------------------------------------------------------------------
+
+///|
+/// Dependent loop family `(y : S^1) -> Path S^1 y y` on the schema circle:
+/// sends `base` to `loop`, and over `y = loop(i)` builds the conjugated
+/// path `sym(loop_{<= i}) ⬝ (loop ⬝ loop_{<= i})` adjusted on `i = 0, 1`
+/// to `loop` by unit/inverse 3-cells.
+pub fn circle_self_loop_value(y : DValue, dlevel : Int32) -> DValue {
+  let s1 = circle_hit_type_value()
+  let lp = circle_hit_loop_path_value()
+  // Direct Cavallo–Mörtberg / Cubical Agda `rotLoop` square:
+  // base at `k = 0` is `lp(i ∨ j)`, with corner `(i=1, j=1)` traversing `lp(k)`.
+  let loop_case : DValue = DVPathLam(i => {
+    DVPathLam(j => {
+      let branches = dsystem_of([
+        tube_branch(face_simplify(FEq0(i)), _ => dapp_dim(lp, j)),
+        tube_branch(face_simplify(FEq1(i)), k => {
+          dapp_dim(lp, dim_simplify(DAnd(j, k)))
+        }),
+        tube_branch(face_simplify(FEq0(j)), _ => dapp_dim(lp, i)),
+        tube_branch(face_simplify(FEq1(j)), k => {
+          dapp_dim(lp, dim_simplify(DAnd(i, k)))
+        }),
+      ])
+      hcomp_value(
+        s1,
+        branches,
+        dapp_dim(lp, dim_simplify(DOr(i, j))),
+        dlevel + 2,
+      )
+    })
+  })
+
+  eval_hit_elim(
+    circle_schema(),
+    (_idx, pt) => DVPathTy(_ => s1, pt, pt),
+    [lp, loop_case],
+    [],
+    [],
+    y,
+    dlevel,
+  )
+}
+
+///|
+/// H-space rotation equivalence `(x : S^1) -> (S^1 ≃ S^1)` on the schema
+/// circle: sends `base` to `id_equiv(S^1)` and `loop` to the rotation
+/// loop `i ↦ (y ↦ self_loop(y)(i))`.
+pub fn circle_rot_equiv_value(x : DValue, dlevel : Int32) -> DValue {
+  let s1 = circle_hit_type_value()
+  let id_eq = equiv_id_value(s1)
+  // Along `x = loop(i)`: forward map rotates by `+i`, backward map by `-i`.
+  // At `i = 0` and `i = 1`, both `fwd` and `bwd` compute to the identity `λy. y`.
+  let loop_equiv_path : DValue = DVPathLam(i => {
+    let fwd = DVLam(y => dapp_dim(circle_self_loop_value(y, dlevel), i))
+    let bwd = DVLam(y => dapp_dim(circle_self_loop_value(y, dlevel), DNeg(i)))
+    // Section `fwd(bwd(y)) = y` and retraction `bwd(fwd(y)) = y`:
+    // contract along `i` on endpoints via connection with `self_loop`.
+    let sect = DVLam(y => {
+      let ly = circle_self_loop_value(y, dlevel)
+      let fby = dapp_dim(
+        circle_self_loop_value(dapp_dim(ly, DNeg(i)), dlevel),
+        i,
+      )
+      // Connect `fby` to `y` on `S^1`: at `i=0` and `i=1`, `fby == y`,
+      // and at `y = base` let's use singleton / loop cancellation!
+      DVPathLam(k => {
+        let step_back = dapp_dim(ly, dim_simplify(DAnd(DNeg(i), DNeg(k))))
+        let raw = dapp_dim(
+          circle_self_loop_value(step_back, dlevel),
+          dim_simplify(DAnd(i, DNeg(k))),
+        )
+        ignore(fby)
+        raw
+      })
+    })
+    let retr = DVLam(y => {
+      let ly = circle_self_loop_value(y, dlevel)
+      DVPathLam(k => {
+        let step_fwd = dapp_dim(ly, dim_simplify(DAnd(i, DNeg(k))))
+        dapp_dim(
+          circle_self_loop_value(step_fwd, dlevel),
+          dim_simplify(DAnd(DNeg(i), DNeg(k))),
+        )
+      })
+    })
+    DVEquiv(s1, s1, fwd, bwd, sect, retr)
+  })
+  eval_hit_elim(
+    circle_schema(),
+    (_idx, _pt) => DVEquivTy(s1, s1, 0),
+    [id_eq, loop_equiv_path],
+    [],
+    [],
+    x,
+    dlevel,
+  )
+}
+
+///|
+/// Brunerie's univalent Hopf fibration family `Hopf : S^2 -> Type_0`
+/// defined internally by suspension elimination on `sphere2_schema()`:
+/// fibers over `north` and `south` are `S^1`, and `meridian(x)` maps to
+/// `ua(circle_rot_equiv(x))`.
+pub fn hopf_family_value(pt : DValue, dlevel~ : Int32 = 16) -> DValue {
+  let s1 = circle_hit_type_value()
+  eval_hit_elim(
+    sphere2_schema(),
+    (_idx, _p) => DVUniv(0),
+    [s1, s1, DVLam(x => ua_value(circle_rot_equiv_value(x, dlevel), s1, s1, 0))],
+    [],
+    [],
+    pt,
+    dlevel + 2,
+  )
+}
+
+///|
+/// Connecting map `∂_Hopf : Omega^2(S^2, north) -> Omega^1(S^1, base)`
+/// of the Hopf fibration long exact sequence: transports `base : S^1`
+/// in `Hopf` along each slice `alpha(i) : Omega^1(S^2, north)`.
+pub fn hopf_connecting_loop_value(
+  alpha : DValue,
+  dlevel~ : Int32 = 16,
+) -> DValue {
+  let base_s1 = circle_hit_base_value()
+  DVPathLam(
+    memo_dim_line(i => {
+      subst_value(
+        pt => hopf_family_value(pt, dlevel~),
+        dapp_dim(alpha, i),
+        base_s1,
+        dlevel + 6,
+      )
+    }),
+  )
+}
+
+///|
+/// Synthetic Hopf / degree invariant `Omega^2(S^2, north) -> IntegerS`
+/// computed purely inside the cubical kernel by composing `∂_Hopf` with
+/// the circle helix encoder `circle_encode_value`.
+pub fn hopf_invariant_value(alpha : DValue, dlevel~ : Int32 = 16) -> DValue {
+  circle_encode_value(hopf_connecting_loop_value(alpha, dlevel~), dlevel + 10)
+}
+
+// ---------------------------------------------------------------------------
+// Phase 15: Polymorphic Suspension `SuspS`, Bidirectional Loop–Suspension
+// Adjunction, Wedge Connectivity & Freudenthal Suspension Theorem
+// ---------------------------------------------------------------------------
+
+///|
+/// Universe-polymorphic suspension HIT schema `SuspS(A : Type_level)`:
+///   `north : SuspS(A)`
+///   `south : SuspS(A)`
+///   `meridian (point : A) : north = south`.
+pub fn susp_type_schema_at(level : Int32) -> DHitSpec {
+  dhit_spec("SuspS", level, [dtelescope_entry("A", DUniv(level))], [], [
+    dhit_cell_spec("north", 0, [], []),
+    dhit_cell_spec("south", 0, [], []),
+    dhit_cell_spec(
+      "meridian",
+      1,
+      [darg_external("point", DTVar(0))],
+      [dhit_face(0, [], []), dhit_face(1, [], [])],
+    ),
+  ])
+}
+
+///|
+pub fn susp_type_schema() -> DHitSpec {
+  susp_type_schema_at(0)
+}
+
+///|
+pub fn susp_type_value(a_ty : DValue, level~ : Int32 = 0) -> DValue {
+  DVHitType(susp_type_schema_at(level), [a_ty], [])
+}
+
+///|
+pub fn susp_north_value(a_ty : DValue, level~ : Int32 = 0) -> DValue {
+  DVHitCell(susp_type_schema_at(level), 0, [a_ty], [], [])
+}
+
+///|
+pub fn susp_south_value(a_ty : DValue, level~ : Int32 = 0) -> DValue {
+  DVHitCell(susp_type_schema_at(level), 1, [a_ty], [], [])
+}
+
+///|
+pub fn susp_merid_path_value(
+  a_ty : DValue,
+  point : DValue,
+  level~ : Int32 = 0,
+) -> DValue {
+  let spec = susp_type_schema_at(level)
+  DVPathLam(i => hit_cell_value(spec, 2, [a_ty], [point], [i]))
+}
+
+///|
+/// Semantic based-map type `Map*(A, a0; B, b0) := Σ(f : A -> B). Path B (f a0) b0`.
+pub fn based_map_type_value(
+  src_ty : DValue,
+  dst_ty : DValue,
+  src_base : DValue,
+  dst_base : DValue,
+) -> DValue {
+  DVSigma(
+    DVPi(src_ty, _ => dst_ty),
+    f => DVPathTy(_ => dst_ty, dapp_typed(f, src_base, src_ty), dst_base),
+  )
+}
+
+///|
+/// Forward map `SuspS(BoolS) -> S^1` sending both poles to `base`,
+/// `meridian(false)` to `refl_base`, and `meridian(true)` to `loop`.
+pub fn susp_bool_to_circle_value(z : DValue, dlevel : Int32) -> DValue {
+  let b_spec = bool_schema()
+  let b_ty = DVInductive(b_spec, [], [])
+  let c_ty = circle_hit_type_value()
+  let base = circle_hit_base_value()
+  let lp = circle_hit_loop_path_value()
+  let merid_fn = DVLam(b => {
+    eval_inductive_elim(
+      b_spec,
+      (_, _) => DVPathTy(_ => c_ty, base, base),
+      [dpath_refl_value(base), lp],
+      [],
+      [],
+      b,
+      dlevel,
+    )
+  })
+  eval_hit_elim(
+    susp_type_schema(),
+    (_, _) => c_ty,
+    [base, base, merid_fn],
+    [b_ty],
+    [],
+    z,
+    dlevel,
+  )
+}
+
+///|
+/// Inverse map `S^1 -> SuspS(BoolS)` sending `base` to `north` and `loop`
+/// to `meridian(true) ⬝ sym(meridian(false))`.
+pub fn circle_to_susp_bool_value(y : DValue, dlevel : Int32) -> DValue {
+  let b_spec = bool_schema()
+  let b_ty = DVInductive(b_spec, [], [])
+  let sb_ty = susp_type_value(b_ty)
+  let north = susp_north_value(b_ty)
+  let bfalse = DVIntro(b_spec, 0, [], [])
+  let btrue = DVIntro(b_spec, 1, [], [])
+  let m_false = susp_merid_path_value(b_ty, bfalse)
+  let m_true = susp_merid_path_value(b_ty, btrue)
+  let bwd_loop = dpath_trans_value(
+    sb_ty,
+    m_true,
+    dpath_sym_value(m_false),
+    dlevel,
+  )
+  eval_hit_elim(
+    circle_schema(),
+    (_, _) => sb_ty,
+    [north, bwd_loop],
+    [],
+    [],
+    y,
+    dlevel,
+  )
+}
+
+///|
+/// Full bidirectional equivalence `Equiv (SuspS BoolS) S^1` (`Susp S^0 ≃ S^1`),
+/// certified on open reflected variables of both `SuspS(BoolS)` and `S^1`.
+pub fn susp_bool_equiv_circle_value(dlevel : Int32) -> DValue {
+  let b_spec = bool_schema()
+  let b_ty = DVInductive(b_spec, [], [])
+  let bfalse = DVIntro(b_spec, 0, [], [])
+  let btrue = DVIntro(b_spec, 1, [], [])
+  let sb_spec = susp_type_schema()
+  let sb_ty = susp_type_value(b_ty)
+  let north = susp_north_value(b_ty)
+  let m_false = susp_merid_path_value(b_ty, bfalse)
+  let m_true = susp_merid_path_value(b_ty, btrue)
+  let c_spec = circle_schema()
+  let c_ty = circle_hit_type_value()
+  let base = circle_hit_base_value()
+  let lp = circle_hit_loop_path_value()
+
+  let sq_c = dpath_trans_square_value(
+    c_ty,
+    lp,
+    dpath_refl_value(base),
+    dlevel,
+  )
+  let loop_sect : DValue = DVPathLam(i => {
+    DVPathLam(t => dapp_dim(dapp_dim(sq_c, i), DNeg(t)))
+  })
+  let sect = DVLam(y => {
+    eval_hit_elim(
+      c_spec,
+      (_, pt) => {
+        DVPathTy(
+          _ => c_ty,
+          susp_bool_to_circle_value(circle_to_susp_bool_value(pt, dlevel), dlevel),
+          pt,
+        )
+      },
+      [dpath_refl_value(base), loop_sect],
+      [],
+      [],
+      y,
+      dlevel,
+    )
+  })
+
+  let false_sq : DValue = DVPathLam(i => {
+    DVPathLam(j => dapp_dim(m_false, dim_simplify(DAnd(i, j))))
+  })
+  let sq_sb = dpath_trans_square_value(
+    sb_ty,
+    m_true,
+    dpath_sym_value(m_false),
+    dlevel,
+  )
+  let true_sq : DValue = DVPathLam(i => {
+    DVPathLam(j => dapp_dim(dapp_dim(sq_sb, i), DNeg(j)))
+  })
+  let merid_retr = DVLam(b => {
+    eval_inductive_elim(
+      b_spec,
+      (_, bv) => {
+        DVPathTy(
+          i => {
+            let pt = hit_cell_value(sb_spec, 2, [b_ty], [bv], [i])
+            DVPathTy(
+              _ => sb_ty,
+              circle_to_susp_bool_value(
+                susp_bool_to_circle_value(pt, dlevel),
+                dlevel,
+              ),
+              pt,
+            )
+          },
+          dpath_refl_value(north),
+          m_false,
+        )
+      },
+      [false_sq, true_sq],
+      [],
+      [],
+      b,
+      dlevel,
+    )
+  })
+  let retr = DVLam(z => {
+    eval_hit_elim(
+      sb_spec,
+      (_, pt) => {
+        DVPathTy(
+          _ => sb_ty,
+          circle_to_susp_bool_value(
+            susp_bool_to_circle_value(pt, dlevel),
+            dlevel,
+          ),
+          pt,
+        )
+      },
+      [dpath_refl_value(north), m_false, merid_retr],
+      [b_ty],
+      [],
+      z,
+      dlevel,
+    )
+  })
+
+  equiv_make_value(
+    sb_ty,
+    c_ty,
+    DVLam(z => susp_bool_to_circle_value(z, dlevel)),
+    DVLam(y => circle_to_susp_bool_value(y, dlevel)),
+    sect,
+    retr,
+  )
+}
+
+///|
+/// Unpointed suspension cocone type `SuspCocone(A, B) := Σ(n : B). Σ(s : B). (A -> Path B n s)`.
+pub fn susp_cocone_type_value(a_ty : DValue, b_ty : DValue) -> DValue {
+  DVSigma(b_ty, n => {
+    DVSigma(b_ty, s => DVPi(a_ty, _ => DVPathTy(_ => b_ty, n, s)))
+  })
+}
+
+///|
+/// Universal cocone bidirectional equivalence
+///   `Equiv (SuspS A -> B) (SuspCocone A B)`.
+/// Notice that while `sect` holds definitionally on reflected `Σ`/`Π`/`Path`
+/// cocones, `retr` genuinely requires function extensionality + dependent
+/// `SuspS` elimination (HITs lack definitional η on neutral points).
+pub fn susp_universal_equiv_value(
+  a_ty : DValue,
+  b_ty : DValue,
+  dlevel : Int32,
+  level~ : Int32 = 0,
+) -> DValue {
+  let spec = susp_type_schema_at(level)
+  let susp_ty = susp_type_value(a_ty, level~)
+  let north = susp_north_value(a_ty, level~)
+  let south = susp_south_value(a_ty, level~)
+  let fn_ty = DVPi(susp_ty, _ => b_ty)
+  let cocone_ty = susp_cocone_type_value(a_ty, b_ty)
+  let inner_fam = (n : DValue) => {
+    DVSigma(b_ty, s => DVPi(a_ty, _ => DVPathTy(_ => b_ty, n, s)))
+  }
+
+  let fwd_one = (f : DValue) => {
+    let fn_n = dapp_typed(f, north, susp_ty)
+    let fn_s = dapp_typed(f, south, susp_ty)
+    let fn_m = DVLam(a => {
+      DVPathLam(i => {
+        dapp_typed(f, hit_cell_value(spec, 2, [a_ty], [a], [i]), susp_ty)
+      })
+    })
+    DVPair(fn_n, DVPair(fn_s, fn_m))
+  }
+  let bwd_one = (c : DValue) => {
+    let n = dfst_typed(c, inner_fam)
+    let rest = dsnd_typed(c, b_ty, inner_fam)
+    let rest_fam = (s : DValue) => DVPi(a_ty, _ => DVPathTy(_ => b_ty, n, s))
+    let s = dfst_typed(rest, rest_fam)
+    let m = dsnd_typed(rest, b_ty, rest_fam)
+    DVLam(z => {
+      eval_hit_elim(spec, (_, _) => b_ty, [n, s, m], [a_ty], [], z, dlevel)
+    })
+  }
+  let sect = DVLam(c => dpath_refl_value(c))
+  let retr = DVLam(f => {
+    let bf = bwd_one(fwd_one(f))
+    let pw = DVLam(z => {
+      eval_hit_elim(
+        spec,
+        (_, pt) => {
+          DVPathTy(_ => b_ty, dapp_typed(bf, pt, susp_ty), dapp_typed(f, pt, susp_ty))
+        },
+        [
+          dpath_refl_value(dapp_typed(f, north, susp_ty)),
+          dpath_refl_value(dapp_typed(f, south, susp_ty)),
+          DVLam(a => {
+            DVPathLam(i => {
+              let f_mer = dapp_typed(
+                f,
+                hit_cell_value(spec, 2, [a_ty], [a], [i]),
+                susp_ty,
+              )
+              DVPathLam(_ => f_mer)
+            })
+          }),
+        ],
+        [a_ty],
+        [],
+        z,
+        dlevel,
+      )
+    })
+    dpath_funext_value(pw, susp_ty)
+  })
+  equiv_make_value(
+    fn_ty,
+    cocone_ty,
+    DVLam(f => fwd_one(f)),
+    DVLam(c => bwd_one(c)),
+    sect,
+    retr,
+  )
+}
+
+///|
+/// First factor of the pointed Loop–Suspension Adjunction:
+///   `Map*(SuspS A, north; B, b0)  ≃  Σ(s : B). (A -> Path B s b0)`.
+pub fn susp_based_to_cocone_equiv_value(
+  a_ty : DValue,
+  b_ty : DValue,
+  b0 : DValue,
+  dlevel : Int32,
+  level~ : Int32 = 0,
+) -> DValue {
+  let spec = susp_type_schema_at(level)
+  let susp_ty = susp_type_value(a_ty, level~)
+  let north = susp_north_value(a_ty, level~)
+  let south = susp_south_value(a_ty, level~)
+  let fn_ty = DVPi(susp_ty, _ => b_ty)
+  let map_star_ty = based_map_type_value(susp_ty, b_ty, north, b0)
+  let map_fam = (f : DValue) => {
+    DVPathTy(_ => b_ty, dapp_typed(f, north, susp_ty), b0)
+  }
+  let cocone_fam = (s : DValue) => DVPi(a_ty, _ => DVPathTy(_ => b_ty, s, b0))
+  let cocone_ty = DVSigma(b_ty, cocone_fam)
+
+  let fwd_one = (fp : DValue) => {
+    let f = dfst_typed(fp, map_fam)
+    let p = dsnd_typed(fp, fn_ty, map_fam)
+    let s = dapp_typed(f, south, susp_ty)
+    let m = DVLam(a => {
+      let sym_fa : DValue = DVPathLam(i => {
+        dapp_typed(f, hit_cell_value(spec, 2, [a_ty], [a], [DNeg(i)]), susp_ty)
+      })
+      dpath_trans_value(b_ty, sym_fa, p, dlevel)
+    })
+    DVPair(s, m)
+  }
+  let bwd_one = (sm : DValue) => {
+    let s = dfst_typed(sm, cocone_fam)
+    let m = dsnd_typed(sm, b_ty, cocone_fam)
+    let merid_case = DVLam(a => dpath_sym_value(dapp_typed(m, a, a_ty)))
+    let f = DVLam(z => {
+      eval_hit_elim(
+        spec,
+        (_, _) => b_ty,
+        [b0, s, merid_case],
+        [a_ty],
+        [],
+        z,
+        dlevel,
+      )
+    })
+    DVPair(f, dpath_refl_value(b0))
+  }
+  let sect = DVLam(sm => {
+    let s = dfst_typed(sm, cocone_fam)
+    let m = dsnd_typed(sm, b_ty, cocone_fam)
+    DVPathLam(t => {
+      let m_t = DVLam(a => {
+        let ma = dapp_typed(m, a, a_ty)
+        let sq = dpath_trans_square_value(
+          b_ty,
+          ma,
+          dpath_refl_value(b0),
+          dlevel,
+        )
+        DVPathLam(i => dapp_dim(dapp_dim(sq, i), DNeg(t)))
+      })
+      DVPair(s, m_t)
+    })
+  })
+  let retr = DVLam(fp => {
+    let f = dfst_typed(fp, map_fam)
+    let p = dsnd_typed(fp, fn_ty, map_fam)
+    let bf_pair = bwd_one(fwd_one(fp))
+    let bf = dfst_typed(bf_pair, map_fam)
+    let north_line : DValue = DVPathLam(t => dapp_dim(p, DNeg(t)))
+    let south_line = dpath_refl_value(dapp_typed(f, south, susp_ty))
+    let merid_sq = DVLam(a => {
+      let sym_fa : DValue = DVPathLam(k => {
+        dapp_typed(f, hit_cell_value(spec, 2, [a_ty], [a], [DNeg(k)]), susp_ty)
+      })
+      let sq = dpath_trans_square_value(b_ty, sym_fa, p, dlevel)
+      DVPathLam(i => {
+        DVPathLam(t => dapp_dim(dapp_dim(sq, DNeg(i)), DNeg(t)))
+      })
+    })
+    let pw = DVLam(z => {
+      eval_hit_elim(
+        spec,
+        (_, pt) => {
+          DVPathTy(
+            _ => b_ty,
+            dapp_typed(bf, pt, susp_ty),
+            dapp_typed(f, pt, susp_ty),
+          )
+        },
+        [north_line, south_line, merid_sq],
+        [a_ty],
+        [],
+        z,
+        dlevel,
+      )
+    })
+    let f_homotopy = dpath_funext_value(pw, susp_ty)
+    DVPathLam(t => {
+      let p_t : DValue = DVPathLam(j => {
+        dapp_dim(p, dim_simplify(DOr(DNeg(t), j)))
+      })
+      DVPair(dapp_dim(f_homotopy, t), p_t)
+    })
+  })
+  equiv_make_value(
+    map_star_ty,
+    cocone_ty,
+    DVLam(fp => fwd_one(fp)),
+    DVLam(sm => bwd_one(sm)),
+    sect,
+    retr,
+  )
+}
+
+///|
+/// Second factor of the pointed Loop–Suspension Adjunction:
+///   `Σ(s : B). (A -> Path B s b0)  ≃  Map*(A, a0; Ω(B, b0), refl_{b0})`.
+pub fn cocone_to_based_loop_equiv_value(
+  a_ty : DValue,
+  a0 : DValue,
+  b_ty : DValue,
+  b0 : DValue,
+  dlevel : Int32,
+) -> DValue {
+  let cocone_fam = (s : DValue) => DVPi(a_ty, _ => DVPathTy(_ => b_ty, s, b0))
+  let cocone_ty = DVSigma(b_ty, cocone_fam)
+  let loop_b_ty = DVPathTy(_ => b_ty, b0, b0)
+  let refl_b0 = dpath_refl_value(b0)
+  let fn_loop_ty = DVPi(a_ty, _ => loop_b_ty)
+  let rhs_fam = (g : DValue) => {
+    DVPathTy(_ => loop_b_ty, dapp_typed(g, a0, a_ty), refl_b0)
+  }
+  let rhs_ty = based_map_type_value(a_ty, loop_b_ty, a0, refl_b0)
+
+  let l_fill = (m0 : DValue, ma : DValue, i : Dim, k : Dim) => {
+    let ks = dim_simplify(k)
+    if dim_eq_sem(ks, DZero) {
+      dapp_dim(ma, i)
+    } else {
+      let sys = dsystem_of([
+        tube_branch(face_simplify(FEq0(i)), j => {
+          dapp_dim(m0, dim_simplify(DAnd(j, ks)))
+        }),
+        tube_branch(face_simplify(FEq1(i)), _ => b0),
+        tube_branch(face_simplify(FEq0(ks)), _ => dapp_dim(ma, i)),
+      ])
+      hcomp_value(b_ty, sys, dapp_dim(ma, i), dlevel)
+    }
+  }
+  let cancel = (m0 : DValue) => {
+    DVPathLam(u => {
+      DVPathLam(i => {
+        let sys = dsystem_of([
+          tube_branch(face_simplify(FEq0(i)), j => {
+            dapp_dim(m0, dim_simplify(DOr(j, u)))
+          }),
+          tube_branch(face_simplify(FEq1(i)), _ => b0),
+          tube_branch(face_simplify(FEq1(u)), _ => b0),
+        ])
+        hcomp_value(b_ty, sys, dapp_dim(m0, dim_simplify(DOr(i, u))), dlevel)
+      })
+    })
+  }
+  let h_loop_at = (ga : DValue, q : DValue, t : Dim) => {
+    DVPathLam(i => {
+      let sys = dsystem_of([
+        tube_branch(face_simplify(FEq0(i)), j => {
+          dapp_dim(dapp_dim(q, t), j)
+        }),
+        tube_branch(face_simplify(FEq1(i)), _ => b0),
+        tube_branch(face_simplify(FEq1(t)), _ => dapp_dim(ga, i)),
+      ])
+      hcomp_value(b_ty, sys, dapp_dim(ga, i), dlevel)
+    })
+  }
+
+  let fwd_one = (sm : DValue) => {
+    let m = dsnd_typed(sm, b_ty, cocone_fam)
+    let m0 = dapp_typed(m, a0, a_ty)
+    let g = DVLam(a => {
+      let ma = dapp_typed(m, a, a_ty)
+      DVPathLam(i => l_fill(m0, ma, i, DOne))
+    })
+    DVPair(g, cancel(m0))
+  }
+  let bwd_one = (gq : DValue) => {
+    let g = dfst_typed(gq, rhs_fam)
+    DVPair(b0, g)
+  }
+  let base_sq : DValue = DVPathLam(t => {
+    DVPathLam(u => {
+      DVPathLam(i => {
+        let sys = dsystem_of([
+          tube_branch(face_simplify(FEq0(i)), _ => b0),
+          tube_branch(face_simplify(FEq1(i)), _ => b0),
+          tube_branch(
+            face_simplify(FEq1(dim_simplify(DOr(t, u)))),
+            _ => b0,
+          ),
+        ])
+        hcomp_value(b_ty, sys, b0, dlevel)
+      })
+    })
+  })
+  let sect = DVLam(gq => {
+    let g = dfst_typed(gq, rhs_fam)
+    let q = dsnd_typed(gq, fn_loop_ty, rhs_fam)
+    let sq_q = dj_singleton_elim_value(
+      (p0, sym_q) => {
+        let q1 = dpath_sym_value(sym_q)
+        DVPathTy(
+          t => DVPathTy(_ => loop_b_ty, h_loop_at(p0, q1, t), refl_b0),
+          cancel(p0),
+          q1,
+        )
+      },
+      base_sq,
+      dpath_sym_value(q),
+      dlevel + 4,
+    )
+    DVPathLam(t => {
+      let g_t = DVLam(a => h_loop_at(dapp_typed(g, a, a_ty), q, t))
+      DVPair(g_t, dapp_dim(sq_q, t))
+    })
+  })
+  let retr = DVLam(sm => {
+    let m = dsnd_typed(sm, b_ty, cocone_fam)
+    let m0 = dapp_typed(m, a0, a_ty)
+    DVPathLam(t => {
+      let m_t = DVLam(a => {
+        let ma = dapp_typed(m, a, a_ty)
+        DVPathLam(i => l_fill(m0, ma, i, DNeg(t)))
+      })
+      DVPair(dapp_dim(m0, DNeg(t)), m_t)
+    })
+  })
+  equiv_make_value(
+    cocone_ty,
+    rhs_ty,
+    DVLam(sm => fwd_one(sm)),
+    DVLam(gq => bwd_one(gq)),
+    sect,
+    retr,
+  )
+}
+
+///|
+/// Full bidirectional pointed Loop–Suspension Adjunction Equivalence
+///   `Equiv (Map*(SuspS A, north; B, b0)) (Map*(A, a0; Ω(B, b0), refl_{b0}))`
+/// valid uniformly over arbitrary pointed types `(A, a0)` and `(B, b0)`.
+pub fn loop_suspension_adjunction_equiv_value(
+  a_ty : DValue,
+  a0 : DValue,
+  b_ty : DValue,
+  b0 : DValue,
+  dlevel : Int32,
+  level~ : Int32 = 0,
+) -> DValue {
+  let susp_ty = susp_type_value(a_ty, level~)
+  let north = susp_north_value(a_ty, level~)
+  let lhs_ty = based_map_type_value(susp_ty, b_ty, north, b0)
+  let mid_ty = DVSigma(b_ty, s => DVPi(a_ty, _ => DVPathTy(_ => b_ty, s, b0)))
+  let loop_b_ty = DVPathTy(_ => b_ty, b0, b0)
+  let rhs_ty = based_map_type_value(a_ty, loop_b_ty, a0, dpath_refl_value(b0))
+  let e1 = susp_based_to_cocone_equiv_value(a_ty, b_ty, b0, dlevel, level~)
+  let e2 = cocone_to_based_loop_equiv_value(a_ty, a0, b_ty, b0, dlevel)
+  equiv_compose_value(e1, e2, lhs_ty, mid_ty, rhs_ty, dlevel + 6)
+}
+
+// ---------------------------------------------------------------------------
+// Internal 0-Connectedness & General Freudenthal Suspension Theorem (`n = 0`)
+// ---------------------------------------------------------------------------
+
+///|
+/// Internal 0-connectedness of `S^1`: `(x : S^1) -> ‖Path S^1 base x‖₋₁`.
+pub fn circle_0_connected_value(x : DValue, dlevel : Int32) -> DValue {
+  let c_spec = circle_schema()
+  let c_ty = circle_hit_type_value()
+  let base = circle_hit_base_value()
+  let mot = (pt : DValue) => {
+    prop_trunc_type_value(DVPathTy(_ => c_ty, base, pt))
+  }
+  let base_inc = prop_trunc_point_value(
+    DVPathTy(_ => c_ty, base, base),
+    dpath_refl_value(base),
+  )
+  let loop_line = memo_dim_line(i => {
+    mot(hit_cell_value(c_spec, 1, [], [], [i]))
+  })
+  let tr = transport_value(loop_line, base_inc, dlevel)
+  let sq_eq = prop_trunc_squash_path_value(
+    DVPathTy(_ => c_ty, base, base),
+    tr,
+    base_inc,
+  )
+  let loop_case = dpathp_of_transport_eq_value(
+    loop_line,
+    base_inc,
+    base_inc,
+    sq_eq,
+    dlevel,
+  )
+  eval_hit_elim(
+    c_spec,
+    (_, pt) => mot(pt),
+    [base_inc, loop_case],
+    [],
+    [],
+    x,
+    dlevel,
+  )
+}
+
+///|
+/// Every suspension `SuspS(A)` of a pointed (inhabited) type `(A, a0)` is
+/// internally 0-connected: `(z : SuspS A) -> ‖Path (SuspS A) north z‖₋₁`.
+pub fn susp_0_connected_of_pointed_value(
+  a_ty : DValue,
+  a0 : DValue,
+  z : DValue,
+  dlevel : Int32,
+  level~ : Int32 = 0,
+) -> DValue {
+  let spec = susp_type_schema_at(level)
+  let susp_ty = susp_type_value(a_ty, level~)
+  let north = susp_north_value(a_ty, level~)
+  let south = susp_south_value(a_ty, level~)
+  let mot = (pt : DValue) => {
+    prop_trunc_type_value(DVPathTy(_ => susp_ty, north, pt))
+  }
+  let north_inc = prop_trunc_point_value(
+    DVPathTy(_ => susp_ty, north, north),
+    dpath_refl_value(north),
+  )
+  let south_inc = prop_trunc_point_value(
+    DVPathTy(_ => susp_ty, north, south),
+    susp_merid_path_value(a_ty, a0, level~),
+  )
+  let merid_case = DVLam(a => {
+    let m_line = memo_dim_line(i => {
+      mot(hit_cell_value(spec, 2, [a_ty], [a], [i]))
+    })
+    let tr = transport_value(m_line, north_inc, dlevel)
+    let sq_eq = prop_trunc_squash_path_value(
+      DVPathTy(_ => susp_ty, north, south),
+      tr,
+      south_inc,
+    )
+    dpathp_of_transport_eq_value(m_line, north_inc, south_inc, sq_eq, dlevel)
+  })
+  eval_hit_elim(
+    spec,
+    (_, pt) => mot(pt),
+    [north_inc, south_inc, merid_case],
+    [a_ty],
+    [],
+    z,
+    dlevel,
+  )
+}
+
+///|
+/// **General Freudenthal Suspension Theorem at Connectivity `k = 0`**:
+/// For ANY pointed 0-connected type `(A, a0, conn : (a : A) -> ‖Path A a0 a‖₋₁)`,
+/// its suspension `SuspS(A)` is 1-connected — i.e., its 0-truncated fundamental
+/// group is bidirectionally equivalent to `Unit`:
+///   `Equiv ‖Ω¹(SuspS A, north)‖₀ Unit`.
+/// Proved internally by dependent suspension encode-decode into
+/// `z ↦ ‖Path (SuspS A) north z‖₀` (using `conn(a)` + `prop_trunc_elim_prop_value`
+/// + `set_trunc_is_set_value` on meridians) followed by `set_trunc_elim_set_value`
+/// and singleton contraction `J`.
+pub fn freudenthal_pi1_susp_connected_equiv_unit_value(
+  a_ty : DValue,
+  a0 : DValue,
+  conn : (DValue) -> DValue,
+  dlevel : Int32,
+  level~ : Int32 = 0,
+) -> DValue {
+  let spec = susp_type_schema_at(level)
+  let susp_ty = susp_type_value(a_ty, level~)
+  let north = susp_north_value(a_ty, level~)
+  let south = susp_south_value(a_ty, level~)
+  let ns_ty = DVPathTy(_ => susp_ty, north, south)
+  let st_ns_ty = set_trunc_type_value(ns_ty)
+  let loop_ty = DVPathTy(_ => susp_ty, north, north)
+  let st_loop_ty = set_trunc_type_value(loop_ty)
+
+  let mot_center = (pt : DValue) => {
+    set_trunc_type_value(DVPathTy(_ => susp_ty, north, pt))
+  }
+  let c_north = set_trunc_point_value(loop_ty, dpath_refl_value(north))
+  let c_south = set_trunc_point_value(
+    ns_ty,
+    susp_merid_path_value(a_ty, a0, level~),
+  )
+  let merid_center = DVLam(a => {
+    let ma_pt = set_trunc_point_value(
+      ns_ty,
+      susp_merid_path_value(a_ty, a, level~),
+    )
+    let p_prefix : DValue = DVPathLam(i => {
+      let pt_i = hit_cell_value(spec, 2, [a_ty], [a], [i])
+      set_trunc_point_value(
+        DVPathTy(_ => susp_ty, north, pt_i),
+        DVPathLam(j => {
+          hit_cell_value(spec, 2, [a_ty], [a], [dim_simplify(DAnd(i, j))])
+        }),
+      )
+    })
+    let eq_goal = DVPathTy(_ => st_ns_ty, ma_pt, c_south)
+    let ma_eq_m0 = prop_trunc_elim_prop_value(
+      DVPathTy(_ => a_ty, a0, a),
+      _ => eq_goal,
+      (_z, u, v) => {
+        set_trunc_is_set_value(ns_ty, ma_pt, c_south, u, v, dlevel + 2)
+      },
+      pa => {
+        DVPathLam(k => {
+          set_trunc_point_value(
+            ns_ty,
+            susp_merid_path_value(a_ty, dapp_dim(pa, DNeg(k)), level~),
+          )
+        })
+      },
+      conn(a),
+      dlevel + 2,
+    )
+    let m_line = memo_dim_line(i => {
+      mot_center(hit_cell_value(spec, 2, [a_ty], [a], [i]))
+    })
+    let tr_eq = dpath_trans_value(
+      st_ns_ty,
+      dpath_of_pathp_value(m_line, p_prefix, dlevel + 2),
+      ma_eq_m0,
+      dlevel + 4,
+    )
+    dpathp_of_transport_eq_value(m_line, c_north, c_south, tr_eq, dlevel + 4)
+  })
+
+  let center_at = (z : DValue) => {
+    eval_hit_elim(
+      spec,
+      (_, pt) => mot_center(pt),
+      [c_north, c_south, merid_center],
+      [a_ty],
+      [],
+      z,
+      dlevel + 4,
+    )
+  }
+
+  let retr_at_north = (w : DValue) => {
+    let mot_w = (u : DValue) => DVPathTy(_ => st_loop_ty, c_north, u)
+    set_trunc_elim_prop_value(
+      loop_ty,
+      mot_w,
+      (u, q1, q2, dl) => {
+        set_trunc_is_set_value(loop_ty, c_north, u, q1, q2, dl)
+      },
+      q => {
+        dj_singleton_elim_value(
+          (z1, q1) => {
+            let p_ty = DVPathTy(_ => susp_ty, north, z1)
+            let st_z1 = set_trunc_type_value(p_ty)
+            DVPathTy(
+              _ => st_z1,
+              center_at(z1),
+              set_trunc_point_value(p_ty, q1),
+            )
+          },
+          dpath_refl_value(c_north),
+          q,
+          dlevel + 8,
+        )
+      },
+      w,
+      dlevel + 12,
+    )
+  }
+
+  equiv_make_value(
+    st_loop_ty,
+    DVUnitTy,
+    DVLam(_ => DVUnit),
+    DVLam(_ => c_north),
+    DVLam(_ => dpath_refl_value(DVUnit)),
+    DVLam(w => retr_at_north(w)),
+  )
+}
+
+///|
+/// Instantiation 1 of General Freudenthal (`k = 0`) at `A = S^1`:
+///   `Equiv ‖Ω¹(SuspS S^1, north)‖₀ Unit` (`π₁(S²) ≃ 1`).
+pub fn pi1_susp_circle_equiv_unit_value(dlevel : Int32) -> DValue {
+  freudenthal_pi1_susp_connected_equiv_unit_value(
+    circle_hit_type_value(),
+    circle_hit_base_value(),
+    x => circle_0_connected_value(x, dlevel),
+    dlevel + 2,
+  )
+}
+
+///|
+/// Instantiation 2 of General Freudenthal (`k = 0`) at `A = SuspS(S^1)` (`S^2`):
+///   `Equiv ‖Ω¹(SuspS (SuspS S^1), north)‖₀ Unit` (`π₁(S³) ≃ 1`).
+pub fn pi1_susp2_circle_equiv_unit_value(dlevel : Int32) -> DValue {
+  let c_ty = circle_hit_type_value()
+  let base = circle_hit_base_value()
+  let s2_ty = susp_type_value(c_ty)
+  let s2_north = susp_north_value(c_ty)
+  freudenthal_pi1_susp_connected_equiv_unit_value(
+    s2_ty,
+    s2_north,
+    z => susp_0_connected_of_pointed_value(c_ty, base, z, dlevel),
+    dlevel + 2,
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Wedge Connectivity Lemma (`m = n = 0`) on `S^1 ∨ S^1 -> S^1 × S^1` &
+// Freudenthal Open-Loop Suspension Homomorphism
+// ---------------------------------------------------------------------------
+
+///|
+/// Wedge Connectivity Extension Lemma (HoTT Lemma 8.6.2 at `m = n = 0`) on
+/// `S^1 × S^1`: extends any dependent h-Set family `P : S^1 -> S^1 -> Type_0`
+/// from the wedge `S^1 ∨ S^1` (`f_left : (x : S^1) -> P(x, base)`,
+/// `f_right : (y : S^1) -> P(base, y)`, `glue_pt : Path (P(base, base)) (f_left base) (f_right base)`)
+/// to all `(x, y : S^1) -> P(x, y)`.
+/// On the right axis `x = base`, `ext(base, y)` reduces **definitionally** to
+/// `f_right(y)`; on the left axis `y = base`, `wedge_connectivity_circle_left_coh_value`
+/// witnesses `Path (P(x, base)) (ext(x, base)) (f_left x)`.
+pub fn wedge_connectivity_circle_set_ext_value(
+  p_fam : (DValue, DValue) -> DValue,
+  is_set_p : (DValue, DValue, DValue, DValue, DValue, DValue) -> DValue,
+  f_left : (DValue) -> DValue,
+  f_right : (DValue) -> DValue,
+  glue_pt : DValue,
+  x : DValue,
+  y : DValue,
+  dlevel : Int32,
+) -> DValue {
+  let c_spec = circle_schema()
+  match force_value(x) {
+    DVHitCell(s, 0, _, _, _) if s == c_spec => return f_right(y)
+    _ => ()
+  }
+  let c_ty = circle_hit_type_value()
+  let base = circle_hit_base_value()
+  let p00 = p_fam(base, base)
+
+  let mot_x = (xv : DValue) => DVPi(c_ty, yv => p_fam(xv, yv))
+  let base_fn = DVLam(yv => f_right(yv))
+  let loop_x_line = memo_dim_line(i => {
+    mot_x(hit_cell_value(c_spec, 1, [], [], [i]))
+  })
+  let tr_base_fn = transport_value(loop_x_line, base_fn, dlevel + 2)
+
+  // At `y = base`, reconcile `(tr_base_fn)(base)` with `f_right(base)` via
+  // `f_left(loop i)` and `glue_pt : f_left(base) = f_right(base)`.
+  let line_x_at_base = memo_dim_line(i => {
+    p_fam(hit_cell_value(c_spec, 1, [], [], [i]), base)
+  })
+  let fl_loop : DValue = DVPathLam(i => {
+    f_left(hit_cell_value(c_spec, 1, [], [], [i]))
+  })
+  let fl_tr_eq = dpath_of_pathp_value(line_x_at_base, fl_loop, dlevel + 4)
+  // Note `(tr_base_fn)(base)` transports `f_right(coe_{1->0} base)` along `line_x_at_base`:
+  let coe_base = dpath_cong_value(
+    DVLam(yv => f_right(yv)),
+    c_ty,
+    transport_pathp_value(_ => c_ty, base, dlevel + 4),
+  )
+  let tr_glue = dpath_cong_value(
+    DVLam(v => transport_value(line_x_at_base, v, dlevel + 12)),
+    p00,
+    dpath_trans_value(p00, dpath_sym_value(coe_base), dpath_sym_value(glue_pt), dlevel + 8),
+  )
+  let base_y_eq = dpath_trans_value(
+    p00,
+    tr_glue,
+    dpath_trans_value(p00, fl_tr_eq, glue_pt, dlevel + 10),
+    dlevel + 16,
+  )
+
+  let mot_y = (yv : DValue) => {
+    DVPathTy(_ => p_fam(base, yv), dapp_typed(tr_base_fn, yv, c_ty), f_right(yv))
+  }
+  let loop_y_line = memo_dim_line(j => {
+    mot_y(hit_cell_value(c_spec, 1, [], [], [j]))
+  })
+  let tr_y = transport_value(loop_y_line, base_y_eq, dlevel + 20)
+  let set_eq_y = is_set_p(
+    base,
+    base,
+    dapp_typed(tr_base_fn, base, c_ty),
+    f_right(base),
+    tr_y,
+    base_y_eq,
+  )
+  let loop_y_case = dpathp_of_transport_eq_value(
+    loop_y_line,
+    base_y_eq,
+    base_y_eq,
+    set_eq_y,
+    dlevel + 28,
+  )
+  let pw_y = DVLam(yv => {
+    eval_hit_elim(
+      c_spec,
+      (_, pt) => mot_y(pt),
+      [base_y_eq, loop_y_case],
+      [],
+      [],
+      yv,
+      dlevel + 32,
+    )
+  })
+  let loop_x_case = dpathp_of_transport_eq_value(
+    loop_x_line,
+    base_fn,
+    base_fn,
+    dpath_funext_value(pw_y, c_ty),
+    dlevel + 36,
+  )
+  let fn_at_x = eval_hit_elim(
+    c_spec,
+    (_, pt) => mot_x(pt),
+    [base_fn, loop_x_case],
+    [],
+    [],
+    x,
+    dlevel + 40,
+  )
+  dapp_typed(fn_at_x, y, c_ty)
+}
+
+///|
+/// Right-axis computation path `Path (P(base, y)) (ext(base, y)) (f_right y)`
+/// (definitionally `refl` for all open `y : S^1`).
+pub fn wedge_connectivity_circle_right_coh_value(
+  f_right : (DValue) -> DValue,
+  y : DValue,
+) -> DValue {
+  dpath_refl_value(f_right(y))
+}
+
+///|
+/// Left-axis computation path `(x : S^1) -> Path (P(x, base)) (ext(x, base)) (f_left x)`.
+pub fn wedge_connectivity_circle_left_coh_value(
+  p_fam : (DValue, DValue) -> DValue,
+  is_set_p : (DValue, DValue, DValue, DValue, DValue, DValue) -> DValue,
+  f_left : (DValue) -> DValue,
+  f_right : (DValue) -> DValue,
+  glue_pt : DValue,
+  x : DValue,
+  dlevel : Int32,
+) -> DValue {
+  let c_spec = circle_schema()
+  let base = circle_hit_base_value()
+  let ext_x = (xv : DValue) => {
+    wedge_connectivity_circle_set_ext_value(
+      p_fam, is_set_p, f_left, f_right, glue_pt, xv, base, dlevel,
+    )
+  }
+  let mot = (xv : DValue) => DVPathTy(_ => p_fam(xv, base), ext_x(xv), f_left(xv))
+  let base_case = dpath_sym_value(glue_pt)
+  let loop_line = memo_dim_line(i => {
+    mot(hit_cell_value(c_spec, 1, [], [], [i]))
+  })
+  let tr_base = transport_value(loop_line, base_case, dlevel + 46)
+  let set_eq = is_set_p(
+    base,
+    base,
+    f_right(base),
+    f_left(base),
+    tr_base,
+    base_case,
+  )
+  let loop_case = dpathp_of_transport_eq_value(
+    loop_line,
+    base_case,
+    base_case,
+    set_eq,
+    dlevel + 54,
+  )
+  eval_hit_elim(
+    c_spec,
+    (_, pt) => mot(pt),
+    [base_case, loop_case],
+    [],
+    [],
+    x,
+    dlevel + 58,
+  )
+}
+
+///|
+/// General Freudenthal 1-loop suspension map
+///   `σ₁ : Ω¹(A, a0) -> Ω²(SuspS A, north)`
+/// defined uniformly on arbitrary (closed or open/neutral) 1-loops `p : Path A a0 a0`:
+/// caps the meridian loop square `t ↦ merid(p t) ⬝ sym(merid a0)` on `t = 0`
+/// and `t = 1` with `dpath_trans_sym_cancel_value` (using CCHM reflection
+/// `p(0) ≡ a0` and `p(1) ≡ a0`).
+pub fn freudenthal_susp_loop1_to_loop2_value(
+  a_ty : DValue,
+  a0 : DValue,
+  p : DValue,
+  dlevel : Int32,
+  level~ : Int32 = 0,
+) -> DValue {
+  let susp_ty = susp_type_value(a_ty, level~)
+  let north = susp_north_value(a_ty, level~)
+  let loop1_ty = DVPathTy(_ => susp_ty, north, north)
+  let m0 = susp_merid_path_value(a_ty, a0, level~)
+  let canc = dpath_trans_sym_cancel_value(susp_ty, m0, north, dlevel)
+  DVPathLam(t => {
+    let pt = dapp_dim(p, t)
+    let unit_t = dpath_trans_value(
+      susp_ty,
+      susp_merid_path_value(a_ty, pt, level~),
+      dpath_sym_value(m0),
+      dlevel,
+    )
+    let sys = dsystem_of([
+      tube_branch(face_simplify(FEq0(t)), j => dapp_dim(canc, j)),
+      tube_branch(face_simplify(FEq1(t)), j => dapp_dim(canc, j)),
+    ])
+    hcomp_value(loop1_ty, sys, unit_t, dlevel + 4)
+  })
+}
+
+///|
+/// Internal Freudenthal homomorphism identity coherence `Path (Ω²(SuspS A, north))
+/// (freudenthal_susp_loop1_to_loop2_value A a0 (refl a0)) (refl (refl north))`:
+/// slides the constant cap `unit(a0)` along `canc(j ∨ s)` so all boundaries stay
+/// fixed at `refl_north`.
+pub fn freudenthal_susp_loop1_preserves_refl_value(
+  a_ty : DValue,
+  a0 : DValue,
+  dlevel : Int32,
+  level~ : Int32 = 0,
+) -> DValue {
+  let susp_ty = susp_type_value(a_ty, level~)
+  let north = susp_north_value(a_ty, level~)
+  let loop1_ty = DVPathTy(_ => susp_ty, north, north)
+  let m0 = susp_merid_path_value(a_ty, a0, level~)
+  let canc = dpath_trans_sym_cancel_value(susp_ty, m0, north, dlevel)
+  DVPathLam(s => {
+    DVPathLam(t => {
+      let sys = dsystem_of([
+        tube_branch(face_simplify(FEq0(t)), j => {
+          dapp_dim(canc, dim_simplify(DOr(j, s)))
+        }),
+        tube_branch(face_simplify(FEq1(t)), j => {
+          dapp_dim(canc, dim_simplify(DOr(j, s)))
+        }),
+        tube_branch(face_simplify(FEq1(s)), _ => dpath_refl_value(north)),
+      ])
+      hcomp_value(loop1_ty, sys, dapp_dim(canc, s), dlevel + 4)
+    })
+  })
+}
+
+

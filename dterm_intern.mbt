@@ -130,6 +130,17 @@ pub fn dterm_rebuild(t : DTerm, cs : Array[DTerm]) -> DTerm {
     DUa(_) => DUa(cs[0])
     DGlueEquiv(_, branches) =>
       DGlueEquiv(cs[0], dterm_intern_zip_equiv_branches(branches, cs))
+    DUnglueEquiv(_, _, branches) => {
+      let out : Array[DEquivBranch] = []
+      for i in 0..<branches.length() {
+        out.push({
+          face: branches[i].face,
+          ty: cs[2 + 2 * i],
+          equiv: cs[3 + 2 * i],
+        })
+      }
+      DUnglueEquiv(cs[0], cs[1], out)
+    }
     DDecode(spec, params, _, _) =>
       DDecode(
         spec,

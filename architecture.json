@@ -1,6 +1,88 @@
 {
-  "version": 1,
+  "version": 2,
   "module": "vv0101v01/cubical-hermitian",
+  "federations": [
+    {
+      "id": "cubical",
+      "packages": [
+        "algebra",
+        "root",
+        "cmd-main"
+      ],
+      "allowed_external_packages": [],
+      "summary_en": "Federation 1 — Cubical dependent type theory, computational univalence, ROBDD face lattices, Hermitian spectral projectors, and exact algebraic towers.",
+      "summary_zh": "第一聯邦 — 立方依賴型別論、計算性單值性、ROBDD 面格、Hermitian 譜投影與精確代數塔。"
+    },
+    {
+      "id": "symlib",
+      "packages": [
+        "symlib",
+        "cmd-symdemo",
+        "cmd-symbench"
+      ],
+      "allowed_external_packages": [],
+      "summary_en": "Federation 2 — Finite symmetry groups, colored canonical labeling, Burnside marks, G-sets, finite categories, and Kan extensions.",
+      "summary_zh": "第二聯邦 — 有限對稱群、著色規範標號、Burnside 標記、G-集、有限範疇與 Kan 擴張。"
+    },
+    {
+      "id": "semiring",
+      "packages": [
+        "semiring-algebra",
+        "semiring-matrix",
+        "semiring-monoid",
+        "semiring-graph",
+        "semiring-spline",
+        "semiring-trop",
+        "semiring-nf",
+        "semiring-cat",
+        "semiring-app",
+        "semiring-bp",
+        "semiring-ratelimit",
+        "semiring-io",
+        "semiring-sim",
+        "semiring-par",
+        "semiring-par-host",
+        "semiring-examples",
+        "cmd-semiringreport"
+      ],
+      "allowed_external_packages": [],
+      "summary_en": "Federation 3 — Idempotent/star/tropical semiring algebra, blocked/Lehmann matrix closures, weighted CSR graphs, and Brzozowski DFA normal forms.",
+      "summary_zh": "第三聯邦 — 冪等／星閉／熱帶半環代數、分塊／Lehmann 矩陣閉包、加權 CSR 圖與 Brzozowski DFA 正規形。"
+    },
+    {
+      "id": "topos",
+      "packages": [
+        "topos"
+      ],
+      "allowed_external_packages": [
+        "cubical:algebra",
+        "symlib:symlib"
+      ],
+      "summary_en": "Federation 4 — Grothendieck and elementary toposes, subtopos Lawvere–Tierney nuclei, Kripke–Joyal forcing, groupoid stacks, and nerve cohomology.",
+      "summary_zh": "第四聯邦 — Grothendieck 與初等 Topos、子 Topos Lawvere–Tierney 核、Kripke–Joyal 力迫、群胚疊與神經上同調。"
+    },
+    {
+      "id": "scheme",
+      "packages": [
+        "scheme"
+      ],
+      "allowed_external_packages": [
+        "cubical:algebra"
+      ],
+      "summary_en": "Federation 5 — Multivariate Gröbner ideals, Zariski/glued schemes, Kähler differentials & Eisenbud Fitting smoothness, Serre duality, blow-ups, and Chow motives.",
+      "summary_zh": "第五聯邦 — 多變量 Gröbner 理想、Zariski 黏合概形、Kähler 微分與 Eisenbud Fitting 平滑性、Serre 對偶、吹脹與 Chow 動機。"
+    }
+  ],
+  "unification": {
+    "id": "unification",
+    "packages": [
+      "bridge",
+      "cmd-showcase"
+    ],
+    "observer": true,
+    "summary_en": "Grand Unification Apex — Complete K_5 pairwise cross-federation bridges, Five-Federation Pentagon theorem, and 18-entry Geometry–Logic Atlas.",
+    "summary_zh": "大一統頂層 — K_5 全配對跨聯邦橋、五聯邦五角大一統定理與 18 項幾何—邏輯精細圖譜。"
+  },
   "packages": [
     {
       "id": "algebra",
@@ -236,6 +318,29 @@
       "summary_zh": "可編譯的半環教學範例。"
     },
     {
+      "id": "topos",
+      "path": "topos",
+      "moon": "vv0101v01/cubical-hermitian/topos",
+      "layer": 2,
+      "depends_on": [
+        "algebra",
+        "symlib"
+      ],
+      "summary_en": "Grothendieck and elementary toposes: sites, sieves, sheafification, Cartesian closedness, subobject classifiers, Lawvere–Tierney & open/closed subtopos nuclei, essential geometric morphisms (Lan ⊣ u* ⊣ Ran), dense Comparison Lemma, Diaconescu points & internal G-torsors, local/connected/atomic/coherent invariants, geometric logic & classifying toposes, groupoid stacks, sheaf cohomology, Alexander–Whitney cup-product rings and simplicial nerve homotopy types.",
+      "summary_zh": "Grothendieck 與一般拓撲斯：景、篩、層化、笛卡兒閉性、子物件分類子、Lawvere–Tierney 與開閉子拓撲斯核、本徵幾何態射（Lan⊣u*⊣Ran）、稠密比較引理、Diaconescu 點與內蘊 G-主叢、局部／連通／原子／緊緻相干性質、幾何邏輯與分類 Topos、廣群棧、層上同調、Alexander–Whitney 杯積環與單純神經同倫類型。"
+    },
+    {
+      "id": "scheme",
+      "path": "scheme",
+      "moon": "vv0101v01/cubical-hermitian/scheme",
+      "layer": 2,
+      "depends_on": [
+        "algebra"
+      ],
+      "summary_en": "Algebraic schemes and motives: Buchberger reduced Gröbner bases, elimination/saturation/radical ideals, Zariski partition-of-unity sheafification, reduced schemes, Kähler differentials Ω^1_{B/A}, Fitting/Jacobian ideals, Tjurina numbers & étale criteria, glued schemes and morphisms, affine morphisms, diagonal separatedness, DVR Laurent properness, Macaulay–Taylor Hilbert polynomials, Rees blow-up desingularization, rational equivalence & Bézout, Serre dualizing complexes, functor of points, F_{p^2} Frobenius descent and Chow correspondences.",
+      "summary_zh": "代數概形與動機：Buchberger 約化 Gröbner 基、消元／飽和／根理想、Zariski 單位分解層化、既約概形、Kähler 微分模 Ω^1_{B/A}、Fitting／Jacobi 理想、Tjurina 數與平展判準、黏合概形與態射、仿射態射、對角分離性、DVR Laurent 真概形判定、Macaulay–Taylor Hilbert 多項式、Rees 爆炸奇點解消、有理等價與 Bézout、Serre 對偶複形、點函子法、F_{p^2} Frobenius 下降與 Chow 對應。"
+    },
+    {
       "id": "bridge",
       "path": "bridge",
       "moon": "vv0101v01/cubical-hermitian/bridge",
@@ -248,10 +353,13 @@
         "semiring-graph",
         "semiring-matrix",
         "semiring-trop",
-        "semiring-cat"
+        "semiring-cat",
+        "semiring-nf",
+        "topos",
+        "scheme"
       ],
-      "summary_en": "One-way cross-pillar bridges: permutation representations and wirings, weighted graph symmetry, tropical assignments, free categories, Face semirings, polynomial tropicalization and unified certificates.",
-      "summary_zh": "單向跨支柱橋接：置換表示與 wiring、加權圖對稱、熱帶指派、自由範疇、Face 半環、多項式熱帶化與統一證書。"
+      "summary_en": "Six-pillar grand unification: logical theory translations across cubical/topos/scheme/semiring, fine-grained geometry-logic correspondence atlas, permutation/graph/tropical/category bridges, and unified certificates.",
+      "summary_zh": "六支柱大一統橋接：跨立方類型論／Topos／概形／半環之邏輯理論轉譯、幾何與邏輯精細圖譜、置換／圖／熱帶／範疇橋與統一證書。"
     },
     {
       "id": "cmd-showcase",
@@ -356,7 +464,8 @@
         "algebra/poly_cube.mbt",
         "algebra/qpoly_certificate.mbt",
         "algebra/tower_fields.mbt",
-        "algebra/multiquad_tower.mbt"
+        "algebra/multiquad_tower.mbt",
+        "algebra/phase14_algebra.mbt"
       ],
       "depends_on": [],
       "summary_en": "A physically separate exact-algebra MoonBit package: BigInt rationals, complete Q-factorization, real/complex root isolation, splitting fields, radical denesting, multiquadratic tower fields and arbitrary-precision Jacobi intervals.",
@@ -527,6 +636,10 @@
         "symlib/*_test.mbt",
         "semiring/**/*_wbtest.mbt",
         "semiring/**/*_test.mbt",
+        "topos/*_wbtest.mbt",
+        "topos/*_test.mbt",
+        "scheme/*_wbtest.mbt",
+        "scheme/*_test.mbt",
         "bridge/*_wbtest.mbt",
         "bridge/*_test.mbt"
       ],
@@ -799,6 +912,37 @@
       "observer": true
     },
     {
+      "id": "topos-core",
+      "package": "topos",
+      "layer": 3,
+      "files": [
+        "topos/*.mbt",
+        "!topos/*_test.mbt",
+        "!topos/*_wbtest.mbt"
+      ],
+      "depends_on": [
+        "exact-algebra",
+        "symlib-core"
+      ],
+      "summary_en": "Grothendieck and elementary topos engine: sites, sheaves, CCC, subobject classifiers, open/closed subtopos nuclei, essential geometric morphisms (Lan ⊣ u* ⊣ Ran), dense Comparison Lemma, internal G-torsors, local/connected/atomic/coherent invariants, geometric logic & classifying toposes, stacks, sheaf cohomology, cup-product rings and homotopy types.",
+      "summary_zh": "Grothendieck 與一般拓撲斯核心引擎：景、層、笛卡兒閉性、子物件分類子、開閉子拓撲斯核、本徵幾何態射（Lan⊣u*⊣Ran）、稠密比較引理、內蘊 G-主叢、局部／連通／原子／相干性質、幾何邏輯與分類 Topos、棧、層上同調、杯積環與同倫類型。"
+    },
+    {
+      "id": "scheme-core",
+      "package": "scheme",
+      "layer": 3,
+      "files": [
+        "scheme/*.mbt",
+        "!scheme/*_test.mbt",
+        "!scheme/*_wbtest.mbt"
+      ],
+      "depends_on": [
+        "exact-algebra"
+      ],
+      "summary_en": "Algebraic scheme and motive engine: reduced Gröbner bases, Zariski sheafification, reduced schemes, Kähler differentials & étale criteria, Tjurina numbers, glued schemes & morphisms, affine morphisms, separatedness & DVR properness, Hilbert polynomials, blow-up desingularization, rational equivalence, dualizing complexes, functor of points, F_{p^2} Frobenius descent and Chow correspondences.",
+      "summary_zh": "代數概形與動機核心引擎：約化 Gröbner 基、Zariski 層化、既約概形、Kähler 微分與平展判準、Tjurina 數、黏合概形與態射、仿射態射、分離與 DVR 真概形、Hilbert 多項式、爆炸奇點解消、有理等價、對偶複形、點函子法、F_{p^2} Frobenius 下降與 Chow 對應。"
+    },
+    {
       "id": "bridge",
       "package": "bridge",
       "layer": 10,
@@ -811,8 +955,8 @@
         "*"
       ],
       "observer": true,
-      "summary_en": "Integration-only bridge constructions. No pillar may depend back on this component.",
-      "summary_zh": "只作整合的橋接構造；三支柱不得反向依賴此元件。"
+      "summary_en": "Five-federation grand unification, K_5 cross-federation bridges, logical theory translation, and 18-entry geometry-logic correspondence atlas. No federation may depend back on this component.",
+      "summary_zh": "五聯邦大一統、K_5 全配對跨聯邦橋、邏輯理論轉譯與 18 項幾何—邏輯精細圖譜；下層聯邦不得反向依賴此元件。"
     },
     {
       "id": "showcase-app",
@@ -825,8 +969,8 @@
         "*"
       ],
       "observer": true,
-      "summary_en": "Three-pillar executable showcase.",
-      "summary_zh": "三支柱展示執行入口。"
+      "summary_en": "Five-federation grand unification executable showcase.",
+      "summary_zh": "五聯邦大一統展示執行入口。"
     },
     {
       "id": "semiring-par-host",

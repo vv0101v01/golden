@@ -1772,3 +1772,739 @@ pub fn bdd_dag_of_face_optimal_dp(
     tried,
   }
 }
+
+///|
+pub struct BddPrunedOptimalBuild {
+  built : BddDagFace
+  order : Array[Int32]
+  size : Int32
+  active_vars : Int32
+  incumbent_size : Int32
+  tried : Int32
+  pruned_subsets : Int32
+  exact : Bool
+}
+
+///|
+fn bdd_popcount32(mask0 : Int32) -> Int32 {
+  let mut mask = mask0
+  let mut count = 0
+  while mask != 0 {
+    mask = mask & (mask - 1)
+    count = count + 1
+  }
+  count
+}
+
+///|
+fn bdd_remap_dim(d : Dim, var_map : Array[Int32]) -> Dim {
+  match d {
+    DZero => DZero
+    DOne => DOne
+    DVar(v) =>
+      if v >= 0 && v < var_map.length() && var_map[v] >= 0 {
+        DVar(var_map[v])
+      } else {
+        DZero
+      }
+    DNeg(a) => DNeg(bdd_remap_dim(a, var_map))
+    DAnd(a, b) => DAnd(bdd_remap_dim(a, var_map), bdd_remap_dim(b, var_map))
+    DOr(a, b) => DOr(bdd_remap_dim(a, var_map), bdd_remap_dim(b, var_map))
+  }
+}
+
+///|
+fn bdd_remap_face(f : Face, var_map : Array[Int32]) -> Face {
+  match f {
+    FTop => FTop
+    FBot => FBot
+    FEq0(d) => FEq0(bdd_remap_dim(d, var_map))
+    FEq1(d) => FEq1(bdd_remap_dim(d, var_map))
+    FAnd(a, b) => FAnd(bdd_remap_face(a, var_map), bdd_remap_face(b, var_map))
+    FOr(a, b) => FOr(bdd_remap_face(a, var_map), bdd_remap_face(b, var_map))
+  }
+}
+
+///|
+/// Exact optimal ROBDD variable ordering with active-support
+/// projection, incremental cofactor support maintenance, cofactor
+/// symmetry-orbit canonicalization, and admissible branch-and-bound
+/// subset pruning.
+///
+/// 1. Variables outside `face_vars(f)` contribute zero ROBDD nodes at
+///    any rank; projecting `f` onto its active variable support `V`
+///    decides exact optimal orders for arbitrary ambient `n` whenever
+///    `|V| <= exact_max_vars` (`<= 22`).
+/// 2. Seeding an upper bound `U` with `bdd_dag_of_face_optimized` on
+///    `V`, any subset prefix `S` whose partial cost plus the union
+///    of remaining essential cofactor supports reaches `U` cannot
+///    strictly improve `U` and is pruned without expanding transitions.
+/// 3. If unplaced variables `u < v` are functionally symmetric in every
+///    residual cofactor at `S` (`r[u:=0,v:=1] == r[u:=1,v:=0]`), the
+///    transposition `(u v)` preserves residual ROBDD size across every
+///    completion of `S`; canonically requiring `u` to precede `v`
+///    prunes symmetric factorial orbits while preserving exact global
+///    optimality.
+pub fn bdd_dag_of_face_optimal_pruned(
+  f : Face,
+  n : Int32,
+  exact_max_vars~ : Int32 = 20,
+  max_nodes~ : Int32 = 0,
+) -> BddPrunedOptimalBuild {
+  if n < 0 {
+    let opt = bdd_dag_of_face_optimized(f, 0, max_nodes~)
+    return BddPrunedOptimalBuild::{
+      built: opt.built,
+      order: opt.order,
+      size: opt.reachable,
+      active_vars: 0,
+      incumbent_size: opt.reachable,
+      tried: opt.attempts,
+      pruned_subsets: 0,
+      exact: false,
+    }
+  }
+  let raw_vars = face_vars(f)
+  let active : Array[Int32] = []
+  for v in 0..<n {
+    if raw_vars.contains(v) {
+      active.push(v)
+    }
+  }
+  let k = active.length()
+  if k == 0 {
+    let order : Array[Int32] = []
+    for v in 0..<n {
+      order.push(v)
+    }
+    let manager = bdd_manager_with_order(order, n, max_nodes~)
+    let root = bdd_dag_build_face(manager, f)
+    return BddPrunedOptimalBuild::{
+      built: BddDagFace::{ manager, root, ok: !manager.exceeded, },
+      order,
+      size: 0,
+      active_vars: 0,
+      incumbent_size: 0,
+      tried: 0,
+      pruned_subsets: 0,
+      exact: !manager.exceeded,
+    }
+  }
+  let cap = if exact_max_vars > 22 { 22 } else { exact_max_vars }
+  if k > cap {
+    let opt = bdd_dag_of_face_optimized(f, n, max_nodes~)
+    return BddPrunedOptimalBuild::{
+      built: opt.built,
+      order: opt.order,
+      size: opt.reachable,
+      active_vars: k,
+      incumbent_size: opt.reachable,
+      tried: opt.attempts,
+      pruned_subsets: 0,
+      exact: false,
+    }
+  }
+  let var_map : Array[Int32] = []
+  for _v in 0..<n {
+    var_map.push(-1)
+  }
+  for idx in 0..<k {
+    var_map[active[idx]] = idx
+  }
+  let f_proj = bdd_remap_face(f, var_map)
+  let seed = bdd_dag_of_face_optimized(f_proj, k, max_nodes~)
+  let m = bdd_manager_new(k, max_nodes~)
+  let root = bdd_dag_build_face(m, f_proj)
+  if m.exceeded || !seed.built.ok {
+    let opt = bdd_dag_of_face_optimized(f, n, max_nodes~)
+    return BddPrunedOptimalBuild::{
+      built: opt.built,
+      order: opt.order,
+      size: opt.reachable,
+      active_vars: k,
+      incumbent_size: opt.reachable,
+      tried: opt.attempts,
+      pruned_subsets: 0,
+      exact: false,
+    }
+  }
+  let incumbent = seed.reachable
+  let subset_count = 1 << k
+  let no_cost = 1000000000
+  let cost : Array[Int32] = []
+  let parent : Array[Int32] = []
+  let cofactor_sets : Array[Array[Int32]] = []
+  let has_cofactors : Array[Bool] = []
+  for _i in 0..<subset_count {
+    cost.push(no_cost)
+    parent.push(-1)
+    cofactor_sets.push([])
+    has_cofactors.push(false)
+  }
+  cost[0] = 0
+  cofactor_sets[0] = [root]
+  has_cofactors[0] = true
+
+  let support : Array[Int32] = [0, 0]
+  let sync_support = () => {
+    while support.length() < m.nodes.length() {
+      let id = support.length()
+      let node = m.nodes[id]
+      let vbit = 1 << m.order[node.rank]
+      support.push(vbit | support[node.lo] | support[node.hi])
+    }
+  }
+
+  let ensure_cofactors = (mask : Int32) => {
+    let stack : Array[Int32] = []
+    let mut cur = mask
+    while cur > 0 && !has_cofactors[cur] {
+      stack.push(cur)
+      let mut low_v = 0
+      for v in 0..<k {
+        if (cur & (1 << v)) != 0 {
+          low_v = v
+          break
+        }
+      }
+      cur = cur - (1 << low_v)
+    }
+    let mut si = stack.length() - 1
+    while si >= 0 {
+      let target = stack[si]
+      let mut chosen = 0
+      for v in 0..<k {
+        if (target & (1 << v)) != 0 {
+          chosen = v
+          break
+        }
+      }
+      let prev_roots = cofactor_sets[target - (1 << chosen)]
+      let roots : Array[Int32] = []
+      for i in 0..<prev_roots.length() {
+        bdd_dp_push_unique(
+          roots,
+          bdd_dag_restrict(m, prev_roots[i], chosen, false),
+        )
+        bdd_dp_push_unique(
+          roots,
+          bdd_dag_restrict(m, prev_roots[i], chosen, true),
+        )
+      }
+      cofactor_sets[target] = roots
+      has_cofactors[target] = true
+      si = si - 1
+    }
+  }
+
+  let vars_symmetric_at = (roots : Array[Int32], u : Int32, v : Int32) => {
+    let ubit = 1 << u
+    let vbit = 1 << v
+    for i in 0..<roots.length() {
+      let r = roots[i]
+      let sup_r = support[r]
+      if (sup_r & (ubit | vbit)) == 0 {
+        continue
+      }
+      let r_u0_v1 = bdd_dag_restrict(
+        m,
+        bdd_dag_restrict(m, r, u, false),
+        v,
+        true,
+      )
+      let r_u1_v0 = bdd_dag_restrict(
+        m,
+        bdd_dag_restrict(m, r, u, true),
+        v,
+        false,
+      )
+      if r_u0_v1 != r_u1_v0 {
+        return false
+      }
+    }
+    true
+  }
+
+  let full_mask = (1 << k) - 1
+  let mut tried = 0
+  let mut pruned_subsets = 0
+  for mask in 0..<(subset_count - 1) {
+    if cost[mask] >= incumbent {
+      if cost[mask] != no_cost {
+        pruned_subsets = pruned_subsets + 1
+      }
+      continue
+    }
+    ensure_cofactors(mask)
+    if m.exceeded {
+      break
+    }
+    sync_support()
+    let roots = cofactor_sets[mask]
+    let rem_mask = full_mask ^ mask
+    let mut rem_union = 0
+    for i in 0..<roots.length() {
+      rem_union = rem_union | (support[roots[i]] & rem_mask)
+    }
+    if cost[mask] + bdd_popcount32(rem_union) >= incumbent {
+      pruned_subsets = pruned_subsets + 1
+      continue
+    }
+    let unplaced : Array[Int32] = []
+    for variable in 0..<k {
+      if (mask & (1 << variable)) == 0 {
+        unplaced.push(variable)
+      }
+    }
+    for ui in 0..<unplaced.length() {
+      let variable = unplaced[ui]
+      let mut has_sym_pred = false
+      for pi in 0..<ui {
+        let pred = unplaced[pi]
+        if vars_symmetric_at(roots, pred, variable) {
+          has_sym_pred = true
+          break
+        }
+      }
+      sync_support()
+      if m.exceeded {
+        break
+      }
+      if has_sym_pred {
+        continue
+      }
+      let bit = 1 << variable
+      tried = tried + 1
+      let mut active_cnt = 0
+      for i in 0..<roots.length() {
+        if (support[roots[i]] & bit) != 0 {
+          active_cnt = active_cnt + 1
+        }
+      }
+      let next = mask | bit
+      let cand = cost[mask] + active_cnt
+      if cand < incumbent && cand < cost[next] {
+        cost[next] = cand
+        parent[next] = variable
+      }
+    }
+    if m.exceeded {
+      break
+    }
+  }
+  if m.exceeded {
+    let opt = bdd_dag_of_face_optimized(f, n, max_nodes~)
+    return BddPrunedOptimalBuild::{
+      built: opt.built,
+      order: opt.order,
+      size: opt.reachable,
+      active_vars: k,
+      incumbent_size: incumbent,
+      tried,
+      pruned_subsets,
+      exact: false,
+    }
+  }
+  let full = subset_count - 1
+  let proj_order : Array[Int32] = if cost[full] < incumbent {
+    let rev : Array[Int32] = []
+    let mut cursor = full
+    while cursor != 0 {
+      let v = parent[cursor]
+      if v < 0 {
+        break
+      }
+      rev.push(v)
+      cursor = cursor - (1 << v)
+    }
+    let ord : Array[Int32] = []
+    let mut idx = rev.length() - 1
+    while idx >= 0 {
+      ord.push(rev[idx])
+      idx = idx - 1
+    }
+    for v in 0..<k {
+      bdd_dp_push_unique(ord, v)
+    }
+    ord
+  } else {
+    seed.order
+  }
+  let full_order : Array[Int32] = []
+  for i in 0..<proj_order.length() {
+    full_order.push(active[proj_order[i]])
+  }
+  for v in 0..<n {
+    if !raw_vars.contains(v) {
+      full_order.push(v)
+    }
+  }
+  let manager = bdd_manager_with_order(full_order, n, max_nodes~)
+  let built_root = bdd_dag_build_face(manager, f)
+  if manager.exceeded {
+    let opt = bdd_dag_of_face_optimized(f, n, max_nodes~)
+    return BddPrunedOptimalBuild::{
+      built: opt.built,
+      order: opt.order,
+      size: opt.reachable,
+      active_vars: k,
+      incumbent_size: incumbent,
+      tried,
+      pruned_subsets,
+      exact: false,
+    }
+  }
+  let final_size = bdd_dag_reachable_count(manager, built_root)
+  let expected_opt = if cost[full] < incumbent { cost[full] } else { incumbent }
+  BddPrunedOptimalBuild::{
+    built: BddDagFace::{ manager, root: built_root, ok: true, },
+    order: full_order,
+    size: final_size,
+    active_vars: k,
+    incumbent_size: incumbent,
+    tried,
+    pruned_subsets,
+    exact: final_size == expected_opt,
+  }
+}
+
+///|
+pub struct BddDecomposedOptimalBuild {
+  built : BddDagFace
+  order : Array[Int32]
+  size : Int32
+  active_vars : Int32
+  component_count : Int32
+  max_component_vars : Int32
+  tried : Int32
+  pruned_subsets : Int32
+  exact : Bool
+}
+
+///|
+fn bdd_collect_conjuncts(f : Face, out : Array[Face]) -> Unit {
+  match f {
+    FAnd(a, b) => {
+      bdd_collect_conjuncts(a, out)
+      bdd_collect_conjuncts(b, out)
+    }
+    FEq0(DOr(a, b)) => {
+      bdd_collect_conjuncts(FEq0(a), out)
+      bdd_collect_conjuncts(FEq0(b), out)
+    }
+    FEq1(DAnd(a, b)) => {
+      bdd_collect_conjuncts(FEq1(a), out)
+      bdd_collect_conjuncts(FEq1(b), out)
+    }
+    FEq0(DNeg(a)) => bdd_collect_conjuncts(FEq1(a), out)
+    FEq1(DNeg(a)) => bdd_collect_conjuncts(FEq0(a), out)
+    _ => out.push(f)
+  }
+}
+
+///|
+fn bdd_collect_disjuncts(f : Face, out : Array[Face]) -> Unit {
+  match f {
+    FOr(a, b) => {
+      bdd_collect_disjuncts(a, out)
+      bdd_collect_disjuncts(b, out)
+    }
+    FEq0(DAnd(a, b)) => {
+      bdd_collect_disjuncts(FEq0(a), out)
+      bdd_collect_disjuncts(FEq0(b), out)
+    }
+    FEq1(DOr(a, b)) => {
+      bdd_collect_disjuncts(FEq1(a), out)
+      bdd_collect_disjuncts(FEq1(b), out)
+    }
+    FEq0(DNeg(a)) => bdd_collect_disjuncts(FEq1(a), out)
+    FEq1(DNeg(a)) => bdd_collect_disjuncts(FEq0(a), out)
+    _ => out.push(f)
+  }
+}
+
+///|
+fn bdd_uf_find(parent : Array[Int32], x0 : Int32) -> Int32 {
+  let mut x = x0
+  while parent[x] != x {
+    parent[x] = parent[parent[x]]
+    x = parent[x]
+  }
+  x
+}
+
+///|
+fn bdd_uf_union(parent : Array[Int32], a : Int32, b : Int32) -> Unit {
+  let ra = bdd_uf_find(parent, a)
+  let rb = bdd_uf_find(parent, b)
+  if ra != rb {
+    if ra < rb {
+      parent[rb] = ra
+    } else {
+      parent[ra] = rb
+    }
+  }
+}
+
+///|
+/// Exact ROBDD variable ordering via disjoint-support connected-component
+/// decomposition + symmetry-orbit pruned DP (`bdd_dag_of_face_optimal_pruned`),
+/// breaking the monolithic `n <= 18` barrier whenever top-level conjunctive
+/// or disjunctive cubical constraints partition into independent variable
+/// components of size `<= component_max_vars` (certifying `exact = true`
+/// across `n = 24..36+` active variables).
+///
+/// By the Disjoint-Support ROBDD Additivity Theorem, if `f` is a
+/// conjunction (or disjunction) of non-constant subformulas `g_1(V_1), ...,
+/// g_m(V_m)` over pairwise disjoint active variable supports `V_r`, every
+/// global variable permutation `pi` induces orders `pi_r` on `V_r` with
+/// `|ROBDD(f, pi)| >= sum_r |ROBDD(g_r, pi_r)| >= sum_r opt(g_r)`, and
+/// concatenating the exact optimal component orders achieves exact equality.
+pub fn bdd_dag_of_face_optimal_decomposed(
+  f : Face,
+  n : Int32,
+  component_max_vars~ : Int32 = 20,
+  max_nodes~ : Int32 = 0,
+) -> BddDecomposedOptimalBuild {
+  if n <= 0 {
+    let res = bdd_dag_of_face_optimal_pruned(
+      f,
+      if n < 0 { 0 } else { n },
+      exact_max_vars=component_max_vars,
+      max_nodes~,
+    )
+    return BddDecomposedOptimalBuild::{
+      built: res.built,
+      order: res.order,
+      size: res.size,
+      active_vars: res.active_vars,
+      component_count: if res.active_vars > 0 { 1 } else { 0 },
+      max_component_vars: res.active_vars,
+      tried: res.tried,
+      pruned_subsets: res.pruned_subsets,
+      exact: res.exact,
+    }
+  }
+  let raw_vars = face_vars(f)
+  let active : Array[Int32] = []
+  for v in 0..<n {
+    if raw_vars.contains(v) {
+      active.push(v)
+    }
+  }
+  let k = active.length()
+  if k == 0 {
+    let res = bdd_dag_of_face_optimal_pruned(
+      f,
+      n,
+      exact_max_vars=component_max_vars,
+      max_nodes~,
+    )
+    return BddDecomposedOptimalBuild::{
+      built: res.built,
+      order: res.order,
+      size: res.size,
+      active_vars: 0,
+      component_count: 0,
+      max_component_vars: 0,
+      tried: 0,
+      pruned_subsets: 0,
+      exact: res.exact,
+    }
+  }
+  let conjuncts : Array[Face] = []
+  bdd_collect_conjuncts(f, conjuncts)
+  let disjuncts : Array[Face] = []
+  bdd_collect_disjuncts(f, disjuncts)
+  let is_conj = conjuncts.length() >= disjuncts.length()
+  let clauses = if is_conj { conjuncts } else { disjuncts }
+
+  if clauses.length() <= 1 {
+    let single = bdd_dag_of_face_optimal_pruned(
+      f,
+      n,
+      exact_max_vars=component_max_vars,
+      max_nodes~,
+    )
+    return BddDecomposedOptimalBuild::{
+      built: single.built,
+      order: single.order,
+      size: single.size,
+      active_vars: k,
+      component_count: 1,
+      max_component_vars: k,
+      tried: single.tried,
+      pruned_subsets: single.pruned_subsets,
+      exact: single.exact,
+    }
+  }
+
+  let var_to_idx : Array[Int32] = []
+  for _v in 0..<n {
+    var_to_idx.push(-1)
+  }
+  for idx in 0..<k {
+    var_to_idx[active[idx]] = idx
+  }
+  let uf : Array[Int32] = []
+  for idx in 0..<k {
+    uf.push(idx)
+  }
+  let clause_var_indices : Array[Array[Int32]] = []
+  for ci in 0..<clauses.length() {
+    let cv = face_vars(clauses[ci])
+    let idxs : Array[Int32] = []
+    for v in 0..<n {
+      if cv.contains(v) && var_to_idx[v] >= 0 {
+        idxs.push(var_to_idx[v])
+      }
+    }
+    for j in 1..<idxs.length() {
+      bdd_uf_union(uf, idxs[0], idxs[j])
+    }
+    clause_var_indices.push(idxs)
+  }
+
+  let comp_roots : Array[Int32] = []
+  for idx in 0..<k {
+    let r = bdd_uf_find(uf, idx)
+    bdd_dp_push_unique(comp_roots, r)
+  }
+  if comp_roots.length() <= 1 {
+    let single = bdd_dag_of_face_optimal_pruned(
+      f,
+      n,
+      exact_max_vars=component_max_vars,
+      max_nodes~,
+    )
+    return BddDecomposedOptimalBuild::{
+      built: single.built,
+      order: single.order,
+      size: single.size,
+      active_vars: k,
+      component_count: 1,
+      max_component_vars: k,
+      tried: single.tried,
+      pruned_subsets: single.pruned_subsets,
+      exact: single.exact,
+    }
+  }
+
+  let comp_order : Array[Int32] = []
+  let mut sum_opt_sizes = 0
+  let mut total_tried = 0
+  let mut total_pruned = 0
+  let mut all_comp_exact = true
+  let mut max_comp_k = 0
+  let mut annihilated = false
+
+  for ci in 0..< clauses.length() {
+    if clause_var_indices[ci].length() == 0 {
+      let c_res = bdd_dag_of_face_optimal_pruned(
+        clauses[ci],
+        n,
+        exact_max_vars=component_max_vars,
+        max_nodes~,
+      )
+      if is_conj && c_res.built.root == 0 {
+        annihilated = true
+      }
+      if !is_conj && c_res.built.root == 1 {
+        annihilated = true
+      }
+    }
+  }
+
+  for cri in 0..<comp_roots.length() {
+    let root_id = comp_roots[cri]
+    let comp_vars : Array[Int32] = []
+    for idx in 0..<k {
+      if bdd_uf_find(uf, idx) == root_id {
+        comp_vars.push(active[idx])
+      }
+    }
+    if comp_vars.length() > max_comp_k {
+      max_comp_k = comp_vars.length()
+    }
+    let mut sub_face : Face = if is_conj { FTop } else { FBot }
+    let mut first = true
+    for ci in 0..<clauses.length() {
+      let idxs = clause_var_indices[ci]
+      if idxs.length() > 0 && bdd_uf_find(uf, idxs[0]) == root_id {
+        if first {
+          sub_face = clauses[ci]
+          first = false
+        } else if is_conj {
+          sub_face = FAnd(sub_face, clauses[ci])
+        } else {
+          sub_face = FOr(sub_face, clauses[ci])
+        }
+      }
+    }
+    let sub_opt = bdd_dag_of_face_optimal_pruned(
+      sub_face,
+      n,
+      exact_max_vars=component_max_vars,
+      max_nodes~,
+    )
+    total_tried = total_tried + sub_opt.tried
+    total_pruned = total_pruned + sub_opt.pruned_subsets
+    if !sub_opt.exact || !sub_opt.built.ok {
+      all_comp_exact = false
+    }
+    if is_conj && sub_opt.built.root == 0 {
+      annihilated = true
+    }
+    if !is_conj && sub_opt.built.root == 1 {
+      annihilated = true
+    }
+    sum_opt_sizes = sum_opt_sizes + sub_opt.size
+    for oi in 0..<sub_opt.order.length() {
+      let v = sub_opt.order[oi]
+      if comp_vars.contains(v) {
+        bdd_dp_push_unique(comp_order, v)
+      }
+    }
+    for vi in 0..<comp_vars.length() {
+      bdd_dp_push_unique(comp_order, comp_vars[vi])
+    }
+  }
+
+  for v in 0..<n {
+    bdd_dp_push_unique(comp_order, v)
+  }
+
+  let manager = bdd_manager_with_order(comp_order, n, max_nodes~)
+  let built_root = bdd_dag_build_face(manager, f)
+  if manager.exceeded {
+    let opt = bdd_dag_of_face_optimized(f, n, max_nodes~)
+    return BddDecomposedOptimalBuild::{
+      built: opt.built,
+      order: opt.order,
+      size: opt.reachable,
+      active_vars: k,
+      component_count: comp_roots.length(),
+      max_component_vars: max_comp_k,
+      tried: total_tried,
+      pruned_subsets: total_pruned,
+      exact: false,
+    }
+  }
+  let final_size = bdd_dag_reachable_count(manager, built_root)
+  let exact_ok = if annihilated {
+    final_size == 0
+  } else {
+    all_comp_exact && final_size == sum_opt_sizes
+  }
+  BddDecomposedOptimalBuild::{
+    built: BddDagFace::{ manager, root: built_root, ok: true, },
+    order: comp_order,
+    size: final_size,
+    active_vars: k,
+    component_count: comp_roots.length(),
+    max_component_vars: max_comp_k,
+    tried: total_tried,
+    pruned_subsets: total_pruned,
+    exact: exact_ok,
+  }
+}

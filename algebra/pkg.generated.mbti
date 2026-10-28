@@ -223,9 +223,13 @@ pub fn check_Jacobi_interval() -> Bool
 
 pub fn check_algebraic_extensions_and_Jordan() -> Bool
 
+pub fn check_algebraic_radicals_and_rank6_multiquad() -> Bool
+
 pub fn check_biquadratic_denesting() -> Bool
 
 pub fn check_jacobi_adaptive_exact_fallback() -> Bool
+
+pub fn check_jacobi_block_deflation_and_multiplicity() -> Bool
 
 pub fn check_jacobi_cluster_aware_iteration() -> Bool
 
@@ -240,6 +244,8 @@ pub fn check_qpoly_degree_pattern_certificates() -> Bool
 pub fn check_qpoly_factor_complete() -> Bool
 
 pub fn check_qpoly_fast_arithmetic() -> Bool
+
+pub fn check_qpoly_hensel_factor_and_certificates() -> Bool
 
 pub fn check_qpoly_irreducibility_certificates() -> Bool
 
@@ -363,6 +369,12 @@ pub fn int_sqrt_exact(Int32) -> Int32?
 
 pub fn int_squarefree_decomp(Int32) -> (Int32, Int32)
 
+pub fn jacobi_block_components(QCpxMat) -> Array[Array[Int32]]
+
+pub fn jacobi_block_deflated_certified(QCpxMat, JacobiBlockDeflatedReport) -> Bool
+
+pub fn jacobi_block_deflated_eigen(QCpxMat, target_width? : Rat, max_steps? : Int32, tolerance_sq? : Rat, initial_bits? : Int32, max_bits? : Int32, max_exact_width_bits? : Int32) -> JacobiBlockDeflatedReport?
+
 pub fn jacobi_certificate_sound(QCpxMat, JacobiCertificate) -> Bool
 
 pub fn jacobi_cluster_separation_certified(QCpxMat, JacobiCertificate, JacobiClusterSeparation) -> Bool
@@ -385,11 +397,17 @@ pub fn jacobi_unitary_residual_contains_zero(QCIntervalMat, Int32) -> Bool
 
 pub fn multiquad_add(MultiQuadNum, MultiQuadNum) -> MultiQuadNum?
 
+pub fn multiquad_add_upto(MultiQuadNum, MultiQuadNum, max_gens? : Int32) -> MultiQuadNum?
+
 pub fn multiquad_align(MultiQuadNum, MultiQuadNum) -> (MultiQuadNum, MultiQuadNum)?
+
+pub fn multiquad_align_upto(MultiQuadNum, MultiQuadNum, max_gens? : Int32) -> (MultiQuadNum, MultiQuadNum)?
 
 pub fn multiquad_div(MultiQuadNum, MultiQuadNum) -> MultiQuadNum?
 
 pub fn multiquad_eq(MultiQuadNum, MultiQuadNum) -> Bool
+
+pub fn multiquad_eq_upto(MultiQuadNum, MultiQuadNum, max_gens? : Int32) -> Bool
 
 pub fn multiquad_inv(MultiQuadNum) -> MultiQuadNum?
 
@@ -399,7 +417,11 @@ pub fn multiquad_is_zero(MultiQuadNum) -> Bool
 
 pub fn multiquad_make(Array[@bigint.BigInt], Array[Rat]) -> MultiQuadNum?
 
+pub fn multiquad_make_upto(Array[@bigint.BigInt], Array[Rat], max_gens? : Int32) -> MultiQuadNum?
+
 pub fn multiquad_mul(MultiQuadNum, MultiQuadNum) -> MultiQuadNum?
+
+pub fn multiquad_mul_upto(MultiQuadNum, MultiQuadNum, max_gens? : Int32) -> MultiQuadNum?
 
 pub fn multiquad_neg(MultiQuadNum) -> MultiQuadNum
 
@@ -418,6 +440,8 @@ pub fn multiquad_reembed(MultiQuadNum, Array[@bigint.BigInt]) -> MultiQuadNum?
 pub fn multiquad_sign(MultiQuadNum) -> Int32
 
 pub fn multiquad_sqrt_extended(MultiQuadNum) -> MultiQuadNum?
+
+pub fn multiquad_sqrt_extended_upto(MultiQuadNum, max_gens? : Int32) -> MultiQuadNum?
 
 pub fn multiquad_sqrt_in_field(MultiQuadNum) -> MultiQuadNum?
 
@@ -653,11 +677,17 @@ pub fn qpoly_extgcd(QPoly, QPoly) -> QPolyExtGcd
 
 pub fn qpoly_factor(QPoly, Int32) -> QPolyFactor
 
+pub fn qpoly_factor_certificate_check(QPoly, QPolyFactorCertificate, require_witnesses? : Bool) -> Bool
+
+pub fn qpoly_factor_certified(QPoly) -> QPolyFactorCertificate
+
 pub fn qpoly_factor_complete(QPoly) -> QPolyCompleteFactorization
 
 pub fn qpoly_factor_complete_with_budget(QPoly, Int32) -> QPolyCompleteFactorization?
 
 pub fn qpoly_factor_degree_candidates(QPoly, Int32) -> Array[Int32]
+
+pub fn qpoly_factor_hensel(QPoly) -> QPolyCompleteFactorization
 
 pub fn qpoly_factor_rational_roots(QPoly) -> QPolyRationalFactorization
 
@@ -815,6 +845,8 @@ pub fn qvec_sub(Array[Rat], Array[Rat]) -> Array[Rat]
 
 pub fn qvec_zero(Int32) -> Array[Rat]
 
+pub fn radical_equal_algebraic(RadicalExpr, RadicalExpr, max_gens? : Int32, max_degree? : Int32) -> Bool?
+
 pub fn radical_equal_exact(RadicalExpr, RadicalExpr) -> Bool?
 
 pub fn radical_int(Int32) -> RadicalExpr
@@ -830,6 +862,10 @@ pub fn radical_to_biquad(RadicalExpr) -> BiquadNum?
 pub fn radical_to_cubic(RadicalExpr) -> CubicNum?
 
 pub fn radical_to_multiquad(RadicalExpr) -> MultiQuadNum?
+
+pub fn radical_to_multiquad_upto(RadicalExpr, max_gens? : Int32) -> MultiQuadNum?
+
+pub fn radical_to_real_alg(RadicalExpr, max_degree? : Int32) -> RealAlgRadical?
 
 pub fn radical_to_triquad(RadicalExpr) -> TriquadNum?
 
@@ -922,6 +958,26 @@ pub fn rat_to_double(Rat) -> Double
 pub fn rat_to_string(Rat) -> String
 
 pub fn rat_zero() -> Rat
+
+pub fn real_alg_add(RealAlgRadical, RealAlgRadical, max_degree? : Int32) -> RealAlgRadical?
+
+pub fn real_alg_div(RealAlgRadical, RealAlgRadical, max_degree? : Int32) -> RealAlgRadical?
+
+pub fn real_alg_eq(RealAlgRadical, RealAlgRadical) -> Bool
+
+pub fn real_alg_inv(RealAlgRadical) -> RealAlgRadical?
+
+pub fn real_alg_mul(RealAlgRadical, RealAlgRadical, max_degree? : Int32) -> RealAlgRadical?
+
+pub fn real_alg_neg(RealAlgRadical) -> RealAlgRadical
+
+pub fn real_alg_nth_root(RealAlgRadical, Int32, max_degree? : Int32) -> RealAlgRadical?
+
+pub fn real_alg_of_rat(Rat) -> RealAlgRadical
+
+pub fn real_alg_sign(RealAlgRadical) -> Int32
+
+pub fn real_alg_sub(RealAlgRadical, RealAlgRadical, max_degree? : Int32) -> RealAlgRadical?
 
 pub fn real_root_isolation_refine(RealRootIsolation, Int32) -> RealRootIsolation
 
@@ -1227,6 +1283,15 @@ pub fn JacobiAdaptiveReport::equal(Self, Self) -> Bool
 pub fn JacobiAdaptiveReport::not_equal(Self, Self) -> Bool
 pub fn JacobiAdaptiveReport::to_repr(Self) -> @debug.Repr
 
+pub struct JacobiBlockDeflatedReport {
+  blocks : Array[Array[Int32]]
+  max_block_dimension : Int32
+  block_reports : Array[JacobiAdaptiveReport]
+  intervals : Array[SeparatedEigenInterval]
+  target_met : Bool
+  max_interval_width : Rat
+}
+
 pub struct JacobiCertificate {
   precision_bits : Int32
   initial : QCIntervalMat
@@ -1373,6 +1438,15 @@ pub fn QPoly::equal(Self, Self) -> Bool
 pub fn QPoly::not_equal(Self, Self) -> Bool
 pub fn QPoly::to_repr(Self) -> @debug.Repr
 
+pub struct QPolyCertifiedFactor {
+  factor : QPoly
+  multiplicity : Int32
+  certificate : QPolyIrreducibilityCertificate?
+} derive(Eq, @debug.Debug)
+pub fn QPolyCertifiedFactor::equal(Self, Self) -> Bool
+pub fn QPolyCertifiedFactor::not_equal(Self, Self) -> Bool
+pub fn QPolyCertifiedFactor::to_repr(Self) -> @debug.Repr
+
 pub struct QPolyCompleteFactorization {
   leading : Rat
   factors : Array[QPolyFactor]
@@ -1398,6 +1472,16 @@ pub struct QPolyFactor {
   factor : QPoly
   multiplicity : Int32
 }
+
+pub struct QPolyFactorCertificate {
+  leading : Rat
+  factors : Array[QPolyCertifiedFactor]
+  hensel_prime : Int32
+  hensel_exponent : Int32
+} derive(Eq, @debug.Debug)
+pub fn QPolyFactorCertificate::equal(Self, Self) -> Bool
+pub fn QPolyFactorCertificate::not_equal(Self, Self) -> Bool
+pub fn QPolyFactorCertificate::to_repr(Self) -> @debug.Repr
 
 pub enum QPolyIrreducibilityCertificate {
   CertLinear
@@ -1479,6 +1563,16 @@ pub struct RatInterval {
 pub fn RatInterval::equal(Self, Self) -> Bool
 pub fn RatInterval::not_equal(Self, Self) -> Bool
 pub fn RatInterval::to_repr(Self) -> @debug.Repr
+
+pub struct RealAlgRadical {
+  minpoly : QPoly
+  root_index : Int32
+  lower : Rat
+  upper : Rat
+} derive(Eq, @debug.Debug)
+pub fn RealAlgRadical::equal(Self, Self) -> Bool
+pub fn RealAlgRadical::not_equal(Self, Self) -> Bool
+pub fn RealAlgRadical::to_repr(Self) -> @debug.Repr
 
 pub struct RealRootIsolation {
   polynomial : QPoly

@@ -81,12 +81,27 @@ fn schema_source_value(arg : DConstructorArg, prior : Array[DValue]) -> DValue {
 }
 
 ///|
+fn semantic_type_universe_level(ty : DValue) -> Int32 {
+  match force_value(ty) {
+    DVInductive(spec, _, _) => spec.level
+    DVHitType(spec, _, _) => spec.level
+    DVUniv(l) => l + 1
+    DVListTy(elem) => semantic_type_universe_level(elem)
+    DVEquivTy(_, _, l) | DVGlue(_, _, l) => l
+    _ => 0
+  }
+}
+
+///|
 fn positive_sum_family(a : DValue, b : DValue) -> (DValue) -> DValue {
+  let la = semantic_type_universe_level(a)
+  let lb = semantic_type_universe_level(b)
+  let level = if la >= lb { la } else { lb }
   tag => {
     match force_value(tag) {
       DVBool(true) => a
       DVBool(false) => b
-      DVNeutral(n) => DVNeutral(DNBoolElim(_ => DVUniv(0), a, b, n))
+      DVNeutral(n) => DVNeutral(DNBoolElim(_ => DVUniv(level), a, b, n))
       _ => DVUnitTy
     }
   }

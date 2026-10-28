@@ -2,12 +2,16 @@
 package "vv0101v01/cubical-hermitian/bridge"
 
 import {
+  "moonbitlang/core/debug",
   "vv0101v01/cubical-hermitian",
+  "vv0101v01/cubical-hermitian/scheme",
   "vv0101v01/cubical-hermitian/semiring/cat",
   "vv0101v01/cubical-hermitian/semiring/graph",
   "vv0101v01/cubical-hermitian/semiring/matrix",
+  "vv0101v01/cubical-hermitian/semiring/nf",
   "vv0101v01/cubical-hermitian/semiring/trop",
   "vv0101v01/cubical-hermitian/symlib",
+  "vv0101v01/cubical-hermitian/topos",
 }
 
 // Values
@@ -20,6 +24,10 @@ pub fn bool_tuple_type(Int32) -> @cubical-hermitian.Ty
 pub fn bridge_certificate(String, String, Bool, detail? : String) -> BridgeCertificate
 
 pub fn bridge_certificates() -> Array[BridgeCertificate]
+
+pub fn build_cchm_interval_classifying_topos(Int32) -> @topos.Site
+
+pub fn build_fine_grained_geometry_logic_atlas() -> Array[GeometryLogicAtlasEntry]
 
 pub fn certificate_of_cubical(@cubical-hermitian.CheckResult) -> BridgeCertificate
 
@@ -53,7 +61,13 @@ pub fn face_semiring_law_report() -> @vv0101v01/cubical-hermitian/semiring/algeb
 
 pub fn fincat_hom_counts(@symlib.FinCat) -> Array[Array[Int64]]
 
+pub fn five_federation_descriptors() -> Array[FederationDescriptor]
+
 pub fn free_category_to_fincat(@cat.DiGraph) -> @symlib.FinCat
+
+pub fn glivenko_double_negation_formula(@topos.GeoFormula) -> @topos.GeoFormula
+
+pub fn grand_unification_certificates() -> Array[BridgeCertificate]
 
 pub fn matrix_permutation_symmetries(@cubical-hermitian.CMat, Int32) -> Array[@symlib.Perm]
 
@@ -75,6 +89,8 @@ pub fn qpoly_tropicalize_padic(@vv0101v01/cubical-hermitian/algebra.QPoly, Int32
 
 pub fn rat_padic_valuation(@vv0101v01/cubical-hermitian/algebra.Rat, Int32) -> Int32?
 
+pub fn run_grand_unification_system() -> GrandUnificationReport
+
 pub fn semiring_graph_candidate_order(@graph.Graph) -> Int64
 
 pub fn semiring_graph_support(@graph.Graph) -> @symlib.Graph
@@ -89,9 +105,51 @@ pub fn signed_perm_wiring(@symlib.Perm, Array[Bool]) -> @cubical-hermitian.Wirin
 
 pub fn square_cell_incidence() -> (@symlib.Graph, Array[Int32])
 
+pub fn translate_coord_ring_to_zariski_theory(@scheme.CoordRing, Array[@scheme.MPoly]) -> (Int32, Array[@topos.PropGeoAxiom])
+
+pub fn translate_cubical_dim_to_mpoly(@cubical-hermitian.Dim, Int32) -> @scheme.MPoly
+
+pub fn translate_cubical_dterm_to_geo_formula(@cubical-hermitian.DTerm) -> @topos.GeoFormula
+
+pub fn translate_cubical_face_to_geo_formula(@cubical-hermitian.Face) -> @topos.GeoFormula
+
+pub fn translate_cubical_face_to_zariski_ideal(@cubical-hermitian.Face, Int32, Bool) -> @scheme.Ideal
+
+pub fn translate_sexpr_to_geo_formula(@nf.SExpr) -> @topos.GeoFormula
+
 pub fn tropical_matrix_symmetries(Array[Array[Int64]], Int32) -> Array[@symlib.Perm]
 
 pub fn tropical_optimal_assignments(Array[Array[Int64]], Int32) -> Array[@symlib.Perm]
+
+pub fn verify_cubical_algebra_scheme_bridge() -> Bool
+
+pub fn verify_dependent_cubical_topos_bridge() -> Bool
+
+pub fn verify_excision_subtopos_blowup_bridge() -> Bool
+
+pub fn verify_five_federation_pentagon_unification() -> Bool
+
+pub fn verify_geometry_logic_atlas() -> Bool
+
+pub fn verify_glivenko_topos_subtopos_bridge() -> Bool
+
+pub fn verify_k5_federation_bridges() -> Array[FederationPairBridge]
+
+pub fn verify_kapranov_tropical_laurent_bridge() -> Bool
+
+pub fn verify_quadratic_etale_torsor_galois_bridge() -> Bool
+
+pub fn verify_quaternary_normal_forms() -> Bool
+
+pub fn verify_semiring_kleene_alexandroff_topos_bridge() -> Bool
+
+pub fn verify_six_pillar_circle_sphere_unification() -> Bool
+
+pub fn verify_symlib_galois_topos_bridge() -> Bool
+
+pub fn verify_symlib_symmetric_scheme_bridge() -> Bool
+
+pub fn verify_zariski_topos_invariance_vs_nilpotent_points() -> Bool
 
 pub fn weighted_graph_report(@graph.Graph, Int32) -> WeightedGraphReport
 
@@ -135,6 +193,74 @@ pub impl @vv0101v01/cubical-hermitian/semiring/algebra.IdempotentSemiring for Fa
 pub impl @vv0101v01/cubical-hermitian/semiring/algebra.OrderedSemiring for FaceClass
 pub impl @vv0101v01/cubical-hermitian/semiring/algebra.Semiring for FaceClass
 pub impl @vv0101v01/cubical-hermitian/semiring/algebra.StarSemiring for FaceClass
+
+pub(all) struct FederationDescriptor {
+  id : FederationId
+  slug : String
+  packages : Array[String]
+  canonical_normal_form : String
+  categorification_role : String
+  live_health_ok : Bool
+  summary : String
+} derive(Eq, @debug.Debug)
+pub fn FederationDescriptor::equal(Self, Self) -> Bool
+pub fn FederationDescriptor::not_equal(Self, Self) -> Bool
+pub fn FederationDescriptor::to_repr(Self) -> @debug.Repr
+
+pub(all) enum FederationId {
+  Cubical
+  Symlib
+  Semiring
+  Topos
+  Scheme
+} derive(Eq, @debug.Debug)
+pub fn FederationId::equal(Self, Self) -> Bool
+pub fn FederationId::not_equal(Self, Self) -> Bool
+pub fn FederationId::to_repr(Self) -> @debug.Repr
+
+pub(all) struct FederationPairBridge {
+  id : String
+  lhs : FederationId
+  rhs : FederationId
+  bridge_theorem : String
+  holds : Bool
+  quantitative_witness : String
+} derive(Eq, @debug.Debug)
+pub fn FederationPairBridge::equal(Self, Self) -> Bool
+pub fn FederationPairBridge::not_equal(Self, Self) -> Bool
+pub fn FederationPairBridge::to_repr(Self) -> @debug.Repr
+
+pub(all) struct GeometryLogicAtlasEntry {
+  id : String
+  domain : String
+  geometric_structure : String
+  logical_counterpart : String
+  correspondence_theorem : String
+  witness_holds : Bool
+  contrast_holds : Bool
+  quantitative_summary : String
+} derive(Eq, @debug.Debug)
+pub fn GeometryLogicAtlasEntry::equal(Self, Self) -> Bool
+pub fn GeometryLogicAtlasEntry::not_equal(Self, Self) -> Bool
+pub fn GeometryLogicAtlasEntry::to_repr(Self) -> @debug.Repr
+
+pub(all) struct GrandUnificationReport {
+  five_federations_ok : Bool
+  federations_verified_count : Int32
+  k5_pairwise_bridges_ok : Bool
+  k5_bridges_verified_count : Int32
+  five_federation_pentagon_ok : Bool
+  six_pillar_circle_sphere_ok : Bool
+  logic_translation_ok : Bool
+  geometry_logic_atlas_ok : Bool
+  atlas_verified_count : Int32
+  total_certificates_passed : Int32
+  total_certificates_count : Int32
+  all_ok : Bool
+} derive(Eq, @debug.Debug)
+pub fn GrandUnificationReport::equal(Self, Self) -> Bool
+pub fn GrandUnificationReport::not_equal(Self, Self) -> Bool
+pub fn GrandUnificationReport::to_repr(Self) -> @debug.Repr
 
 pub(all) struct WeightedGraphReport {
   n : Int32

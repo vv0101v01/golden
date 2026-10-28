@@ -114,6 +114,8 @@ pub fn artifact_repository_new(ArtifactByteStore, prefix? : String) -> ArtifactR
 
 pub fn artifact_repository_put(ArtifactRepository, String, String, Array[Int32], format_version? : Int32) -> ArtifactRecord?
 
+pub fn artifact_repository_put_cas_authenticated(ArtifactRepository, String, String, Array[Int32], Int32, (Int32, Int32), ArtifactAuthKey) -> ArtifactCasStatus
+
 pub fn artifact_repository_put_compiled_module(ArtifactRepository, CompiledModule, peer_versions? : Array[Int32]) -> ArtifactRecord?
 
 pub fn artifact_repository_put_dterm_dag_snapshot(ArtifactRepository, String, DTermDagSnapshot) -> ArtifactRecord?
@@ -132,9 +134,15 @@ pub fn artifact_repository_recover_chained(ArtifactRepository, expected_head? : 
 
 pub fn artifact_repository_remove(ArtifactRepository, String, String) -> Bool
 
+pub fn artifact_repository_seal_authenticated(ArtifactRepository, ArtifactAuthKey) -> Bool
+
 pub fn artifact_repository_stats(ArtifactRepository) -> ArtifactRepositoryStats
 
+pub fn artifact_repository_sync_incremental(ArtifactRepository, ArtifactRepository, ArtifactAuthKey, trusted_producers? : Array[String]) -> ArtifactSyncReport
+
 pub fn artifact_repository_verify_all(ArtifactRepository) -> Bool
+
+pub fn artifact_repository_verify_authenticated(ArtifactRepository, ArtifactAuthKey, expected_head? : (Int32, Int32)?) -> Bool
 
 pub fn as_equiv_type(DValue) -> DEquivTypeParts?
 
@@ -155,6 +163,8 @@ pub fn as_univ_level(DValue) -> Int32?
 pub fn assignment_of_mask(Int32, Int32) -> Array[Bool]
 
 pub fn based_map_type_term(DTerm, DTerm, DTerm, DTerm) -> DTerm
+
+pub fn based_map_type_value(DValue, DValue, DValue, DValue) -> DValue
 
 pub fn bdd_and(Bdd, Bdd) -> Bdd
 
@@ -184,7 +194,11 @@ pub fn bdd_dag_of_face_best(Face, Int32, max_nodes? : Int32) -> BddBestBuild
 
 pub fn bdd_dag_of_face_optimal(Face, Int32, exact_max_vars? : Int32, max_nodes? : Int32) -> BddOptimalBuild
 
+pub fn bdd_dag_of_face_optimal_decomposed(Face, Int32, component_max_vars? : Int32, max_nodes? : Int32) -> BddDecomposedOptimalBuild
+
 pub fn bdd_dag_of_face_optimal_dp(Face, Int32, exact_max_vars? : Int32, max_nodes? : Int32) -> BddOptimalBuild
+
+pub fn bdd_dag_of_face_optimal_pruned(Face, Int32, exact_max_vars? : Int32, max_nodes? : Int32) -> BddPrunedOptimalBuild
 
 pub fn bdd_dag_of_face_optimized(Face, Int32, max_nodes? : Int32, max_attempts? : Int32) -> BddOptimizedBuild
 
@@ -608,6 +622,46 @@ pub fn check_pathp_exchange() -> Bool
 
 pub fn check_persistent_env_lazy_cache() -> Bool
 
+pub fn check_phase14_algebraic_radicals_and_rank6_multiquad() -> Bool
+
+pub fn check_phase14_bdd_bnb_and_cdcl_drat() -> Bool
+
+pub fn check_phase14_dcube_orthogonal_array_covering() -> Bool
+
+pub fn check_phase14_decoupled_torus_and_semantic_circle_norm() -> Bool
+
+pub fn check_phase14_dsystem_all_maxima_and_finite_case_split() -> Bool
+
+pub fn check_phase14_eckmann_hilton_and_pentagon_coherence() -> Bool
+
+pub fn check_phase14_hou_backtracking_and_enumeration() -> Bool
+
+pub fn check_phase14_incremental_dag_delta_and_shared_bundle() -> Bool
+
+pub fn check_phase14_internal_circle_sect_and_hopf_invariant() -> Bool
+
+pub fn check_phase14_jacobi_block_deflation_and_multiplicity() -> Bool
+
+pub fn check_phase14_joint_simultaneous_ir_mutual() -> Bool
+
+pub fn check_phase14_positivity_witness_certificates() -> Bool
+
+pub fn check_phase14_qpoly_hensel_factor_and_certificates() -> Bool
+
+pub fn check_phase14_tlv_envelope_cas_and_incremental_sync() -> Bool
+
+pub fn check_phase15_bdd_symmetry_orbit_and_decomposed_optimal() -> Bool
+
+pub fn check_phase15_bidirectional_bijectivity_and_pi1_circle() -> Bool
+
+pub fn check_phase15_cdcl_lrat_elaboration_and_binary_codec() -> Bool
+
+pub fn check_phase15_dcube_strength4_phf_and_yoneda_audit() -> Bool
+
+pub fn check_phase15_freudenthal_suspension_and_wedge_connectivity() -> Bool
+
+pub fn check_phase15_suspension_and_loop_suspension_adjunction() -> Bool
+
 pub fn check_phase5_semantic_systems() -> Bool
 
 pub fn check_phase6_infrastructure() -> Bool
@@ -694,6 +748,12 @@ pub fn checked_constant_type_line(DTerm, DEnv, DEnv, DDimEnv) -> DCheckedTypeLin
 
 pub fn checked_constant_type_line_closed(DTerm) -> DCheckedTypeLine?
 
+pub fn checked_dcube_closed(Int32, DTerm, DTerm) -> CheckedDCube?
+
+pub fn checked_dcube_extensional_eq(CheckedDCube, CheckedDCube) -> Bool
+
+pub fn checked_dcube_make(Int32, DTerm, DValue, DEnv, DEnv, DDimEnv) -> CheckedDCube?
+
 pub fn checked_fill_value(DCheckedTypeLine, DSystem, DValue, Int32) -> (Dim) -> DValue
 
 pub fn checked_line_at(DCheckedTypeLine, Dim) -> DValue
@@ -726,17 +786,35 @@ pub fn checked_type_line_closed(DTerm) -> DCheckedTypeLine?
 
 pub fn checked_ua_line(DTerm, DEnv, DEnv, DDimEnv) -> DCheckedTypeLine?
 
+pub fn circle_0_connected_value(DValue, Int32) -> DValue
+
 pub fn circle_cover_value(DValue) -> DValue
 
+pub fn circle_decode_encode_retr_value(DValue, Int32) -> DValue
+
+pub fn circle_decode_encode_x_retr_value(DValue, DValue, Int32) -> DValue
+
+pub fn circle_decode_step_value(DValue, Int32) -> DValue
+
 pub fn circle_decode_value(DValue, Int32) -> DValue
+
+pub fn circle_decode_x_value(DValue, DValue, Int32) -> DValue
 
 pub fn circle_degree_value(Int32, DValue, Int32) -> DValue
 
 pub fn circle_dim_of(DValue) -> Dim
 
+pub fn circle_encode_decode_sect_value(DValue, Int32) -> DValue
+
+pub fn circle_encode_decode_x_sect_value(DValue, DValue, Int32) -> DValue
+
+pub fn circle_encode_decode_x_sect_with_zset_value(DValue, DValue, (DValue, DValue, DValue, DValue) -> DValue, Int32) -> DValue
+
 pub fn circle_encode_pieces_value(Array[DValue], Int32) -> DValue
 
 pub fn circle_encode_value(DValue, Int32) -> DValue
+
+pub fn circle_encode_x_value(DValue, DValue, Int32) -> DValue
 
 pub fn circle_hit_base_value() -> DValue
 
@@ -750,11 +828,25 @@ pub fn circle_level_decl() -> DLevelHitDecl
 
 pub fn circle_level_scheme() -> DHitLevelScheme
 
+pub fn circle_loop_space_equiv_integer_value(Int32) -> DValue
+
 pub fn circle_loop_space_type_value() -> DValue
+
+pub fn circle_path_equiv_cover_value(DValue, Int32) -> DValue
+
+pub fn circle_path_equiv_cover_with_zset_value(DValue, (DValue, DValue, DValue, DValue) -> DValue, Int32) -> DValue
 
 pub fn circle_point(Dim) -> DValue
 
+pub fn circle_rot_equiv_value(DValue, Int32) -> DValue
+
 pub fn circle_schema() -> DHitSpec
+
+pub fn circle_self_loop_value(DValue, Int32) -> DValue
+
+pub fn circle_to_susp_bool_value(DValue, Int32) -> DValue
+
+pub fn cocone_to_based_loop_equiv_value(DValue, DValue, DValue, DValue, Int32) -> DValue
 
 pub fn code_interpretation_ir(Bool) -> DSimultaneousIRSpec
 
@@ -832,6 +924,10 @@ pub fn compiled_module_env_new() -> CompiledModuleEnv
 
 pub fn compiled_module_env_to_module_env(CompiledModuleEnv) -> ModuleEnv
 
+pub fn compiled_module_envelope_load_binary(Array[Int32], Array[Int32], validate? : Bool) -> CompiledModuleEnvelopeLoad
+
+pub fn compiled_module_envelope_to_binary(CompiledModule, Array[ModuleTlvSection]) -> Array[Int32]?
+
 pub fn compiled_module_format_version() -> Int32
 
 pub fn compiled_module_from_binary(Array[Int32]) -> CompiledModule?
@@ -884,7 +980,11 @@ pub fn conv_at(Int32, Int32, DValue, DValue, DValue) -> Bool
 
 pub fn conv_at_under_face(Int32, Int32, Face, DValue, DValue, DValue) -> Bool
 
+pub fn conv_at_under_face_in(DEnv, Int32, Int32, Face, DValue, DValue, DValue) -> Bool
+
 pub fn conv_at_under_face_report(Int32, Int32, Face, DValue, DValue, DValue) -> DFaceConvReport
+
+pub fn conv_at_under_face_report_in(DEnv, Int32, Int32, Face, DValue, DValue, DValue) -> DFaceConvReport
 
 pub fn conv_decode_neutral(Int32, Int32, DInductiveSpec, Array[DValue], Array[DValue], DNeutral, DInductiveSpec, Array[DValue], Array[DValue], DNeutral) -> Bool
 
@@ -914,9 +1014,15 @@ pub fn conv_terms_case_split(Array[DTerm], DTerm, DTerm, DTerm) -> Bool
 
 pub fn conv_terms_case_split_report(Array[DTerm], DTerm, DTerm, DTerm) -> CaseSplitReport
 
+pub fn conv_terms_finite_case_split(Array[DTerm], DTerm, DTerm, DTerm, depth_budget? : Int32, max_cases? : Int32) -> Bool
+
+pub fn conv_terms_finite_case_split_report(Array[DTerm], DTerm, DTerm, DTerm, depth_budget? : Int32, max_cases? : Int32) -> CaseSplitReport
+
 pub fn conv_terms_plain(Array[DTerm], DTerm, DTerm, DTerm) -> Bool
 
 pub fn conv_ty(Int32, Int32, DValue, DValue) -> Bool
+
+pub fn cs_finite_closed_inhabitants(DValue, depth_budget? : Int32, max_cases? : Int32) -> Array[DTerm]?
 
 pub fn cube3_schema() -> DHitSpec
 
@@ -933,6 +1039,8 @@ pub fn cube_in_subline(SubLine, Cube, Int32, Array[Double]) -> Bool
 pub fn cube_root_two_modulus() -> @algebra.QPoly
 
 pub fn cube_root_unit_vector(@algebra.QPoly) -> Array[AlgC]?
+
+pub fn cubical_face_subcubes(Face, Int32) -> Array[Array[Int32]]
 
 pub fn cx(Double, Double) -> Complex
 
@@ -1026,6 +1134,10 @@ pub fn dcube_constant(Int32, DValue) -> DCubeFunction
 
 pub fn dcube_cubes_conv(Int32, Int32, DValue, DCubeFunction, DCubeFunction) -> Bool
 
+pub fn dcube_cubes_conv_covering_phf_report(Int32, Int32, DValue, DCubeFunction, DCubeFunction, strength? : Int32) -> DCubeCoveringReport
+
+pub fn dcube_cubes_conv_covering_report(Int32, Int32, DValue, DCubeFunction, DCubeFunction, strength? : Int32) -> DCubeCoveringReport
+
 pub fn dcube_cubes_conv_stratified(Int32, Int32, DValue, DCubeFunction, DCubeFunction) -> Bool
 
 pub fn dcube_cubes_conv_stratified_report(Int32, Int32, DValue, DCubeFunction, DCubeFunction) -> DCubeStratifiedReport
@@ -1047,6 +1159,10 @@ pub fn dcube_of_path((Dim) -> DValue) -> DCubeFunction
 pub fn dcube_of_point(DValue) -> DCubeFunction
 
 pub fn dcube_open_box(DValue, Int32, Int32, Array[DCubeBoxFace]) -> DCubeOpenBox
+
+pub fn dcube_phf_5colors(Int32, Int32) -> Array[Array[Int32]]
+
+pub fn dcube_yoneda_audit_report(Int32, Int32, DValue, DCubeFunction) -> DCubeYonedaReport
 
 pub fn ddim_at(DDimEnv, Int32) -> Dim?
 
@@ -1192,6 +1308,8 @@ pub fn disc_path_wf(DiscPath) -> Bool
 
 pub fn disc_samples() -> Array[Double]
 
+pub fn dj_singleton_elim_value((DValue, DValue) -> DValue, DValue, DValue, Int32) -> DValue
+
 pub fn dlevel_const(Int32) -> DLevelExpr
 
 pub fn dlevel_eval(DLevelExpr, Array[Int32]) -> Int32?
@@ -1260,17 +1378,35 @@ pub fn double_dyadic_interval(Double, Int32) -> (@algebra.Rat, @algebra.Rat)?
 
 pub fn dpath_assoc3_value(DValue, DValue, DValue, DValue, DValue, Int32) -> DValue
 
+pub fn dpath_assoc_path3_value(DValue, DValue, DValue, DValue, Int32) -> DValue
+
 pub fn dpath_at_value(DValue, Dim) -> DValue
 
 pub fn dpath_cong_term(DTerm, DTerm) -> DTerm
 
 pub fn dpath_cong_value(DValue, DValue, DValue) -> DValue
 
+pub fn dpath_eckmann_hilton3_value(DValue, DValue, DValue, DValue, Int32) -> DValue
+
 pub fn dpath_funext_value(DValue, DValue) -> DValue
 
 pub fn dpath_left_inverse3_value(DValue, DValue, DValue, Int32) -> DValue
 
 pub fn dpath_left_unit3_value(DValue, DValue, DValue, Int32) -> DValue
+
+pub fn dpath_lr_unit_coherence4_value(DValue, DValue, Int32) -> DValue
+
+pub fn dpath_of_pathp_value((Dim) -> DValue, DValue, Int32) -> DValue
+
+pub fn dpath_pentagon4_value(DValue, DValue, DValue, DValue, DValue, DValue, Int32) -> DValue
+
+pub fn dpath_pentagon_bot3_value(DValue, DValue, DValue, DValue, DValue, DValue, Int32) -> DValue
+
+pub fn dpath_pentagon_path_bot3_value(DValue, DValue, DValue, DValue, DValue, Int32) -> DValue
+
+pub fn dpath_pentagon_path_top3_value(DValue, DValue, DValue, DValue, DValue, Int32) -> DValue
+
+pub fn dpath_pentagon_top3_value(DValue, DValue, DValue, DValue, DValue, DValue, Int32) -> DValue
 
 pub fn dpath_prefix_value(DValue, Dim) -> DValue
 
@@ -1282,7 +1418,13 @@ pub fn dpath_right_inverse3_value(DValue, DValue, DValue, Int32) -> DValue
 
 pub fn dpath_right_unit3_value(DValue, DValue, DValue, Int32) -> DValue
 
+pub fn dpath_right_unit_general_value(DValue, DValue, Int32) -> DValue
+
 pub fn dpath_segment_value(DValue, Dim) -> DValue
+
+pub fn dpath_square_boundary3_value(DValue, DValue, Int32) -> DValue
+
+pub fn dpath_subst_trans_value(DValue, (DValue) -> DValue, DValue, DValue, DValue, Int32) -> DValue
 
 pub fn dpath_sym_compose3_value(DValue, DValue, DValue, DValue, Int32) -> DValue
 
@@ -1300,11 +1442,21 @@ pub fn dpath_trans_value(DValue, DValue, DValue, Int32) -> DValue
 
 pub fn dpath_triple_square_value(DValue, DValue, DValue, DValue, Int32) -> DValue
 
+pub fn dpathp_eq_in_set_family_value((Dim) -> DValue, DValue, DValue, DValue, DValue, (DValue, DValue, DValue, DValue) -> DValue, Int32) -> DValue
+
+pub fn dpathp_of_transport_eq_value((Dim) -> DValue, DValue, DValue, DValue, Int32) -> DValue
+
 pub fn dpositivity_declaration(DTerm, Int32, strict_args? : Array[Int32], positive_args? : Array[Int32], scope? : Int32) -> DPositivityDeclaration?
 
 pub fn dpositivity_declaration_from_lambda(DTerm, Int32, scope? : Int32) -> DPositivityDeclaration?
 
 pub fn dpositivity_report(Bool, Bool, Bool, Bool, Bool) -> DPositivityReport
+
+pub fn dpositivity_witness(DPositivityDeclaration, DTerm) -> DPositivityWitness
+
+pub fn dpositivity_witness_verify(DPositivityWitness, ambient_decls? : Array[DPositivityDeclaration]) -> Bool
+
+pub fn dprop_is_set_value(DValue, (DValue, DValue) -> DValue, DValue, DValue, DValue, DValue, Int32) -> DValue
 
 pub fn dsimultaneous_function(String, DTerm, Array[DTerm]) -> DSimultaneousFunction
 
@@ -1322,7 +1474,11 @@ pub fn dsystem_compatibility(Bool, DSystemIncompatibility, Int32, Int32) -> DSys
 
 pub fn dsystem_compatibility_report(Int32, Int32, (Dim) -> DValue, DSystem, DValue?) -> DSystemCompatibility
 
+pub fn dsystem_compatibility_report_in(DEnv, Int32, Int32, (Dim) -> DValue, DSystem, DValue?) -> DSystemCompatibility
+
 pub fn dsystem_compatible_with_base(Int32, Int32, (Dim) -> DValue, DSystem, DValue) -> Bool
+
+pub fn dsystem_compatible_with_base_in(DEnv, Int32, Int32, (Dim) -> DValue, DSystem, DValue) -> Bool
 
 pub fn dsystem_domain_face(DSystem) -> Face
 
@@ -1345,6 +1501,8 @@ pub fn dsystem_of(Array[DTubeBranch]) -> DSystem
 pub fn dsystem_of_first_match_nf(DTubeNF) -> DSystem
 
 pub fn dsystem_pairwise_compatible(Int32, Int32, (Dim) -> DValue, DSystem) -> Bool
+
+pub fn dsystem_repair_all_maxima(Int32, Int32, (Dim) -> DValue, DSystem, DValue, Array[DTubeBranch], max_solutions? : Int32, node_budget? : Int32) -> DSystemRepairAllMaxima
 
 pub fn dsystem_repair_maximum(Int32, Int32, (Dim) -> DValue, DSystem, DValue, Array[DTubeBranch], node_budget? : Int32) -> DSystemRepairMaximum
 
@@ -1374,6 +1532,18 @@ pub fn dterm_dag_binary_version_of(Array[Int32]) -> Int32
 
 pub fn dterm_dag_binary_version_policy() -> BinaryVersionPolicy
 
+pub fn dterm_dag_delta_apply(DTermInternTable, DTermDagDelta) -> DTermDagImportReport?
+
+pub fn dterm_dag_delta_compute(DTermInternTable, Int32, Array[DTerm]) -> DTermDagDelta?
+
+pub fn dterm_dag_delta_import_binary(DTermInternTable, Array[Int32]) -> DTermDagImportReport?
+
+pub fn dterm_dag_delta_load_binary_report(Array[Int32]) -> DTermDagDeltaBinaryLoad
+
+pub fn dterm_dag_delta_to_binary(DTermDagDelta) -> Array[Int32]?
+
+pub fn dterm_dag_delta_validate(DTermDagDelta) -> Bool
+
 pub fn dterm_dag_import(DTermInternTable, DTermDagSnapshot) -> DTermDagImportReport?
 
 pub fn dterm_dag_import_binary(DTermInternTable, Array[Int32]) -> DTermDagImportReport?
@@ -1400,6 +1570,8 @@ pub fn dterm_family_positivity_declared(DTerm, String, Array[DPositivityDeclarat
 
 pub fn dterm_family_strictly_positive(DTerm, String) -> Bool
 
+pub fn dterm_family_strictly_positive_certified(DTerm, String, Array[DPositivityWitness], scope? : Int32) -> Bool
+
 pub fn dterm_family_strictly_positive_declared(DTerm, String, Array[DPositivityDeclaration], scope? : Int32) -> Bool
 
 pub fn dterm_instantiate_levels(DTerm, Array[Int32]) -> DTerm?
@@ -1417,6 +1589,8 @@ pub fn dterm_intern_node(DTermInternTable, DTerm, Array[Int32]) -> (DTerm, Int32
 pub fn dterm_intern_table_children(DTermInternTable, Int32) -> Array[Int32]?
 
 pub fn dterm_intern_table_new() -> DTermInternTable
+
+pub fn dterm_intern_table_prefix_digest(DTermInternTable, Int32) -> (Int32, Int32)?
 
 pub fn dterm_intern_table_size(DTermInternTable) -> Int32
 
@@ -1474,15 +1648,27 @@ pub fn elaborator_new() -> Elaborator
 
 pub fn elems_of(Ty) -> Array[PVal]
 
+pub fn empty_inductive_elim_value(DValue, DValue, Int32) -> DValue
+
+pub fn empty_inductive_schema() -> DInductiveSpec
+
+pub fn empty_inductive_type_value() -> DValue
+
 pub let eps : Double
 
 pub fn equal_nat_pair_schema() -> DInductiveSpec
+
+pub fn equiv_bidirectional_certified(DValue) -> Bool
+
+pub fn equiv_bidirectional_certified_in(DEnv, DEnv, DDimEnv, DValue) -> Bool
 
 pub fn equiv_bool_not() -> Equiv
 
 pub fn equiv_bwd_value(DValue, DValue, DValue) -> DValue
 
 pub fn equiv_comp(Equiv, Equiv) -> Equiv
+
+pub fn equiv_compose_value(DValue, DValue, DValue, DValue, DValue, Int32) -> DValue
 
 pub fn equiv_contractible_fibers_value(DValue, DValue, DValue, Int32) -> DValue
 
@@ -1600,6 +1786,8 @@ pub fn eval_tube_terms(Array[DTubeTerm], DEnv, DDimEnv) -> DSystem
 
 pub fn eval_ua_term(DTerm, DEnv, DDimEnv) -> DValue
 
+pub fn eval_unglue_equiv_term(DTerm, DTerm, Array[DEquivBranch], DEnv, DDimEnv) -> DValue
+
 pub fn even_odd_components() -> Array[DInductiveSpec]
 
 pub fn even_odd_family() -> DMutualFamily?
@@ -1622,7 +1810,17 @@ pub fn face_bot() -> Face
 
 pub fn face_bound(Face, Int32) -> Face
 
+pub fn face_cdcl_drat_check(Array[Array[Int32]], Array[FaceCdclProofStep]) -> Bool
+
 pub fn face_cdcl_drup_check(Array[Array[Int32]], Array[FaceCdclProofStep]) -> Bool
+
+pub fn face_cdcl_drup_trim(Array[Array[Int32]], Array[FaceCdclProofStep]) -> FaceDrupTrimReport
+
+pub fn face_cdcl_elaborate_lrat(Array[Array[Int32]], Array[FaceCdclProofStep]) -> FaceLratElaborateReport
+
+pub fn face_cdcl_lrat_check(Array[Array[Int32]], Array[FaceLratStep]) -> Bool
+
+pub fn face_cdcl_lrat_check_binary(Array[Array[Int32]], Bytes) -> Bool
 
 pub fn face_cdcl_proof_check(Array[Array[Int32]], Array[Array[Int32]]) -> Bool
 
@@ -1650,6 +1848,8 @@ pub fn face_holds(Face, Array[Bool]) -> Bool
 
 pub fn face_is_bot_sem(Face) -> Bool
 
+pub fn face_is_cubical_top(Face) -> Bool
+
 pub fn face_is_sat_sem(Face) -> Bool
 
 pub fn face_is_top_sem(Face) -> Bool
@@ -1657,6 +1857,10 @@ pub fn face_is_top_sem(Face) -> Bool
 pub fn face_join_universal(Face, Face, Face, Int32) -> Bool
 
 pub fn face_le(Face, Face, Int32) -> Bool
+
+pub fn face_lrat_from_binary(Bytes) -> Array[FaceLratStep]?
+
+pub fn face_lrat_to_binary(Array[FaceLratStep]) -> Bytes
 
 pub fn face_maps_commute(Cube, Double, Double) -> Bool
 
@@ -1722,6 +1926,12 @@ pub fn force_value(DValue) -> DValue
 
 pub fn fresh_dim(DDimEnv) -> Dim
 
+pub fn freudenthal_pi1_susp_connected_equiv_unit_value(DValue, DValue, (DValue) -> DValue, Int32, level? : Int32) -> DValue
+
+pub fn freudenthal_susp_loop1_preserves_refl_value(DValue, DValue, Int32, level? : Int32) -> DValue
+
+pub fn freudenthal_susp_loop1_to_loop2_value(DValue, DValue, DValue, Int32, level? : Int32) -> DValue
+
 pub fn generic_iterate_module() -> ModuleDef
 
 pub fn glue_box_compatible(GlueLineVec, VecBox, VecBox, Array[Double]) -> Bool
@@ -1745,6 +1955,8 @@ pub fn glue_equiv_collapse(DValue) -> DValue
 pub fn glue_equiv_domain_face(Array[DEquivBranchValue]) -> Face
 
 pub fn glue_equiv_partial_values(DGlueEquivParts, DValue) -> Array[DValue]
+
+pub fn glue_equiv_restrict_arg_under_face(Face, DValue, DValue) -> DValue
 
 pub fn glue_equiv_store_partial(DGlueEquivParts, Array[DValue]) -> DValue
 
@@ -1828,6 +2040,12 @@ pub fn hoas_to_term(Int32, HTm) -> Term
 
 pub fn homotopy_group_type_term(DTerm, DTerm, Int32) -> DTerm
 
+pub fn hopf_connecting_loop_value(DValue, dlevel? : Int32) -> DValue
+
+pub fn hopf_family_value(DValue, dlevel? : Int32) -> DValue
+
+pub fn hopf_invariant_value(DValue, dlevel? : Int32) -> DValue
+
 pub fn hopf_linking_number_numeric(Int32) -> Double
 
 pub fn hopf_map_rat(Array[@algebra.Rat]) -> Array[@algebra.Rat]
@@ -1842,6 +2060,8 @@ pub fn hopf_rotate_rat(Array[@algebra.Rat], @algebra.Rat, @algebra.Rat) -> Array
 
 pub fn hopf_south_fiber(Double) -> Array[Double]
 
+pub fn hou_enumerate_unifiers(Array[HouConstraint], Unifier, max_solutions? : Int32, max_nodes? : Int32, max_depth? : Int32, max_projection_args? : Int32, round_budget? : Int32) -> HouEnumerationReport
+
 pub fn hou_fresh_meta(Unifier, Int32) -> UTerm
 
 pub fn hou_search_unify(UTerm, UTerm, Int32, Unifier, max_nodes? : Int32, max_depth? : Int32, max_projection_args? : Int32) -> HouSearchReport
@@ -1855,6 +2075,8 @@ pub fn hou_search_unify_iterative_bool(UTerm, UTerm, Int32, Unifier, max_nodes_p
 pub fn hou_semantic_optimize(UTerm, Unifier) -> UTerm
 
 pub fn hou_solve_constraints(Array[HouConstraint], Unifier, max_nodes_per_round? : Int32, depth_cap? : Int32, max_projection_args? : Int32, max_rounds? : Int32) -> HouResidualSolveReport
+
+pub fn hou_solve_constraints_backtracking(Array[HouConstraint], Unifier, max_nodes? : Int32, max_depth? : Int32, max_projection_args? : Int32, round_budget? : Int32) -> HouResidualSolveReport
 
 pub fn hou_unify(UTerm, UTerm, Int32, Unifier) -> Bool
 
@@ -1926,6 +2148,8 @@ pub fn infer_mk_equiv(DTerm, DTerm, DTerm, DTerm, DTerm, DTerm, DEnv, DEnv, DDim
 
 pub fn infer_ua(DTerm, DEnv, DEnv, DDimEnv) -> DInfer?
 
+pub fn infer_unglue_equiv(DTerm, DTerm, Array[DEquivBranch], DEnv, DEnv, DDimEnv) -> DInfer?
+
 pub fn inner(Array[Complex], Array[Complex]) -> Complex
 
 pub fn instantiate_hit_level_scheme(DHitLevelScheme, Array[Int32]) -> DHitSpec?
@@ -1940,11 +2164,17 @@ pub fn instantiate_level_term_decl(DLevelTermDecl, Array[Int32]) -> DLevelTermIn
 
 pub fn int_pow(Int32, Int32) -> Int32
 
+pub fn integer_is_set_value(DValue, DValue, DValue, DValue, Int32) -> DValue
+
+pub fn integer_pred_succ_retr_value(DValue) -> DValue
+
 pub fn integer_pred_value(DValue) -> DValue
 
 pub fn integer_schema() -> DInductiveSpec
 
 pub fn integer_succ_equiv_value() -> DValue
+
+pub fn integer_succ_pred_sect_value(DValue) -> DValue
 
 pub fn integer_succ_value(DValue) -> DValue
 
@@ -2051,6 +2281,8 @@ pub fn list_schema() -> DInductiveSpec
 pub fn loop_space_type_term(DTerm, DTerm, Int32) -> DTerm
 
 pub fn loop_space_type_value(DValue, DValue, Int32) -> DValue
+
+pub fn loop_suspension_adjunction_equiv_value(DValue, DValue, DValue, DValue, Int32, level? : Int32) -> DValue
 
 pub fn lty_to_dterm(LTy) -> DTerm
 
@@ -2240,6 +2472,12 @@ pub fn pathp_snd(PathPVal, Equiv) -> PathPVal
 
 pub fn pathp_wf(PathPVal) -> Bool
 
+pub fn pi1_set_circle_equiv_integer_value(Int32) -> DValue
+
+pub fn pi1_susp2_circle_equiv_unit_value(Int32) -> DValue
+
+pub fn pi1_susp_circle_equiv_unit_value(Int32) -> DValue
+
 pub fn pi3_sphere_point_term(Int32, DTerm) -> DTerm
 
 pub fn pi3_sphere_type_term(Int32) -> DTerm
@@ -2262,9 +2500,17 @@ pub fn projector_certificate_ok(ProjectorCertificate) -> Bool
 
 pub fn projector_from_orthonormal(Array[Array[Complex]], Int32) -> CMat
 
+pub fn prop_trunc_elim_prop_value(DValue, (DValue) -> DValue, (DValue, DValue, DValue) -> DValue, (DValue) -> DValue, DValue, Int32) -> DValue
+
+pub fn prop_trunc_point_value(DValue, DValue) -> DValue
+
 pub fn prop_trunc_schema() -> DHitSpec
 
 pub fn prop_trunc_schema_at(Int32) -> DHitSpec
+
+pub fn prop_trunc_squash_path_value(DValue, DValue, DValue) -> DValue
+
+pub fn prop_trunc_type_value(DValue) -> DValue
 
 pub fn prune_cube(CMat, Cube) -> Cube
 
@@ -2362,6 +2608,8 @@ pub fn quote_tube_branches(Int32, Int32, (Dim) -> DValue, DSystem) -> Array[DTub
 
 pub fn quote_ty(Int32, Int32, DValue) -> DTerm
 
+pub fn quote_unglue_equiv_neutral(Int32, Int32, DNeutral, DGlueEquivParts) -> DTerm
+
 pub fn quotient_eq_term(Array[DTerm], DTerm, DTerm, DTerm, Dim) -> DTerm
 
 pub fn quotient_point_term(Array[DTerm], DTerm) -> DTerm
@@ -2369,6 +2617,10 @@ pub fn quotient_point_term(Array[DTerm], DTerm) -> DTerm
 pub fn quotient_schema() -> DHitSpec
 
 pub fn refl_path(Ty, PVal) -> DiscPath
+
+pub fn reflect_neutral_at_type(DNeutral, DValue) -> DValue
+
+pub fn reflect_var(Int32, DValue) -> DValue
 
 pub fn restrict_face(Cube, Int32, Double) -> Cube
 
@@ -2476,15 +2728,53 @@ pub fn schema_value_prefix(Array[DValue], Int32) -> Array[DValue]
 
 pub fn segment_schema() -> DHitSpec
 
+pub fn set_trunc_elim_prop_value(DValue, (DValue) -> DValue, (DValue, DValue, DValue, Int32) -> DValue, (DValue) -> DValue, DValue, Int32) -> DValue
+
+pub fn set_trunc_elim_set_value(DValue, (DValue) -> DValue, (DValue, DValue, DValue, DValue, DValue) -> DValue, (DValue) -> DValue, DValue, Int32) -> DValue
+
+pub fn set_trunc_equiv_of_equiv_set_value(DValue, DValue, DValue, (DValue, DValue, DValue, DValue) -> DValue, Int32) -> DValue
+
+pub fn set_trunc_hub_value(DValue, DValue) -> DValue
+
+pub fn set_trunc_is_set_value(DValue, DValue, DValue, DValue, DValue, Int32) -> DValue
+
+pub fn set_trunc_loop_trivial_value(DValue, DValue, DValue, Int32) -> DValue
+
+pub fn set_trunc_point_term(DTerm, DTerm) -> DTerm
+
+pub fn set_trunc_point_value(DValue, DValue) -> DValue
+
+pub fn set_trunc_rec_set_value(DValue, DValue, (DValue, DValue, DValue, DValue) -> DValue, (DValue) -> DValue, DValue, Int32) -> DValue
+
+pub fn set_trunc_schema() -> DHitSpec
+
+pub fn set_trunc_schema_at(Int32) -> DHitSpec
+
+pub fn set_trunc_spoke_path_value(DValue, DValue, DValue) -> DValue
+
+pub fn set_trunc_type_term(DTerm) -> DTerm
+
+pub fn set_trunc_type_value(DValue) -> DValue
+
+pub fn shared_dag_bundle_load_binary_report(Array[Int32], intern_table? : DTermInternTable, validate? : Bool) -> SharedDagBundleLoad
+
+pub fn shared_dag_bundle_to_binary(SharedDagBundle) -> Array[Int32]
+
 pub fn simultaneous_ir_compile_decode(DSimultaneousIRSpec, Int32) -> DInductiveSpec?
 
 pub fn simultaneous_ir_compile_eliminator(DSimultaneousIRSpec, Int32) -> DTerm?
 
 pub fn simultaneous_ir_compile_eliminator_block(DSimultaneousIRSpec) -> Array[DTerm?]
 
+pub fn simultaneous_ir_compile_joint(DSimultaneousIRSpec, Int32) -> DTerm?
+
+pub fn simultaneous_ir_compile_joint_block(DSimultaneousIRSpec) -> Array[DTerm?]
+
 pub fn simultaneous_ir_eliminator_type(DSimultaneousIRSpec, Int32) -> DTerm?
 
 pub fn simultaneous_ir_function_universe_level(DSimultaneousIRSpec, Int32) -> Int32
+
+pub fn simultaneous_ir_general_eliminator_type(DSimultaneousIRSpec, Int32) -> DTerm?
 
 pub fn simultaneous_ir_uses_other_hypotheses(DSimultaneousIRSpec, Int32) -> Bool
 
@@ -2590,6 +2880,30 @@ pub fn subst_pathp_value((DValue) -> DValue, DValue, DValue, Int32) -> DValue
 
 pub fn subst_value((DValue) -> DValue, DValue, DValue, Int32) -> DValue
 
+pub fn susp_0_connected_of_pointed_value(DValue, DValue, DValue, Int32, level? : Int32) -> DValue
+
+pub fn susp_based_to_cocone_equiv_value(DValue, DValue, DValue, Int32, level? : Int32) -> DValue
+
+pub fn susp_bool_equiv_circle_value(Int32) -> DValue
+
+pub fn susp_bool_to_circle_value(DValue, Int32) -> DValue
+
+pub fn susp_cocone_type_value(DValue, DValue) -> DValue
+
+pub fn susp_merid_path_value(DValue, DValue, level? : Int32) -> DValue
+
+pub fn susp_north_value(DValue, level? : Int32) -> DValue
+
+pub fn susp_south_value(DValue, level? : Int32) -> DValue
+
+pub fn susp_type_schema() -> DHitSpec
+
+pub fn susp_type_schema_at(Int32) -> DHitSpec
+
+pub fn susp_type_value(DValue, level? : Int32) -> DValue
+
+pub fn susp_universal_equiv_value(DValue, DValue, Int32, level? : Int32) -> DValue
+
 pub fn suspend_loop_value(DHitSpec, DValue, DValue, DValue, Int32, Int32) -> DValue
 
 pub fn suspension_map_value(DHitSpec, DHitSpec, (DValue) -> DValue, DValue, Int32) -> DValue
@@ -2693,6 +3007,8 @@ pub fn tsnd(TValue, LTy) -> TValue
 pub fn tube_branch(Face, (Dim) -> DValue) -> DTubeBranch
 
 pub fn tube_paths_conv_under_face(Int32, Int32, Face, (Dim) -> DValue, (Dim) -> DValue, (Dim) -> DValue) -> Bool
+
+pub fn tube_paths_conv_under_face_in(DEnv, Int32, Int32, Face, (Dim) -> DValue, (Dim) -> DValue, (Dim) -> DValue) -> Bool
 
 pub fn tube_system_nf_at(Int32, Int32, (Dim) -> DValue, DSystem, Dim) -> DSystemNF
 
@@ -2814,6 +3130,12 @@ pub fn vsnd(Value) -> Value
 
 pub fn w_schema() -> DInductiveSpec
 
+pub fn wedge_connectivity_circle_left_coh_value((DValue, DValue) -> DValue, (DValue, DValue, DValue, DValue, DValue, DValue) -> DValue, (DValue) -> DValue, (DValue) -> DValue, DValue, DValue, Int32) -> DValue
+
+pub fn wedge_connectivity_circle_right_coh_value((DValue) -> DValue, DValue) -> DValue
+
+pub fn wedge_connectivity_circle_set_ext_value((DValue, DValue) -> DValue, (DValue, DValue, DValue, DValue, DValue, DValue) -> DValue, (DValue) -> DValue, (DValue) -> DValue, DValue, DValue, DValue, Int32) -> DValue
+
 pub fn wiring_apply(Wiring, PVal) -> PVal
 
 pub fn wiring_assoc(Ty, Ty, Ty) -> Wiring
@@ -2859,12 +3181,31 @@ pub struct AlgCertSquare {
   coeffs : Array[Array[Array[AlgC]]]
 }
 
+pub(all) struct ArtifactAuthKey {
+  key_id : String
+  secret_a : Int32
+  secret_b : Int32
+} derive(Eq, @debug.Debug)
+pub fn ArtifactAuthKey::equal(Self, Self) -> Bool
+pub fn ArtifactAuthKey::not_equal(Self, Self) -> Bool
+pub fn ArtifactAuthKey::to_repr(Self) -> @debug.Repr
+
 pub struct ArtifactByteStore {
   read : (String) -> Array[Int32]?
   write : (String, Array[Int32]) -> Bool
   remove : (String) -> Bool
   list : () -> Array[String]
 }
+
+pub(all) enum ArtifactCasStatus {
+  ArtifactCasCommitted
+  ArtifactCasConflict
+  ArtifactCasAuthFailed
+  ArtifactCasIoError
+} derive(Eq, @debug.Debug)
+pub fn ArtifactCasStatus::equal(Self, Self) -> Bool
+pub fn ArtifactCasStatus::not_equal(Self, Self) -> Bool
+pub fn ArtifactCasStatus::to_repr(Self) -> @debug.Repr
 
 pub struct ArtifactChainEntry {
   sequence : Int32
@@ -2921,6 +3262,18 @@ pub fn ArtifactRepositoryStats::equal(Self, Self) -> Bool
 pub fn ArtifactRepositoryStats::not_equal(Self, Self) -> Bool
 pub fn ArtifactRepositoryStats::to_repr(Self) -> @debug.Repr
 
+pub(all) struct ArtifactSyncReport {
+  ok : Bool
+  transferred_blobs : Int32
+  skipped_existing_blobs : Int32
+  tombstones_applied : Int32
+  final_head_a : Int32
+  final_head_b : Int32
+} derive(Eq, @debug.Debug)
+pub fn ArtifactSyncReport::equal(Self, Self) -> Bool
+pub fn ArtifactSyncReport::not_equal(Self, Self) -> Bool
+pub fn ArtifactSyncReport::to_repr(Self) -> @debug.Repr
+
 pub enum Bdd {
   BddZero
   BddOne
@@ -2954,6 +3307,18 @@ pub struct BddDagNode {
   hi : Int32
 }
 
+pub struct BddDecomposedOptimalBuild {
+  built : BddDagFace
+  order : Array[Int32]
+  size : Int32
+  active_vars : Int32
+  component_count : Int32
+  max_component_vars : Int32
+  tried : Int32
+  pruned_subsets : Int32
+  exact : Bool
+}
+
 pub struct BddManager {
   n : Int32
   order : Array[Int32]
@@ -2983,6 +3348,17 @@ pub struct BddOptimizedBuild {
   reachable : Int32
   attempts : Int32
   improved : Bool
+}
+
+pub struct BddPrunedOptimalBuild {
+  built : BddDagFace
+  order : Array[Int32]
+  size : Int32
+  active_vars : Int32
+  incumbent_size : Int32
+  tried : Int32
+  pruned_subsets : Int32
+  exact : Bool
 }
 
 pub struct BinaryVersionPolicy {
@@ -3019,9 +3395,19 @@ pub struct CertSquare {
   coeffs : Array[Array[Array[QuadC]]]
 }
 
-pub struct CheckResult {
+pub(all) struct CheckResult {
   name : String
   ok : Bool
+}
+
+pub struct CheckedDCube {
+  arity : Int32
+  body : DTerm
+  ty : DValue
+  ctx : DEnv
+  env : DEnv
+  denv : DDimEnv
+  cube : DCubeFunction
 }
 
 pub struct CompiledModule {
@@ -3046,6 +3432,16 @@ pub struct CompiledModuleEnv {
 pub fn CompiledModuleEnv::equal(Self, Self) -> Bool
 pub fn CompiledModuleEnv::not_equal(Self, Self) -> Bool
 pub fn CompiledModuleEnv::to_repr(Self) -> @debug.Repr
+
+pub(all) struct CompiledModuleEnvelopeLoad {
+  status : ModuleBinaryStatus
+  module_ : CompiledModule?
+  recognized_sections : Array[ModuleTlvSection]
+  skipped_noncritical_tags : Array[Int32]
+} derive(Eq, @debug.Debug)
+pub fn CompiledModuleEnvelopeLoad::equal(Self, Self) -> Bool
+pub fn CompiledModuleEnvelopeLoad::not_equal(Self, Self) -> Bool
+pub fn CompiledModuleEnvelopeLoad::to_repr(Self) -> @debug.Repr
 
 pub struct CompiledModuleStore {
   blobs : Array[(String, Array[Int32])]
@@ -3146,6 +3542,14 @@ pub struct DCubeBoxReport {
   failed_overlaps : Int32
 }
 
+pub struct DCubeCoveringReport {
+  equal : Bool
+  probes : Int32
+  failed : Int32
+  interaction_strength : Int32
+  complete_for_strength : Bool
+}
+
 pub struct DCubeFunction {
   arity : Int32
   at : (Array[Dim]) -> DValue
@@ -3164,6 +3568,16 @@ pub struct DCubeStratifiedReport {
   failed : Int32
   complete : Bool
 }
+
+pub(all) struct DCubeYonedaReport {
+  natural : Bool
+  generic_reified_term : DTerm
+  audited_substitutions : Int32
+  failed_substitutions : Int32
+} derive(Eq, @debug.Debug)
+pub fn DCubeYonedaReport::equal(Self, Self) -> Bool
+pub fn DCubeYonedaReport::not_equal(Self, Self) -> Bool
+pub fn DCubeYonedaReport::to_repr(Self) -> @debug.Repr
 
 pub enum DDimEnv {
   DDimEnvNil
@@ -3443,6 +3857,8 @@ pub enum DNeutral {
   DNEquivBwd(DNeutral, DValue, DValue)
   DNEquivSect(DNeutral, DValue, DValue)
   DNEquivRetr(DNeutral, DValue, DValue)
+  DNEquivAnn(DNeutral, DValue, DValue)
+  DNUnglueEquiv(DNeutral, DGlueEquivParts)
   DNComp((Dim) -> DValue, DSystem, DValue)
   DNHComp(DValue, DSystem, DValue)
 }
@@ -3494,6 +3910,14 @@ pub struct DPositivityReport {
 pub fn DPositivityReport::equal(Self, Self) -> Bool
 pub fn DPositivityReport::not_equal(Self, Self) -> Bool
 pub fn DPositivityReport::to_repr(Self) -> @debug.Repr
+
+pub struct DPositivityWitness {
+  declaration : DPositivityDeclaration
+  definition : DTerm
+} derive(Eq, @debug.Debug)
+pub fn DPositivityWitness::equal(Self, Self) -> Bool
+pub fn DPositivityWitness::not_equal(Self, Self) -> Bool
+pub fn DPositivityWitness::to_repr(Self) -> @debug.Repr
 
 pub struct DSchemaRegistry {
   inductives : Array[DInductivePlan]
@@ -3568,6 +3992,15 @@ pub struct DSystemRepair {
   base_removed_region : Bdd
   repaired_branches : Int32
   compatible : Bool
+}
+
+pub struct DSystemRepairAllMaxima {
+  systems : Array[DSystem]
+  max_branch_count : Int32
+  total_maximum_count : Int32
+  conflict_components : Int32
+  all_compatible : Bool
+  exact : Bool
 }
 
 pub struct DSystemRepairExact {
@@ -3670,6 +4103,7 @@ pub enum DTerm {
   DEquivSect(DTerm)
   DEquivRetr(DTerm)
   DGlueEquiv(DTerm, Array[DEquivBranch])
+  DUnglueEquiv(DTerm, DTerm, Array[DEquivBranch])
   DUa(DTerm)
 } derive(Eq, @debug.Debug)
 pub fn DTerm::equal(Self, Self) -> Bool
@@ -3683,6 +4117,25 @@ pub struct DTermDagBinaryLoad {
 pub fn DTermDagBinaryLoad::equal(Self, Self) -> Bool
 pub fn DTermDagBinaryLoad::not_equal(Self, Self) -> Bool
 pub fn DTermDagBinaryLoad::to_repr(Self) -> @debug.Repr
+
+pub(all) struct DTermDagDelta {
+  base_node_count : Int32
+  base_digest_a : Int32
+  base_digest_b : Int32
+  delta_nodes : Array[DTermDagNode]
+  roots : Array[Int32]
+} derive(Eq, @debug.Debug)
+pub fn DTermDagDelta::equal(Self, Self) -> Bool
+pub fn DTermDagDelta::not_equal(Self, Self) -> Bool
+pub fn DTermDagDelta::to_repr(Self) -> @debug.Repr
+
+pub(all) struct DTermDagDeltaBinaryLoad {
+  status : ModuleBinaryStatus
+  delta : DTermDagDelta?
+} derive(Eq, @debug.Debug)
+pub fn DTermDagDeltaBinaryLoad::equal(Self, Self) -> Bool
+pub fn DTermDagDeltaBinaryLoad::not_equal(Self, Self) -> Bool
+pub fn DTermDagDeltaBinaryLoad::to_repr(Self) -> @debug.Repr
 
 pub struct DTermDagImportReport {
   node_ids : Array[Int32]
@@ -3910,6 +4363,34 @@ pub fn FaceDecision::equal(Self, Self) -> Bool
 pub fn FaceDecision::not_equal(Self, Self) -> Bool
 pub fn FaceDecision::to_repr(Self) -> @debug.Repr
 
+pub struct FaceDrupTrimReport {
+  valid : Bool
+  original_steps : Int32
+  trimmed_steps : Int32
+  steps : Array[FaceCdclProofStep]
+}
+
+pub(all) struct FaceLratElaborateReport {
+  valid : Bool
+  original_clauses : Int32
+  input_steps : Int32
+  lrat_adds : Int32
+  lrat_deletes : Int32
+  total_hints : Int32
+  steps : Array[FaceLratStep]
+} derive(Eq, @debug.Debug)
+pub fn FaceLratElaborateReport::equal(Self, Self) -> Bool
+pub fn FaceLratElaborateReport::not_equal(Self, Self) -> Bool
+pub fn FaceLratElaborateReport::to_repr(Self) -> @debug.Repr
+
+pub(all) enum FaceLratStep {
+  LratAdd(Int32, Array[Int32], Array[Int32], Array[(Int32, Array[Int32])])
+  LratDelete(Int32, Array[Int32])
+} derive(Eq, @debug.Debug)
+pub fn FaceLratStep::equal(Self, Self) -> Bool
+pub fn FaceLratStep::not_equal(Self, Self) -> Bool
+pub fn FaceLratStep::to_repr(Self) -> @debug.Repr
+
 pub enum FaceSatDecision {
   FaceSat(Array[Bool])
   FaceUnsat
@@ -3979,6 +4460,18 @@ pub struct HouConstraint {
 pub fn HouConstraint::equal(Self, Self) -> Bool
 pub fn HouConstraint::not_equal(Self, Self) -> Bool
 pub fn HouConstraint::to_repr(Self) -> @debug.Repr
+
+pub(all) struct HouEnumerationReport {
+  solutions : Array[Array[(Int32, UTerm)]]
+  search_exhausted : Bool
+  capped : Bool
+  nodes : Int32
+  branches_tried : Int32
+  max_depth_reached : Int32
+} derive(Eq, @debug.Debug)
+pub fn HouEnumerationReport::equal(Self, Self) -> Bool
+pub fn HouEnumerationReport::not_equal(Self, Self) -> Bool
+pub fn HouEnumerationReport::to_repr(Self) -> @debug.Repr
 
 pub struct HouIterativeReport {
   report : HouSearchReport
@@ -4255,6 +4748,15 @@ pub fn ModuleSignature::equal(Self, Self) -> Bool
 pub fn ModuleSignature::not_equal(Self, Self) -> Bool
 pub fn ModuleSignature::to_repr(Self) -> @debug.Repr
 
+pub(all) struct ModuleTlvSection {
+  tag : Int32
+  critical : Bool
+  payload : Array[Int32]
+} derive(Eq, @debug.Debug)
+pub fn ModuleTlvSection::equal(Self, Self) -> Bool
+pub fn ModuleTlvSection::not_equal(Self, Self) -> Bool
+pub fn ModuleTlvSection::to_repr(Self) -> @debug.Repr
+
 pub enum Neutral {
   NeVar(Int32)
   NeApp(Neutral, Value)
@@ -4321,6 +4823,19 @@ pub enum STerm {
 pub fn STerm::equal(Self, Self) -> Bool
 pub fn STerm::not_equal(Self, Self) -> Bool
 pub fn STerm::to_repr(Self) -> @debug.Repr
+
+pub struct SharedDagBundle {
+  modules : Array[CompiledModule]
+  registry : DSchemaRegistrySnapshot
+}
+
+pub struct SharedDagBundleLoad {
+  status : ModuleBinaryStatus
+  bundle : SharedDagBundle?
+  shared_term_entries : Int32
+  interned_dag_nodes : Int32
+  reused_dag_nodes : Int32
+}
 
 pub struct SpecEntry {
   name : String

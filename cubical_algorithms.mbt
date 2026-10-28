@@ -161,7 +161,7 @@ pub fn dpath_trans_square_value(
         tube_branch(face_simplify(FEq0(i)), _ => dapp_dim(p, DZero)),
         tube_branch(face_simplify(FEq1(i)), k => dapp_dim(q, k)),
       ])
-      fill_value(_ => ty, branches, dapp_dim(p, i), dlevel + 1)(j)
+      hfill_value(ty, branches, dapp_dim(p, i), dlevel + 1)(j)
     })
   })
 }
@@ -201,7 +201,7 @@ pub fn subst_value(
   v : DValue,
   dlevel : Int32,
 ) -> DValue {
-  transport_value(j => fam(dapp_dim(p, j)), v, dlevel)
+  transport_value(memo_dim_line(j => fam(dapp_dim(p, j))), v, dlevel)
 }
 
 ///|
@@ -522,26 +522,42 @@ pub fn dpath_assoc3_value(
   gamma : DValue,
   dlevel : Int32,
 ) -> DValue {
+  let alpha_beta = dpath_trans_value(space_ty, alpha, beta, dlevel)
   let beta_gamma = dpath_trans_value(space_ty, beta, gamma, dlevel)
-  let left_square = dpath_triple_square_value(
-    space_ty, alpha, beta, gamma, dlevel,
-  )
-  let right_square = dpath_trans_square_value(
-    space_ty, alpha, beta_gamma, dlevel,
-  )
+  let s_ab = dpath_trans_square_value(space_ty, alpha, beta, dlevel)
+  let s_bg = dpath_trans_square_value(space_ty, beta, gamma, dlevel)
+  let s_ab_g = dpath_trans_square_value(space_ty, alpha_beta, gamma, dlevel + 2)
+  let s_a_bg = dpath_trans_square_value(space_ty, alpha, beta_gamma, dlevel + 2)
+  let end_pt = dapp_dim(gamma, DOne)
+  let right_face = (t : Dim, k : Dim) => {
+    let u = dim_simplify(DOr(DNeg(t), k))
+    let r_base = dapp_dim(dapp_dim(s_bg, u), k)
+    let r_sys = dsystem_of([
+      tube_branch(face_simplify(FEq0(t)), _ => dapp_dim(gamma, k)),
+      tube_branch(face_simplify(FEq1(t)), w => {
+        dapp_dim(dapp_dim(s_bg, k), dim_simplify(DOr(k, w)))
+      }),
+      tube_branch(face_simplify(FEq0(k)), _ => {
+        dapp_dim(beta, dim_simplify(DNeg(t)))
+      }),
+      tube_branch(face_simplify(FEq1(k)), _ => end_pt),
+    ])
+    hcomp_value(space_ty, r_sys, r_base, dlevel + 4)
+  }
   DVPathLam(t => {
     DVPathLam(i => {
+      let base_ti = dapp_dim(dapp_dim(s_ab, i), dim_simplify(DNeg(t)))
       let branches = dsystem_of([
-        tube_branch(face_simplify(FEq0(t)), j => {
-          dapp_dim(dapp_dim(left_square, i), j)
+        tube_branch(face_simplify(FEq0(t)), k => {
+          dapp_dim(dapp_dim(s_ab_g, i), k)
         }),
-        tube_branch(face_simplify(FEq1(t)), j => {
-          dapp_dim(dapp_dim(right_square, i), j)
+        tube_branch(face_simplify(FEq1(t)), k => {
+          dapp_dim(dapp_dim(s_a_bg, i), k)
         }),
         tube_branch(face_simplify(FEq0(i)), _ => r),
-        tube_branch(face_simplify(FEq1(i)), j => dapp_dim(beta_gamma, j)),
+        tube_branch(face_simplify(FEq1(i)), k => right_face(t, k)),
       ])
-      hcomp_value(space_ty, branches, dapp_dim(alpha, i), dlevel + 6)
+      hcomp_value(space_ty, branches, base_ti, dlevel + 6)
     })
   })
 }
@@ -651,4 +667,620 @@ pub fn dpath_sym_compose3_value(
   result = dloop3_trans(space_ty, r, result, uniq3, dlevel)
   result = dloop3_trans(space_ty, r, result, uniq4, dlevel)
   dloop3_trans(space_ty, r, result, uniq5, dlevel)
+}
+
+// ---------------------------------------------------------------------------
+// Phase 14: Fundamental square boundary 3-cell, unit triangle coherence,
+// Eckmann-Hilton 3-cell on Omega^2, and Mac Lane's pentagon 4-cell.
+// ---------------------------------------------------------------------------
+
+///|
+/// Fundamental square-boundary 3-cell: for any 2-dimensional path
+/// `sq : I -> I -> space_ty` with corners `x00 = sq(0,0)` and
+/// `x11 = sq(1,1)`, bottom `b0(u) = sq(u,0)`, right `r1(v) = sq(1,v)`,
+/// left `l0(v) = sq(0,v)`, and top `t1(u) = sq(u,1)`, constructs an
+/// explicit path in `Path(space_ty, x00, x11)` from `b0 ⬝ r1` to
+/// `l0 ⬝ t1` via the diagonal `u ↦ sq(u, u)`.
+pub fn dpath_square_boundary3_value(
+  space_ty : DValue,
+  sq : DValue,
+  dlevel : Int32,
+) -> DValue {
+  let sq_at = (u : Dim, v : Dim) => dapp_dim(dapp_dim(sq, u), v)
+  let x00 = sq_at(DZero, DZero)
+  let x11 = sq_at(DOne, DOne)
+  let b0 : DValue = DVPathLam(u => sq_at(u, DZero))
+  let r1 : DValue = DVPathLam(v => sq_at(DOne, v))
+  let l0 : DValue = DVPathLam(v => sq_at(DZero, v))
+  let t1 : DValue = DVPathLam(u => sq_at(u, DOne))
+  let s1 = dpath_trans_square_value(space_ty, b0, r1, dlevel)
+  let s2 = dpath_trans_square_value(space_ty, l0, t1, dlevel)
+  // Step 1: `(b0 ⬝ r1)` to `diag` via lower-right connection `sq(u, u ∧ v)`.
+  let to_diag : DValue = DVPathLam(t => {
+    DVPathLam(u => {
+      let branches = dsystem_of([
+        tube_branch(face_simplify(FEq0(t)), v => dapp_dim(dapp_dim(s1, u), v)),
+        tube_branch(face_simplify(FEq1(t)), v => {
+          sq_at(u, dim_simplify(DAnd(u, v)))
+        }),
+        tube_branch(face_simplify(FEq0(u)), _ => x00),
+        tube_branch(face_simplify(FEq1(u)), v => dapp_dim(r1, v)),
+      ])
+      hcomp_value(space_ty, branches, dapp_dim(b0, u), dlevel + 4)
+    })
+  })
+  // Step 2: `diag` to `(l0 ⬝ t1)` via upper-left connection `sq(u ∧ v, u)`.
+  let from_diag : DValue = DVPathLam(t => {
+    DVPathLam(u => {
+      let branches = dsystem_of([
+        tube_branch(face_simplify(FEq0(t)), v => {
+          sq_at(dim_simplify(DAnd(u, v)), u)
+        }),
+        tube_branch(face_simplify(FEq1(t)), v => dapp_dim(dapp_dim(s2, u), v)),
+        tube_branch(face_simplify(FEq0(u)), _ => x00),
+        tube_branch(face_simplify(FEq1(u)), v => dapp_dim(t1, v)),
+      ])
+      hcomp_value(space_ty, branches, dapp_dim(l0, u), dlevel + 4)
+    })
+  })
+  dpath_trans_value(
+    DVPathTy(_ => space_ty, x00, x11),
+    to_diag,
+    from_diag,
+    dlevel + 6,
+  )
+}
+
+///|
+/// HoTT unit coherence (`left_unit(refl_b) = right_unit(refl_b)`):
+/// for any `b : ty`, constructs a 4-cell in
+/// `Path(Path(Path(ty, b, b), refl_b ⬝ refl_b, refl_b), left_unit(refl_b), right_unit(refl_b))`.
+pub fn dpath_lr_unit_coherence4_value(
+  ty : DValue,
+  b : DValue,
+  dlevel : Int32,
+) -> DValue {
+  let e = dpath_refl_value(b)
+  let loop1_ty = DVPathTy(_ => ty, b, b)
+  let ee = dpath_trans_value(ty, e, e, dlevel)
+  let unit_path_ty = DVPathTy(_ => loop1_ty, ee, e)
+  let sq = dpath_trans_square_value(ty, e, e, dlevel)
+  let sq_at = (u : Dim, v : Dim) => dapp_dim(dapp_dim(sq, u), v)
+  let diag : DValue = DVPathLam(i => sq_at(i, i))
+  let phase1 : DValue = DVPathLam(t => {
+    DVPathLam(i => sq_at(i, dim_simplify(DOr(i, DNeg(t)))))
+  })
+  let step_b1 : DValue = DVPathLam(t => {
+    DVPathLam(i => sq_at(i, dim_simplify(DAnd(i, DNeg(t)))))
+  })
+  // `phase2` (`S(i ∨ t, i)`) -> `S(i ∨ t, i ∧ ¬t)` -> `step_b1` (`S(i, i ∧ ¬t)`).
+  let p2_to_mid : DValue = DVPathLam(s => {
+    DVPathLam(t => {
+      DVPathLam(i => {
+        sq_at(dim_simplify(DOr(i, t)), dim_simplify(DAnd(i, DNeg(DAnd(s, t)))))
+      })
+    })
+  })
+  let mid_to_b1 : DValue = DVPathLam(s => {
+    DVPathLam(t => {
+      DVPathLam(i => {
+        sq_at(
+          dim_simplify(DOr(i, DAnd(t, DNeg(s)))),
+          dim_simplify(DAnd(i, DNeg(t))),
+        )
+      })
+    })
+  })
+  let p2_to_b1 = dpath_trans_value(
+    DVPathTy(_ => loop1_ty, diag, e),
+    p2_to_mid,
+    mid_to_b1,
+    dlevel + 4,
+  )
+  let whisker_p1 : DValue = DVPathLam(s => {
+    dpath_trans_value(loop1_ty, phase1, dapp_dim(p2_to_b1, s), dlevel)
+  })
+  // Connect `phase1 ⬝ step_b1` to `right_unit(e)` (`t ↦ i ↦ S(i, ¬t)`)
+  // using the comparison square `K(t, u)(i) = S(i, ¬t ∨ (i ∧ ¬u))`.
+  let trans_p1_b1 = dpath_trans_square_value(loop1_ty, phase1, step_b1, dlevel)
+  let to_right : DValue = DVPathLam(s => {
+    DVPathLam(t => {
+      let branches = dsystem_of([
+        tube_branch(face_simplify(FEq0(s)), u => {
+          dapp_dim(dapp_dim(trans_p1_b1, t), u)
+        }),
+        tube_branch(face_simplify(FEq1(s)), u => {
+          DVPathLam(i => sq_at(i, dim_simplify(DOr(DNeg(t), DAnd(i, DNeg(u))))))
+        }),
+        tube_branch(face_simplify(FEq0(t)), _ => ee),
+        tube_branch(face_simplify(FEq1(t)), u => dapp_dim(step_b1, u)),
+      ])
+      hcomp_value(loop1_ty, branches, dapp_dim(phase1, t), dlevel + 6)
+    })
+  })
+  dpath_trans_value(unit_path_ty, whisker_p1, to_right, dlevel + 6)
+}
+
+///|
+/// Eckmann-Hilton commutativity 3-cell on `Omega^2(ty, b)`: for any
+/// two 2-loops `alpha, beta : Path(Path(ty, b, b), refl_b, refl_b)`,
+/// builds a 3-cell in `Path(Omega^2(ty, b), alpha ⬝ beta, beta ⬝ alpha)`
+/// with zero assumptions on `ty` or `b`.
+pub fn dpath_eckmann_hilton3_value(
+  ty : DValue,
+  b : DValue,
+  alpha : DValue,
+  beta : DValue,
+  dlevel : Int32,
+) -> DValue {
+  let e = dpath_refl_value(b)
+  let y_ty = DVPathTy(_ => ty, b, b)
+  let c0 = dpath_right_unit3_value(ty, b, e, dlevel) // ee = e in y_ty
+  let lr_coh = dpath_lr_unit_coherence4_value(ty, b, dlevel) // l0 = c0
+
+  // Torus-like bifunctor square `G(u, v) = alpha(u) ⬝ beta(v)` in `y_ty`.
+  let g_sq : DValue = DVPathLam(u => {
+    DVPathLam(v => {
+      dpath_trans_value(ty, dapp_dim(alpha, u), dapp_dim(beta, v), dlevel)
+    })
+  })
+  let a_loop : DValue = DVPathLam(u => {
+    dpath_trans_value(ty, dapp_dim(alpha, u), e, dlevel)
+  })
+  let b_loop : DValue = DVPathLam(v => {
+    dpath_trans_value(ty, e, dapp_dim(beta, v), dlevel)
+  })
+  // In `Omega(y_ty, ee)`: `a_loop ⬝ b_loop = b_loop ⬝ a_loop`.
+  let raw_comm = dpath_square_boundary3_value(y_ty, g_sq, dlevel)
+  // Transport `Omega(y_ty, ee)` along `c0 : ee = e` into `Omega(y_ty, e) = Omega^2(ty, b)`.
+  let conj_by_c0 = (loop_ee : DValue) => {
+    subst_value(pt => DVPathTy(_ => y_ty, pt, pt), c0, loop_ee, dlevel + 4)
+  }
+  let comm_conj = DVPathLam(t => conj_by_c0(dapp_dim(raw_comm, t)))
+
+  // Connect `conj_by_c0(a_loop)` to `alpha`: naturality of `right_unit` gives
+  // a dependent path over `u ↦ Path(y_ty, c0(u), c0(u))` from `a_loop` to `alpha`,
+  // so `transport` along `u ↦ Path(y_ty, c0(u), c0(u))` takes `a_loop` to `alpha`!
+  let a_dep_line : DValue = DVPathLam(s => {
+    DVPathLam(u => {
+      dapp_dim(dpath_right_unit3_value(ty, b, dapp_dim(alpha, u), dlevel), s)
+    })
+  })
+  // And for `b_loop`: `s ↦ u ↦ left_unit(beta(u))(s)` has endpoints `l0(s)` at `u=0,1`,
+  // corrected to `c0(s)` via `lr_coh`!
+  let b_dep_raw : DValue = DVPathLam(s => {
+    DVPathLam(u => {
+      let base_pt = dapp_dim(
+        dpath_left_unit3_value(ty, b, dapp_dim(beta, u), dlevel),
+        s,
+      )
+      let branches = dsystem_of([
+        tube_branch(face_simplify(FEq0(u)), w => {
+          dapp_dim(dapp_dim(lr_coh, w), s)
+        }),
+        tube_branch(face_simplify(FEq1(u)), w => {
+          dapp_dim(dapp_dim(lr_coh, w), s)
+        }),
+        tube_branch(face_simplify(FEq0(s)), _ => dapp_dim(b_loop, u)),
+        tube_branch(face_simplify(FEq1(s)), _ => dapp_dim(beta, u)),
+      ])
+      hcomp_value(y_ty, branches, base_pt, dlevel + 6)
+    })
+  })
+  // `subst` from `s = 0` (`ee`) to `s = 1` (`e`) along a `PathP (s => Path(y_ty, c0 s, c0 s)) X Y`
+  // equals `Y` via `transport_filler` comparison!
+  let dep_to_subst_eq = (x_ee : DValue, dep_p : DValue) => {
+    let fam = (s : Dim) => {
+      let pt = dapp_dim(c0, s)
+      DVPathTy(_ => y_ty, pt, pt)
+    }
+    let tf = transport_filler_value(fam, x_ee, dlevel + 4)
+    DVPathLam(w => {
+      let branches = dsystem_of([
+        tube_branch(face_simplify(FEq0(w)), s => tf(s)),
+        tube_branch(face_simplify(FEq1(w)), s => dapp_dim(dep_p, s)),
+      ])
+      comp_value(fam, branches, x_ee, dlevel + 6)
+    })
+  }
+  let eq_a = dep_to_subst_eq(a_loop, a_dep_line) // conj_by_c0(a_loop) = alpha
+  let eq_b = dep_to_subst_eq(b_loop, b_dep_raw) // conj_by_c0(b_loop) = beta
+
+  // Functoriality of `subst` over loop composition:
+  // `conj_by_c0(p ⬝ q) = conj_by_c0(p) ⬝ conj_by_c0(q)`.
+  let subst_comp_eq = (p_ee : DValue, q_ee : DValue) => {
+    let fam = (s : Dim) => {
+      let pt = dapp_dim(c0, s)
+      DVPathTy(_ => y_ty, pt, pt)
+    }
+    let pf = transport_filler_value(fam, p_ee, dlevel + 4)
+    let qf = transport_filler_value(fam, q_ee, dlevel + 4)
+    let pq_f = transport_filler_value(
+      fam,
+      dpath_trans_value(y_ty, p_ee, q_ee, dlevel),
+      dlevel + 4,
+    )
+    DVPathLam(w => {
+      let branches = dsystem_of([
+        tube_branch(face_simplify(FEq0(w)), s => pq_f(s)),
+        tube_branch(face_simplify(FEq1(w)), s => {
+          let pt = dapp_dim(c0, s)
+          dpath_trans_value(y_ty, pf(s), qf(s), dlevel + 4)
+          |> v => {
+            ignore(pt)
+            v
+          }
+        }),
+      ])
+      comp_value(
+        fam,
+        branches,
+        dpath_trans_value(y_ty, p_ee, q_ee, dlevel),
+        dlevel + 8,
+      )
+    })
+  }
+
+  let lhs_step1 = dpath_sym_value(subst_comp_eq(a_loop, b_loop)) // conj(a)·conj(b) -> conj(a·b)
+  let lhs_step0 : DValue = DVPathLam(w => {
+    dpath_trans_value(
+      y_ty,
+      dapp_dim(dpath_sym_value(eq_a), w),
+      dapp_dim(dpath_sym_value(eq_b), w),
+      dlevel,
+    )
+  }) // α·β -> conj(a)·conj(b)
+  let rhs_step1 = subst_comp_eq(b_loop, a_loop) // conj(b·a) -> conj(b)·conj(a)
+  let rhs_step2 : DValue = DVPathLam(w => {
+    dpath_trans_value(y_ty, dapp_dim(eq_b, w), dapp_dim(eq_a, w), dlevel)
+  }) // conj(b)·conj(a) -> β·α
+
+  let mut out = dloop3_trans(y_ty, e, lhs_step0, lhs_step1, dlevel + 4)
+  out = dloop3_trans(y_ty, e, out, comm_conj, dlevel + 4)
+  out = dloop3_trans(y_ty, e, out, rhs_step1, dlevel + 4)
+  dloop3_trans(y_ty, e, out, rhs_step2, dlevel + 4)
+}
+
+///|
+/// Associativity 3-cell for arbitrary composable paths
+/// `p : x0 = x1`, `q : x1 = x2`, `u : x2 = x3`: a path in
+/// `Path(space_ty, x0, x3)` from `(p ⬝ q) ⬝ u` to `p ⬝ (q ⬝ u)`.
+pub fn dpath_assoc_path3_value(
+  space_ty : DValue,
+  p : DValue,
+  q : DValue,
+  u : DValue,
+  dlevel : Int32,
+) -> DValue {
+  let x0 = dapp_dim(p, DZero)
+  let qu = dpath_trans_value(space_ty, q, u, dlevel)
+  let left_square = dpath_triple_square_value(space_ty, p, q, u, dlevel)
+  let right_square = dpath_trans_square_value(space_ty, p, qu, dlevel)
+  DVPathLam(t => {
+    DVPathLam(i => {
+      let branches = dsystem_of([
+        tube_branch(face_simplify(FEq0(t)), j => {
+          dapp_dim(dapp_dim(left_square, i), j)
+        }),
+        tube_branch(face_simplify(FEq1(t)), j => {
+          dapp_dim(dapp_dim(right_square, i), j)
+        }),
+        tube_branch(face_simplify(FEq0(i)), _ => x0),
+        tube_branch(face_simplify(FEq1(i)), j => dapp_dim(qu, j)),
+      ])
+      hcomp_value(space_ty, branches, dapp_dim(p, i), dlevel + 6)
+    })
+  })
+}
+
+///|
+/// Top 2-step route of Mac Lane's pentagon for arbitrary composable
+/// paths `p : x0 = x1`, `q : x1 = x2`, `u : x2 = x3`, `v : x3 = x4`.
+pub fn dpath_pentagon_path_top3_value(
+  space_ty : DValue,
+  p : DValue,
+  q : DValue,
+  u : DValue,
+  v : DValue,
+  dlevel : Int32,
+) -> DValue {
+  let x0 = dapp_dim(p, DZero)
+  let x4 = dapp_dim(v, DOne)
+  let pq = dpath_trans_value(space_ty, p, q, dlevel)
+  let uv = dpath_trans_value(space_ty, u, v, dlevel)
+  let step1 = dpath_assoc_path3_value(space_ty, pq, u, v, dlevel)
+  let step2 = dpath_assoc_path3_value(space_ty, p, q, uv, dlevel)
+  dpath_trans_value(DVPathTy(_ => space_ty, x0, x4), step1, step2, dlevel + 2)
+}
+
+///|
+/// Bottom 3-step route of Mac Lane's pentagon for arbitrary composable
+/// paths `p : x0 = x1`, `q : x1 = x2`, `u : x2 = x3`, `v : x3 = x4`.
+pub fn dpath_pentagon_path_bot3_value(
+  space_ty : DValue,
+  p : DValue,
+  q : DValue,
+  u : DValue,
+  v : DValue,
+  dlevel : Int32,
+) -> DValue {
+  let x0 = dapp_dim(p, DZero)
+  let x4 = dapp_dim(v, DOne)
+  let path_ty = DVPathTy(_ => space_ty, x0, x4)
+  let qu = dpath_trans_value(space_ty, q, u, dlevel)
+  let assoc_pqu = dpath_assoc_path3_value(space_ty, p, q, u, dlevel)
+  let step1 : DValue = DVPathLam(t => {
+    dpath_trans_value(space_ty, dapp_dim(assoc_pqu, t), v, dlevel)
+  })
+  let step2 = dpath_assoc_path3_value(space_ty, p, qu, v, dlevel)
+  let assoc_quv = dpath_assoc_path3_value(space_ty, q, u, v, dlevel)
+  let step3 : DValue = DVPathLam(t => {
+    dpath_trans_value(space_ty, p, dapp_dim(assoc_quv, t), dlevel)
+  })
+  let first = dpath_trans_value(path_ty, step1, step2, dlevel + 2)
+  dpath_trans_value(path_ty, first, step3, dlevel + 2)
+}
+
+///|
+/// Top 2-step route of Mac Lane's pentagon on loops at `r`.
+pub fn dpath_pentagon_top3_value(
+  space_ty : DValue,
+  r : DValue,
+  alpha : DValue,
+  beta : DValue,
+  gamma : DValue,
+  delta : DValue,
+  dlevel : Int32,
+) -> DValue {
+  ignore(r)
+  dpath_pentagon_path_top3_value(space_ty, alpha, beta, gamma, delta, dlevel)
+}
+
+///|
+/// Bottom 3-step route of Mac Lane's pentagon on loops at `r`.
+pub fn dpath_pentagon_bot3_value(
+  space_ty : DValue,
+  r : DValue,
+  alpha : DValue,
+  beta : DValue,
+  gamma : DValue,
+  delta : DValue,
+  dlevel : Int32,
+) -> DValue {
+  ignore(r)
+  dpath_pentagon_path_bot3_value(space_ty, alpha, beta, gamma, delta, dlevel)
+}
+
+///|
+/// Mac Lane's pentagon coherence 4-cell: for any space `space_ty` whose
+/// constant Kan boxes normalize on `r` (all concrete types, spheres,
+/// circles, tori, functions, pairs, universes) and any four composable
+/// loops `alpha, beta, gamma, delta : Omega(space_ty, r)`, constructs
+/// an explicit 4-cell in
+/// `Path(Path(Omega(space_ty, r), ((alpha ⬝ beta) ⬝ gamma) ⬝ delta, alpha ⬝ (beta ⬝ (gamma ⬝ delta))), pentagon_top, pentagon_bot)`
+/// by 4-stage cubical singleton contraction (`coe` over path prefixes).
+pub fn dpath_pentagon4_value(
+  space_ty : DValue,
+  r : DValue,
+  alpha : DValue,
+  beta : DValue,
+  gamma : DValue,
+  delta : DValue,
+  dlevel : Int32,
+) -> DValue {
+  let pent_type = (p : DValue, q : DValue, u : DValue, v : DValue) => {
+    let x0 = dapp_dim(p, DZero)
+    let x4 = dapp_dim(v, DOne)
+    let path1_ty = DVPathTy(_ => space_ty, x0, x4)
+    let pqu = dpath_trans_value(
+      space_ty,
+      dpath_trans_value(space_ty, p, q, dlevel),
+      u,
+      dlevel,
+    )
+    let lhs = dpath_trans_value(space_ty, pqu, v, dlevel)
+    let quv = dpath_trans_value(
+      space_ty,
+      q,
+      dpath_trans_value(space_ty, u, v, dlevel),
+      dlevel,
+    )
+    let rhs = dpath_trans_value(space_ty, p, quv, dlevel)
+    let path2_ty = DVPathTy(_ => path1_ty, lhs, rhs)
+    let top3 = dpath_pentagon_path_top3_value(space_ty, p, q, u, v, dlevel)
+    let bot3 = dpath_pentagon_path_bot3_value(space_ty, p, q, u, v, dlevel)
+    DVPathTy(_ => path2_ty, top3, bot3)
+  }
+  let refl_r = dpath_refl_value(r)
+  let base_cell = dpath_refl_value(
+    dpath_pentagon_path_top3_value(
+      space_ty, refl_r, refl_r, refl_r, refl_r, dlevel,
+    ),
+  )
+  // Stage 1: contract `alpha` from `refl_r` to `alpha` (`w1 : 0 -> 1`).
+  let cell1 = transport_value(
+    w1 => {
+      let p1 = dpath_prefix_value(alpha, w1)
+      let x1 = dapp_dim(alpha, w1)
+      let rx1 = dpath_refl_value(x1)
+      pent_type(p1, rx1, rx1, rx1)
+    },
+    base_cell,
+    dlevel + 4,
+  )
+  // Stage 2: contract `beta` from `refl_r` to `beta` (`w2 : 0 -> 1`).
+  let cell2 = transport_value(
+    w2 => {
+      let q2 = dpath_prefix_value(beta, w2)
+      let x2 = dapp_dim(beta, w2)
+      let rx2 = dpath_refl_value(x2)
+      pent_type(alpha, q2, rx2, rx2)
+    },
+    cell1,
+    dlevel + 4,
+  )
+  // Stage 3: contract `gamma` from `refl_r` to `gamma` (`w3 : 0 -> 1`).
+  let cell3 = transport_value(
+    w3 => {
+      let u3 = dpath_prefix_value(gamma, w3)
+      let x3 = dapp_dim(gamma, w3)
+      let rx3 = dpath_refl_value(x3)
+      pent_type(alpha, beta, u3, rx3)
+    },
+    cell2,
+    dlevel + 4,
+  )
+  // Stage 4: contract `delta` from `refl_r` to `delta` (`w4 : 0 -> 1`).
+  transport_value(
+    w4 => {
+      let v4 = dpath_prefix_value(delta, w4)
+      pent_type(alpha, beta, gamma, v4)
+    },
+    cell3,
+    dlevel + 4,
+  )
+}
+
+///|
+/// Lift a homogeneous equality `eq_in_line1 : Path (line(1)) (transport line v0) v1`
+/// to a dependent path `PathP (i => line(i)) v0 v1` with definitionally exact
+/// endpoints `v0` at `0` and `v1` at `1`.
+pub fn dpathp_of_transport_eq_value(
+  line : (Dim) -> DValue,
+  v0 : DValue,
+  _v1 : DValue,
+  eq_in_line1 : DValue,
+  dlevel : Int32,
+) -> DValue {
+  let mline = memo_dim_line(line)
+  let filler = transport_filler_value(mline, v0, dlevel)
+  DVPathLam(i => {
+    let sys = dsystem_of([
+      tube_branch(face_simplify(FEq0(i)), _ => v0),
+      tube_branch(face_simplify(FEq1(i)), j => dapp_dim(eq_in_line1, j)),
+    ])
+    hcomp_value(mline(i), sys, filler(i), dlevel + 2)
+  })
+}
+
+///|
+/// Project a dependent path `p : PathP (i => line(i)) v0 v1` to a homogeneous
+/// path `Path (line(1)) (transport line v0) v1`.
+pub fn dpath_of_pathp_value(
+  line : (Dim) -> DValue,
+  p : DValue,
+  dlevel : Int32,
+) -> DValue {
+  let mline = memo_dim_line(line)
+  let v0 = dapp_dim(p, DZero)
+  let filler = transport_filler_value(mline, v0, dlevel)
+  DVPathLam(j => {
+    let sys = dsystem_of([
+      tube_branch(face_simplify(FEq0(j)), i => filler(i)),
+      tube_branch(face_simplify(FEq1(j)), i => dapp_dim(p, i)),
+    ])
+    comp_value(mline, sys, v0, dlevel + 2)
+  })
+}
+
+///|
+/// Dependent path equality in a family whose right endpoint fiber `line(1)`
+/// is an h-Set: given `p1, p2 : PathP (i => line(i)) u0 u1` and a witness
+/// `is_set_line1 : (a b : line(1)) -> (alpha beta : Path (line(1)) a b) -> Path (...) alpha beta`,
+/// constructs `Path (PathP (i => line(i)) u0 u1) p1 p2` with definitionally
+/// exact boundaries `p1`, `p2`, `u0`, and `u1`.
+pub fn dpathp_eq_in_set_family_value(
+  line : (Dim) -> DValue,
+  u0 : DValue,
+  u1 : DValue,
+  p1 : DValue,
+  p2 : DValue,
+  is_set_line1 : (DValue, DValue, DValue, DValue) -> DValue,
+  dlevel : Int32,
+) -> DValue {
+  let mline = memo_dim_line(line)
+  let open_fill = (r : Dim, i : Dim) => {
+    let sys = dsystem_of([
+      tube_branch(face_simplify(FEq0(r)), k => dapp_dim(p1, k)),
+      tube_branch(face_simplify(FEq1(r)), k => dapp_dim(p2, k)),
+    ])
+    fill_value(mline, sys, u0, dlevel + 2)(i)
+  }
+  let top_cap = DVPathLam(r => open_fill(r, DOne))
+  let lid = is_set_line1(u1, u1, top_cap, dpath_refl_value(u1))
+  DVPathLam(r => {
+    DVPathLam(i => {
+      let sys = dsystem_of([
+        tube_branch(face_simplify(FEq0(r)), _ => dapp_dim(p1, i)),
+        tube_branch(face_simplify(FEq1(r)), _ => dapp_dim(p2, i)),
+        tube_branch(face_simplify(FEq0(i)), _ => u0),
+        tube_branch(face_simplify(FEq1(i)), j => dapp_dim(dapp_dim(lid, j), r)),
+      ])
+      hcomp_value(mline(i), sys, open_fill(r, i), dlevel + 4)
+    })
+  })
+}
+
+///|
+/// Cubical Paulin-Mohring `J` (based singleton contraction): given
+/// `motive : (y : A, p : Path A a0 y) -> Type`, `refl_case : motive(a0, refl a0)`,
+/// and `p : Path A a0 y`, transports `refl_case` along `w => (p(w), p_{<= w})`.
+pub fn dj_singleton_elim_value(
+  motive : (DValue, DValue) -> DValue,
+  refl_case : DValue,
+  p : DValue,
+  dlevel : Int32,
+) -> DValue {
+  transport_value(
+    memo_dim_line(w => motive(dapp_dim(p, w), dpath_prefix_value(p, w))),
+    refl_case,
+    dlevel,
+  )
+}
+
+///|
+/// HoTT Lemma 3.3.4 (every h-Proposition is an h-Set): given `is_prop : (u v : P) -> Path P u v`
+/// and `p, q : Path P x y`, constructs `Path (Path P x y) p q` with exact
+/// endpoints `p` and `q` by factoring through `canon(y) = sym(is_prop x x) . is_prop x y`.
+pub fn dprop_is_set_value(
+  p_ty : DValue,
+  is_prop : (DValue, DValue) -> DValue,
+  x : DValue,
+  y : DValue,
+  p : DValue,
+  q : DValue,
+  dlevel : Int32,
+) -> DValue {
+  let canon = (target : DValue) => {
+    dpath_trans_value(
+      p_ty,
+      dpath_sym_value(is_prop(x, x)),
+      is_prop(x, target),
+      dlevel,
+    )
+  }
+  let base_cancel = dpath_left_inverse3_value(
+    p_ty,
+    x,
+    is_prop(x, x),
+    dlevel + 1,
+  )
+  let canon_to_path = (r : DValue) => {
+    dj_singleton_elim_value(
+      (y1, r1) => {
+        let eq_ty = DVPathTy(_ => p_ty, x, y1)
+        DVPathTy(_ => eq_ty, canon(y1), r1)
+      },
+      base_cancel,
+      r,
+      dlevel + 3,
+    )
+  }
+  let path_ty = DVPathTy(_ => p_ty, x, y)
+  dpath_trans_value(
+    path_ty,
+    dpath_sym_value(canon_to_path(p)),
+    canon_to_path(q),
+    dlevel + 4,
+  )
 }

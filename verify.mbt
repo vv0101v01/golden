@@ -10,7 +10,7 @@
 // test the constructions' defining equations.
 
 ///|
-pub struct CheckResult {
+pub(all) struct CheckResult {
   name : String
   ok : Bool
 }
@@ -684,6 +684,86 @@ pub fn run_all_checks() -> Array[CheckResult] {
     CheckResult::{
       name: "第十三期工件 manifest 完整性鏈：put/remove 以前條摘要連結成鏈，舊鏈頭、竄改與重播皆拒，銷毀 index 後以信任錨鏈頭復原",
       ok: check_artifact_manifest_integrity_chain(),
+    },
+    CheckResult::{
+      name: "第十四期可攜正性見證證書：定義展開核驗 DPositivityWitness，雙重否定非嚴格正性與負性偽證均被拒絕",
+      ok: check_phase14_positivity_witness_certificates(),
+    },
+    CheckResult::{
+      name: "第十四期聯合 Σ 動機同時歸納遞迴：DFunctorSum 餘積函子與循環互遞迴小值域編譯至依賴核心並通過正規形核驗",
+      ok: check_phase14_joint_simultaneous_ir_mutual(),
+    },
+    CheckResult::{
+      name: "第十四期 DSystem 全體最大相容集與有限型別分案轉換：無順序偏倚列舉全部最大團，Fin3 閉居留元自動分案並排除無限 Nat",
+      ok: check_phase14_dsystem_all_maxima_and_finite_case_split(),
+    },
+    CheckResult::{
+      name: "第十四期語義圓周纏繞正規化與解耦環面 comp：loop·sym(loop) 語義歸零，T² 雙座標獨立選擇閉合方塊",
+      ok: check_phase14_decoupled_torus_and_semantic_circle_norm(),
+    },
+    CheckResult::{
+      name: "第十四期增量 DAG 差分與跨格式共圖封包：CHDAGDLT 僅傳新增節點並驗基底摘要，CHSHRBUN 跨模組與註冊表共享項表",
+      ok: check_phase14_incremental_dag_delta_and_shared_bundle(),
+    },
+    CheckResult::{
+      name: "第十四期 Hensel 提升有理因式分解：Swinnerton-Dyer 四次式與高次多項式經 p-adic 提升分解並攜無平方自由證書重驗",
+      ok: check_phase14_qpoly_hensel_factor_and_certificates(),
+    },
+    CheckResult::{
+      name: "第十四期一般實代數根式與六生成元多二次塔：∛2、∜5、∛(1+√2) 精確算術判號與 64 維 Q(√2,…,√13) 逆元核驗",
+      ok: check_phase14_algebraic_radicals_and_rank6_multiquad(),
+    },
+    CheckResult::{
+      name: "第十四期 Hermitian 分塊降維與高重數特徵認證：精確特徵多項式無平方分解結合 Sturm 根計數認證重數 [2,1,1]",
+      ok: check_phase14_jacobi_block_deflation_and_multiplicity(),
+    },
+    CheckResult::{
+      name: "第十四期 BDD 下界剪枝與 CDCL DRAT／DRUP 精簡：18 變量交錯公式剪枝壓縮，八子句純 RAT 步驟核驗與後向刪除精簡",
+      ok: check_phase14_bdd_bnb_and_cdcl_drat(),
+    },
+    CheckResult::{
+      name: "第十四期高維宿主立方 P¹(F₈) 覆蓋陣列探測：729 列三階正交覆蓋陣列揭穿 5 維三軸耦合不等價立方",
+      ok: check_phase14_dcube_orthogonal_array_covering(),
+    },
+    CheckResult::{
+      name: "第十四期 Eckmann–Hilton 交換 3-胞與 Mac Lane 五邊形 4-胞：Ω²(S²) 二階環路交換同倫與四重結合兩路徑相干連通",
+      ok: check_phase14_eckmann_hilton_and_pentagon_coherence(),
+    },
+    CheckResult::{
+      name: "第十四期圓周內部截面族與單值 Hopf 不變量：中性整數 encode(decode(n))=n 截面，S²→Type₀ Hopf 纖維化算出次數 0,1,-1,2",
+      ok: check_phase14_internal_circle_sect_and_hopf_invariant(),
+    },
+    CheckResult::{
+      name: "第十四期跨約束回溯 HOU 與完備正規形枚舉：非 pattern 雙約束回溯避開衝突投影，有界窮盡枚舉全部正規形合一子",
+      ok: check_phase14_hou_backtracking_and_enumeration(),
+    },
+    CheckResult::{
+      name: "第十四期 TLV 前向相容封裝與鑑別式 CAS 增量同步：未知非關鍵區段安全略過、關鍵區段拒絕，MAC 鏈防偽與增量同步僅傳缺頁",
+      ok: check_phase14_tlv_envelope_cas_and_incremental_sync(),
+    },
+    CheckResult::{
+      name: "第十五期對稱軌道 BDD 最優序與連通分量分解：19 變量軌道剪枝精確最佳化，28 變量四分量加性下界精確分解並誠實拒絕 22 變量單鏈",
+      ok: check_phase15_bdd_symmetry_orbit_and_decomposed_optimal(),
+    },
+    CheckResult::{
+      name: "第十五期 CDCL LRAT 索引證明精煉與零搜尋核驗：PHP(6,5) 與八子句 RAT 編譯為 CHLRATBN v1，錯序提示與重用已刪子句皆拒",
+      ok: check_phase15_cdcl_lrat_elaboration_and_binary_codec(),
+    },
+    CheckResult::{
+      name: "第十五期四階 PHF 覆蓋陣列與立方 Yoneda 外延審計：10 維四軸耦合偽立方揭穿、預層自然性檢驗與 24 維 CheckedDCube 單探針判等",
+      ok: check_phase15_dcube_strength4_phf_and_yoneda_audit(),
+    },
+    CheckResult::{
+      name: "第十五期全滿單射雙向一般性核驗與圓基本群同構：開放反射變數認證 Ω¹(S¹)≃ℤ、萬有覆疊與 π₁(S¹)=‖Ω¹(S¹)‖₀≃ℤ，偽 refl 逆元皆拒",
+      ok: check_phase15_bidirectional_bijectivity_and_pi1_circle(),
+    },
+    CheckResult::{
+      name: "第十五期多態懸掛與環路—懸掛伴隨雙向等價：SuspS(BoolS)≃S¹、無基點餘錐與開放帶點脈絡 Map*(SuspS A,B)≃Map*(A,ΩB)",
+      ok: check_phase15_suspension_and_loop_suspension_adjunction(),
+    },
+    CheckResult::{
+      name: "第十五期一般 Freudenthal 懸掛定理與楔連通延拓：開放 0-連通脈絡認證 ‖Ω¹(SuspS A)‖₀≃1（含 π₁(S²)≃1、π₁(S³)≃1）、S¹∨S¹→S¹×S¹ 延拓與 Hopf 往返",
+      ok: check_phase15_freudenthal_suspension_and_wedge_connectivity(),
     },
   ]
 }

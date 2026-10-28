@@ -119,7 +119,7 @@ pub fn dfa_minimize(d : Dfa) -> Dfa {
       }
       let mut idx = -1
       for q in 0..<sigs.length() {
-        if sig_equal(sigs[q], sig) {
+        if sigs[q] == sig {
           idx = q
           break
         }
@@ -175,19 +175,6 @@ pub fn dfa_minimize(d : Dfa) -> Dfa {
     accept: new_accept,
     trans: new_trans,
   }
-}
-
-///|
-fn sig_equal(a : Array[Int32], b : Array[Int32]) -> Bool {
-  if a.length() != b.length() {
-    return false
-  }
-  for i in 0..<a.length() {
-    if a[i] != b[i] {
-      return false
-    }
-  }
-  true
 }
 
 ///|
@@ -302,7 +289,7 @@ pub fn dfa_reverse(d : Dfa) -> Dfa {
       }
       let mut idx = -1
       for q in 0..<sets.length() {
-        if set_equal(sets[q], nxt) {
+        if sets[q] == nxt {
           idx = q
           break
         }
@@ -321,17 +308,4 @@ pub fn dfa_reverse(d : Dfa) -> Dfa {
     accept[i] = sets[i][d.start]
   }
   { nsym, alphabet: d.alphabet, start: 0, accept, trans, }
-}
-
-///|
-fn set_equal(a : Array[Bool], b : Array[Bool]) -> Bool {
-  if a.length() != b.length() {
-    return false
-  }
-  for i in 0..<a.length() {
-    if a[i] != b[i] {
-      return false
-    }
-  }
-  true
 }

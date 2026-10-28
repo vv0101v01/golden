@@ -1,25 +1,11 @@
 ///|
-test "bridge: permutation wiring and certificate battery" {
-  inspect(check_perm_wiring_bridge(), content="true") catch {
-    _ => fail("permutation wiring bridge failed")
-  }
-  inspect(check_certificate_bridge(), content="true") catch {
-    _ => fail("bridge certificate battery failed")
-  }
-}
-
-///|
-test "bridge: graph/category/tropical/face flagships" {
-  inspect(check_graph_symmetry_bridges(), content="true") catch {
-    _ => fail("graph symmetry bridge failed")
-  }
-  inspect(check_free_category_bridge(), content="true") catch {
-    _ => fail("free category bridge failed")
-  }
-  inspect(check_tropical_bridges(), content="true") catch {
-    _ => fail("tropical bridge failed")
-  }
-  inspect(check_face_semiring_bridge(), content="true") catch {
-    _ => fail("face semiring bridge failed")
-  }
+test "bridge_five_federation_grand_unification_and_39_certificates" {
+  assert_true(check_certificate_bridge())
+  let unif = run_grand_unification_system()
+  assert_true(unif.all_ok)
+  assert_eq(unif.federations_verified_count, 5)
+  assert_eq(unif.k5_bridges_verified_count, 10)
+  assert_eq(unif.atlas_verified_count, 18)
+  assert_eq(unif.total_certificates_passed, 39)
+  assert_eq(unif.total_certificates_count, 39)
 }

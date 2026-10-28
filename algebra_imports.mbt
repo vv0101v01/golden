@@ -60,4 +60,7 @@ using @algebra {
   check_qpoly_degree_pattern_certificates,
   check_multiquadratic_tower,
   check_jacobi_adaptive_exact_fallback,
+  check_qpoly_hensel_factor_and_certificates,
+  check_algebraic_radicals_and_rank6_multiquad,
+  check_jacobi_block_deflation_and_multiplicity,
 }

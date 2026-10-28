@@ -213,5 +213,48 @@ pub fn check_tropical_bridges() -> Bool {
   roots[0].n == 1L &&
   roots[0].d == 1L &&
   roots[1].n == 2L &&
-  roots[1].d == 1L
+  roots[1].d == 1L &&
+  verify_kapranov_tropical_laurent_bridge()
+}
+
+///|
+/// **Kapranov–Berkovich Non-Archimedean Valuation Bridge (`@scheme` ↔ `@strop`)**:
+/// Connects the `t`-adic Discrete Valuation `v_t : Q((t))^× -> Z` used in `@scheme`'s
+/// Valuative Criterion of Properness directly to `@strop`'s Min-Plus Tropical
+/// Polynomial roots:
+/// For `P(t)(u) = t^3 + t^1 * u + t^2 * u^2 ∈ Q((t))[u]`, its tropicalization in
+/// `@strop.UniPoly` is `min(3, 1 + w, 2 + 2*w)` with tropical bend roots `{-1, 2}`;
+/// substituting the Kapranov lift `u(t) = -t^{-1}` cancels leading valuations so
+/// `v_t(P(t)(-t^{-1}))` jumps strictly from `0` to `3`, and `u(t)` extends uniquely
+/// across `P^1_Q = scheme_projective_space(1)`!
+pub fn verify_kapranov_tropical_laurent_bridge() -> Bool {
+  let tp = @strop.UniPoly::new([3, 1, 2])
+  let troots = tp.roots()
+  if troots.length() != 2 ||
+    troots[0] != @strop.Rat::of_int(-1) ||
+    troots[1] != @strop.Rat::of_int(2) {
+    return false
+  }
+  let s_neg1 = @scheme.laurent_monomial(-1)
+  let s_pos2 = @scheme.laurent_monomial(2)
+  if @scheme.laurent_mul(s_neg1, s_pos2).val != 1 {
+    return false
+  }
+  let minus_inv_t = @scheme.laurent_sub(
+    @scheme.laurent_const(@exactalg.rat_zero()),
+    s_neg1,
+  )
+  let term0 = @scheme.laurent_monomial(3)
+  let term1 = @scheme.laurent_mul(@scheme.laurent_monomial(1), minus_inv_t)
+  let term2 = @scheme.laurent_mul(
+    @scheme.laurent_monomial(2),
+    @scheme.laurent_mul(minus_inv_t, minus_inv_t),
+  )
+  let residual = @scheme.laurent_add(term0, @scheme.laurent_add(term1, term2))
+  let p1_ext = @scheme.valuative_extension_classes_for_arc(
+    @scheme.scheme_projective_space(1),
+    0,
+    [minus_inv_t],
+  )
+  residual.val == 3 && p1_ext == 1
 }

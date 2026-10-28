@@ -1446,3 +1446,328 @@ pub fn artifact_repository_recover_chained(
   repo.recoveries = repo.recoveries + 1
   live.length()
 }
+
+// ---------------------------------------------------------------------------
+// Phase 14: Keyed-MAC authenticated chain, optimistic CAS multi-writer commit,
+// and producer-attested incremental artifact sync
+// ---------------------------------------------------------------------------
+
+///|
+/// Symmetric MAC key authenticating repository integrity chains against an
+/// untrusted byte store (`CHARTAUT` v1).
+pub(all) struct ArtifactAuthKey {
+  key_id : String
+  secret_a : Int32
+  secret_b : Int32
+} derive(Debug, Eq)
+
+///|
+pub extend ArtifactAuthKey with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend ArtifactAuthKey with Eq::{not_equal, equal}
+
+///|
+pub(all) enum ArtifactCasStatus {
+  ArtifactCasCommitted
+  ArtifactCasConflict
+  ArtifactCasAuthFailed
+  ArtifactCasIoError
+} derive(Debug, Eq)
+
+///|
+pub extend ArtifactCasStatus with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend ArtifactCasStatus with Eq::{not_equal, equal}
+
+///|
+pub(all) struct ArtifactSyncReport {
+  ok : Bool
+  transferred_blobs : Int32
+  skipped_existing_blobs : Int32
+  tombstones_applied : Int32
+  final_head_a : Int32
+  final_head_b : Int32
+} derive(Debug, Eq)
+
+///|
+pub extend ArtifactSyncReport with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend ArtifactSyncReport with Eq::{not_equal, equal}
+
+///|
+fn artifact_auth_key_path(repo : ArtifactRepository) -> String {
+  repo.prefix + "/chain.auth"
+}
+
+///|
+fn artifact_auth_magic() -> Array[Int32] {
+  // ASCII `CHARTAUT`
+  [67, 72, 65, 82, 84, 65, 85, 84]
+}
+
+///|
+/// Two-stage HMAC-like keyed digest over `(key_id, entries, head_a, head_b)`.
+/// Forging `chain.bin` without `(secret_a, secret_b)` invalidates this tag.
+fn artifact_chain_keyed_mac(
+  key : ArtifactAuthKey,
+  entries : Array[ArtifactChainEntry],
+) -> (Int32, Int32) {
+  let inner = module_bin_writer_new_versioned(3)
+  bw_i32(inner, key.secret_a ^ 0x36363636)
+  bw_i32(inner, key.secret_b ^ 0x36363636)
+  bw_string(inner, key.key_id)
+  bw_i32(inner, entries.length())
+  for e in entries {
+    bw_artifact_chain_entry(inner, e)
+  }
+  let (ia, ib) = artifact_hash_pair(inner.bytes)
+  let outer = module_bin_writer_new_versioned(3)
+  bw_i32(outer, key.secret_a ^ 0x5c5c5c5c)
+  bw_i32(outer, key.secret_b ^ 0x5c5c5c5c)
+  bw_string(outer, key.key_id)
+  bw_i32(outer, ia)
+  bw_i32(outer, ib)
+  artifact_hash_pair(outer.bytes)
+}
+
+///|
+fn artifact_auth_stamp_write(
+  repo : ArtifactRepository,
+  key : ArtifactAuthKey,
+  entries : Array[ArtifactChainEntry],
+) -> Bool {
+  let (head_a, head_b) = artifact_chain_head_of(entries)
+  let (mac_a, mac_b) = artifact_chain_keyed_mac(key, entries)
+  let pw = module_bin_writer_new_versioned(3)
+  bw_string(pw, key.key_id)
+  bw_i32(pw, entries.length())
+  bw_i32(pw, head_a)
+  bw_i32(pw, head_b)
+  bw_i32(pw, mac_a)
+  bw_i32(pw, mac_b)
+  let env = artifact_envelope(artifact_auth_magic(), pw.bytes)
+  (repo.store.write)(artifact_auth_key_path(repo), env)
+}
+
+///|
+/// Verify both the repository's hash chain/blobs AND its keyed MAC attestation
+/// under `key`.
+pub fn artifact_repository_verify_authenticated(
+  repo : ArtifactRepository,
+  key : ArtifactAuthKey,
+  expected_head~ : (Int32, Int32)? = None,
+) -> Bool {
+  let raw_auth = match (repo.store.read)(artifact_auth_key_path(repo)) {
+    Some(b) => b
+    None => return false
+  }
+  let payload = match
+    artifact_envelope_payload(artifact_auth_magic(), raw_auth) {
+    Some(p) => p
+    None => return false
+  }
+  let r = module_bin_reader_new_versioned(payload, 3)
+  let stored_kid = match br_string(r) {
+    Some(s) => s
+    None => return false
+  }
+  let stored_len = br_i32(r)
+  let stored_ha = br_i32(r)
+  let stored_hb = br_i32(r)
+  let stored_ma = br_i32(r)
+  let stored_mb = br_i32(r)
+  if !br_require_ok(r) || r.pos != payload.length() || stored_kid != key.key_id {
+    return false
+  }
+  let report = artifact_repository_chain_report(repo, expected_head~)
+  if !report.valid ||
+    report.entries != stored_len ||
+    report.head_a != stored_ha ||
+    report.head_b != stored_hb {
+    return false
+  }
+  let entries = match artifact_repository_chain_entries(repo) {
+    Some(es) => es
+    None => return false
+  }
+  let (mac_a, mac_b) = artifact_chain_keyed_mac(key, entries)
+  mac_a == stored_ma && mac_b == stored_mb
+}
+
+///|
+/// Seal the current chain state of `repo` with `key` after verifying chain and
+/// live blob integrity.
+pub fn artifact_repository_seal_authenticated(
+  repo : ArtifactRepository,
+  key : ArtifactAuthKey,
+) -> Bool {
+  let report = artifact_repository_chain_report(repo)
+  if !report.valid {
+    return false
+  }
+  let entries = match artifact_repository_chain_entries(repo) {
+    Some(es) => es
+    None => return false
+  }
+  artifact_auth_stamp_write(repo, key, entries)
+}
+
+///|
+/// Multi-writer optimistic compare-and-swap (`CAS`) authenticated commit:
+/// 1. If `chain.auth` already exists, verifies `repo` under `key` (returning
+///    `ArtifactCasAuthFailed` on forgery/key mismatch);
+/// 2. Compares current chain head `(head_a, head_b)` against `expected_head`
+///    (returning `ArtifactCasConflict` without modifying the store when a
+///    concurrent writer has advanced the head);
+/// 3. Commits `(kind, name, bytes)` and updates `chain.auth`.
+pub fn artifact_repository_put_cas_authenticated(
+  repo : ArtifactRepository,
+  kind : String,
+  name : String,
+  bytes : Array[Int32],
+  format_version : Int32,
+  expected_head : (Int32, Int32),
+  key : ArtifactAuthKey,
+) -> ArtifactCasStatus {
+  let has_auth = (repo.store.read)(artifact_auth_key_path(repo)) != None
+  if has_auth && !artifact_repository_verify_authenticated(repo, key) {
+    return ArtifactCasAuthFailed
+  }
+  let chain_state = match artifact_chain_load_state(repo) {
+    Some(s) => s
+    None => return ArtifactCasIoError
+  }
+  let (_, cur_entries) = chain_state
+  if !artifact_chain_links_valid(cur_entries) {
+    return ArtifactCasAuthFailed
+  }
+  let cur_head = artifact_chain_head_of(cur_entries)
+  if cur_head != expected_head {
+    return ArtifactCasConflict
+  }
+  if artifact_repository_put(repo, kind, name, bytes, format_version~) == None {
+    return ArtifactCasIoError
+  }
+  let updated_entries = match artifact_repository_chain_entries(repo) {
+    Some(es) => es
+    None => return ArtifactCasIoError
+  }
+  if !artifact_auth_stamp_write(repo, key, updated_entries) {
+    return ArtifactCasIoError
+  }
+  ArtifactCasCommitted
+}
+
+///|
+/// Authenticated incremental repository sync from `source` to `target`:
+/// - Verifies `source` (and `target`, if non-empty) under `key`;
+/// - Checks that `source`'s chain extends `target`'s chain monotonically;
+/// - When `trusted_producers` is non-empty, verifies that every live
+///   `"compiled-module"` artifact carries a producer stamp in
+///   `trusted_producers`;
+/// - Transfers ONLY missing live blobs/manifests (`skipped_existing_blobs`
+///   vs `transferred_blobs`), replays tombstones and index, and seals `target`
+///   with `key`.
+pub fn artifact_repository_sync_incremental(
+  source : ArtifactRepository,
+  target : ArtifactRepository,
+  key : ArtifactAuthKey,
+  trusted_producers~ : Array[String] = [],
+) -> ArtifactSyncReport {
+  let fail = () => ArtifactSyncReport::{
+    ok: false,
+    transferred_blobs: 0,
+    skipped_existing_blobs: 0,
+    tombstones_applied: 0,
+    final_head_a: 0,
+    final_head_b: 0,
+  }
+  if !artifact_repository_verify_authenticated(source, key) {
+    return fail()
+  }
+  let target_has_auth = (target.store.read)(artifact_auth_key_path(target)) !=
+    None
+  if target_has_auth && !artifact_repository_verify_authenticated(target, key) {
+    return fail()
+  }
+  let src_entries = match artifact_repository_chain_entries(source) {
+    Some(es) => es
+    None => return fail()
+  }
+  let (_, tgt_entries) = match artifact_chain_load_state(target) {
+    Some(s) => s
+    None => return fail()
+  }
+  if tgt_entries.length() > src_entries.length() {
+    return fail()
+  }
+  for i in 0..<tgt_entries.length() {
+    if src_entries[i] != tgt_entries[i] {
+      return fail()
+    }
+  }
+  let mut tombstones = 0
+  for i in tgt_entries.length()..<src_entries.length() {
+    if src_entries[i].removed {
+      tombstones = tombstones + 1
+    }
+  }
+  let live = match artifact_chain_live_records(src_entries) {
+    Some(rs) => rs
+    None => return fail()
+  }
+  let mut transferred = 0
+  let mut skipped = 0
+  for rec in live {
+    let src_blob = match (source.store.read)(rec.blob_key) {
+      Some(b) => b
+      None => return fail()
+    }
+    if !artifact_record_matches_bytes(rec, src_blob) {
+      return fail()
+    }
+    if trusted_producers.length() > 0 && rec.kind == "compiled-module" {
+      match compiled_module_load_binary(src_blob) {
+        Some(cm) =>
+          if !trusted_producers.contains(cm.producer) {
+            return fail()
+          }
+        None => return fail()
+      }
+    }
+    if artifact_chain_live_blob_ok(target, rec) {
+      skipped = skipped + 1
+    } else {
+      let src_commit = match (source.store.read)(rec.blob_key + ".commit") {
+        Some(c) => c
+        None => return fail()
+      }
+      if !(target.store.write)(rec.blob_key, src_blob) ||
+        !(target.store.write)(rec.blob_key + ".commit", src_commit) {
+        return fail()
+      }
+      transferred = transferred + 1
+    }
+  }
+  if !artifact_chain_save(target, src_entries) {
+    return fail()
+  }
+  if artifact_repository_recover_chained(target) < 0 {
+    return fail()
+  }
+  if !artifact_auth_stamp_write(target, key, src_entries) {
+    return fail()
+  }
+  let (ha, hb) = artifact_chain_head_of(src_entries)
+  ArtifactSyncReport::{
+    ok: true,
+    transferred_blobs: transferred,
+    skipped_existing_blobs: skipped,
+    tombstones_applied: tombstones,
+    final_head_a: ha,
+    final_head_b: hb,
+  }
+}

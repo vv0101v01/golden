@@ -1620,3 +1620,113 @@ pub fn inductive_parameter_positivity_declared(
   })
   reports[param_index]
 }
+
+///|
+/// A machine-checkable positivity certificate pairing an operator
+/// `declaration` with its explicit defining lambda/type term
+/// `definition`.  Unlike an axiomatic `DPositivityDeclaration`, a
+/// `DPositivityWitness` is verified by applying `definition` to fresh
+/// probe families, beta-reducing, and auditing the structural
+/// polarity of every parameter slot before trusting the declaration.
+pub struct DPositivityWitness {
+  declaration : DPositivityDeclaration
+  definition : DTerm
+} derive(Debug, Eq)
+
+///|
+pub extend DPositivityWitness with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend DPositivityWitness with Eq::{not_equal, equal}
+
+///|
+pub fn dpositivity_witness(
+  declaration : DPositivityDeclaration,
+  definition : DTerm,
+) -> DPositivityWitness {
+  DPositivityWitness::{ declaration, definition, }
+}
+
+///|
+/// Verify that `witness.definition` justifies the strictness and
+/// positivity flags claimed by `witness.declaration`:
+/// - `arity > 0` and flag array lengths match `arity`;
+/// - for every argument `k` (`0 <= k < arity`), instantiating argument
+///   `k` with a fresh probe family while leaving all other arguments
+///   as neutral parameters yields a structural positivity report free
+///   of `unknown` occurrences, free of `negative_polarity` whenever
+///   `strict_args[k]` or `positive_args[k]` is claimed, and strictly
+///   positive whenever `strict_args[k]` is claimed.
+pub fn dpositivity_witness_verify(
+  witness : DPositivityWitness,
+  ambient_decls~ : Array[DPositivityDeclaration] = [],
+) -> Bool {
+  let d = witness.declaration
+  if d.arity <= 0 || d.scope < 0 {
+    return false
+  }
+  for i in 0..<d.strict_args.length() {
+    if d.strict_args[i] < 0 || d.strict_args[i] >= d.arity {
+      return false
+    }
+  }
+  for i in 0..<d.positive_args.length() {
+    if d.positive_args[i] < 0 || d.positive_args[i] >= d.arity {
+      return false
+    }
+  }
+  let probe_term = positivity_probe_term()
+  for k in 0..<d.arity {
+    let claims_strict = d.strict_args.contains(k)
+    let claims_pos = claims_strict || d.positive_args.contains(k)
+    let mut applied = dterm_shift(witness.definition, 0, d.arity)
+    for j in 0..<d.arity {
+      let arg_term = if j == k { probe_term } else { DTVar(d.arity - 1 - j) }
+      applied = match applied {
+        DLam(_, body) => dterm_substitute(body, 0, arg_term)
+        _ => DApp(applied, arg_term)
+      }
+    }
+    let report = dterm_family_positivity_type_decl(
+      applied,
+      positivity_probe_name(),
+      true,
+      true,
+      64,
+      ambient_decls,
+      d.scope + d.arity,
+      0,
+    )
+    if report.unknown {
+      return false
+    }
+    if claims_strict && (!report.strictly_positive || report.negative_polarity) {
+      return false
+    }
+    if claims_pos && report.negative_polarity {
+      return false
+    }
+  }
+  true
+}
+
+///|
+/// Certified strict-positivity check: sequentially verifies each
+/// `DPositivityWitness` (allowing later witnesses to build on earlier
+/// verified witnesses) and checks `t` only if *every* witness passes
+/// `dpositivity_witness_verify`.
+pub fn dterm_family_strictly_positive_certified(
+  t : DTerm,
+  name : String,
+  witnesses : Array[DPositivityWitness],
+  scope~ : Int32 = 0,
+) -> Bool {
+  let verified_decls : Array[DPositivityDeclaration] = []
+  for i in 0..<witnesses.length() {
+    if !dpositivity_witness_verify(witnesses[i], ambient_decls=verified_decls) {
+      return false
+    }
+    verified_decls.push(witnesses[i].declaration)
+  }
+  dterm_family_strictly_positive_declared(t, name, verified_decls, scope~)
+}

@@ -1,12 +1,15 @@
-# 三方合併遷移指南
+# 五聯邦合併與演進遷移指南
 
-本倉庫以聯邦方式合併三個 0.x MoonBit 專案：
+本倉庫在三方上游合併基礎上擴展為 **五聯邦＋大一統頂層（5 Federations + Unification Apex）**：
 
-| 上游 | 凍結版本 | 合併後位置 |
+| 聯邦／頂層 | 來源／版本 | 倉內位置 |
 |---|---|---|
-| `vv0101v01/algorithms02` / cubical-hermitian | 第十三期工作樹 | 根套件 + `algebra/` + `cmd/main` |
-| `vv0101v01/algorithm03` / symlib | `05232fd` | `symlib/` + `cmd/symdemo` + `cmd/symbench` |
-| `vv0101v01/algorithm01` / semiring-lab | `6a208f4` | `semiring/*` + `cmd/semiringreport` |
+| **F1 `cubical`** | `vv0101v01/algorithms02`（第十三期工作樹） | 根套件 + `algebra/` + `cmd/main` |
+| **F2 `symlib`** | `vv0101v01/algorithm03`（`05232fd`） | `symlib/` + `cmd/symdemo` + `cmd/symbench` |
+| **F3 `semiring`** | `vv0101v01/algorithm01`（`6a208f4`） | `semiring/*` + `cmd/semiringreport` |
+| **F4 `topos`** | 原生建構（第 1–2 輪＋五聯邦健檢） | `topos/` |
+| **F5 `scheme`** | 原生建構（第 1–2 輪＋五聯邦健檢） | `scheme/` |
+| **Apex `unification`** | 五聯邦大一統與 `K_5` 跨聯邦橋 | `bridge/` + `cmd/showcase` |
 
 ## Import path 對照
 
@@ -82,8 +85,11 @@
 ```bash
 # 全倉快速閘門（native 另含 4 個 host 測試）
 moon check --deny-warn
-moon test --target wasm-gc   # 336/336
-moon test --target native     # 340/340
+moon test --release --target wasm-gc
+moon run cmd/showcase --target wasm-gc   # 5/5 聯邦、10/10 K_5 橋、37/37 大一統證書
+python3 tools/arch_check.py              # 5 federations + unification apex, 27 packages, 36 components
+python3 tools/audit_spec.py --check      # 5,805 雙語符號審計
+```
 
 # 有限對稱
 moon test symlib

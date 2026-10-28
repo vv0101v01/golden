@@ -22,19 +22,19 @@ A set of intertwined concepts made into an **executable, testable computational 
 - Computational univalence: complete decidable wiring univalence in the finite universe, plus AST `ua`/`pathToEquiv`, `uaβ`, round-trip homotopies and a two-dimensional Glue-square certificate;
 - A general semantic `lemIso` construction giving fiber paths/contractions and automatic adjointification for quasi-inverses, plus internal `IntegerS`, π₃ quotient types and canonical spherical loop representatives (not a classification theorem for arbitrary π₃ elements);
 - Bounded Huet search, a versioned compiled-module byte codec, and BDD sifting/cache growth, watched-literal DPLL and sparse/Karatsuba `QPoly` multiplication;
-- `SPEC.md`/`SPEC.en.md` and bilingual appendices give canonical forms and categorifications for every type, operation, specification and structure; after the three-way federation the appendices contain **5,054 symbols**, while the cubical specification registry remains **101 entries**;
-- A cubical-pillar physical package subgraph `cmd/main → root → algebra` with 13 logical components, now governed together with the other pillars and bridge/apps as **25 packages / 34 components** by `architecture.json` and `tools/arch_check.py`.
+- `SPEC.md`/`SPEC.en.md` and bilingual appendices give canonical forms and categorifications for every type, operation, specification and structure; across the five-federation repository the appendices contain **6,177 symbols**, while the cubical specification registry has **121 entries**;
+- A cubical-pillar physical package subgraph `cmd/main → root → algebra` with 13 logical components, now governed together with `symlib`, `semiring`, `topos`, `scheme` and `bridge`/apps as **27 packages / 36 components** by `architecture.json` and `tools/arch_check.py`.
 
 ## Running and acceptance
 
 ```text
-moon check --deny-warn                 # whole project, zero warnings
-moon test --target wasm-gc             # whole repository 336/336 (including 111 cubical root+algebra tests)
-moon test --target native               # whole repository 340/340 (four additional native-only host tests)
-moon run cmd/main                      # theorem registry, expected 90/90
-python3 tools/arch_check.py            # layers, unique file ownership, counts
+moon check --deny-warn --target wasm-gc            # whole project, zero warnings
+moon test --release --target wasm-gc               # consolidated L8 suite 15/15 across all federations
+moon run --release cmd/main --target wasm-gc       # theorem registry, expected 110/110
+moon run --release cmd/showcase --target wasm-gc   # 5-federation grand unification, expected 39/39
+python3 tools/arch_check.py                        # layers, unique file ownership, counts
 moon info && python3 tools/audit_spec.py --check
-                                       # bilingual appendices = package interfaces
+                                                   # bilingual appendices = package interfaces (6,177 symbols)
 ```
 
 ## Upgrade highlights
@@ -248,14 +248,16 @@ algebra/{qpoly_certificate,tower_fields}.mbt / phase12_laws.mbt
                               irreducibility certificates, pure-cubic/triquadratic towers; phase-12 laws
 algebra/multiquad_tower.mbt / dterm_dag_binary.mbt / phase13_laws.mbt
                               four-generator multiquadratic tower; CHDAGBIN shared DAG; phase-13 laws
-spec.mbt / verify.mbt         101 registry entries; 90 theorem checks
-*_wbtest.mbt                  white-box tests (differential oracles live here)
+algebra/phase14_algebra.mbt / phase14_laws.mbt / phase15_laws.mbt
+                              Hensel factorization certificates, real algebraic radicals, block Jacobi; phase-14/15 laws
+spec.mbt / verify.mbt         121 registry entries; 110 theorem checks
+*_wbtest.mbt                  consolidated L8 tests across all 5 federations (15 tests)
 architecture.json             package/component ownership and dependency manifest
 tools/arch_check.py           architecture/count gate
 tools/audit_spec.py           bilingual multi-package symbol-appendix generator/audit
-cmd/main/                     executable theorem-registry report
+cmd/main/ , cmd/showcase/     executable 110-theorem and 39-certificate unification reports
 ```
 
 ## Scope and boundaries
 
-This remains an **executable model/specification** of a theory fragment, not a complete production cubical kernel. Phase 10 adds a general semantic `lemIso`/automatic adjointification construction, internal integers and π₃-quotient representatives, bounded Huet search, a versioned module byte codec, and BDD/SAT/QPoly cost controls. Phase 11 adds cross-family nested functors with simultaneous-IR compilation, Face-valued agreement with exact repair, generic-point `lemIso` validation, `CHREGBIN` registry bytes with global `DTerm` hash-consing, mod-p pattern pruning and biquadratic denesting (complete on its fragment), host-opaque cube filling, provably optimal BDD orders (n≤8) with CDCL clause learning, the circle's helix encode/decode (composite windings by subdivided transport — since Phase 12 also by a single substitution chaining endpoint Glue compositions; a full π₁(S¹)≃ℤ over arbitrary neutral loops is still not internalized), Jacobi cluster separation, deeper HOU search, and interleaved module items with v1→v2 migration. π₃ still classifies only the canonical representative calculus, with no general encode or internal Hopf invariant. Full HOU is undecidable; even with the Phase-13 residual solver, a residual/budget outcome does not mean unsolvable and a searched unifier need not be most general. ROBDD/CDCL and exact-algebra algorithms can be exponentially expensive. Phase 12 adds same-spec self-nesting and simultaneous-IR eliminator compilation, structural agreement with repair supplementation, Bool case-split conversion and path-valued circle/torus composition, an abstract artifact repository with a shared DAG byte codec, irreducibility certificates with pure-cubic/triquadratic towers, cluster-aware Jacobi iteration, subset-DP optimal orders with CDCL deletion and RUP proofs, stratified host-cube extensionality, unit-law 3-cells with exact rational Hopf identities, and a three-state principal-unifier semantics for the pattern fragment. Phase 13 adds a SelfFamily positivity fixed point and foreign nested-IH functor maps, relevant-dimension descent with maximum compatible DSystem completion, difference-guided Bool splits and verified square-valued Circle/Torus caps, CHDAGBIN sharing between live interners and bytes, joint mod-p degree-pattern certificates with a four-generator multiquadratic tower, exact BDD orders to n≤16 with chronological DRUP proofs, Tier-D host-cube probes and adaptive exact-fallback Jacobi, inverse/associativity 3-cells with witnessed classification of closed loop expressions, a whole-residual-set HOU solver, and an append-only artifact integrity chain anchored by an external head. The module and registry formats are byte-level codecs (now DAG-compressed) with validating loaders, not filesystem storage, and the chain checksum is not a signature. The architecture checker's component edges are a conservative source approximation; the MoonBit package graph and `moon check --deny-warn` are the hard boundaries. Details are in §4 of `SPEC.en.md`.
+This remains an **executable model/specification** of a theory fragment, not a complete production cubical kernel. Building on Phases 10–13, Phase 14 adds joint `Σ`-tuple simultaneous IR, unfolded positivity witnesses, Hensel factorization certificates, rank-6 multiquadratic + real algebraic radicals, block-deflated Jacobi certificates, `Ω²` Eckmann–Hilton 3-cells, Mac Lane pentagon 4-cells, Brunerie's internal univalent Hopf fibration & integer invariant, cross-constraint HOU backtracking/enumeration, and `CHMODENV`/`CHARTAUT` authenticated CAS + incremental sync. Phase 15 further delivers symmetry-orbit + connected-support decomposed optimal ROBDD ordering (up to 28-variable 4-component `exact=true`), linear-time indexed LRAT checking + DRAT→LRAT elaboration + the `CHLRATBN` v1 binary codec, strength-4 `ℙ¹(𝔽₈)` covering arrays + 5-color PHF + `CheckedDCube` & the cubical Yoneda naturality audit, and complete open-variable internal proofs of bidirectional bijectivity (`DVEquiv`), set truncation `‖A‖₀`, `π₁(S¹) = ‖Ω¹(S¹)‖₀ ≃ ℤ`, the pointed loop-suspension adjunction `(ΣA →* B) ≃ (A →* ΩB)`, and the 0-connected Freudenthal suspension theorem `‖Ω¹(Susp(A))‖₀ ≃ 1` (`π₁(S²) ≃ 1`, `π₁(S³) ≃ 1`) with circle wedge connectivity. Remaining boundaries (asymmetric connected ROBDD ordering above 20 variables, higher-connectivity `π₃(S²) ≃ ℤ` surjectivity and torsion homotopy groups, undecidable general HOU, in-memory byte-store protocols) are detailed in §4 of `SPEC.en.md`.

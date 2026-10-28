@@ -1,5 +1,5 @@
 ///|
-/// 三支柱共同的最小證書形狀。它只統一呈現與總控，不把三個套件
+/// 五聯邦共同的最小證書形狀。它只統一呈現與總控，不把五個聯邦
 /// 各自更豐富的原生證書型別抹平。
 pub(all) struct BridgeCertificate {
   source : String
@@ -65,13 +65,43 @@ pub fn certificate_summary(certs : Array[BridgeCertificate]) -> String {
 }
 
 ///|
-/// 全部第一批跨支柱橋的布林穿越檢查，統一成 BridgeCertificate。
-/// Face 半環一項保留 semiring LawReport 的原生 summary。
+/// 五聯邦原生證書與全部跨聯邦橋、幾何—邏輯精細圖譜、大一統定理之總證書列。
 pub fn bridge_certificates() -> Array[BridgeCertificate] {
-  [
+  let cub_res : @cub.CheckResult = {
+    name: "ua/coe definitional NbE, canonical ROBDD & adjoint equivalence fibers",
+    ok: @cub.check_coe_definitional() &&
+    @cub.check_bdd_canonical() &&
+    @cub.check_adjoint_equivalence_and_fibers(),
+  }
+  let c4_graph = @sym.Graph::from_edges(4, [(0, 1), (1, 2), (2, 3), (3, 0)])
+  let c4_certs = @sym.prove_graph(
+    c4_graph,
+    @sym.Perm::from_img([1, 2, 3, 0]),
+    32,
+  )
+  let mut c4_ok = c4_certs.length() > 0
+  for c in c4_certs {
+    if !c.holds {
+      c4_ok = false
+    }
+  }
+  let sym_native = if c4_certs.length() > 0 {
+    certificate_of_symlib(
+      @sym.cert(
+        "C4 automorphism & Schreier–Sims proof suite (\{c4_certs.length()} native certs)",
+        c4_ok,
+        c4_certs[0].detail,
+      ),
+    )
+  } else {
+    bridge_certificate("symlib", "C4 proof suite", false, detail="empty")
+  }
+  let out : Array[BridgeCertificate] = [
+    certificate_of_cubical(cub_res),
+    sym_native,
     bridge_certificate(
       "bridge",
-      "Perm ↔ Wiring/Equiv (S4 round trip)",
+      "Perm ↔ Wiring/Equiv & Unitary Representation (S4 round trip)",
       check_perm_wiring_bridge(),
     ),
     bridge_certificate(
@@ -94,14 +124,17 @@ pub fn bridge_certificates() -> Array[BridgeCertificate] {
       face_semiring_law_report(),
     ),
   ]
+  for c in grand_unification_certificates() {
+    out.push(c)
+  }
+  out
 }
 
 ///|
 pub fn check_certificate_bridge() -> Bool {
-  let sym_cert = certificate_of_symlib(
-    @sym.cert("synthetic symlib certificate", true, "ok"),
-  )
-  sym_cert.source == "symlib" &&
-  sym_cert.ok &&
-  certificates_all_ok(bridge_certificates())
+  let certs = bridge_certificates()
+  certs.length() >= 2 &&
+  certs[0].source == "cubical" &&
+  certs[1].source == "symlib" &&
+  certificates_all_ok(certs)
 }

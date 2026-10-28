@@ -834,6 +834,12 @@ fn bw_term_node(w : ModuleBinWriter, value : DTerm) -> Unit {
       bw_u8(w, 57)
       bw_term(w, a)
     }
+    DUnglueEquiv(term, base, branches) => {
+      bw_u8(w, 58)
+      bw_term(w, term)
+      bw_term(w, base)
+      bw_equiv_branches(w, branches)
+    }
   }
 }
 
@@ -1462,6 +1468,21 @@ fn br_term_from_tag(r : ModuleBinReader, depth : Int32, tag : Int32) -> DTerm? {
         None => return None
       }
       Some(DUa(a))
+    }
+    58 => {
+      let term = match br_term(r, depth + 1) {
+        Some(v) => v
+        None => return None
+      }
+      let base = match br_term(r, depth + 1) {
+        Some(v) => v
+        None => return None
+      }
+      let branches = match br_equiv_branches(r, depth + 1) {
+        Some(v) => v
+        None => return None
+      }
+      Some(DUnglueEquiv(term, base, branches))
     }
     _ => {
       if r.status == ModuleBinaryOk {
@@ -3039,4 +3060,409 @@ pub fn check_module_binary_versions_and_store() -> Bool {
   stats.hits == 1 &&
   stats.misses == 1 &&
   stats.total_bytes == bytes.length()
+}
+
+// ---------------------------------------------------------------------------
+// Phase 14: Unified shared-DAG bundle (`CHSHRBUN` v1) & forward-compatible
+// TLV extension envelope (`CHMODENV` v1)
+// ---------------------------------------------------------------------------
+
+///|
+/// Unified bundle persisting compiled modules together with a schema-registry
+/// snapshot over a single shared v3 term-DAG table (`CHSHRBUN` v1).
+pub struct SharedDagBundle {
+  modules : Array[CompiledModule]
+  registry : DSchemaRegistrySnapshot
+}
+
+///|
+pub struct SharedDagBundleLoad {
+  status : ModuleBinaryStatus
+  bundle : SharedDagBundle?
+  shared_term_entries : Int32
+  interned_dag_nodes : Int32
+  reused_dag_nodes : Int32
+}
+
+///|
+fn shared_dag_bundle_magic() -> Array[Int32] {
+  // ASCII `CHSHRBUN`
+  [67, 72, 83, 72, 82, 66, 85, 78]
+}
+
+///|
+/// Serialize a `SharedDagBundle` using ONE shared v3 `ModuleBinWriter` so
+/// identical subterms occurring across multiple modules and schema specs are
+/// stored once in the shared term table.
+pub fn shared_dag_bundle_to_binary(bundle : SharedDagBundle) -> Array[Int32] {
+  let pw = module_bin_writer_new_versioned(3)
+  bw_i32(pw, bundle.modules.length())
+  for m in bundle.modules {
+    bw_compiled_payload_versioned(pw, m, 3)
+  }
+  bw_registry_snapshot_payload(pw, bundle.registry)
+  let payload = pw.bytes
+  let w = module_bin_writer_new()
+  for b in shared_dag_bundle_magic() {
+    bw_u8(w, b)
+  }
+  bw_u8(w, 1)
+  bw_u8(w, 0)
+  bw_u8(w, 0)
+  bw_u8(w, 0)
+  bw_i32(w, payload.length())
+  bw_i32(w, module_binary_checksum(payload))
+  for b in payload {
+    bw_u8(w, b)
+  }
+  w.bytes
+}
+
+///|
+fn shared_dag_bundle_intern_module(
+  table : DTermInternTable,
+  m : CompiledModule,
+) -> (Int32, Int32) {
+  let mut added = 0
+  let mut reused = 0
+  let intern_one = (t : DTerm) => {
+    let before = table.terms.length()
+    ignore(dterm_intern_id(table, t))
+    if table.terms.length() > before {
+      added = added + (table.terms.length() - before)
+    } else {
+      reused = reused + 1
+    }
+  }
+  for p in m.params {
+    intern_one(p.ty)
+  }
+  for e in m.entries {
+    intern_one(e.ty)
+    match e.body {
+      Some(b) => intern_one(b)
+      None => ()
+    }
+  }
+  (added, reused)
+}
+
+///|
+/// Load and optionally validate a `SharedDagBundle` (`CHSHRBUN` v1), linking
+/// all decoded module/schema terms into `intern_table` (or a fresh shared
+/// `DTermInternTable` when omitted).
+pub fn shared_dag_bundle_load_binary_report(
+  bytes : Array[Int32],
+  intern_table~ : DTermInternTable = dterm_intern_table_new(),
+  validate~ : Bool = true,
+) -> SharedDagBundleLoad {
+  let fail = (st : ModuleBinaryStatus) => SharedDagBundleLoad::{
+    status: st,
+    bundle: None,
+    shared_term_entries: 0,
+    interned_dag_nodes: 0,
+    reused_dag_nodes: 0,
+  }
+  for b in bytes {
+    if b < 0 || b > 255 {
+      return fail(ModuleBinaryMalformed)
+    }
+  }
+  if bytes.length() < 20 {
+    return fail(ModuleBinaryTruncated)
+  }
+  let magic = shared_dag_bundle_magic()
+  for i in 0..<8 {
+    if bytes[i] != magic[i] {
+      return fail(ModuleBinaryBadMagic)
+    }
+  }
+  if module_binary_u16_at(bytes, 8) != 1 || module_binary_u16_at(bytes, 10) != 0 {
+    return fail(ModuleBinaryUnsupportedVersion)
+  }
+  let payload_len = module_binary_i32_at(bytes, 12)
+  if payload_len < 0 {
+    return fail(ModuleBinaryMalformed)
+  }
+  if bytes.length() < 20 + payload_len {
+    return fail(ModuleBinaryTruncated)
+  }
+  if bytes.length() > 20 + payload_len {
+    return fail(ModuleBinaryTrailingBytes)
+  }
+  let payload : Array[Int32] = []
+  for i in 20..<bytes.length() {
+    payload.push(bytes[i])
+  }
+  if module_binary_checksum(payload) != module_binary_i32_at(bytes, 16) {
+    return fail(ModuleBinaryChecksumMismatch)
+  }
+  let r = module_bin_reader_new_versioned(payload, 3)
+  let mod_count = br_count(r)
+  if !br_require_ok(r) {
+    return fail(r.status)
+  }
+  let modules : Array[CompiledModule] = []
+  for _ in 0..<mod_count {
+    match br_compiled_payload(r) {
+      Some(m) => modules.push(m)
+      None => return fail(r.status)
+    }
+  }
+  let registry = match br_registry_snapshot_payload(r) {
+    Some(reg) => reg
+    None => return fail(r.status)
+  }
+  if r.pos != payload.length() {
+    return fail(ModuleBinaryTrailingBytes)
+  }
+  if validate {
+    for m in modules {
+      if !compiled_module_validate(m) {
+        return fail(ModuleBinaryValidationFailed)
+      }
+    }
+  }
+  let mut added_total = 0
+  let mut reused_total = 0
+  for m in modules {
+    let (a, ru) = shared_dag_bundle_intern_module(intern_table, m)
+    added_total = added_total + a
+    reused_total = reused_total + ru
+  }
+  for spec in registry.inductive_specs {
+    let dummy = DInductive(spec, [])
+    let before = intern_table.terms.length()
+    ignore(dterm_intern_id(intern_table, dummy))
+    if intern_table.terms.length() > before {
+      added_total = added_total + (intern_table.terms.length() - before)
+    } else {
+      reused_total = reused_total + 1
+    }
+  }
+  for spec in registry.hit_specs {
+    let dummy = DHitType(spec, [])
+    let before = intern_table.terms.length()
+    ignore(dterm_intern_id(intern_table, dummy))
+    if intern_table.terms.length() > before {
+      added_total = added_total + (intern_table.terms.length() - before)
+    } else {
+      reused_total = reused_total + 1
+    }
+  }
+  SharedDagBundleLoad::{
+    status: ModuleBinaryOk,
+    bundle: Some(SharedDagBundle::{ modules, registry, }),
+    shared_term_entries: r.term_table.length(),
+    interned_dag_nodes: added_total,
+    reused_dag_nodes: reused_total,
+  }
+}
+
+///|
+/// Typed TLV extension section attached to a forward-compatible compiled-module
+/// envelope (`CHMODENV` v1).
+pub(all) struct ModuleTlvSection {
+  tag : Int32
+  critical : Bool
+  payload : Array[Int32]
+} derive(Debug, Eq)
+
+///|
+pub extend ModuleTlvSection with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend ModuleTlvSection with Eq::{not_equal, equal}
+
+///|
+pub(all) struct CompiledModuleEnvelopeLoad {
+  status : ModuleBinaryStatus
+  module_ : CompiledModule?
+  recognized_sections : Array[ModuleTlvSection]
+  skipped_noncritical_tags : Array[Int32]
+} derive(Debug, Eq)
+
+///|
+pub extend CompiledModuleEnvelopeLoad with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
+
+///|
+pub extend CompiledModuleEnvelopeLoad with Eq::{not_equal, equal}
+
+///|
+fn compiled_module_envelope_magic() -> Array[Int32] {
+  // ASCII `CHMODENV`
+  [67, 72, 77, 79, 68, 69, 78, 86]
+}
+
+///|
+/// Serialize a `CompiledModule` together with typed TLV extension sections
+/// (`CHMODENV` v1). Unknown non-critical sections can be safely skipped by
+/// older readers, whereas unknown critical sections fail closed.
+pub fn compiled_module_envelope_to_binary(
+  compiled : CompiledModule,
+  sections : Array[ModuleTlvSection],
+) -> Array[Int32]? {
+  for sec in sections {
+    if sec.tag < 0 {
+      return None
+    }
+    for b in sec.payload {
+      if b < 0 || b > 255 {
+        return None
+      }
+    }
+  }
+  let core_bytes = compiled_module_to_binary(compiled)
+  let pw = module_bin_writer_new()
+  bw_i32(pw, core_bytes.length())
+  for b in core_bytes {
+    bw_u8(pw, b)
+  }
+  bw_i32(pw, sections.length())
+  for sec in sections {
+    bw_i32(pw, sec.tag)
+    bw_u8(pw, if sec.critical { 1 } else { 0 })
+    bw_i32(pw, sec.payload.length())
+    bw_i32(pw, module_binary_checksum(sec.payload))
+    for b in sec.payload {
+      bw_u8(pw, b)
+    }
+  }
+  let payload = pw.bytes
+  let w = module_bin_writer_new()
+  for b in compiled_module_envelope_magic() {
+    bw_u8(w, b)
+  }
+  bw_u8(w, 1)
+  bw_u8(w, 0)
+  bw_u8(w, 0)
+  bw_u8(w, 0)
+  bw_i32(w, payload.length())
+  bw_i32(w, module_binary_checksum(payload))
+  for b in payload {
+    bw_u8(w, b)
+  }
+  Some(w.bytes)
+}
+
+///|
+/// Decode a `CHMODENV` v1 compiled-module envelope against `known_tags`:
+/// - sections with `tag` in `known_tags` are verified and returned in
+///   `recognized_sections`;
+/// - unknown sections with `critical == false` are checksum-verified, skipped,
+///   and recorded in `skipped_noncritical_tags`;
+/// - unknown sections with `critical == true` reject the blob with
+///   `ModuleBinaryUnsupportedVersion`.
+pub fn compiled_module_envelope_load_binary(
+  bytes : Array[Int32],
+  known_tags : Array[Int32],
+  validate~ : Bool = true,
+) -> CompiledModuleEnvelopeLoad {
+  let fail = (st : ModuleBinaryStatus) => CompiledModuleEnvelopeLoad::{
+    status: st,
+    module_: None,
+    recognized_sections: [],
+    skipped_noncritical_tags: [],
+  }
+  for b in bytes {
+    if b < 0 || b > 255 {
+      return fail(ModuleBinaryMalformed)
+    }
+  }
+  if bytes.length() < 20 {
+    return fail(ModuleBinaryTruncated)
+  }
+  let magic = compiled_module_envelope_magic()
+  for i in 0..<8 {
+    if bytes[i] != magic[i] {
+      return fail(ModuleBinaryBadMagic)
+    }
+  }
+  if module_binary_u16_at(bytes, 8) != 1 || module_binary_u16_at(bytes, 10) != 0 {
+    return fail(ModuleBinaryUnsupportedVersion)
+  }
+  let payload_len = module_binary_i32_at(bytes, 12)
+  if payload_len < 0 {
+    return fail(ModuleBinaryMalformed)
+  }
+  if bytes.length() < 20 + payload_len {
+    return fail(ModuleBinaryTruncated)
+  }
+  if bytes.length() > 20 + payload_len {
+    return fail(ModuleBinaryTrailingBytes)
+  }
+  let payload : Array[Int32] = []
+  for i in 20..<bytes.length() {
+    payload.push(bytes[i])
+  }
+  if module_binary_checksum(payload) != module_binary_i32_at(bytes, 16) {
+    return fail(ModuleBinaryChecksumMismatch)
+  }
+  let r = module_bin_reader_new_versioned(payload, 3)
+  let core_len = br_count(r)
+  if !br_require_ok(r) {
+    return fail(r.status)
+  }
+  let core_bytes : Array[Int32] = []
+  for _ in 0..<core_len {
+    core_bytes.push(br_u8(r))
+    if !br_require_ok(r) {
+      return fail(r.status)
+    }
+  }
+  let core_load = compiled_module_load_binary_report(core_bytes, validate~)
+  let compiled = match core_load.module_ {
+    Some(m) => m
+    None => return fail(core_load.status)
+  }
+  let sec_count = br_count(r)
+  if !br_require_ok(r) {
+    return fail(r.status)
+  }
+  let recognized : Array[ModuleTlvSection] = []
+  let skipped : Array[Int32] = []
+  for _ in 0..<sec_count {
+    let tag = br_i32(r)
+    let flags = br_u8(r)
+    let slen = br_count(r)
+    let expected_sum = br_i32(r)
+    if !br_require_ok(r) || tag < 0 || (flags != 0 && flags != 1) {
+      return fail(
+        if r.status != ModuleBinaryOk {
+          r.status
+        } else {
+          ModuleBinaryMalformed
+        },
+      )
+    }
+    let critical = flags == 1
+    let spayload : Array[Int32] = []
+    for _ in 0..<slen {
+      spayload.push(br_u8(r))
+      if !br_require_ok(r) {
+        return fail(r.status)
+      }
+    }
+    if module_binary_checksum(spayload) != expected_sum {
+      return fail(ModuleBinaryChecksumMismatch)
+    }
+    if contains_int(known_tags, tag) {
+      recognized.push(ModuleTlvSection::{ tag, critical, payload: spayload, })
+    } else if critical {
+      return fail(ModuleBinaryUnsupportedVersion)
+    } else {
+      skipped.push(tag)
+    }
+  }
+  if r.pos != payload.length() {
+    return fail(ModuleBinaryTrailingBytes)
+  }
+  CompiledModuleEnvelopeLoad::{
+    status: ModuleBinaryOk,
+    module_: Some(compiled),
+    recognized_sections: recognized,
+    skipped_noncritical_tags: skipped,
+  }
 }

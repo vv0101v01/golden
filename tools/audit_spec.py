@@ -51,7 +51,7 @@ FAMILIES = {
     "有限 Glue": ("(partial, base) 對；glue_from_base 由 base 範形", "沿等價黏合的極限式構造；unglue 為纖維化投影", "face_sat＋相容方程"),
     "Glue comp（有限線）": ("輸出 (t₁, e₁(t₁))", "箭頭範疇 Ty²：等價線是其態射，comp 是沿線合成", "自然性方塊 wiring_eq；不相干則拒絕"),
     "Glue comp（子空間線）": ("校正方塊 k=1 邊", "變動 retract 線上的 Kan 提升；校正為 hcomp", "邊界／帽子／落點方程（網格）"),
-    "BDD DAG、預算與 DPLL": ("hash-consed DAG 節點 ID；root 的 reachable node count 為 ROBDD 大小；apply cache 於 apply_misses 超過桶數四倍時 doubling rehash；sifting 逐變量試全部插入位置並以 reachable size 衡量 並回報 initial/final/attempts/improved；CNF 以 Tseitin 門變量線性編碼", "布林函數在固定變量次序下的共享規範圖；apply 是格運算的 memoized 實現；watched-literal DPLL 是面格可滿足性的搜尋判定", "同 manager root-id 相等、root≠0 的 sat、節點預算 FaceDecision、或有步數預算的 DPLL（舊掃描式與 watched-literal）；另有候選變量次序最小化與 3ⁿ 最壞節點界；watched/list DPLL 以 2^n brute force 差分驗證，sifting 以恆等哨兵避免大小同分時誤稱改善；CDCL 在 watched 傳播上加 1-UIP 子句學習、VSIDS 與 Luby 重啟、LBD 子句刪除（僅 decision level 0、reason 子句保留）與 RUP/DRUP 證明輸出（刪除步驟按字面集合身分記錄，獨立核驗器在演進中的 active 子句庫上重播單位傳播），於生成面與鴿洞實例對驗；精確最佳變量序於 n≤8 全排列枚舉、n≤16 改以增量 cofactor 子集 DP 對各前綴子集求最小上層寬度，超出上限明示非精確"),
+    "BDD DAG、預算與 DPLL": ("hash-consed DAG 節點 ID；root 的 reachable node count 為 ROBDD 大小；apply cache 於 apply_misses 超過桶數四倍時 doubling rehash；sifting 逐變量試全部插入位置並以 reachable size 衡量 並回報 initial/final/attempts/improved；CNF 以 Tseitin 門變量線性編碼；LRAT 證明步驟為帶顯式傳播提示鏈的 LratAdd/LratDelete 及 CHLRATBN v1 二進位範形", "布林函數在固定變量次序下的共享規範圖；apply 是格運算的 memoized 實現；watched-literal DPLL/CDCL 是面格可滿足性的搜尋判定，DRAT→LRAT 精化則是到帶顯式見證鏈證明範疇的函子提升", "同 manager root-id 相等、root≠0 的 sat、節點預算 FaceDecision、或有步數預算的 DPLL（舊掃描式與 watched-literal）；另有候選變量次序最小化與 3ⁿ 最壞節點界；watched/list DPLL 以 2^n brute force 差分驗證，sifting 以恆等哨兵避免大小同分時誤稱改善；CDCL 在 watched 傳播上加 1-UIP 子句學習、VSIDS 與 Luby 重啟、LBD 子句刪除、DRUP/DRAT 核驗、反向核心裁剪，以及 DRAT→LRAT 精化器與索引化線性時間 LRAT 檢查器；精確最佳變量序結合啟發式上界剪枝、cofactor 對稱軌道剪枝（單連通分量達 n≤20）與變量共現交互圖連通支援分解（獨立支援分量各自精確求解並拼接，單分量超限明示 exact=false）"),
     "原始 DSystem 相容性與 first-match 範形": ("相容系統沿用 DSystem 型別導向範形；任意 first-match 系統化為不交有效區域 DTubeNF；兩值的合意區域同時給出布林 BDD 形與保留雙端點的 Face 值形，exact repair 以 Face 值合意面截斷分支而不動端點", "面相對切片中的偏元素；checked 構造是進入 composition 系統子類的反射", "局部脈絡轉換只在分支實際提及的相關維度上枚舉（不相干維度由 BDD cofactor 結構剪去），檢查 base 與兩兩重疊；不相容回報首個衝突；exact repair 除截斷外可依序補入；maximum completion 另先 exact-restrict，再以分支相容圖的最大團選出真正最大相容補入並回報 exact"),
     "AST 一等 Equiv 與 GlueEquiv": ("DEquiv 攜帶 fwd/bwd/sect/retr 四項；DVGlueEquiv 攜帶完整 Equiv 分支與 base/partial 對", "AST 內的等價是帶同倫逆證明的同構；ua 是通往宇宙路徑的函子，GlueEquiv 是沿 partial 等價系統的黏合", "雙向檢查四個分量與兩條 PathP 證明；conversion/quote 按 Equiv 分量與分支面遞迴；沿 ua 的 coe 定義地為 fwd/bwd"),
     "受檢查語義型別線": ("DCheckedTypeLine 保存已檢查的開放型別 body、脈絡、環境與宇宙層級，不保存裸宿主函數", "可代換的立方型別線由句法 body 在維度環境下求值，天然與維度代換交換", "構造時以新鮮維度檢查 body : Typeᵢ；at 以維度求值，coe/comp 直接派遣 AST Kan"),
@@ -62,7 +62,7 @@ FAMILIES = {
     "代數擴張與根式範形": ("QuadNum 的 a+b√d（d 無平方因數）；CubicNum 的 a+b∛m+c∛m²（m 無立方因數）；TriquadNum 在三個平方類獨立生成元的 8 維基底；MultiQuadNum 在至多四個生成元的 16 維基底並以平方類 span 對齊；AlgNum 的 Q[x]/(m) 餘式多項式", "二次擴張與一般有限代數擴張體；範數/跡由乘法矩陣行列式/跡給出", "模極小多項式的剩餘算術與擴張歐氏求逆；multiquadratic 逆元以 Galois 共軛乘積、判號以二進區間細化；根式去巢以平方判別；相等為對齊基底後係數相等"),
     "廣義特徵空間與 Jordan 理論": ("(A−λI) 冪次零化列、遞增 nullity、Jordan 塊大小與鏈底基；PJP⁻¹=A", "主分解是互質多項式因子的單位分解；Jordan 型是相似等價的完全不變量片斷", "以特徵多項式重數、冪次核維度與鏈提升精確判定；不可在 Q 完全分裂者回報殘餘因子，AlgMat 在擴張上續行"),
     "認證數值影子與精確立方體": ("QuadC=QuadNum+i·QuadNum；CertMat 與次數≤2 的 CertPath/CertSquare 係數", "精確複二次矩陣代數與多項式立方體；Double 矩陣只是精確影子的近似表示", "P²=P、P†=P、正交分解與盒邊界以精確結構相等驗證；數值一致性只量測對影子的偏差與浮點 residual"),
-    "球面與懸掛 HIT": ("Susp(X) 的 north/south 兩點與每點一條 meridian；S²=Susp(S¹)、S³=Susp(S²)", "懸掛是把 X×I 兩端各塌縮為一點的 HIT 商；迭代懸掛給出球面族", "generic HIT schema 驗證、meridian 端點 face 化簡、依賴消去與 hcomp"),
+    "球面與懸掛 HIT": ("一般參數化懸掛 SuspS(A) 的 north/south 兩點與每點 a:A 一條 meridian；S²=Susp(S¹)、S³=Susp(S²)；Susp(Bool)≃S¹、餘錐 Cocone(A,B) 與基點環路—懸掛伴隨 (ΣA→*B)≃(A→*ΩB)", "懸掛是把 A×I 兩端各塌縮為一點的同倫推出 HIT 商，映出態射由餘錐萬有性分類；在基點類型範疇 Type* 中 Σ 與 Ω 構成典範同倫伴隨 Σ⊣Ω", "generic HIT schema 驗證、meridian 端點 face 化簡、依賴消去與 hcomp；0-連通空間的懸掛基本群由 Freudenthal 0-連通定理證為平凡群 ‖Ω¹(Susp(A))‖₀≃1（導出 π₁(S²)≃1 與 π₁(S³)≃1），並具圓楔連通延伸及相干見證"),
     "Jacobi 區間譜迭代": ("RatInterval/CInterval 矩形包絡與 dyadic 外向捨入後的 Hermitian 區間矩陣；每次旋轉保存 before/after 與累積酉變換", "Hermitian 相似變換在區間矩陣包絡上的單調提升；Gershgorin 圓盤給出譜的像分解與重數簇", "精確有理平方比較證明 sqrt/相位/c/s 包絡包含真值；逐旋轉重算 J†J−I∋0 與 J†AJ⊆after，最終圓盤分簇計數；特徵值簇分離以平方自由部分（Sturm 鏈＋與導數 gcd）的 Sturm 區間對原多項式計數回多重數，區間重疊唯一匹配；區間迭代本身具簇感知精化：Gershgorin 簇在迭代內偵測、旋轉以簇懲罰改變 pivot 選擇、精度不足時升級重跑，並在迭代內把 count-2 簇分離為不交單點；自適應驅動在 Jacobi 包絡停滯時切換至精確特徵多項式分離，保留精確重數"),
     "高階合一與雙向 elaborator": ("UTerm 的 Miller pattern spine `?F x₁…xₙ` 與 zonk 後 beta/投影簡化核心；表面 STerm 按名解析為 de Bruijn UTerm；HouSearchReport 記錄 status/nodes/branches/depth", "pattern HOU 是高階合一的可判定片斷；有界 Huet 搜尋在此之上以 transactional state 試 rigid/spine 分解、同頭不變座標、distinct flex-flex、imitation 與 projection；雙向 elaboration 把隱含引數與 dependent motive 問題送入同一合一器再編譯至依賴覈心", "確定性層以 WHNF 後 rigid 分解、pattern 抽象、occurs/scope 檢查與閉項 fallback 判定；搜尋層在節點與證明項深度預算內求 solved/no-unifier，否則以 residual 或 budget-exceeded 明示未定（一般 HOU 不可判定，不作完備宣稱）；check/infer 插入隱含 metavariables，未解者拒絕轉 DTerm；第十一期增加深層 imitation、projection 候選上限與同頭 identification，迭代加深以 HouIterativeReport 記錄輪次與求解深度；第十二期增加 hou_unify_mgu 對 Miller pattern 片斷的三態語意——主合一子（principal MGU）、可證無合一子、或部分替代加殘留約束；第十三期殘差求解器交替 principal 傳播與 transactional 迭代加深 Huet 搜尋求解整個殘留約束集（仍不冒充一般完備性或單一 MGU）"),
     "參數化模組與名字空間": ("模組 telescope（參數→以 ModuleItem 交錯的 imports 與本地宣告；舊 decls-only 建構仍可讀，語義為全部 imports 前置）與分離的 name→ordinal bindings；實例是同時代換後的閉合宣告", "參數化模組是模組函子，import 是函子套用的內聯，open/alias/rename 是同一 telescope entry 的不同名字投影", "循環檢測、參數引數依賴檢查、import 選擇/隱藏/改名的歧義拒絕、opaque export 中性化，以及實例閉合後逐宣告 dep_check"),
@@ -78,14 +78,14 @@ FAMILIES = {
     ),
     "完備精確代數與根隔離": ("BigInt 有理數；Q[x] 不可約因式與重數；Sturm 實根區間與不交 Rouché 複圓盤；逐次代數塔中的分裂根；去巢根式表達式；雙二次數以至多兩個無平方因子基底 d₁,d₂ 及基底 [1,√d₁,√d₂,√(d₁d₂)] 上的有理係數表示", "Q[x] 唯一因式分解、代數閉包中的根多重集與有限分裂擴張；AlgPoly 是擴張係數多項式", "不可約性先以證書 fast path 判定（線性、低次無有理根、mod-p 不可約、多個 mod-p 次數圖樣的聯合排除與 Eisenstein 及其平移，均可獨立重驗），因式分解再先行自適應 mod-p 次數圖樣與有理根剪枝後行 Kronecker 列舉；Sturm 計數、Cauchy 正方形 Taylor 排除與 Rouché 細分；根式判等沿二次、雙二次、三二次、至多四個平方類獨立生成元的 multiquadratic 體與純三次 Q(∛m) 逐層嘗試，multiquadratic 開方以同域遞迴與必要時加入一新平方根生成元判定（需非有理平方類或一般代數數根者為明示界限）；證書皆以精確多項式重算"),
     "一等宇宙多態與同時宣告 schema": ("DLevelDecl 的層級 binders 與實例化；透明算子展開後的正性函子；迭代編譯的非均勻巢狀族；聯合互歸納與同時 IR 規格", "宇宙 scheme、參數迭代初始代數、向量函子聯合初始代數與同步歸納—遞迴結構", "層級作用域、正性報告、生成 telescope 與依賴轉換；未實例化層級在覈心檢查拒絕；同時 IR 除 decode 位置編譯外，互賴函數塊在函數層級嚴格低於 base 家族層級時可編為同一 base 上的 eliminator 閉項（每項經一般脈絡強制套用逐 case 驗證；巢狀外來 IH 由函子映射覆蓋，前向引用、非宇宙外來函數與 decoded/層級不合位置仍明示拒絕）"),
-    "Adjoint 等價、纖維與命題截斷": ("quasi-inverse 上加三角形 Path(Path)；improved counit；一般 fiber 的 Σ 點、lemIso 路徑與中心的收縮 (center, contraction)；PropTrunc 的 point/squash HIT", "half-adjoint equivalence、contractible fiber 的等價刻畫與到命題的截斷反射", "adjointify_equiv_value 與 equiv_contractible_fibers_value 由 hfill/hcomp/dpath 構造，端點與 Path(Path) 三角形以依賴檢查／轉換驗證（circle-中點等深層調整點按面-restriction 檢查）"),
-    "球面同倫代表元與 Hopf 不變量": ("Ωⁿ 的巢狀 Path；懸掛迭代的整數度數映射；極交換 S³ 的 HIT；C² 單位球上的 Hopf 映射與相位纖維；IntegerS 的 zero/posSucc/negSucc 唯一構造子範形與語義 succ/pred；π₃ 以 Ω³(Sphereₙ) 模命題截斷 Path 關係的 QuotientS 商呈現；SphereLoopExpr 的 generator 冪", "懸掛函子、基點映射與 loop space 的代表元；Hopf S¹-纖維化及其連結數；π₃ 商型是 loop space 模存在路徑關係的商呈現", "生成 meridian 轉換；三重迭代 suspension_unit 沿 transitivity-square cancellation 以 subst rebase 為懸掛的 loop；代表元運算的整數冪次以 end-to-end 檢查求值；環路單位、逆元、結合律與 sym 複合反同態均以明示 3-胞在代表元上逐面驗證，任意閉代表式另有遞迴正規化 3-胞連至同次數典範字（Eckmann–Hilton/交換律仍未建構）；Hopf 像/纖維除浮點代數檢查與 Gauss 連結積分 |lk|=1 外，於有理點與有理相位旋轉下以精確有理算術驗證落球、纖維不變與極點纖維恆等式。此層是代表元與典範冪，不宣稱一般合成 encode/decode 證明 π₃(S³)≅ℤ、以 Hopf 不變量證明 π₃(S²)≅ℤ 或內部 Hopf 映射"),
+    "Adjoint 等價、纖維與命題截斷": ("quasi-inverse 上加三角形 Path(Path)；improved counit；一般 fiber 的 Σ 點、lemIso 路徑與中心的收縮 (center, contraction)；PropTrunc 的 point/squash HIT；SetTruncS 的 point/hub/spoke 集合截斷 ‖A‖₀ 與開放雙向雙射認證 DVEquiv", "half-adjoint equivalence、contractible fiber 的等價刻畫、到命題與到 h-set（0-群胚）的左伴隨截斷反射", "adjointify_equiv_value、equiv_bidirectional_certified_in 與 equiv_contractible_fibers_value 由 hfill/hcomp/dpath 在開放脈絡構造並以依賴轉換核驗；SetTruncS 具內部 h-set 證書與向任意 h-set 的萬有消去及 ‖X‖₀≃B 等價提升"),
+    "球面同倫代表元與 Hopf 不變量": ("Ωⁿ 的巢狀 Path；懸掛迭代的整數度數映射；極交換 S³ 的 HIT；C² 單位球上的幾何 Hopf 映射及 S² 上由圓自旋轉 ua 黏合的內部單值 Hopf 纖維叢 H:S²→Type₀；IntegerS 的 zero/posSucc/negSucc 唯一構造子範形、語義 succ/pred 與內部 h-set 證書；π₃ 以 Ω³(Sphereₙ) 模命題截斷 Path 關係的 QuotientS 商呈現；SphereLoopExpr 的 generator 冪", "懸掛函子、基點映射與 loop space 的代表元；幾何與內部單值 Hopf S¹-纖維化及其連結數／連接同態 Ω³(S²)→Ω(S¹)→ℤ；π₃ 商型是 loop space 模存在路徑關係的商呈現", "生成 meridian 轉換；三重迭代 suspension_unit 沿 transitivity-square cancellation 以 subst rebase 為懸掛的 loop；代表元運算的整數冪次以 end-to-end 檢查求值；環路單位、逆元、結合律、sym 複合反同態與 Ω² Eckmann–Hilton／Mac Lane 五邊形相干胞均在代表元上逐面驗證，任意閉代表式另有遞迴正規化 3-胞連至同次數典範字；內部單值 Hopf 不變量在 Ω³(S²) 代表元上算出精確整數度數，並具 Freudenthal 一維環路懸掛映射 σ₁:Ω¹(S¹)→Ω²(Susp(S¹))（仍不宣稱完整高維 π₃(S²)≃ℤ 全雙向分類）"),
     "模組分離編譯與連結": ("CompiledModule 的展平已檢查 telescope、exports、依賴指紋與介面公共投影；抽象宣告 body=None；cache 以來源指紋索引；穩定二進位以 magic CHMODBIN＋版本 u16＋長度 u32＋校驗 u32＋payload（標籤位元組、固定寬度小端 i32、UTF-16LE 字串）表達，v2 在 v1 payload 後追加 producer 字串，v3 與 CHREGBIN v2 共享 DAG 項 codec（節點數達門檻時以 tag 255 back-reference 引用先行子項，避免逐項展開）；BinaryVersionPolicy 宣告 current/supported/oldest_writable 並以 peer 協商選出最高共同可寫版本；CompiledModuleStore 保存模組 artifact 位元組並記錄命中/未命中；ArtifactRepository 在抽象位元組儲存（鍵→位元組）上提供命名 blobs、SHA 樣雙哈希 manifest、最後寫入 index 的原子提交、由 manifests 掃描復原，以及 CHARTCHN append-only 完整性鏈（每次 put/remove 連結前一條目摘要，鏈頭為外部信任錨；損壞 blob 在讀取時以哈希拒絕；抽象協議而非 OS 磁碟）", "模組函子的已編譯物件與 synthetic import-free 連結定義；prefix 特化是部分函子套用；序列化是 compiled module 的穩定外表示", "介面 hash 忽略 opaque body、實作 hash 覆蓋全部 entries；implementation 補足抽象 exports；cache 依來源與依賴介面指紋失效；解碼逐一拒絕 bad magic／版本／截斷／校驗／格式／尾隨位元組，並重跑 module 驗證與 fingerprint 一致性檢查；載入接受 v1/v2 並把 v1 遷移為缺省 producer，v2-only 節點（如 functor tag 8）於 v1 寫出時以 None 拒絕"),
     "範疇化總檢": ("範疇律的布爾合取", "彙總各範疇的身分／合成／相干律", "逐律求值"),
     "定理登記與範例": ("(名稱, Bool) 登記列；具體見證向量／項", "可判定命題在見證上的實現", "moon test／登記表"),
     "規格登記": ("SpecEntry 六元組", "規格之規格；完備性對產生介面核對", "spec_registry_sound＋本審計"),
-    "圓的萬有覆疊與 encode/decode": ("覆疊纖維在 base 是 IntegerS 規範整數、在 loop 點是 ua 線的 GlueEquiv 型別；環路代表元為 schema 圓的 DVHitCell 路徑，繞數為規範整數值", "helix 是圓到宇宙的纖維化族；encode 是沿環路在覆疊中的 subst 提升端點，decode 是整數消去給出的環路冪", "base 纖維以宇宙層轉換等於 ℤ；生成元/逆/refl 的 subst 直接計算；單次 subst 越過複合環路的 trans 點現經端點 Glue 線合成串接等價而正確累積繞數（loop²↦2、loop³↦3、loop⁻²↦−2、抵消↦0 以轉換檢查），transport 函子性細分仍作為對照路徑保留；兩向往返在代表元上以轉換檢查（任意中性環路的完整 π₁(S¹)≃ℤ 內部證明仍未完成）"),
-    "宿主不透明立方與開盒填充": ("立方是宿主函數（維度列→語義值／有理多項式座標）；開盒為缺一面的邊界資料，帽是填充在缺面的限制", "□ 上外部立方資料與 Kan 填充條件的宿主實作；多項式立方是精確有理座標系中的立方映射，迭代開盒填充以 F += w·(S − F|face) 逐面修正", "邊界完整性與重疊相容以型別轉換／規範多項式相等逐面驗證；除一般點探針外，分層外延檢查於面內部、對角（共享/環境維度）、連接（¬、∧、∨）與逐軸深層連接四層有限探針上比較宿主立方函數，分層開盒驗證與填充隨之提供（超出探針預算的層以 complete=false 明示）；不相容或不完整給出失敗計數與拒絕"),
+    "圓的萬有覆疊與 encode/decode": ("覆疊纖維在 base 是 IntegerS 規範整數、在 loop 點是 ua 線的 GlueEquiv 型別；環路代表元為 schema 圓的 DVHitCell 路徑，繞數為規範整數值；π₁(S¹)=‖Ω¹(S¹)‖₀≃ℤ 以認證 DVEquiv 呈現", "helix 是圓到宇宙的纖維化族；encode 是沿環路在覆疊中的 subst 提升端點，decode 是整數消去給出的環路冪；結合 ℤ 為 h-set 與集合截斷萬有性給出基本群同構", "base 纖維以宇宙層轉換等於 ℤ；生成元/逆/refl 及複合環路跨 trans 點的 subst 直接累積繞數；在自由環路與自由整數開放脈絡下內部構造雙向同倫 decode(encode(p))≡p 與 encode(decode(z))≡z，完成 Path S¹ base x ≃ Cover(x)、Ω¹(S¹)≃ℤ 與 π₁(S¹)=‖Ω¹(S¹)‖₀≃ℤ 的完整內部證明"),
+    "宿主不透明立方與開盒填充": ("立方是宿主函數（維度列→語義值／有理多項式座標）或受型別檢查語法錨定的 CheckedDCube；開盒為缺一面的邊界資料，帽是填充在缺面的限制", "□ 上外部立方資料與 Kan 填充條件的宿主實作，自然變換由立方 Yoneda 引理在通用對角元上唯一決定；多項式立方是精確有理座標系中的立方映射，迭代開盒填充以 F += w·(S − F|face) 逐面修正", "邊界完整性與重疊相容以型別轉換／規範多項式相等逐面驗證；外延比較提供四層分層探針、基於 P¹(𝔽₈) 的強度 t≤4 正交覆蓋陣列與五色完美雜湊族 PHF、揭穿非自然閉包的 Yoneda 自然性與忠實度審計，以及 CheckedDCube 的無探針精確語法讀回判定"),
     "輔助工具": ("整數／網格等具體值", "基礎集合層工具", "直接計算"),
 }
 
@@ -420,8 +420,21 @@ for _name in [
     EXACT[_name] = "BDD DAG、預算與 DPLL"
 EXACT.update({
     "face_cdcl_drup_check": "BDD DAG、預算與 DPLL",
+    "face_cdcl_drat_check": "BDD DAG、預算與 DPLL",
+    "face_cdcl_drup_trim": "BDD DAG、預算與 DPLL",
     "dsystem_repair_maximum": "原始 DSystem 相容性與 first-match 範形",
+    "dsystem_repair_all_maxima": "原始 DSystem 相容性與 first-match 範形",
     "conv_difference_variables": "依賴型別 NbE（Π/Σ/宇宙）",
+    "cs_finite_closed_inhabitants": "依賴型別 NbE（Π/Σ/宇宙）",
+    "circle_encode_decode_sect_value": "圓的萬有覆疊與 encode/decode",
+    "circle_self_loop_value": "球面同倫代表元與 Hopf 不變量",
+    "circle_rot_equiv_value": "球面同倫代表元與 Hopf 不變量",
+    "shared_dag_bundle_to_binary": "模組分離編譯與連結",
+    "shared_dag_bundle_load_binary_report": "模組分離編譯與連結",
+    "qpoly_factor_hensel": "完備精確代數與根隔離",
+    "qpoly_factor_certified": "完備精確代數與根隔離",
+    "qpoly_factor_certificate_check": "完備精確代數與根隔離",
+    "qpoly_irreducible_upto3": "完備精確代數與根隔離",
     "sphere_loop_canonical_expr": "球面同倫代表元與 Hopf 不變量",
     "sphere_loop_canonical_value": "球面同倫代表元與 Hopf 不變量",
     "sphere_loop_expr_normal_form": "球面同倫代表元與 Hopf 不變量",
@@ -470,9 +483,133 @@ TYPE_FAMILY.update({
     "DTermDagSnapshot": "持久環境、惰性與語義快取",
     "FaceCdclProofStep": "BDD DAG、預算與 DPLL",
     "HouResidualSolveReport": "高階合一與雙向 elaborator",
+    "QPolyCertifiedFactor": "完備精確代數與根隔離",
+    "QPolyFactorCertificate": "完備精確代數與根隔離",
+    "RealAlgRadical": "代數擴張與根式範形",
+    "JacobiBlockDeflatedReport": "Jacobi 區間譜迭代",
+    "DPositivityWitness": "Schema 函子、正性與歸納遞迴",
+    "DSystemRepairAllMaxima": "原始 DSystem 相容性與 first-match 範形",
+    "DTermDagDelta": "持久環境、惰性與語義快取",
+    "DTermDagDeltaBinaryLoad": "持久環境、惰性與語義快取",
+    "SharedDagBundle": "模組分離編譯與連結",
+    "SharedDagBundleLoad": "模組分離編譯與連結",
+    "ModuleTlvSection": "模組分離編譯與連結",
+    "CompiledModuleEnvelopeLoad": "模組分離編譯與連結",
+    "ArtifactAuthKey": "模組分離編譯與連結",
+    "ArtifactCasStatus": "模組分離編譯與連結",
+    "ArtifactSyncReport": "模組分離編譯與連結",
+    "BddPrunedOptimalBuild": "BDD DAG、預算與 DPLL",
+    "BddDecomposedOptimalBuild": "BDD DAG、預算與 DPLL",
+    "FaceDrupTrimReport": "BDD DAG、預算與 DPLL",
+    "FaceLratStep": "BDD DAG、預算與 DPLL",
+    "FaceLratElaborateReport": "BDD DAG、預算與 DPLL",
+    "DCubeCoveringReport": "宿主不透明立方與開盒填充",
+    "CheckedDCube": "宿主不透明立方與開盒填充",
+    "DCubeYonedaReport": "宿主不透明立方與開盒填充",
+    "HouEnumerationReport": "高階合一與雙向 elaborator",
+})
+
+EXACT.update({
+    "checked_dcube_make": "宿主不透明立方與開盒填充",
+    "checked_dcube_closed": "宿主不透明立方與開盒填充",
+    "checked_dcube_extensional_eq": "宿主不透明立方與開盒填充",
+    "face_cdcl_lrat_check": "BDD DAG、預算與 DPLL",
+    "face_cdcl_lrat_check_binary": "BDD DAG、預算與 DPLL",
+    "face_cdcl_elaborate_lrat": "BDD DAG、預算與 DPLL",
+    "face_lrat_to_binary": "BDD DAG、預算與 DPLL",
+    "face_lrat_from_binary": "BDD DAG、預算與 DPLL",
+    "conv_at_under_face_in": "原始 DSystem 相容性與 first-match 範形",
+    "tube_paths_conv_under_face_in": "原始 DSystem 相容性與 first-match 範形",
+    "cubical_face_subcubes": "原始 DSystem 相容性與 first-match 範形",
+    "reflect_var": "依賴型別 NbE（Π/Σ/宇宙）",
+    "reflect_neutral_at_type": "依賴型別 NbE（Π/Σ/宇宙）",
+    "infer_unglue_equiv": "AST 一等 Equiv 與 GlueEquiv",
+    "empty_inductive_schema": "通用歸納族 schema",
+    "empty_inductive_type_value": "通用歸納族 schema",
+    "empty_inductive_elim_value": "通用歸納族 schema",
+    "dj_singleton_elim_value": "立方體演算法",
+    "dpathp_of_transport_eq_value": "立方體演算法",
+    "dpathp_eq_in_set_family_value": "立方體演算法",
+    "dprop_is_set_value": "Adjoint 等價、纖維與命題截斷",
+    "set_trunc_schema": "Adjoint 等價、纖維與命題截斷",
+    "set_trunc_schema_at": "Adjoint 等價、纖維與命題截斷",
+    "set_trunc_type_term": "Adjoint 等價、纖維與命題截斷",
+    "set_trunc_type_value": "Adjoint 等價、纖維與命題截斷",
+    "set_trunc_point_term": "Adjoint 等價、纖維與命題截斷",
+    "set_trunc_point_value": "Adjoint 等價、纖維與命題截斷",
+    "set_trunc_hub_value": "Adjoint 等價、纖維與命題截斷",
+    "set_trunc_spoke_path_value": "Adjoint 等價、纖維與命題截斷",
+    "set_trunc_loop_trivial_value": "Adjoint 等價、纖維與命題截斷",
+    "set_trunc_is_set_value": "Adjoint 等價、纖維與命題截斷",
+    "set_trunc_rec_set_value": "Adjoint 等價、纖維與命題截斷",
+    "set_trunc_elim_prop_value": "Adjoint 等價、纖維與命題截斷",
+    "set_trunc_elim_set_value": "Adjoint 等價、纖維與命題截斷",
+    "set_trunc_equiv_of_equiv_set_value": "Adjoint 等價、纖維與命題截斷",
+    "integer_succ_pred_sect_value": "圓的萬有覆疊與 encode/decode",
+    "integer_pred_succ_retr_value": "圓的萬有覆疊與 encode/decode",
+    "integer_is_set_value": "圓的萬有覆疊與 encode/decode",
+    "circle_encode_x_value": "圓的萬有覆疊與 encode/decode",
+    "circle_decode_step_value": "圓的萬有覆疊與 encode/decode",
+    "circle_decode_x_value": "圓的萬有覆疊與 encode/decode",
+    "circle_encode_decode_x_sect_with_zset_value": "圓的萬有覆疊與 encode/decode",
+    "circle_encode_decode_x_sect_value": "圓的萬有覆疊與 encode/decode",
+    "circle_decode_encode_x_retr_value": "圓的萬有覆疊與 encode/decode",
+    "circle_decode_encode_retr_value": "圓的萬有覆疊與 encode/decode",
+    "circle_path_equiv_cover_with_zset_value": "圓的萬有覆疊與 encode/decode",
+    "circle_path_equiv_cover_value": "圓的萬有覆疊與 encode/decode",
+    "circle_loop_space_equiv_integer_value": "圓的萬有覆疊與 encode/decode",
+    "pi1_set_circle_equiv_integer_value": "圓的萬有覆疊與 encode/decode",
+    "susp_type_schema": "球面與懸掛 HIT",
+    "susp_type_schema_at": "球面與懸掛 HIT",
+    "susp_type_value": "球面與懸掛 HIT",
+    "susp_north_value": "球面與懸掛 HIT",
+    "susp_south_value": "球面與懸掛 HIT",
+    "susp_merid_path_value": "球面與懸掛 HIT",
+    "susp_bool_to_circle_value": "球面與懸掛 HIT",
+    "circle_to_susp_bool_value": "球面與懸掛 HIT",
+    "susp_bool_equiv_circle_value": "球面與懸掛 HIT",
+    "susp_cocone_type_value": "球面與懸掛 HIT",
+    "susp_universal_equiv_value": "球面與懸掛 HIT",
+    "based_map_type_value": "球面與懸掛 HIT",
+    "susp_based_to_cocone_equiv_value": "球面與懸掛 HIT",
+    "cocone_to_based_loop_equiv_value": "球面與懸掛 HIT",
+    "loop_suspension_adjunction_equiv_value": "球面與懸掛 HIT",
+    "circle_0_connected_value": "球面與懸掛 HIT",
+    "susp_0_connected_of_pointed_value": "球面與懸掛 HIT",
+    "freudenthal_pi1_susp_connected_equiv_unit_value": "球面與懸掛 HIT",
+    "pi1_susp_circle_equiv_unit_value": "球面與懸掛 HIT",
+    "pi1_susp2_circle_equiv_unit_value": "球面與懸掛 HIT",
+    "wedge_connectivity_circle_set_ext_value": "球面與懸掛 HIT",
+    "wedge_connectivity_circle_left_coh_value": "球面與懸掛 HIT",
+    "wedge_connectivity_circle_right_coh_value": "球面與懸掛 HIT",
+    "freudenthal_susp_loop1_to_loop2_value": "球面同倫代表元與 Hopf 不變量",
+    "freudenthal_susp_loop1_preserves_refl_value": "球面同倫代表元與 Hopf 不變量",
 })
 
 CHECK_FAMILY_HINTS = [
+    ("phase15_bdd_symmetry_orbit_and_decomposed_optimal", "BDD DAG、預算與 DPLL"),
+    ("phase15_cdcl_lrat_elaboration_and_binary_codec", "BDD DAG、預算與 DPLL"),
+    ("phase15_dcube_strength4_phf_and_yoneda_audit", "宿主不透明立方與開盒填充"),
+    ("phase15_bidirectional_bijectivity_and_pi1_circle", "圓的萬有覆疊與 encode/decode"),
+    ("phase15_suspension_and_loop_suspension_adjunction", "球面與懸掛 HIT"),
+    ("phase15_freudenthal_suspension_and_wedge_connectivity", "球面與懸掛 HIT"),
+    ("phase14_joint_simultaneous_ir_mutual", "一等宇宙多態與同時宣告 schema"),
+    ("phase14_positivity_witness_certificates", "Schema 函子、正性與歸納遞迴"),
+    ("phase14_dsystem_all_maxima_and_finite_case_split", "原始 DSystem 相容性與 first-match 範形"),
+    ("phase14_decoupled_torus_and_semantic_circle_norm", "AST Kan comp/hcomp"),
+    ("phase14_incremental_dag_delta_and_shared_bundle", "持久環境、惰性與語義快取"),
+    ("phase14_qpoly_hensel_factor_and_certificates", "完備精確代數與根隔離"),
+    ("qpoly_hensel_factor_and_certificates", "完備精確代數與根隔離"),
+    ("phase14_algebraic_radicals_and_rank6_multiquad", "代數擴張與根式範形"),
+    ("algebraic_radicals_and_rank6_multiquad", "代數擴張與根式範形"),
+    ("phase14_jacobi_block_deflation_and_multiplicity", "Jacobi 區間譜迭代"),
+    ("jacobi_block_deflation_and_multiplicity", "Jacobi 區間譜迭代"),
+    ("phase14_bdd_bnb_and_cdcl_drat", "BDD DAG、預算與 DPLL"),
+    ("phase14_dcube_orthogonal_array_covering", "宿主不透明立方與開盒填充"),
+    ("phase14_eckmann_hilton_and_pentagon_coherence", "立方體演算法"),
+    ("phase14_internal_circle_sect_and_hopf_invariant", "球面同倫代表元與 Hopf 不變量"),
+    ("phase14_hou_backtracking_and_enumeration", "高階合一與雙向 elaborator"),
+    ("phase14_tlv_envelope_cas_and_incremental_sync", "模組分離編譯與連結"),
     ("self_family_positivity_fixpoint", "Schema 函子、正性與歸納遞迴"),
     ("simultaneous_ir_nested_foreign", "一等宇宙多態與同時宣告 schema"),
     ("conv_under_face_relevant_descent", "原始 DSystem 相容性與 first-match 範形"),
@@ -585,6 +722,7 @@ CHECK_FAMILY_HINTS = [
 
 PREFIXES = [
     ("multiquad_", "代數擴張與根式範形"),
+    ("real_alg_", "代數擴張與根式範形"),
     ("dterm_dag_", "持久環境、惰性與語義快取"),
     ("dterm_local_shell", "持久環境、惰性與語義快取"),
     ("cubic_", "代數擴張與根式範形"), ("triquad_", "代數擴張與根式範形"),
@@ -789,7 +927,7 @@ FAMILIES_EN = {
     "有限 Glue": ("Finite Glue", "(partial, base) pairs; glue_from_base is normalized from the base", "a limit-style construction gluing along equivalences; unglue is the fibration projection", "face_sat plus compatibility equations"),
     "Glue comp（有限線）": ("Glue comp (finite lines)", "outputs (t₁, e₁(t₁))", "the arrow category Ty²: an equivalence line is a morphism and comp is composition along it", "naturality squares by wiring_eq; incoherent data is rejected"),
     "Glue comp（子空間線）": ("Glue comp (subspace lines)", "the k=1 edge of the correction square", "Kan lifting along varying retract lines; the correction is an hcomp", "boundary/cap/membership equations (on grids)"),
-    "BDD DAG、預算與 DPLL": ("BDD DAGs, budgets and DPLL", "hash-consed DAG node ids; the reachable-node count of a root is its ROBDD size", "shared canonical graphs of boolean functions at a fixed variable order; apply is a memoized lattice operation", "same-manager root-id equality, sat as root≠0, node-budget FaceDecision, or step-budgeted DPLL (the legacy scanner and the watched-literal engine on Tseitin CNF); candidate-order minimization, bounded sifting that moves each variable through every insertion position with an honest initial/final report, and apply-cache doubling rehash once apply_misses exceeds four times the bucket count, and a 3ⁿ worst-case node bound; watched/list DPLL are differentially checked against 2^n brute force; CDCL adds 1-UIP clause learning, VSIDS, Luby restarts, LBD clause deletion (decision level 0 only, reason clauses kept) and RUP/DRUP proof output (deletions are recorded up to literal-set identity and replayed by an independent checker over the evolving active clause database), and is checked on generated faces and pigeonhole instances; provably optimal variable orders come from full permutation enumeration for n≤8 and from an incremental-cofactor subset DP over prefix sets for n≤16, above the cap non-exactness is reported"),
+    "BDD DAG、預算與 DPLL": ("BDD DAGs, budgets and DPLL", "hash-consed DAG node ids; the reachable-node count of a root is its ROBDD size; LRAT proof steps are indexed LratAdd/LratDelete chains with a CHLRATBN v1 binary representation", "shared canonical graphs of boolean functions at a fixed variable order; apply is a memoized lattice operation, and DRAT→LRAT elaboration lifts satisfiability-preserving traces to locally checkable proof chains", "same-manager root-id equality, sat as root≠0, node-budget FaceDecision, or step-budgeted DPLL (the legacy scanner and the watched-literal engine on Tseitin CNF); candidate-order minimization, bounded sifting, apply-cache doubling rehash, and a 3ⁿ worst-case node bound; CDCL adds 1-UIP clause learning, VSIDS, Luby restarts, LBD clause deletion, DRUP/DRAT checking, backward core trimming, DRAT→LRAT elaboration and linear-time indexed LRAT checking; provably optimal variable orders combine heuristic upper-bound branch-and-bound, cofactor symmetry-orbit pruning (single component up to n≤20) and variable-cooccurrence connected-support decomposition (disjoint support components solved exactly and concatenated; single components above cap report exact=false)"),
     "原始 DSystem 相容性與 first-match 範形": ("Raw DSystem compatibility and first-match normal forms", "compatible systems reuse the type-directed DSystem normal form; arbitrary first-match systems become disjoint effective regions DTubeNF; agreement regions of two values come in both boolean BDD form and a Face-valued form retaining both endpoints, and exact repair truncates branches to the Face-valued agreement without touching endpoints", "partial elements in face-relative slices; the checked constructor is a reflection into the composition-system subclass", "local-context conversion enumerates only the dimensions actually mentioned by the branches (irrelevant dimensions are pruned by BDD cofactor structure), checking the base and pairwise overlaps; the first conflict is reported; exact repair may also sequentially supplement candidates; maximum completion first exact-restricts and then chooses a genuinely maximum compatible supplement as a maximum clique of the branch-compatibility graph, reporting exactness"),
     "AST 一等 Equiv 與 GlueEquiv": ("First-class AST Equiv and GlueEquiv", "DEquiv carries fwd/bwd/sect/retr terms; DVGlueEquiv carries full equivalence branches and (partial, base) pairs", "equivalences in the AST are isomorphisms with homotopy inverse proofs; ua is a functor to universe paths and GlueEquiv glues along systems of partial equivalences", "bidirectional checking of the four components and two PathP proofs; conversion/quotation recurse over equivalence components and branch faces; coe along ua is definitionally fwd/bwd"),
     "受檢查語義型別線": ("Checked semantic type lines", "DCheckedTypeLine stores a checked open type body, contexts, environments and a universe level, never a raw host function", "substitutable cubical type lines are syntactic bodies evaluated in dimension environments and therefore commute with dimension substitution", "the body is checked at a fresh dimension against Typeᵢ; at evaluates by dimension and coe/comp dispatch to AST Kan operations"),
@@ -800,7 +938,7 @@ FAMILIES_EN = {
     "代數擴張與根式範形": ("Algebraic extensions and radical normal forms", "QuadNum a+b√d with squarefree d; CubicNum a+b∛m+c∛m² with cubefree m; TriquadNum on the 8-element basis of three squareclass-independent generators; MultiQuadNum on the 16-element basis of up to four generators, aligned by squareclass span; AlgNum remainder polynomials in Q[x]/(m)", "quadratic and general finite algebraic extension fields; norm/trace come from the determinant/trace of multiplication matrices", "residue arithmetic modulo a minimal polynomial and extended-Euclid inversion; multiquadratic inversion by Galois-conjugate products and sign by dyadic interval refinement; radical denesting by square tests; equality is coefficient equality after basis alignment"),
     "廣義特徵空間與 Jordan 理論": ("Generalized eigenspaces and Jordan theory", "nullity chains of powers of (A−λI), Jordan block sizes and chain bases; PJP⁻¹=A", "primary decomposition is a resolution of the identity from coprime polynomial factors; Jordan type is a complete invariant fragment of similarity", "exact decision from characteristic-polynomial multiplicities, kernel dimensions of powers and chain lifting; non-split cases over Q report residual factors and AlgMat continues over extensions"),
     "認證數值影子與精確立方體": ("Certified numeric shadows and exact cubes", "QuadC=QuadNum+i·QuadNum; CertMat and degree-≤2 CertPath/CertSquare coefficients", "exact complex quadratic matrix algebra and polynomial cubes; Double matrices are only approximate representations of exact shadows", "P²=P, P†=P, orthogonal decompositions and box boundaries are checked by exact structural equality; numeric agreement measures only deviation from shadows and floating residuals"),
-    "球面與懸掛 HIT": ("Spheres and suspension HITs", "north/south points of Susp(X) with one meridian per point; S²=Susp(S¹), S³=Susp(S²)", "suspension is the HIT quotient collapsing both ends of X×I to points; iterated suspension gives the sphere family", "generic HIT schema validation, meridian endpoint face reduction, dependent elimination and hcomp"),
+    "球面與懸掛 HIT": ("Spheres and suspension HITs", "north/south points of parameterized SuspS(A) with one meridian per point a:A; S²=Susp(S¹), S³=Susp(S²); Susp(Bool)≃S¹, Cocone(A,B) and the pointed loop-suspension adjunction (ΣA→*B)≃(A→*ΩB)", "suspension is the homotopy-pushout HIT quotient collapsing both ends of A×I to points, classified by cocone universal property; Σ and Ω form the canonical homotopy adjunction Σ⊣Ω on pointed types", "generic HIT schema validation, meridian endpoint face reduction, dependent elimination and hcomp; 0-connected spaces have trivial suspended fundamental group ‖Ω¹(Susp(A))‖₀≃1 by the 0-connected Freudenthal suspension theorem (instantiating π₁(S²)≃1 and π₁(S³)≃1), complemented by circle wedge-connectivity extension and coherences"),
     "Jacobi 區間譜迭代": ("Jacobi interval spectral iteration", "RatInterval/CInterval rectangular enclosures and dyadically outward-rounded Hermitian interval matrices; every rotation stores before/after matrices and the accumulated unitary transform", "monotone lifting of Hermitian similarity transforms to interval-matrix enclosures; Gershgorin discs give spectral image decompositions and multiplicity clusters", "exact rational square comparisons certify sqrt/phase/c/s enclosures; every rotation recomputes J†J−I∋0 and J†AJ⊆after, and final discs are clustered and counted; eigenvalue clusters are separated by Sturm-counting the squarefree part (Sturm chain with derivative gcd) and matching multiplicities back by unique interval overlap; the interval iteration itself is cluster-aware: Gershgorin clusters are detected during iteration, a cluster penalty biases pivot choice, precision escalates and reruns when insufficient, and a count-2 cluster is separated into disjoint singletons inside the iteration; an adaptive driver switches to exact characteristic-polynomial separation when the Jacobi envelopes stagnate, retaining exact multiplicities"),
     "高階合一與雙向 elaborator": ("Higher-order unification and the bidirectional elaborator", "Miller-pattern spines `?F x₁…xₙ` in UTerm and beta/projection-reduced zonked cores; surface STerm resolves names to de Bruijn UTerm", "pattern HOU is the decidable fragment of higher-order unification; bidirectional elaboration sends implicit arguments and dependent motives to the same unifier and compiles to the dependent core", "rigid decomposition after WHNF, pattern abstraction, occurs/scope checks and a closed-term fallback; a bounded Huet-style search above the deterministic fragment tries rigid/spine decomposition, same-head invariant coordinates, distinct flex-flex constants, imitation and projection transactionally under node/depth budgets and reports solved/no-unifier/residual/budget-exceeded honestly (general HOU is undecidable, so no completeness is claimed); check/infer insert implicit metavariables and unsolved ones are rejected before DTerm translation; phase 11 adds deep imitation, a widened projection-candidate cap and same-head identification, with iterative deepening recorded in HouIterativeReport; phase 12 adds hou_unify_mgu with a three-state semantics on the Miller-pattern fragment — principal MGU, provably no unifier, or a partial substitution together with residual constraints; the phase-13 residual solver alternates principal propagation with transactional iterative-deepening Huet search over the whole residual set (still with no claim of general completeness or a single MGU)"),
     "參數化模組與名字空間": ("Parameterized modules and namespaces", "module telescopes (parameters→imports and local declarations interleaved as ModuleItem entries; the legacy decls-only construction still reads, with all imports front-loaded) with separate name→ordinal bindings; instances are simultaneously substituted closed declarations", "parameterized modules are module functors, import is inlined functor application, and open/alias/rename are name projections of one telescope entry", "cycle detection, dependent checking of parameter arguments, ambiguity rejection for import selection/hiding/renaming, neutralization of opaque exports, and dep_check of every closed instance declaration"),
@@ -808,14 +946,14 @@ FAMILIES_EN = {
     "計算性單值性（univalence）": ("Computational univalence", "finite universe paths are normalized by wiring equivalences; dependent universe paths are checked type lines, pathToEquiv is their coe equivalence, ua is the Glue line, uaβ unglues a transport filler, and the round-trips are an Equiv homotopy and a 2D Glue square", "an equivalence (Equiv A B) ≃ Path U A B between the path category of the universe and equivalences; Glue glues along equivalences and transport is its coe functor", "wiring equality in the finite layer; coe/comp computation and type-directed conversion of round-trip endpoints and square edges in the AST layer; closed-term pathToEquiv fill/coe proofs are checked by the dependent checker"),
     "完備精確代數與根隔離": ("Complete exact algebra and root isolation", "BigInt rationals; irreducible factors and multiplicities in Q[x]; Sturm real-root intervals and disjoint Rouché complex disks; split roots in successive algebraic towers; denested radical expressions; biquadratic numbers as rational coefficients on the basis [1,√d₁,√d₂,√(d₁d₂)] for at most two squarefree generators", "unique factorization in Q[x], root multisets in an algebraic closure and finite splitting extensions; AlgPoly is polynomial algebra over an extension", "irreducibility is first decided by a certificate fast path (linear, low-degree without rational roots, mod-p irreducibility, joint exclusion by several mod-p degree patterns, and Eisenstein with shifts — each independently re-verifiable), then factorization prunes by adaptive mod-p degree patterns and rational roots before Kronecker enumeration; Sturm counting, Cauchy-square Taylor exclusion and Rouché subdivision; radical equality is attempted along quadratic, biquadratic, triquadratic, multiquadratic fields with up to four squareclass-independent generators, and the pure cubic Q(∛m); multiquadratic square roots are decided recursively in-field or after adjoining one square-root generator (non-rational square classes and radicands needing general algebraic roots are the stated boundary); every certificate is recomputed with exact polynomial arithmetic"),
     "一等宇宙多態與同時宣告 schema": ("First-class universe-polymorphic and simultaneous declaration schemas", "level binders and instantiation in DLevelDecl; positive functors extracted after transparent-operator unfolding; iteratively compiled non-uniform nested families; joint mutual and simultaneous IR specifications", "universe schemes, parameter-iterated initial-algebra families, joint initial algebras of vector functors and synchronous induction-recursion structures", "level scope, positivity reports, generated telescopes and dependent conversion; uninstantiated levels are rejected by core checking; beyond decode-position compilation, a mutually dependent simultaneous-IR block whose function level is strictly below the base family level compiles to eliminator closed terms over the single base family (each term verified case by case by forced application in a generic context; nested foreign IHs are covered by functor maps, while forward references, non-universe foreign functions and decoded/level-mismatched positions are still refused explicitly)"),
-    "Adjoint 等價、纖維與命題截斷": ("Adjoint equivalences, fibers and propositional truncation", "a triangle Path(Path) over a quasi-inverse; the improved counit; Σ-points of fibers with singleton contraction; the point/squash HIT for PropTrunc", "half-adjoint equivalences, the contractible-fiber characterization of equivalences and the truncation reflection into propositions", "adjointify_equiv_value and equiv_contractible_fibers_value implement the general lemIso construction with hfill/hcomp/dpath; endpoints and the Path(Path) triangle are checked by dependent checking/conversion (deep adjustment points such as the circle midpoint are checked under face restrictions)"),
-    "球面同倫代表元與 Hopf 不變量": ("Spherical homotopy representatives and the Hopf invariant", "nested Path types for Ωⁿ; integer degree maps by iterated suspension; the pole-swapped S³ HIT; the Hopf map and phase fibers on the unit sphere in C²", "representatives for the suspension functor, based maps and loop spaces; the Hopf S¹-fibration and its linking number", "conversion checks on generating meridians; IntegerS is a generated inductive type with unique zero/posSucc/negSucc constructor forms and semantic succ/pred maps, and pi3 is presented as Ω³(Sphereₙ) modulo the propositionally truncated Path relation via QuotientS, and the triply iterated suspension unit is rebased through the transitivity-square cancellation by subst; representative loop expressions reduce to integer powers with end-to-end endpoint checks.  This layer is representatives and canonical powers: it does not claim a general synthetic encode/decode proof that π₃(S³)≅ℤ, nor an internal Hopf-invariant proof that π₃(S²)≅ℤ; the unit, inverse and associativity laws and symmetry-of-composite anti-homomorphism are verified face by face on representatives by explicit 3-cells, and every closed representative expression has a recursively assembled normalization 3-cell to the canonical word of its degree (Eckmann–Hilton/interchange are not constructed); beyond floating-point algebraic checks and a Gauss linking integral after stereographic projection numerically deciding |lk|=1, the Hopf landing/fiber-invariance/pole identities are verified in exact rational arithmetic on rational points and rational phase rotations; no internal Hopf map is claimed"),
+    "Adjoint 等價、纖維與命題截斷": ("Adjoint equivalences, fibers and propositional truncation", "a triangle Path(Path) over a quasi-inverse; the improved counit; Σ-points of fibers with singleton contraction; the point/squash HIT for PropTrunc; the point/hub/spoke set truncation ‖A‖₀ (SetTruncS) and open-variable bidirectional bijectivity certification DVEquiv", "half-adjoint equivalences, the contractible-fiber characterization of equivalences, and left-adjoint truncation reflections into propositions and into h-sets (0-groupoids)", "adjointify_equiv_value, equiv_bidirectional_certified_in and equiv_contractible_fibers_value construct and check half-adjoint equivalences in open variable contexts; SetTruncS carries an internal h-set proof, universal elimination into arbitrary h-sets, and ‖X‖₀≃B equivalence lifting"),
+    "球面同倫代表元與 Hopf 不變量": ("Spherical homotopy representatives and the Hopf invariant", "nested Path types for Ωⁿ; integer degree maps by iterated suspension; the pole-swapped S³ HIT; the geometric Hopf map on C² together with the internal univalent Hopf fibration H:S²→Type₀ glued along circle rotation ua; IntegerS with unique zero/posSucc/negSucc constructor forms, semantic succ/pred and an internal h-set proof; pi3 presented via QuotientS; generator powers in SphereLoopExpr", "representatives for the suspension functor, based maps and loop spaces; the geometric and internal univalent Hopf S¹-fibrations and connecting map Ω³(S²)→Ω(S¹)→ℤ", "conversion checks on generating meridians; unit, inverse, associativity, symmetry-of-composite, Ω² Eckmann–Hilton interchange and Mac Lane pentagon 4-cells are verified face by face on representatives, and closed representative expressions carry recursive normalization 3-cells to canonical powers; the internal univalent Hopf invariant computes exact signed degrees on Ω³(S²) representatives alongside the Freudenthal 1-loop suspension map σ₁:Ω¹(S¹)→Ω²(Susp(S¹)) (full bidirectional π₃(S²)≃ℤ classification is not claimed)"),
     "模組分離編譯與連結": ("Separate module compilation and linking", "the flattened checked telescope, exports, dependency fingerprints and public interface projection of CompiledModule; abstract declarations have body=None; the cache is indexed by source fingerprints; the stable external form is the CHMODBIN byte array specified in the Decision column (v2 appends a producer string, v3 shares a DAG term codec with CHREGBIN v2); BinaryVersionPolicy carries current/supported/oldest-writable with peer negotiation; CompiledModuleStore keeps module artifact bytes with hit/miss counters; ArtifactRepository layers named blobs, dual-hash manifests, index-last atomic commits, manifest-scan recovery and a CHARTCHN append-only integrity chain (every put/remove links the previous entry digest; the head is an external trust anchor) over an abstract byte store (a protocol, not an OS disk)", "compiled objects of module functors and synthetic import-free linking definitions; prefix specialization is partial functor application", "interface hashes omit opaque bodies and implementation hashes cover all entries; implementations supply abstract exports; cache entries invalidate on source or dependency-interface fingerprints; the stable binary format is magic CHMODBIN + version u16 + length u32 + checksum u32 + payload (tag bytes, fixed-width little-endian i32 fields and UTF-16LE strings), and decoding rejects bad magic/version/truncation/checksum/malformed/trailing bytes before rerunning module validation and fingerprint checks; the loader accepts v1/v2/v3 and migrates v1 with a default producer, while legacy writers refuse newer-only nodes (such as functor tag 8) with None; v3 payloads reference earlier subterms by tag-255 back-references once a node-count threshold is met; corrupted repository blobs are rejected by hash on read, a destroyed index is rebuilt from surviving manifests or by verified chain replay, and edited/reordered/replayed chain entries are rejected against the expected head"),
     "範疇化總檢": ("Categorification checks", "boolean conjunctions of category laws", "identity/composition/coherence laws of the assembled categories", "law-by-law evaluation"),
     "定理登記與範例": ("Theorem registry and examples", "(name, Bool) registry rows; concrete witness vectors/terms", "realizations of decidable propositions on witnesses", "moon test / the registry"),
     "規格登記": ("Specification registry", "SpecEntry six-tuples", "a specification of the specification; completeness is checked against the generated interface", "spec_registry_sound plus this audit"),
-    "圓的萬有覆疊與 encode/decode": ("The circle's universal cover and encode/decode", "cover fibres are canonical IntegerS integers over base and ua-line GlueEquiv types over loop points; loop representatives are DVHitCell paths of the schema circle and winding numbers are canonical integer values", "the helix is a fibration family from the circle to the universe; encode is the endpoint of substitution (path lifting) in the cover and decode is integer elimination into loop powers", "the base fibre is convertible to ℤ at universe level; substitution computes directly on the generator, its inverse and refl; a single substitution across the trans points of a composite loop now chains the equivalences through endpoint Glue-line composition and accumulates the winding number correctly (loop²↦2, loop³↦3, loop⁻²↦−2, cancellation↦0, all by conversion), with transport subdivision retained as a comparison path; both round trips are checked by conversion on representatives (a complete internal proof of π₁(S¹)≃ℤ for arbitrary neutral loops remains open)"),
-    "宿主不透明立方與開盒填充": ("Host-opaque cubes and open-box filling", "cubes are host functions (dimension lists to semantic values / rational-polynomial coordinates); an open box is boundary data missing one face and the cap is the filler's restriction to that face", "external cubical data over □ with a host implementation of the Kan filling condition; polynomial cubes are cubical maps in exact rational coordinates, filled by the iteration F += w·(S − F|face) face by face", "boundary completeness and overlap compatibility are verified face by face by typed conversion / canonical polynomial equality; beyond the generic-point probe, stratified extensionality compares host cube functions on finite probe tiers covering face interiors, diagonals (shared/ambient dimensions), connections (¬, ∧, ∨) and axis-specific deep connections, with stratified box validation and verified filling alongside (tiers beyond the probe budget report complete=false); incompatible or incomplete boxes are rejected with failure counts"),
+    "圓的萬有覆疊與 encode/decode": ("The circle's universal cover and encode/decode", "cover fibres are canonical IntegerS integers over base and ua-line GlueEquiv types over loop points; loop representatives are DVHitCell paths of the schema circle, winding numbers are canonical integer values, and π₁(S¹)=‖Ω¹(S¹)‖₀≃ℤ is certified as a DVEquiv", "the helix is a fibration family from the circle to the universe; encode is the endpoint of substitution (path lifting) in the cover, decode is integer elimination into loop powers, and set truncation lifts Ω¹(S¹)≃ℤ to the fundamental-group isomorphism via ℤ being an h-set", "the base fibre is convertible to ℤ at universe level; substitution accumulates winding numbers across composite loops; both homotopies decode(encode(p))≡p and encode(decode(z))≡z are constructed internally in open neutral loop and integer contexts, completing the full internal proofs of Path S¹ base x ≃ Cover(x), Ω¹(S¹)≃ℤ and π₁(S¹)=‖Ω¹(S¹)‖₀≃ℤ"),
+    "宿主不透明立方與開盒填充": ("Host-opaque cubes and open-box filling", "cubes are host functions (dimension lists to semantic values / rational-polynomial coordinates) or CheckedDCube terms anchored to typechecked syntax; an open box is boundary data missing one face and the cap is the filler's restriction to that face", "external cubical data over □ with a host implementation of the Kan filling condition, whose natural transformations are determined at the generic diagonal by the cubical Yoneda lemma; polynomial cubes are cubical maps in exact rational coordinates, filled by the iteration F += w·(S − F|face) face by face", "boundary completeness and overlap compatibility are verified face by face by typed conversion / canonical polynomial equality; extensional comparison combines four-tier stratified probes, strength t≤4 orthogonal/covering arrays over P¹(𝔽₈) with a 5-color perfect hash family, a cubical Yoneda naturality/faithfulness audit that rejects non-natural host closures, and exact probe-free generic-dimension reification for CheckedDCube"),
     "輔助工具": ("Utilities", "concrete integer/grid values", "basic set-level utilities", "direct computation"),
 }
 
@@ -854,6 +992,18 @@ FAMILIES.update({
     "半環實驗室：範例": ("可編譯教學範例的輸出值", "半環支柱各構造的具體見證", "範例白盒測試"),
     "半環實驗室：量測報告": ("章節函數輸出的量測表與裁決摘要", "半環支柱各演算法在原生主機上的可重現量測敘事", "native 慢閘門完整重跑並保存輸出快照；永不進快速閘門"),
     "三方橋接": ("跨支柱轉換後的規範矩陣、圖、範疇或統一證書", "cubical、有限對稱與半環路徑代數之間的顯式橋接構造", "每一橋接均以來源支柱的判定器重驗"),
+    "拓撲斯：景、篩、Grothendieck 拓撲與預層": ("排序無重態射篩、覆蓋篩閉包、自然變換分量表與相容匹配族", "小範疇景 (C,J)、米田嵌入 C↪PSh(C) 與預層極限／餘極限雙完備結構", "篩右理想律、Grothendieck 拓撲三公理（極大／穩定／傳遞）與一般米田雙射窮舉檢驗"),
+    "拓撲斯：層化、笛卡兒閉性、子物件分類子與一般拓撲斯": ("J-閉篩真值格 Ω_J、兩步 Grothendieck Plus 層化 a(P)=(P^+)^+ 與米田指數 G^F", "Grothendieck 層拓撲斯 Sh(C,J)、笛卡兒閉結構、子物件分類子拉回與 Lawvere–Tierney 子拓撲斯雙射", "分離／黏合層條件、層化泛性質、CCC 柯里化同構、特徵態射拉回與 Giraud 不交餘積穩定性判定"),
+    "拓撲斯：幾何態射、局部／連通／原子／緊緻相干性質": ("左正合逆像 f^*=a∘Lan_{u^{op}}、右伴隨直像 f_*、平坦張量點函子與局部焦點", "幾何態射伴隨 f^*⊣f_*、局部 Topos 三重伴隨 Δ⊣Γ⊣Γ^!、π_0 連通性、原子 Galois 群胚與相干緊緻覆蓋", "伴隨雙射、左正合極限保持、Diaconescu 點平坦／覆蓋保持判準、局部／連通／原子／De Morgan／Boolean 性質檢定"),
+    "拓撲斯：幾何邏輯規範形式、分類 Topos 與範疇化": ("Joyal–Reyes 析取存在合取幾何規範形 ⋁∃⋀、伴隨量詞 Σ_f⊣f^*⊣Π_f 與命題分類景", "Kripke–Joyal 層語義、分類 Topos B(T)（Pt(B(T))≃Mod_Set(T)）與元素範疇範疇化 PSh(C)/P≃PSh(∫P)", "Kripke–Joyal 強迫語義、幾何規範形等價性、Beck–Chevalley 正合方塊、分類 Topos 點與模型雙射及切片範疇化檢驗"),
+    "拓撲斯：廣群棧、下降理論、層上同調與同倫類型": ("Čech 下降上閉鏈 g_{ij}·g_{jk}=g_{ik}、Roos／單純上鏈複形與整數 Smith 撓率不變因子", "纖維化廣群棧與 G-主叢下降、有理阿貝爾層上同調 H^•(C;F)、蛇引理長正合序列與神經同倫類型", "2-範疇下降上閉鏈相容、有效下降黏合雙射、d^{n+1}∘d^n=0、Euler–Poincaré 恆等式、蛇引理連接同態正合性與 Betti／π_1 計算"),
+    "拓撲斯：第2輪結構導出演算法（本徵三重伴隨、開閉子拓撲斯核、稠密比較引理、內蘊主叢與杯積環）": ("右 Kan 擴展預層 Ran_{u^{op}}、開閉 Lawvere–Tierney 核算子 j_o/j_c、誘導子景拓撲 J_C、內蘊置換群作用與 Alexander–Whitney 2-上鏈杯積", "本徵幾何態射 Lan_{u^{op}}⊣u^*⊣Ran_{u^{op}}、餘 Heyting 開閉子拓撲斯互補分解、Grothendieck–Verdier 稠密子景 Morita 等價、Diaconescu 內蘊 G-主叢層與分次微分代數 H^•(U;Q)", "三重伴隨 Hom 雙射、無排中律下 J_o∧J_c=J_triv 與 J_o∨J_c=J_⊥ 互補、稠密層重構同構、剪映射雙射 T×G≅T×T 與 Koszul 符號 Leibniz 律及 T^2 對 S^1∨S^1∨S^2 杯積秩區分"),
+    "概形：多元多項式、約化 Gröbner 基規範形與根理想": ("稀疏規範多元多項式 MPoly、單ic 完全互約 Gröbner 基與標準單項式商基底", "多元多項式環 Q[x_1,…,x_n] 上的理想運算（和／積／交／商／飽和／消元／根理想）", "Buchberger S-多項式演算法、多元除法餘式唯一性、Rabinowitsch 根理想成員與 Hilbert–Krull 維數判定"),
+    "概形：座標環、Zariski 層化、既約概形與準凝聚模": ("模約化 Gröbner 基商餘式規範形、主開集局部化截面 a/f^m 與冪零根簡化理想 √I", "仿射概形 Spec(Q[x]/I)、Zariski 結構層 O_X、既約伴隨概形 X_red↪X 與準凝聚模局部化範疇", "Zariski 開覆蓋 1∈⟨f_i⟩ 單位分解、局部截面相容與全局多項式黏合唯一性、冪零見證搜尋與既約泛性質檢驗"),
+    "概形：黏合概形、概形態射、仿射態射與 DVR 真概形": ("局部仿射圖冊 (U_i,U_{ij})、圖冊回拉同態環圖與截斷形式 Laurent 級數 Q((t)) 賦值展開", "一般黏合概形範疇 Sch/Q（A^n, P^n, 射影閉子概形, A^2\\0, 雙重原點線）、纖維積、仿射態射與對角浸入 Δ_X", "上閉鏈黏合相容、仿射開逆像覆蓋局部性、對角閉浸入分離性與離散賦值環 Q[[t]]⊂Q((t)) 真概形唯一延拓判準"),
+    "概形：有理等價、對偶複形、點函子法與動機範疇化": ("P^1 正規化 Weil 除子與有理等價類 CH^1、P^1/P^2/平面曲線 Čech 上同調維數、雙齊次對應理想與有限交換環點集", "有理函數主除子商群、Grothendieck–Serre 對偶複形 ω_{P^1}≅O(-2)[1]／ω_{P^2}≅O(-3)[2]／ω_C≅O_C(d-3)[1]、米田點函子 h_X:CRing→Set 與多射影 Gröbner Chow 對應動機範疇", "有理等價顯式函數 f/g 構造、局部重數 Bézout 定理、Riemann–Roch 與 Serre 對偶配對、F_p[ε] 切空間維數與 6 變元 Gröbner 飽和消元 h(P^1)=1⊕L 動機分解檢驗"),
+    "概形：第2輪結構導出演算法（Kähler 微分、平展判準、Hilbert 多項式、爆炸奇點解消與 Frobenius 下降）": ("Kähler 微分呈現矩陣 Ω^1_{B/A}、零階 Fitting 與 Jacobi 子式理想、符號 Hilbert 多項式 P_X(t)∈Q[t]、雙圖冊嚴格變換概形與二次有限域 F_{p^2} 乘法表", "相對微分模與無分歧／光滑／平展態射、Tjurina 孤立奇點代數 τ(X)、任意餘維射影度數與算術虧格、Rees 爆炸 Bl_{(0,0)}(A^2) 奇點解消及 Galois–Frobenius 點計數下降", "Fitting 零化 1∈Fitt_0(Ω^1) 局部化交換性、Macaulay 初理想容斥與齊次單項式計數互校、Gröbner 飽和嚴格變換光滑性與例外纖維既約性區分及 F_3⊂F_9 算術有理點跳躍檢驗"),
+    "六支柱大一統：邏輯理論轉譯與幾何邏輯精細圖譜": ("跨立方類型論／Topos／概形／熱帶半環之規範形與幾何公式轉譯及 18 項精細圖譜條目", "Glivenko ¬¬ 稠密布林子拓撲斯、Stone–Zariski 分類景對偶、Kapranov 熱帶賦值、平展主叢 Galois 橋、子拓撲斯與爆炸切除橋及 S^1/P^1/Galois/動機六支柱合成", "跨支柱語義保持、見證與反例雙向非平凡檢驗及 30 項統一大一統證書全數實算裁決"),
 })
 
 FAMILIES_EN.update({
@@ -882,6 +1032,18 @@ FAMILIES_EN.update({
     "半環實驗室：範例": ("Semiring lab: examples", "outputs of compilable teaching examples", "concrete witnesses for constructions in the semiring pillar", "white-box example tests"),
     "半環實驗室：量測報告": ("Semiring lab: measured report", "measurement tables and verdict summaries emitted by section functions", "a reproducible native-host measurement narrative for algorithms in the semiring pillar", "rerun completely as a native slow gate and archive the output snapshot; never part of the fast gate"),
     "三方橋接": ("Three-way bridges", "canonical matrices, graphs, categories or unified certificates after cross-pillar conversion", "explicit bridge constructions between cubical paths, finite symmetry and semiring path algebra", "every bridge is rechecked by decision procedures from its source pillars"),
+    "拓撲斯：景、篩、Grothendieck 拓撲與預層": ("Topos: sites, sieves, Grothendieck topologies and presheaves", "sorted deduplicated morphism sieves, covering-sieve closures, natural-transformation component tables and matching families", "small sites (C, J), the Yoneda embedding C ↪ PSh(C) and bicomplete presheaf limits/colimits", "sieve right-ideal laws, the three Grothendieck topology axioms (maximal/stability/transitivity) and exhaustive general Yoneda bijection checks"),
+    "拓撲斯：層化、笛卡兒閉性、子物件分類子與一般拓撲斯": ("Topos: sheafification, cartesian closedness, subobject classifiers and elementary toposes", "J-closed sieve Heyting lattices Ω_J, two-step Grothendieck Plus sheafification a(P)=(P^+)^+ and Yoneda exponentials G^F", "Grothendieck sheaf toposes Sh(C, J), cartesian closed structure, subobject-classifier pullbacks and the Lawvere–Tierney subtopos bijection", "separated/gluing sheaf conditions, sheafification universal property, CCC currying isomorphisms, characteristic pullback squares and Giraud disjoint-coproduct stability"),
+    "拓撲斯：幾何態射、局部／連通／原子／緊緻相干性質": ("Topos: geometric morphisms and local/connected/atomic/compact-coherent properties", "left-exact inverse images f^* = a ∘ Lan_{u^{op}}, right-adjoint direct images f_*, flat tensor point functors and focal points", "geometric morphism adjunctions f^* ⊣ f_*, local-topos triple adjunctions Δ ⊣ Γ ⊣ Γ^!, π_0 connectedness, atomic Galois groupoids and coherent compact coverings", "adjunction hom-bijections, finite-limit preservation, Diaconescu flat/cover-preserving point criteria, and local/connected/atomic/De Morgan/Boolean property checks"),
+    "拓撲斯：幾何邏輯規範形式、分類 Topos 與範疇化": ("Topos: geometric normal forms, classifying toposes and categorification", "Joyal–Reyes disjunctive-existential-conjunctive normal forms ⋁∃⋀, adjoint quantifiers Σ_f ⊣ f^* ⊣ Π_f and propositional classifying sites", "Kripke–Joyal sheaf semantics, classifying toposes B(T) with Pt(B(T)) ≃ Mod_Set(T), and category-of-elements categorification PSh(C)/P ≃ PSh(∫P)", "Kripke–Joyal forcing, geometric normal-form soundness, Beck–Chevalley exact squares, classifying-topos point/model bijections and slice categorification checks"),
+    "拓撲斯：廣群棧、下降理論、層上同調與同倫類型": ("Topos: groupoid stacks, descent, sheaf cohomology and homotopy types", "Čech descent cocycles g_{ij}·g_{jk}=g_{ik}, Roos/simplicial cochain complexes over Q and integer Smith torsion invariant factors", "fibered groupoid stacks and G-torsor descent, rational abelian sheaf cohomology H^•(C; F), Snake-lemma long exact sequences and simplicial nerve homotopy types", "2-categorical cocycle coherence, effective descent bijections, d^{n+1}∘d^n = 0, Euler–Poincaré identities, Snake connecting-homomorphism exactness and Betti/π_1 computation"),
+    "拓撲斯：第2輪結構導出演算法（本徵三重伴隨、開閉子拓撲斯核、稠密比較引理、內蘊主叢與杯積環）": ("Topos: Round-2 structural derivations (essential triple adjunctions, open/closed subtopos nuclei, dense Comparison Lemma, internal torsors and cup-product ring)", "right Kan presheaves Ran_{u^{op}}, open/closed Lawvere–Tierney nuclei j_o/j_c, induced dense subsite topologies J_C, internal permutation-group actions and Alexander–Whitney 2-cochain cup products", "essential geometric morphisms Lan_{u^{op}} ⊣ u^* ⊣ Ran_{u^{op}}, co-Heyting open/closed subtopos complementarity, Grothendieck–Verdier dense site Morita equivalence, Diaconescu internal G-torsor sheaves and multiplicative DG-algebras H^•(U; Q)", "triple-adjunction hom bijections, J_o ∧ J_c = J_triv & J_o ∨ J_c = J_⊥ complementarity without internal LEM, dense sheaf reconstruction, shear bijections T × G ≅ T × T and Koszul-signed Leibniz rules separating T^2 from S^1 ∨ S^1 ∨ S^2"),
+    "概形：多元多項式、約化 Gröbner 基規範形與根理想": ("Schemes: multivariate polynomials, reduced Gröbner normal forms and radical ideals", "sparse canonical multivariate polynomials MPoly, monic interreduced Gröbner bases and standard-monomial quotient bases", "ideal calculus over Q[x_1,…,x_n] (sum, product, intersection, colon quotient, saturation, elimination and radical)", "Buchberger's S-polynomial algorithm, unique multivariate normal-form remainders, Rabinowitsch radical membership and Hilbert–Krull dimension"),
+    "概形：座標環、Zariski 層化、既約概形與準凝聚模": ("Schemes: coordinate rings, Zariski sheafification, reduced schemes and quasi-coherent modules", "normal-form quotient remainders modulo reduced Gröbner bases, localized principal-open sections a/f^m and radical ideals √I", "affine schemes Spec(Q[x]/I), Zariski structure sheaves O_X, associated reduced closed immersions X_red ↪ X and localized quasi-coherent modules", "Zariski partition-of-unity cover tests 1 ∈ ⟨f_i⟩, compatible section gluing uniqueness, nilpotent witness search and reduced universal-property checks"),
+    "概形：黏合概形、概形態射、仿射態射與 DVR 真概形": ("Schemes: glued schemes, scheme morphisms, affine morphisms and DVR properness", "affine chart atlases (U_i, U_{ij}), chartwise pullback ring homomorphisms and truncated formal Laurent series in Q((t))", "glued schemes over Q (A^n, P^n, projective closed subschemes, A^2\\0, doubled-origin line), fiber products, affine morphisms and diagonal immersions Δ_X", "cocycle gluing coherence, chart-local affine preimage tests, diagonal closed-immersion separatedness and the Q[[t]] ⊂ Q((t)) DVR valuative criterion of properness"),
+    "概形：有理等價、對偶複形、點函子法與動機範疇化": ("Schemes: rational equivalence, dualizing complexes, functor of points and motivic categorification", "normalized Weil divisors and Chow classes CH^1(P^1), P^1/P^2/plane-curve Čech cohomology ranks, bihomogeneous correspondence ideals and finite-ring point sets", "principal divisor quotients, Grothendieck–Serre dualizing complexes ω_{P^1} ≅ O(-2)[1], ω_{P^2} ≅ O(-3)[2] and ω_C ≅ O_C(d-3)[1], Yoneda functors of points h_X : CRing → Set and multi-projective Gröbner Chow motives", "explicit rational-equivalence witnesses f/g, local-multiplicity Bézout verification, Riemann–Roch & Grothendieck–Serre duality pairings, F_p[ε] Zariski tangent dimensions and 6-variable Gröbner saturation/elimination h(P^1) = 1 ⊕ L motivic splitting"),
+    "概形：第2輪結構導出演算法（Kähler 微分、平展判準、Hilbert 多項式、爆炸奇點解消與 Frobenius 下降）": ("Schemes: Round-2 structural derivations (Kähler differentials, étale criteria, Hilbert polynomials, blow-up desingularization and Frobenius descent)", "Kähler presentation matrices Ω^1_{B/A}, zeroth Fitting and Jacobian minor ideals, symbolic Hilbert polynomials P_X(t) ∈ Q[t], two-chart strict-transform schemes and quadratic finite fields F_{p^2}", "relative Kähler differential modules and unramified/smooth/étale morphisms, Tjurina isolated-singularity algebras τ(X), arbitrary-codimension projective degree & arithmetic genus, Rees blow-up Bl_{(0,0)}(A^2) desingularization and Galois–Frobenius point-count descent", "Fitting vanishing 1 ∈ Fitt_0(Ω^1) under localization, Macaulay initial-ideal inclusion-exclusion vs homogeneous monomial counts, Gröbner-saturated strict-transform smoothness & reduced vs non-reduced exceptional fibers, and F_3 ⊂ F_9 rational-point jump checks"),
+    "六支柱大一統：邏輯理論轉譯與幾何邏輯精細圖譜": ("Six-pillar grand unification: logical theory translations and geometry-logic correspondence atlas", "cross-pillar normal forms, translated geometric formulas/ideals and the 18-entry fine-grained geometry-logic correspondence atlas", "Glivenko ¬¬ dense Boolean subtoposes, Stone–Zariski classifying dualities, Kapranov tropical valuations, quadratic étale torsor Galois bridges, subtopos/blow-up excision bridges and the S^1/P^1/Galois/motivic six-pillar synthesis", "cross-pillar semantic preservation, non-tautological witness/contrast pairs and live verification of all 30 unified certificates"),
 })
 
 PACKAGE_FAMILY = {
@@ -902,8 +1064,187 @@ PACKAGE_FAMILY = {
     "semiring-par-host": "半環實驗室：原生宿主後端",
     "semiring-examples": "半環實驗室：範例",
     "cmd-semiringreport": "半環實驗室：量測報告",
-    "bridge": "三方橋接",
 }
+
+TOPOS_SITE = "拓撲斯：景、篩、Grothendieck 拓撲與預層"
+TOPOS_SHEAF = "拓撲斯：層化、笛卡兒閉性、子物件分類子與一般拓撲斯"
+TOPOS_GEOM = "拓撲斯：幾何態射、局部／連通／原子／緊緻相干性質"
+TOPOS_LOGIC = "拓撲斯：幾何邏輯規範形式、分類 Topos 與範疇化"
+TOPOS_STACK = "拓撲斯：廣群棧、下降理論、層上同調與同倫類型"
+TOPOS_DERIVED = "拓撲斯：第2輪結構導出演算法（本徵三重伴隨、開閉子拓撲斯核、稠密比較引理、內蘊主叢與杯積環）"
+
+TOPOS_TYPE_FAMILY = {
+    "Sieve": TOPOS_SITE, "GrothendieckTopology": TOPOS_SITE, "Site": TOPOS_SITE,
+    "PresheafHom": TOPOS_SITE, "MatchingFamily": TOPOS_SITE,
+    "SheafificationResult": TOPOS_SHEAF, "ExponentialData": TOPOS_SHEAF,
+    "SubobjectClassifierData": TOPOS_SHEAF,
+    "FlatPointFunctor": TOPOS_GEOM,
+    "LocalToposReport": TOPOS_GEOM, "ConnectedToposReport": TOPOS_GEOM,
+    "AtomicToposReport": TOPOS_GEOM, "CompactCoherentReport": TOPOS_GEOM,
+    "Subpresheaf": TOPOS_LOGIC, "GeoAtom": TOPOS_LOGIC, "GeoFormula": TOPOS_LOGIC,
+    "GeoSequent": TOPOS_LOGIC, "GeometricTheory": TOPOS_LOGIC,
+    "SheafStructure": TOPOS_LOGIC, "GeoConjClause": TOPOS_LOGIC,
+    "GeoNormalForm": TOPOS_LOGIC, "PropGeoAxiom": TOPOS_LOGIC,
+    "PropGeoTheory": TOPOS_LOGIC, "ClassifyingToposData": TOPOS_LOGIC,
+    "SliceCategoryData": TOPOS_LOGIC,
+    "FiniteGroupoid": TOPOS_STACK, "GroupoidFibration": TOPOS_STACK,
+    "CoverDescentDiagram": TOPOS_STACK, "DescentDatum": TOPOS_STACK,
+    "RectQMat": TOPOS_STACK, "CochainComplexQ": TOPOS_STACK,
+    "AbelianPresheafQ": TOPOS_STACK, "SimplicialNerve": TOPOS_STACK,
+    "HomotopyTypeSummary": TOPOS_STACK,
+    "SubtoposComplementReport": TOPOS_DERIVED,
+    "InternalGroupTorsor": TOPOS_DERIVED,
+}
+
+SCHEME_GB = "概形：多元多項式、約化 Gröbner 基規範形與根理想"
+SCHEME_SHEAF = "概形：座標環、Zariski 層化、既約概形與準凝聚模"
+SCHEME_MORPH = "概形：黏合概形、概形態射、仿射態射與 DVR 真概形"
+SCHEME_CYCLE = "概形：有理等價、對偶複形、點函子法與動機範疇化"
+SCHEME_DERIVED = "概形：第2輪結構導出演算法（Kähler 微分、平展判準、Hilbert 多項式、爆炸奇點解消與 Frobenius 下降）"
+
+SCHEME_TYPE_FAMILY = {
+    "MonomialOrder": SCHEME_GB, "MTerm": SCHEME_GB, "MPoly": SCHEME_GB,
+    "ReducedGroebnerBasis": SCHEME_GB, "Ideal": SCHEME_GB,
+    "CoordRing": SCHEME_SHEAF, "RingHom": SCHEME_SHEAF,
+    "AffineScheme": SCHEME_SHEAF, "LocalizedSection": SCHEME_SHEAF,
+    "QuasiCoherentModule": SCHEME_SHEAF,
+    "ChartOverlap": SCHEME_MORPH, "Scheme": SCHEME_MORPH,
+    "SchemeMorphism": SCHEME_MORPH, "LaurentSeries": SCHEME_MORPH,
+    "PropernessReport": SCHEME_MORPH,
+    "PrimeDivisorP1": SCHEME_CYCLE, "WeilDivisorP1": SCHEME_CYCLE,
+    "P1LineBundleCohomology": SCHEME_CYCLE,
+    "P2LineBundleCohomology": SCHEME_CYCLE,
+    "PlaneCurveDualizingReport": SCHEME_CYCLE,
+    "FiniteCommRing": SCHEME_CYCLE, "FiniteRingHom": SCHEME_CYCLE,
+    "ProjectiveHilbertReport": SCHEME_DERIVED,
+    "PlaneCurveBlowupReport": SCHEME_DERIVED,
+}
+
+BRIDGE_CLASSIC = "三方橋接"
+BRIDGE_GRAND = "六支柱大一統：邏輯理論轉譯與幾何邏輯精細圖譜"
+
+
+def classify_topos(sym, kind):
+    owner = symlib_owner(sym, kind)
+    if owner in TOPOS_TYPE_FAMILY:
+        return TOPOS_TYPE_FAMILY[owner]
+
+    def has(*prefixes):
+        return any(sym == p or sym.startswith(p) for p in prefixes)
+
+    if has(
+        "right_kan_presheaf", "verify_essential_geometric",
+        "is_connected_essential", "topology_lattice_",
+        "open_subtopos_lt", "closed_subtopos_lt",
+        "verify_open_closed_subtopos", "induced_dense_subsite",
+        "verify_grothendieck_comparison", "is_internal_group_torsor",
+        "build_mobius_internal_z2", "simplicial_cup_",
+        "verify_alexander_whitney", "torus_t2_minimal", "wedge_s1_s1_s2",
+    ):
+        return TOPOS_DERIVED
+    if has(
+        "groupoid_", "is_valid_groupoid", "verify_descent", "descent_data",
+        "canonical_descent", "verify_stack", "build_circle_z2", "classify_group_torsor",
+        "circle_mobius", "rect_qmat_", "cochain_", "cohomology_", "verify_euler",
+        "verify_snake", "abelian_presheaf", "is_valid_abelian", "roos_site",
+        "nerve_", "classifying_nerve", "compute_nerve", "boundary_simplex",
+        "rp2_minimal",
+    ):
+        return TOPOS_STACK
+    if has(
+        "is_valid_subpresheaf", "subpresheaf_", "verify_beck_chevalley",
+        "kripke_joyal", "model_satisfies", "geometric_normal_form",
+        "geo_normal_form", "verify_geometric_normal_form",
+        "build_propositional_classifying", "enumerate_set_models",
+        "verify_classifying_topos", "category_of_elements", "cat_slice",
+        "verify_elements_slice",
+    ):
+        return TOPOS_LOGIC
+    if has(
+        "is_valid_site_functor", "is_cover_preserving", "direct_image",
+        "inverse_image", "verify_geometric_morphism", "is_flat_point",
+        "is_covariant_point", "is_diaconescu", "covariant_representable_point",
+        "enumerate_canonical_points", "point_stalk", "point_skyscraper",
+        "global_sections", "analyze_local", "analyze_connected",
+        "is_atom_sheaf", "analyze_atomic", "analyze_compact",
+    ):
+        return TOPOS_GEOM
+    if has(
+        "is_separated_presheaf", "is_sheaf", "plus_construction", "sheafify",
+        "verify_sheafification", "presheaf_exponential", "exponential_",
+        "verify_sheaf_cartesian", "subobject_classifier", "characteristic_morphism",
+        "verify_subobject_classifier", "omega_j_", "is_boolean_topos",
+        "is_de_morgan_topos", "is_lawvere_tierney", "lawvere_tierney",
+        "topology_of_lawvere", "verify_elementary_and_giraud",
+    ):
+        return TOPOS_SHEAF
+    return TOPOS_SITE
+
+
+def classify_scheme(sym, kind):
+    owner = symlib_owner(sym, kind)
+    if owner in SCHEME_TYPE_FAMILY:
+        return SCHEME_TYPE_FAMILY[owner]
+
+    def has(*prefixes):
+        return any(sym == p or sym.startswith(p) for p in prefixes)
+
+    if has(
+        "kahler_differentials", "affine_kahler_differentials",
+        "quasicoherent_fitting_zero", "quasicoherent_module_is_zero",
+        "is_unramified_ring_hom", "affine_jacobian_ideal",
+        "affine_singular_locus", "affine_is_smooth", "affine_tjurina_number",
+        "is_etale_ring_hom", "projective_hilbert_", "blowup_plane_curve",
+        "fcomm_fp2", "verify_weil_zeta",
+    ):
+        return SCHEME_DERIVED
+    if has(
+        "monomial_cmp", "mpoly_", "qpoly_to_mpoly", "s_polynomial",
+        "reduced_groebner", "ideal_",
+    ):
+        if sym == "mpoly_eval_laurent":
+            return SCHEME_MORPH
+        if sym == "mpoly_eval_finite_ring":
+            return SCHEME_CYCLE
+        return SCHEME_GB
+    if has(
+        "coord_ring_", "ring_hom_", "affine_", "verify_affine_reduction",
+        "solve_ideal_linear", "is_zariski_open", "principal_open",
+        "localized_section", "restrict_localized", "glue_zariski",
+        "localize_quasicoherent",
+    ):
+        if sym == "affine_fiber_product":
+            return SCHEME_MORPH
+        return SCHEME_SHEAF
+    if has(
+        "scheme_", "global_sections_dimension", "morphism_", "is_affine_morphism",
+        "is_separated_scheme", "laurent_", "valuative_extension",
+        "analyze_scheme_properness", "is_proper_",
+    ):
+        return SCHEME_MORPH
+    return SCHEME_CYCLE
+
+
+def classify_bridge(sym, kind):
+    owner = symlib_owner(sym, kind)
+    if owner in (
+        "GeometryLogicAtlasEntry",
+        "GrandUnificationReport",
+        "FederationId",
+        "FederationDescriptor",
+        "FederationPairBridge",
+    ):
+        return BRIDGE_GRAND
+
+    def has(*prefixes):
+        return any(sym == p or sym.startswith(p) for p in prefixes)
+
+    if has(
+        "translate_", "glivenko_", "build_cchm_interval", "build_fine_grained",
+        "five_federation_", "verify_", "grand_unification", "run_grand_unification",
+    ):
+        return BRIDGE_GRAND
+    return BRIDGE_CLASSIC
 
 SYMLIB_GRAPH = "有限對稱：圖規範形與自同構"
 SYMLIB_GROUP = "有限對稱：置換群與 Schreier–Sims"
@@ -1049,6 +1390,12 @@ def load_decls():
 def classify(pkg, sym, kind):
     if pkg == "symlib":
         return classify_symlib(sym, kind)
+    if pkg == "topos":
+        return classify_topos(sym, kind)
+    if pkg == "scheme":
+        return classify_scheme(sym, kind)
+    if pkg == "bridge":
+        return classify_bridge(sym, kind)
     if pkg in PACKAGE_FAMILY:
         return PACKAGE_FAMILY[pkg]
     if kind in ("field", "constructor"):

@@ -97,20 +97,33 @@ pub fn bigint_squarefree_decomp(n : BigInt) -> (BigInt, BigInt) {
   let sign = if n < 0N { -1N } else { 1N }
   let mut rest = bigint_abs(n)
   let mut scale = 1N
+  let mut sqfree = 1N
   match bigint_sqrt_exact(rest) {
     Some(r) => return (r, sign)
     None => ()
   }
   let mut p = 2N
   while p * p <= rest {
-    let pp = p * p
-    while rest % pp == 0N {
-      rest = rest / pp
-      scale = scale * p
+    if rest % p == 0N {
+      let mut e = 0
+      while rest % p == 0N {
+        rest = rest / p
+        e = e + 1
+      }
+      for _ in 0..<(e / 2) {
+        scale = scale * p
+      }
+      if e % 2 == 1 {
+        sqfree = sqfree * p
+      }
+      match bigint_sqrt_exact(rest) {
+        Some(r) => return (scale * r, sign * sqfree)
+        None => ()
+      }
     }
     p = if p == 2N { 3N } else { p + 2N }
   }
-  (scale, sign * rest)
+  (scale, sign * sqfree * rest)
 }
 
 ///|

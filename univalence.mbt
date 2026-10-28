@@ -490,7 +490,7 @@ pub fn path_to_equiv_term(line_body : DTerm, src : DTerm, dst : DTerm) -> DTerm 
     DLamDim(DCoe(line, DVar(0), DOne, DCoe(line, DOne, DVar(0), DTVar(0)))),
   )
   // retr x : Path src (bwd (fwd x)) x =
-  //   <i> coe (¬i→0) (hfill-line fill of x at ¬i)
+  //   <i> coe (¬i→0) (coe (0→¬i) x)
   let retr = DLam(
     src,
     DLamDim(
@@ -498,7 +498,7 @@ pub fn path_to_equiv_term(line_body : DTerm, src : DTerm, dst : DTerm) -> DTerm 
         line,
         DNeg(DVar(0)),
         DZero,
-        DHFill(line, [], DTVar(0), DNeg(DVar(0))),
+        DCoe(line, DZero, DNeg(DVar(0)), DTVar(0)),
       ),
     ),
   )
@@ -647,3 +647,113 @@ pub fn check_univalence() -> Bool {
   check_univalence_terms() &&
   check_universe_paths()
 }
+
+///|
+/// General composition of bidirectional equivalences `(e1 : Equiv A B)` and
+/// `(e2 : Equiv B C)` into `Equiv A C`, synthesizing the composite section
+/// `ap f2 (sect_1 (g2 z)) ⬝ sect_2 z` and composite retraction
+/// `ap g1 (retr_2 (f1 x)) ⬝ retr_1 x` uniformly over concrete or open/neutral
+/// equivalences `e1, e2`.
+pub fn equiv_compose_value(
+  e1 : DValue,
+  e2 : DValue,
+  a_ty : DValue,
+  b_ty : DValue,
+  c_ty : DValue,
+  dlevel : Int32,
+) -> DValue {
+  let f1 = equiv_fwd_value(e1, a_ty, b_ty)
+  let g1 = equiv_bwd_value(e1, a_ty, b_ty)
+  let s1 = equiv_sect_value(e1, a_ty, b_ty)
+  let r1 = equiv_retr_value(e1, a_ty, b_ty)
+  let f2 = equiv_fwd_value(e2, b_ty, c_ty)
+  let g2 = equiv_bwd_value(e2, b_ty, c_ty)
+  let s2 = equiv_sect_value(e2, b_ty, c_ty)
+  let r2 = equiv_retr_value(e2, b_ty, c_ty)
+  let fwd = DVLam(x => dapp_typed(f2, dapp_typed(f1, x, a_ty), b_ty))
+  let bwd = DVLam(z => dapp_typed(g1, dapp_typed(g2, z, c_ty), b_ty))
+  let sect = DVLam(z => {
+    let g2z = dapp_typed(g2, z, c_ty)
+    let step1 = dpath_cong_value(f2, b_ty, dapp_typed(s1, g2z, b_ty))
+    let step2 = dapp_typed(s2, z, c_ty)
+    dpath_trans_value(c_ty, step1, step2, dlevel)
+  })
+  let retr = DVLam(x => {
+    let f1x = dapp_typed(f1, x, a_ty)
+    let step1 = dpath_cong_value(g1, b_ty, dapp_typed(r2, f1x, b_ty))
+    let step2 = dapp_typed(r1, x, a_ty)
+    dpath_trans_value(a_ty, step1, step2, dlevel)
+  })
+  equiv_make_value(a_ty, c_ty, fwd, bwd, sect, retr)
+}
+
+///|
+/// Kernel-checked bidirectional equivalence certificate: verifies `e` for
+/// general bidirectional bijectivity (split surjection `sect` + split
+/// injection `retr`) on fresh open reflected variables `x : src` and
+/// `y : dst` in ambient context `(ctx, env, denv)`.
+pub fn equiv_bidirectional_certified_in(
+  ctx : DEnv,
+  env : DEnv,
+  denv : DDimEnv,
+  e : DValue,
+) -> Bool {
+  let level = denv_len(ctx)
+  let dlevel = ddim_len(denv)
+  match force_value(e) {
+    DVEquiv(src, dst, fwd, bwd, sect, retr) => {
+      let x = reflect_var(level, src)
+      let y = reflect_var(level, dst)
+      let ctx_x = denv_cons(src, ctx)
+      let env_x = denv_cons(x, env)
+      let ctx_y = denv_cons(dst, ctx)
+      let env_y = denv_cons(y, env)
+
+      let fx = dapp_typed(fwd, x, src)
+      let gy = dapp_typed(bwd, y, dst)
+      let fx_term = quote_at(level + 1, dlevel, dst, fx)
+      let gy_term = quote_at(level + 1, dlevel, src, gy)
+      match
+        (
+          d_check(fx_term, dst, ctx_x, env_x, denv),
+          d_check(gy_term, src, ctx_y, env_y, denv),
+        ) {
+        (Some(_), Some(_)) => ()
+        _ => return false
+      }
+
+      let sy = dapp_typed(sect, y, dst)
+      let f_gy = dapp_typed(fwd, gy, src)
+      if !conv_at(level + 1, dlevel, dst, dapp_dim(sy, DZero), f_gy) ||
+        !conv_at(level + 1, dlevel, dst, dapp_dim(sy, DOne), y) {
+        return false
+      }
+      let fresh_d = DVar(dlevel)
+      let denv_d = ddim_cons(fresh_d, denv)
+      let sy_i_term = quote_at(level + 1, dlevel + 1, dst, dapp_dim(sy, fresh_d))
+      match d_check(sy_i_term, dst, ctx_y, env_y, denv_d) {
+        Some(_) => ()
+        None => return false
+      }
+
+      let rx = dapp_typed(retr, x, src)
+      let g_fx = dapp_typed(bwd, fx, dst)
+      if !conv_at(level + 1, dlevel, src, dapp_dim(rx, DZero), g_fx) ||
+        !conv_at(level + 1, dlevel, src, dapp_dim(rx, DOne), x) {
+        return false
+      }
+      let rx_i_term = quote_at(level + 1, dlevel + 1, src, dapp_dim(rx, fresh_d))
+      match d_check(rx_i_term, src, ctx_x, env_x, denv_d) {
+        Some(_) => true
+        None => false
+      }
+    }
+    _ => false
+  }
+}
+
+///|
+pub fn equiv_bidirectional_certified(e : DValue) -> Bool {
+  equiv_bidirectional_certified_in(denv_empty(), denv_empty(), ddim_empty(), e)
+}
+
