@@ -305,13 +305,18 @@ pub fn build_fine_grained_geometry_logic_atlas() -> Array[
     @topos.presheaf_terminal(s1_poset),
   )
   let sh_res = @topos.sheafify(s1_site, non_sheaf)
+  let sh_univ_ok = @topos.verify_sheafification_universal_property(
+    s1_site,
+    non_sheaf,
+    sh_res.sheaf,
+  )
   entries.push({
     id: "ATLAS-08",
     domain: "Topos / Functoriality & Sheafification",
     geometric_structure: "Geometric Morphisms f* ⊣ f_* & Grothendieck Plus Sheafification a(P)=(P^+)^+",
     logical_counterpart: "Geometric Theory Interpretations & Local-to-Global Truth Gluing",
     correspondence_theorem: "Hom_Sh(f*A, B) ≅ Hom_Sh(A, f_*B) iff flat; a(P) is always a J-sheaf",
-    witness_holds: gm_ok && @topos.is_sheaf(s1_site, sh_res.sheaf),
+    witness_holds: gm_ok && @topos.is_sheaf(s1_site, sh_res.sheaf) && sh_univ_ok,
     contrast_holds: !gm_non_flat &&
     !@topos.is_sheaf(s1_site, non_sheaf) &&
     sh_res.sheaf.size[0] == 1,
@@ -858,10 +863,7 @@ pub fn build_fine_grained_geometry_logic_atlas() -> Array[
 }
 
 ///|
-/// Verify that EVERY entry in the Fine-Grained Geometry–Logic Correspondence
-/// Atlas passes BOTH its live theorem witness AND its distinguishing contrast!
-pub fn verify_geometry_logic_atlas() -> Bool {
-  let atlas = build_fine_grained_geometry_logic_atlas()
+fn verify_atlas_entries(atlas : Array[GeometryLogicAtlasEntry]) -> Bool {
   guard atlas.length() == 18 else { return false }
   for e in atlas {
     if !atlas_entry_ok(e) {
@@ -869,4 +871,11 @@ pub fn verify_geometry_logic_atlas() -> Bool {
     }
   }
   true
+}
+
+///|
+/// Verify that EVERY entry in the Fine-Grained Geometry–Logic Correspondence
+/// Atlas passes BOTH its live theorem witness AND its distinguishing contrast!
+pub fn verify_geometry_logic_atlas() -> Bool {
+  verify_atlas_entries(build_fine_grained_geometry_logic_atlas())
 }

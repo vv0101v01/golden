@@ -765,6 +765,31 @@ pub fn run_all_checks() -> Array[CheckResult] {
       name: "第十五期一般 Freudenthal 懸掛定理與楔連通延拓：開放 0-連通脈絡認證 ‖Ω¹(SuspS A)‖₀≃1（含 π₁(S²)≃1、π₁(S³)≃1）、S¹∨S¹→S¹×S¹ 延拓與 Hopf 往返",
       ok: check_phase15_freudenthal_suspension_and_wedge_connectivity(),
     },
+    CheckResult::{
+      name: "第十六期大宇宙累積同時 IR、Dybjer–Setzer 開放同時 IR 與語義容器正性憑證：跨宇宙聯合動機編譯、多解碼器開放規約與反循環容器同構核驗",
+      ok: check_phase16_schema_large_open_positivity(),
+    },
+    CheckResult::{
+      name: "第十六期 DSATUR 著色上界最大團修復與高維 0~1 黏合圓／環面開盒合成：飽和度上界剪枝、二維圓與環面黏合方塊轉換及二上循環纏繞阻礙拒絕",
+      ok: check_phase16_dsatur_and_glued_cubical_comp(),
+    },
+    CheckResult::{
+      name: "第十六期標準 SHA-256/512、RFC 8032 Pure-Ed25519 非對稱封緘與崩潰一致 WAL 日誌：NIST/RFC 向量逐位核驗、CHARTSIG 防偽與 CHWALJRN 斷尾回滾恢復",
+      ok: check_phase16_crypto_ed25519_and_wal(),
+    },
+    CheckResult::{
+      name: "第十六期精確有理 LLL 格約化、Van Hoeij 跡格因式重組與 Q̄⊂ℂ Rouché 圓盤代數閉包：八次 Swinnerton-Dyer 因式重組與非實複代數根算術及韋達恆等式",
+      ok: check_lll_lattice_and_van_hoeij_factor() &&
+      check_complex_algebraic_closure_rouche(),
+    },
+    CheckResult::{
+      name: "第十六期纖維化環路序列等價、開放變量 Hopf–Freudenthal 收縮與五維 Stasheff K₅ 相干胞：開放脈絡 ∂_Hopf(σ_{S²}(p))≡p、π₂(S²) 分裂收縮 ℤ 與 K₅ 南北半球五維填充",
+      ok: check_phase16_sphere_homotopy_and_k5(),
+    },
+    CheckResult::{
+      name: "第十六期 Huet 延遲 flex-flex 約束圖、拉取式惰性合一串流、模組 DAG 介面雜湊重連結與三方倉庫合併：按需枚舉、不透明實作零重編譯重連結與 LCA 三方衝突判定",
+      ok: check_phase16_hou_stream_and_module_merge(),
+    },
   ]
 }
 

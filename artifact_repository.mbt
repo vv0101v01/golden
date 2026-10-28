@@ -860,20 +860,6 @@ pub fn artifact_repository_put_dterm_dag_terms(
 }
 
 ///|
-/// Store every node currently in an intern table.
-pub fn artifact_repository_put_dterm_intern_table(
-  repo : ArtifactRepository,
-  name : String,
-  table : DTermInternTable,
-) -> ArtifactRecord? {
-  artifact_repository_put_dterm_dag_snapshot(
-    repo,
-    name,
-    dterm_intern_table_snapshot(table),
-  )
-}
-
-///|
 pub fn artifact_repository_get_dterm_dag_snapshot(
   repo : ArtifactRepository,
   name : String,
@@ -1767,6 +1753,362 @@ pub fn artifact_repository_sync_incremental(
     transferred_blobs: transferred,
     skipped_existing_blobs: skipped,
     tombstones_applied: tombstones,
+    final_head_a: ha,
+    final_head_b: hb,
+  }
+}
+
+// ===========================================================================
+// Phase 16 (Track 6C): Hash-Chain LCA Discovery & Deterministic Three-Way
+// Repository Merge
+// ===========================================================================
+
+///|
+pub enum ArtifactMergePolicy {
+  ArtifactMergeAbortOnConflict
+  ArtifactMergePreferLeft
+  ArtifactMergePreferRight
+} derive(Debug, Eq)
+
+///|
+pub extend ArtifactMergePolicy with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend ArtifactMergePolicy with Eq::{not_equal, equal}
+
+///|
+pub fn artifact_merge_policy_abort() -> ArtifactMergePolicy {
+  ArtifactMergeAbortOnConflict
+}
+
+///|
+pub fn artifact_merge_policy_prefer_left() -> ArtifactMergePolicy {
+  ArtifactMergePreferLeft
+}
+
+///|
+pub fn artifact_merge_policy_prefer_right() -> ArtifactMergePolicy {
+  ArtifactMergePreferRight
+}
+
+///|
+pub struct ArtifactMergeConflict {
+  kind : String
+  name : String
+  base_blob_key : String?
+  left_blob_key : String?
+  right_blob_key : String?
+} derive(Debug, Eq)
+
+///|
+pub extend ArtifactMergeConflict with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend ArtifactMergeConflict with Eq::{not_equal, equal}
+
+///|
+pub struct ArtifactThreeWayMergeReport {
+  ok : Bool
+  lca_entries : Int32
+  merged_records : Int32
+  left_applied : Int32
+  right_applied : Int32
+  convergent_merges : Int32
+  tombstones_applied : Int32
+  conflicts : Array[ArtifactMergeConflict]
+  final_head_a : Int32
+  final_head_b : Int32
+} derive(Debug, Eq)
+
+///|
+pub extend ArtifactThreeWayMergeReport with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
+
+///|
+pub extend ArtifactThreeWayMergeReport with Eq::{not_equal, equal}
+
+///|
+fn artifact_record_same_content(a : ArtifactRecord?, b : ArtifactRecord?) -> Bool {
+  match (a, b) {
+    (None, None) => true
+    (Some(ra), Some(rb)) =>
+      ra.byte_length == rb.byte_length &&
+      ra.hash_a == rb.hash_a &&
+      ra.hash_b == rb.hash_b &&
+      ra.format_version == rb.format_version
+    _ => false
+  }
+}
+
+///|
+/// Compute the exact Lowest Common Ancestor (LCA) chain prefix length and live
+/// record snapshot of two repositories `left` and `right` after verifying both
+/// hash-linked integrity chains.
+pub fn artifact_repository_common_ancestor_records(
+  left : ArtifactRepository,
+  right : ArtifactRepository,
+) -> (Int32, Array[ArtifactRecord])? {
+  if !artifact_repository_chain_report(left).valid ||
+    !artifact_repository_chain_report(right).valid {
+    return None
+  }
+  let left_es = match artifact_repository_chain_entries(left) {
+    Some(es) => es
+    None => return None
+  }
+  let right_es = match artifact_repository_chain_entries(right) {
+    Some(es) => es
+    None => return None
+  }
+  let min_len = if left_es.length() < right_es.length() {
+    left_es.length()
+  } else {
+    right_es.length()
+  }
+  let mut lca = 0
+  while lca < min_len && left_es[lca] == right_es[lca] {
+    lca = lca + 1
+  }
+  let prefix : Array[ArtifactChainEntry] = []
+  for i in 0..<lca {
+    prefix.push(left_es[i])
+  }
+  match artifact_chain_live_records(prefix) {
+    Some(base_live) => Some((lca, base_live))
+    None => None
+  }
+}
+
+///|
+/// Deterministic three-way repository merge of divergent branches `left` and
+/// `right` into `target`:
+/// - Reconstructs the exact LCA snapshot from the longest common hash-chain
+///   prefix of `left` and `right`;
+/// - Merges disjoint additions, updates, and deletions cleanly;
+/// - Treats identical concurrent edits/deletions as convergent (`convergent_merges`);
+/// - Detects true edit/edit, edit/delete, and add/add content conflicts, either
+///   aborting cleanly without mutating `target` (`ArtifactMergeAbortOnConflict`)
+///   or resolving deterministically under `ArtifactMergePreferLeft` /
+///   `ArtifactMergePreferRight`;
+/// - Verifies every transferred blob against its dual digest and optionally
+///   seals `target` under `auth_key`.
+pub fn artifact_repository_merge_three_way(
+  left : ArtifactRepository,
+  right : ArtifactRepository,
+  target : ArtifactRepository,
+  policy~ : ArtifactMergePolicy = ArtifactMergeAbortOnConflict,
+  auth_key~ : ArtifactAuthKey? = None,
+) -> ArtifactThreeWayMergeReport {
+  let fail = (lca_n : Int32, conflicts : Array[ArtifactMergeConflict]) => {
+    ArtifactThreeWayMergeReport::{
+      ok: false,
+      lca_entries: lca_n,
+      merged_records: 0,
+      left_applied: 0,
+      right_applied: 0,
+      convergent_merges: 0,
+      tombstones_applied: 0,
+      conflicts,
+      final_head_a: 0,
+      final_head_b: 0,
+    }
+  }
+  match auth_key {
+    Some(k) =>
+      if !artifact_repository_verify_authenticated(left, k) ||
+        !artifact_repository_verify_authenticated(right, k) {
+        return fail(0, [])
+      }
+    None => ()
+  }
+  let (lca_len, base_recs) = match
+    artifact_repository_common_ancestor_records(left, right) {
+    Some(v) => v
+    None => return fail(0, [])
+  }
+  let left_recs = artifact_repository_list(left)
+  let right_recs = artifact_repository_list(right)
+
+  // Collect sorted unique `(kind, name)` keys across `base ∪ left ∪ right`.
+  let keys : Array[(String, String)] = []
+  let add_key = (k : String, n : String) => {
+    for pair in keys {
+      if pair.0 == k && pair.1 == n {
+        return
+      }
+    }
+    keys.push((k, n))
+  }
+  for r in base_recs {
+    add_key(r.kind, r.name)
+  }
+  for r in left_recs {
+    add_key(r.kind, r.name)
+  }
+  for r in right_recs {
+    add_key(r.kind, r.name)
+  }
+  for i in 0..<keys.length() {
+    for j in (i + 1)..<keys.length() {
+      let ki = keys[i].0 + "\u{0}" + keys[i].1
+      let kj = keys[j].0 + "\u{0}" + keys[j].1
+      if kj < ki {
+        let tmp = keys[i]
+        keys[i] = keys[j]
+        keys[j] = tmp
+      }
+    }
+  }
+
+  let conflicts : Array[ArtifactMergeConflict] = []
+  // `chosen`: `(kind, name, source_side: 1=left | 2=right, chosen_rec?)`
+  let chosen : Array[(String, String, Int32, ArtifactRecord?)] = []
+  let mut left_applied = 0
+  let mut right_applied = 0
+  let mut convergent = 0
+  let mut tombstones = 0
+
+  for pair in keys {
+    let (kind, name) = pair
+    let b = artifact_records_find(base_recs, kind, name)
+    let l = artifact_records_find(left_recs, kind, name)
+    let r = artifact_records_find(right_recs, kind, name)
+    let l_unchanged = artifact_record_same_content(l, b)
+    let r_unchanged = artifact_record_same_content(r, b)
+    if l_unchanged && r_unchanged {
+      match l {
+        Some(rec) => chosen.push((kind, name, 1, Some(rec)))
+        None => ()
+      }
+    } else if r_unchanged && !l_unchanged {
+      left_applied = left_applied + 1
+      if l == None && b != None {
+        tombstones = tombstones + 1
+      }
+      chosen.push((kind, name, 1, l))
+    } else if l_unchanged && !r_unchanged {
+      right_applied = right_applied + 1
+      if r == None && b != None {
+        tombstones = tombstones + 1
+      }
+      chosen.push((kind, name, 2, r))
+    } else if artifact_record_same_content(l, r) {
+      convergent = convergent + 1
+      if l == None && b != None {
+        tombstones = tombstones + 1
+      }
+      chosen.push((kind, name, 1, l))
+    } else {
+      let b_key = match b {
+        Some(v) => Some(v.blob_key)
+        None => None
+      }
+      let l_key = match l {
+        Some(v) => Some(v.blob_key)
+        None => None
+      }
+      let r_key = match r {
+        Some(v) => Some(v.blob_key)
+        None => None
+      }
+      conflicts.push(ArtifactMergeConflict::{
+        kind,
+        name,
+        base_blob_key: b_key,
+        left_blob_key: l_key,
+        right_blob_key: r_key,
+      })
+      match policy {
+        ArtifactMergeAbortOnConflict => ()
+        ArtifactMergePreferLeft => {
+          left_applied = left_applied + 1
+          if l == None && b != None {
+            tombstones = tombstones + 1
+          }
+          chosen.push((kind, name, 1, l))
+        }
+        ArtifactMergePreferRight => {
+          right_applied = right_applied + 1
+          if r == None && b != None {
+            tombstones = tombstones + 1
+          }
+          chosen.push((kind, name, 2, r))
+        }
+      }
+    }
+  }
+
+  if conflicts.length() > 0 && policy == ArtifactMergeAbortOnConflict {
+    return fail(lca_len, conflicts)
+  }
+
+  // Stage and verify all blobs before mutating `target`.
+  let staged : Array[(String, String, Array[Int32], Int32)] = []
+  for item in chosen {
+    let (kind, name, side, rec_opt) = item
+    match rec_opt {
+      Some(rec) => {
+        let src_repo = if side == 1 { left } else { right }
+        let bytes = match (src_repo.store.read)(rec.blob_key) {
+          Some(bs) => bs
+          None => return fail(lca_len, conflicts)
+        }
+        if !artifact_record_matches_bytes(rec, bytes) {
+          return fail(lca_len, conflicts)
+        }
+        staged.push((kind, name, bytes, rec.format_version))
+      }
+      None => ()
+    }
+  }
+
+  // Apply tombstones for any record currently live in `target` that is not in `staged`.
+  let cur_target = artifact_repository_list(target)
+  for trec in cur_target {
+    let mut keep = false
+    for s in staged {
+      if s.0 == trec.kind && s.1 == trec.name {
+        keep = true
+        break
+      }
+    }
+    if !keep {
+      if !artifact_repository_remove(target, trec.kind, trec.name) {
+        return fail(lca_len, conflicts)
+      }
+    }
+  }
+
+  for s in staged {
+    let (kind, name, bytes, fmt_ver) = s
+    if artifact_repository_put(target, kind, name, bytes, format_version=fmt_ver) ==
+      None {
+      return fail(lca_len, conflicts)
+    }
+  }
+
+  let final_entries = match artifact_repository_chain_entries(target) {
+    Some(es) => es
+    None => return fail(lca_len, conflicts)
+  }
+  match auth_key {
+    Some(k) =>
+      if !artifact_auth_stamp_write(target, k, final_entries) {
+        return fail(lca_len, conflicts)
+      }
+    None => ()
+  }
+  let (ha, hb) = artifact_chain_head_of(final_entries)
+  ArtifactThreeWayMergeReport::{
+    ok: true,
+    lca_entries: lca_len,
+    merged_records: staged.length(),
+    left_applied,
+    right_applied,
+    convergent_merges: convergent,
+    tombstones_applied: tombstones,
+    conflicts,
     final_head_a: ha,
     final_head_b: hb,
   }

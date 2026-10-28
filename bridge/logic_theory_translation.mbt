@@ -429,6 +429,18 @@ pub fn verify_quaternary_normal_forms() -> Bool {
     @topos.geometric_normal_form(0, frob_rhs) {
     return false
   }
+  let sierp_cat = @sym.cat_arrow()
+  let sierp_site = @topos.site_new(sierp_cat, @topos.topology_trivial(sierp_cat))
+  let frob_model : @topos.SheafStructure = {
+    carrier: @topos.presheaf_constant_raw(sierp_cat, 2),
+    pred_arities: [0, 1, 1],
+    relations: [[[[]], []], [[[0]], []], [[[1]], [[1]]]],
+  }
+  if !@topos.verify_geometric_normal_form_soundness(
+      sierp_site, frob_model, 0, frob_lhs,
+    ) {
+    return false
+  }
   // 4. Scheme Reduced Gröbner Basis (`I(cub_lhs) == I(cub_rhs)` in `Q[x_0, x_1, x_2]`!):
   let idl_lhs = translate_cubical_face_to_zariski_ideal(cub_lhs, 3, false)
   let idl_rhs = translate_cubical_face_to_zariski_ideal(cub_rhs, 3, false)

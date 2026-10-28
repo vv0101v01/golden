@@ -194,7 +194,7 @@ fn cs_difference_variables(
   let is_bool : Array[Bool] = []
   for i in 0..<n {
     is_bool.push(
-      match types[i] {
+      match force_value(types[i]) {
         DVBoolTy => true
         _ => false
       },
@@ -246,7 +246,7 @@ fn cs_conv_go(
     }
   } else {
     for i in 0..<ctx.length() {
-      let is_bool = match types[i] {
+      let is_bool = match force_value(types[i]) {
         DVBoolTy => true
         _ => false
       }

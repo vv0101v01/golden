@@ -1,7 +1,7 @@
 ///|
 /// 衍生演算法基準：由「規範形式 + 範疇化」導出之演算法 vs 直接暴力/全搜索。
 /// 每一項都同時驗證**結果一致**（OK/FAIL）與**成本比**（×）。
-/// 運行：moon run cmd/bench --target native --release
+/// 運行：moon run cmd/symbench --target native --release
 
 ///|
 /// 計時包裝：回傳 (結果, 毫秒)。
@@ -14,7 +14,7 @@ fn[T] btime(f : () -> T) -> (T, Double) {
 }
 
 ///|
-struct DecCase {
+priv struct DecCase {
   name : String
   g : @symlib.Graph
   expect : Int64

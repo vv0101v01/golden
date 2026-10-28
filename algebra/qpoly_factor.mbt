@@ -276,6 +276,13 @@ fn mod_sub(p : Int32, a : Array[Int32], b : Array[Int32]) -> Array[Int32] {
 }
 
 ///|
+fn mod_mul_scalar(a : Int32, b : Int32, p : Int32) -> Int32 {
+  let p64 = p.to_int64()
+  let r = a.to_int64() % p64 * (b.to_int64() % p64) % p64
+  (if r < 0L { r + p64 } else { r }).to_int()
+}
+
+///|
 fn mod_mul(p : Int32, a : Array[Int32], b : Array[Int32]) -> Array[Int32] {
   if mod_degree(a) < 0 || mod_degree(b) < 0 {
     return [0]
@@ -286,7 +293,7 @@ fn mod_mul(p : Int32, a : Array[Int32], b : Array[Int32]) -> Array[Int32] {
   }
   for i in 0..<a.length() {
     for j in 0..<b.length() {
-      out[i + j] = (out[i + j] + a[i] * b[j]) % p
+      out[i + j] = (out[i + j] + mod_mul_scalar(a[i], b[j], p)) % p
     }
   }
   mod_norm(p, out)
@@ -302,9 +309,9 @@ fn mod_inv(a0 : Int32, p : Int32) -> Int32 {
   }
   while exponent > 0 {
     if exponent % 2 == 1 {
-      result = result * a % p
+      result = mod_mul_scalar(result, a, p)
     }
-    a = a * a % p
+    a = mod_mul_scalar(a, a, p)
     exponent = exponent / 2
   }
   result
@@ -329,14 +336,14 @@ fn mod_divmod(
   let inv = mod_inv(b[b.length() - 1], p)
   while mod_degree(rem) >= db && mod_degree(rem) >= 0 {
     let shift = mod_degree(rem) - db
-    let coeff = rem[rem.length() - 1] * inv % p
+    let coeff = mod_mul_scalar(rem[rem.length() - 1], inv, p)
     q[shift] = coeff
     let sub : Array[Int32] = []
     for _i in 0..<shift {
       sub.push(0)
     }
     for i in 0..<b.length() {
-      sub.push(coeff * b[i])
+      sub.push(mod_mul_scalar(coeff, b[i], p))
     }
     rem = mod_sub(p, rem, sub)
   }
@@ -356,7 +363,7 @@ fn mod_gcd(p : Int32, a0 : Array[Int32], b0 : Array[Int32]) -> Array[Int32] {
     let inv = mod_inv(a[a.length() - 1], p)
     let out : Array[Int32] = []
     for i in 0..<a.length() {
-      out.push(a[i] * inv)
+      out.push(mod_mul_scalar(a[i], inv, p))
     }
     mod_norm(p, out)
   } else {
@@ -385,23 +392,52 @@ fn mod_powmod(
 }
 
 ///|
-fn mod_distinct_degrees(coeffs : Array[BigInt], p : Int32) -> Array[Int32]? {
-  let reduced : Array[Int32] = []
-  for i in 0..<coeffs.length() {
-    reduced.push((coeffs[i] % BigInt::from_int(p)).to_int())
+fn mod_monic_prime(p : Int32, f0 : Array[Int32]) -> Array[Int32] {
+  let f = mod_norm(p, f0)
+  let d = mod_degree(f)
+  if d < 0 {
+    return [0]
   }
-  let f = mod_norm(p, reduced)
-  if mod_degree(f) != coeffs.length() - 1 {
+  let inv = mod_inv(f[d], p)
+  let out : Array[Int32] = []
+  for i in 0..<f.length() {
+    out.push(mod_mul_scalar(f[i], inv, p))
+  }
+  mod_norm(p, out)
+}
+
+///|
+/// Distinct-degree factorization over `F_p` (`p >= 2`) for a
+/// degree-preserving, squarefree reduction of `coeffs`: returns
+/// `(g_d, d)` buckets where each `g_d` is a monic product of distinct
+/// irreducibles of degree `d`.
+fn mod_ddf_buckets_any_prime(
+  coeffs : Array[BigInt],
+  p : Int32,
+) -> Array[(Array[Int32], Int32)]? {
+  if p < 2 {
     return None
   }
+  let p_big = BigInt::from_int(p)
+  let reduced : Array[Int32] = []
+  for i in 0..<coeffs.length() {
+    let rem = coeffs[i] % p_big
+    let pos = if rem < 0N { rem + p_big } else { rem }
+    reduced.push(pos.to_int())
+  }
+  let f0 = mod_norm(p, reduced)
+  if mod_degree(f0) != coeffs.length() - 1 {
+    return None
+  }
+  let f = mod_monic_prime(p, f0)
   let derivative : Array[Int32] = []
   for i in 1..<f.length() {
-    derivative.push(f[i] * (i % p))
+    derivative.push(mod_mul_scalar(f[i], i % p, p))
   }
   if mod_degree(mod_gcd(p, f, mod_norm(p, derivative))) > 0 {
     return None
   }
-  let degrees : Array[Int32] = []
+  let buckets : Array[(Array[Int32], Int32)] = []
   let mut rem = f
   let xpoly : Array[Int32] = [0, 1]
   let mut h = xpoly
@@ -411,21 +447,36 @@ fn mod_distinct_degrees(coeffs : Array[BigInt], p : Int32) -> Array[Int32]? {
       break
     }
     if 2 * d > mod_degree(rem) {
-      degrees.push(mod_degree(rem))
+      buckets.push((mod_monic_prime(p, rem), mod_degree(rem)))
       break
     }
     h = mod_powmod(p, h, p, rem)
     let g = mod_gcd(p, rem, mod_sub(p, h, xpoly))
     if mod_degree(g) > 0 {
-      let count = mod_degree(g) / d
-      for _i in 0..<count {
-        degrees.push(d)
-      }
-      rem = mod_divmod(p, rem, g).0
+      buckets.push((mod_monic_prime(p, g), d))
+      rem = mod_monic_prime(p, mod_divmod(p, rem, g).0)
       h = mod_divmod(p, h, rem).1
     }
   }
-  Some(degrees)
+  Some(buckets)
+}
+
+///|
+fn mod_distinct_degrees(coeffs : Array[BigInt], p : Int32) -> Array[Int32]? {
+  match mod_ddf_buckets_any_prime(coeffs, p) {
+    None => None
+    Some(buckets) => {
+      let degrees : Array[Int32] = []
+      for i in 0..<buckets.length() {
+        let (g, d) = buckets[i]
+        let count = mod_degree(g) / d
+        for _k in 0..<count {
+          degrees.push(d)
+        }
+      }
+      Some(degrees)
+    }
+  }
 }
 
 ///|
@@ -440,7 +491,7 @@ fn small_primes_upto(bound : Int32) -> Array[Int32] {
   sieve[0] = false
   sieve[1] = false
   let mut p = 2
-  while p * p <= bound {
+  while p.to_int64() * p.to_int64() <= bound.to_int64() {
     if sieve[p] {
       let mut multiple = p * p
       while multiple <= bound {

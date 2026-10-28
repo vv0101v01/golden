@@ -68,11 +68,11 @@ fn registry_empty_buckets() -> Array[Array[Int32]] {
 
 ///|
 fn registry_string_hash(key : String) -> Int32 {
-  let mut h = 7
+  let mut h = 7U
   for i in 0..<key.length() {
-    h = (h * 31 + key[i].to_int()) % 1000003
+    h = (h * 31U + key[i].to_int().reinterpret_as_uint()) % 1000003U
   }
-  h
+  h.reinterpret_as_int()
 }
 
 ///|

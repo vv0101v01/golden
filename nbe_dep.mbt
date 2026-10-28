@@ -3812,6 +3812,44 @@ pub fn conv_at(
     DVNeutral(_) =>
       match (a, b) {
         (DVNeutral(x), DVNeutral(y)) => conv_neutral(level, dlevel, x, y)
+        (DVBool(x), DVBool(y)) => x == y
+        (DVUnit, DVUnit) => true
+        (DVZeroNat, DVZeroNat) => true
+        (DVSucc(x), DVSucc(y)) => conv_at(level, dlevel, DVNatTy, x, y)
+        (DVCirclePoint(_), DVCirclePoint(_)) =>
+          conv_at(level, dlevel, DVCircleTy, a, b)
+        (DVTorusPoint(_, _), DVTorusPoint(_, _)) =>
+          conv_at(level, dlevel, DVTorusTy, a, b)
+        (DVIntro(s1, c1, p1, args1), DVIntro(s2, c2, _, _)) =>
+          if s1 == s2 && c1 >= 0 && c1 < s1.constructors.length() && c2 >= 0 {
+            conv_at(
+              level,
+              dlevel,
+              DVInductive(
+                s1,
+                p1,
+                inductive_result_indices(s1.constructors[c1], p1, args1),
+              ),
+              a,
+              b,
+            )
+          } else {
+            false
+          }
+        (DVHitCell(s1, c1, p1, args1, _), DVHitCell(s2, _, _, _, _)) =>
+          if s1 == s2 && c1 >= 0 && c1 < s1.cells.length() {
+            conv_at(
+              level,
+              dlevel,
+              DVHitType(s1, p1, hit_cell_result_indices(s1, c1, p1, args1)),
+              a,
+              b,
+            )
+          } else {
+            false
+          }
+        (DVEquiv(src, dst, _, _, _, _), DVEquiv(_, _, _, _, _, _)) =>
+          conv_at(level, dlevel, DVEquivTy(src, dst, 0), a, b)
         _ => false
       }
     _ => false
@@ -4298,6 +4336,42 @@ pub fn quote_at(
     DVNeutral(_) =>
       match v {
         DVNeutral(n) => quote_dneutral(level, dlevel, n, ty)
+        DVBool(b) => DBoolLit(b)
+        DVZeroNat | DVSucc(_) => quote_at(level, dlevel, DVNatTy, v)
+        DVCirclePoint(_) => quote_at(level, dlevel, DVCircleTy, v)
+        DVTorusPoint(_, _) => quote_at(level, dlevel, DVTorusTy, v)
+        DVIntro(spec, c, params, args) =>
+          if c >= 0 && c < spec.constructors.length() {
+            quote_intro_at(
+              level,
+              dlevel,
+              spec,
+              params,
+              DVInductive(
+                spec,
+                params,
+                inductive_result_indices(spec.constructors[c], params, args),
+              ),
+              v,
+            )
+          } else {
+            DUnitLit
+          }
+        DVHitCell(spec, c, params, args, _) =>
+          quote_hit_cell_at(
+            level,
+            dlevel,
+            spec,
+            params,
+            DVHitType(
+              spec,
+              params,
+              hit_cell_result_indices(spec, c, params, args),
+            ),
+            v,
+          )
+        DVEquiv(src, dst, _, _, _, _) =>
+          quote_at(level, dlevel, DVEquivTy(src, dst, 0), v)
         _ => DUnitLit
       }
     _ => DUnitLit

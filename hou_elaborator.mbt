@@ -3132,29 +3132,6 @@ pub fn hou_search_unify_iterative(
 }
 
 ///|
-/// Boolean wrapper for iterative-deepening search.
-pub fn hou_search_unify_iterative_bool(
-  a : UTerm,
-  b : UTerm,
-  depth : Int32,
-  unifier : Unifier,
-  max_nodes_per_round~ : Int32 = 1000,
-  depth_cap~ : Int32 = 6,
-  max_projection_args~ : Int32 = 2,
-) -> Bool {
-  hou_search_unify_iterative(
-    a,
-    b,
-    depth,
-    unifier,
-    max_nodes_per_round~,
-    depth_cap~,
-    max_projection_args~,
-  ).solved_at_depth >=
-  0
-}
-
-///|
 /// Checks for the search branches that are deliberately absent
 /// from deterministic `hou_unify`: an arbitrary rigid spine solved
 /// by imitation plus projections, a same-head permutation solved
@@ -4101,4 +4078,598 @@ pub fn hou_solve_constraints_backtracking(
     branches_tried: counters[1],
     max_depth_reached: counters[2],
   }
+}
+
+// ===========================================================================
+// Phase 16 (Track 6A): Huet Delayed Flex-Flex Constraint Graph &
+// Pull-Based Lazy Stream Unifier Iterator
+// ===========================================================================
+
+///|
+/// Suspended flex-flex constraint `?F a_1 ... a_m = ?G b_1 ... b_n` held in the
+/// metavariable-indexed delayed constraint graph until either `?F` or `?G`
+/// becomes instantiated to a rigid head.
+pub struct HouFlexFlexEdge {
+  lhs_meta : Int32
+  lhs_arity : Int32
+  lhs : UTerm
+  rhs_meta : Int32
+  rhs_arity : Int32
+  rhs : UTerm
+  depth : Int32
+} derive(Debug, Eq)
+
+///|
+pub extend HouFlexFlexEdge with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend HouFlexFlexEdge with Eq::{not_equal, equal}
+
+///|
+pub enum HouDelayedSolveStatus {
+  HouDelayedSolved
+  HouDelayedPreUnifier
+  HouDelayedNoUnifier
+  HouDelayedBudgetExceeded
+} derive(Debug, Eq)
+
+///|
+pub extend HouDelayedSolveStatus with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend HouDelayedSolveStatus with Eq::{not_equal, equal}
+
+///|
+pub struct HouDelayedGraphReport {
+  status : HouDelayedSolveStatus
+  substitution : Array[(Int32, UTerm)]
+  delayed_edges : Array[HouFlexFlexEdge]
+  woke_edges : Int32
+  nodes : Int32
+  branches_tried : Int32
+} derive(Debug, Eq)
+
+///|
+pub extend HouDelayedGraphReport with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend HouDelayedGraphReport with Eq::{not_equal, equal}
+
+///|
+fn hou_partition_flex_flex_graph(
+  residual : Array[HouConstraint],
+  unifier : Unifier,
+) -> (Array[HouConstraint], Array[HouFlexFlexEdge]) {
+  let active_rigid : Array[HouConstraint] = []
+  let flex_edges : Array[HouFlexFlexEdge] = []
+  for eq in residual {
+    let lhs = uterm_whnf(eq.lhs, unifier)
+    let rhs = uterm_whnf(eq.rhs, unifier)
+    if hou_semantic_optimize(lhs, unifier) ==
+      hou_semantic_optimize(rhs, unifier) {
+      continue
+    }
+    match (meta_head_spine(lhs, unifier), meta_head_spine(rhs, unifier)) {
+      (Some((id_a, args_a)), Some((id_b, args_b))) =>
+        flex_edges.push(HouFlexFlexEdge::{
+          lhs_meta: id_a,
+          lhs_arity: args_a.length(),
+          lhs,
+          rhs_meta: id_b,
+          rhs_arity: args_b.length(),
+          rhs,
+          depth: eq.depth,
+        })
+      _ => active_rigid.push(eq)
+    }
+  }
+  (active_rigid, flex_edges)
+}
+
+///|
+/// Constructively materialize Huet's canonical constant-projection unifier for
+/// a delayed flex-flex graph: connected components of unsolved head metas
+/// `?F ~ ?G` are unified via union-find and mapped to `\x_1 ... x_k => ?Z_c`
+/// so every suspended flex-flex equation becomes judgementally identical.
+pub fn hou_reify_delayed_flex_flex(
+  unifier : Unifier,
+  edges : Array[HouFlexFlexEdge],
+) -> Bool {
+  if edges.length() == 0 {
+    return true
+  }
+  let metas : Array[Int32] = []
+  let arities : Array[Int32] = []
+  let find_or_add = (m : Int32, ar : Int32) => {
+    for i in 0..<metas.length() {
+      if metas[i] == m {
+        if ar > arities[i] {
+          arities[i] = ar
+        }
+        return i
+      }
+    }
+    let idx = metas.length()
+    metas.push(m)
+    arities.push(ar)
+    idx
+  }
+  for e in edges {
+    ignore(find_or_add(e.lhs_meta, e.lhs_arity))
+    ignore(find_or_add(e.rhs_meta, e.rhs_arity))
+  }
+  let n = metas.length()
+  let parent : Array[Int32] = Array::makei(n, i => i)
+  let uf_find = (x0 : Int32) => {
+    let mut x = x0
+    while parent[x] != x {
+      parent[x] = parent[parent[x]]
+      x = parent[x]
+    }
+    x
+  }
+  for e in edges {
+    let ia = find_or_add(e.lhs_meta, e.lhs_arity)
+    let ib = find_or_add(e.rhs_meta, e.rhs_arity)
+    let ra = uf_find(ia)
+    let rb = uf_find(ib)
+    if ra != rb {
+      parent[rb] = ra
+    }
+  }
+  let comp_fresh : Array[Int32] = Array::make(n, -1)
+  for i in 0..<n {
+    let root = uf_find(i)
+    if comp_fresh[root] < 0 {
+      comp_fresh[root] = hou_fresh_meta_id(unifier)
+    }
+  }
+  for i in 0..<n {
+    let m = metas[i]
+    let cur = uterm_whnf(UMeta(m, []), unifier)
+    match meta_head_spine(cur, unifier) {
+      Some((hm, _)) if hm == m => {
+        let root = uf_find(i)
+        let zid = comp_fresh[root]
+        if !huet_assign_solution(unifier, m, UMeta(zid, []), arities[i]) {
+          return false
+        }
+      }
+      _ => ()
+    }
+  }
+  true
+}
+
+///|
+fn hou_delayed_dfs(
+  all_constraints : Array[HouConstraint],
+  unifier : Unifier,
+  prev_delayed : Array[HouFlexFlexEdge],
+  depth : Int32,
+  max_depth : Int32,
+  max_nodes : Int32,
+  max_projection_args : Int32,
+  round_budget : Int32,
+  out_unifier : Array[Unifier],
+  out_edges : Array[Array[HouFlexFlexEdge]],
+  stats : Array[Int32], // [nodes, branches, woke_edges, incomplete_flag]
+) -> Bool {
+  if stats[0] >= max_nodes {
+    stats[3] = 1
+    return false
+  }
+  stats[0] = stats[0] + 1
+  let (code, residual) = hou_residual_propagate(
+    all_constraints, unifier, round_budget,
+  )
+  if code == -1 {
+    return false
+  }
+  if code == -2 {
+    stats[3] = 1
+    return false
+  }
+  let (active_rigid, flex_edges) = hou_partition_flex_flex_graph(
+    residual, unifier,
+  )
+  // Count previously delayed flex-flex edges whose head(s) woke up into rigid
+  // or solved equations after the latest metavariable assignment.
+  for pe in prev_delayed {
+    let mut still_flex = false
+    for fe in flex_edges {
+      if fe.lhs_meta == pe.lhs_meta && fe.rhs_meta == pe.rhs_meta {
+        still_flex = true
+        break
+      }
+    }
+    if !still_flex {
+      stats[2] = stats[2] + 1
+    }
+  }
+  if active_rigid.length() == 0 {
+    out_unifier.push(hou_clone_unifier(unifier))
+    out_edges.push(flex_edges)
+    return true
+  }
+  if depth >= max_depth {
+    stats[3] = 1
+    return false
+  }
+  let eq = active_rigid[0]
+  let lhs = uterm_whnf(eq.lhs, unifier)
+  let rhs = uterm_whnf(eq.rhs, unifier)
+  let steps : Array[(Unifier) -> Bool] = match
+    (meta_head_spine(lhs, unifier), meta_head_spine(rhs, unifier)) {
+    (Some((id_a, args_a)), None) =>
+      hou_flex_step_candidates(id_a, args_a, rhs, max_projection_args)
+    (None, Some((id_b, args_b))) =>
+      hou_flex_step_candidates(id_b, args_b, lhs, max_projection_args)
+    _ =>
+      [
+        u => {
+          let st : Array[Int32] = [0, 0, 0, max_projection_args]
+          hou_search_go(lhs, rhs, eq.depth, u, st, 64, 0, 2) == 1
+        },
+      ]
+  }
+  for step in steps {
+    let snap = hou_clone_unifier(unifier)
+    stats[1] = stats[1] + 1
+    if step(unifier) {
+      if hou_delayed_dfs(
+          all_constraints,
+          unifier,
+          flex_edges,
+          depth + 1,
+          max_depth,
+          max_nodes,
+          max_projection_args,
+          round_budget,
+          out_unifier,
+          out_edges,
+          stats,
+        ) {
+        return true
+      }
+    }
+    hou_restore_unifier(unifier, snap)
+  }
+  false
+}
+
+///|
+/// Huet pre-unification solver with metavariable-indexed delayed flex-flex
+/// constraint suspension:
+/// - Suspends all flex-flex equations without branching on them;
+/// - Automatically wakes delayed edges whenever a flex-rigid assignment
+///   instantiates either endpoint;
+/// - Returns `HouDelayedPreUnifier` with the suspended `HouFlexFlexEdge` graph
+///   when `reify_flex_flex == false` (and `delayed_edges` is non-empty), or
+///   reifies a concrete closed unifier (`HouDelayedSolved`) when
+///   `reify_flex_flex == true`.
+pub fn hou_solve_with_delayed_flex_flex(
+  constraints : Array[HouConstraint],
+  unifier : Unifier,
+  reify_flex_flex~ : Bool = false,
+  max_nodes~ : Int32 = 2000,
+  max_depth~ : Int32 = 5,
+  max_projection_args~ : Int32 = 2,
+  round_budget~ : Int32 = 64,
+) -> HouDelayedGraphReport {
+  let initial = hou_clone_unifier(unifier)
+  let work = hou_clone_unifier(unifier)
+  let out_u : Array[Unifier] = []
+  let out_edges : Array[Array[HouFlexFlexEdge]] = []
+  let stats : Array[Int32] = [0, 0, 0, 0]
+  let found = if max_nodes > 0 {
+    hou_delayed_dfs(
+      constraints,
+      work,
+      [],
+      0,
+      max_depth,
+      max_nodes,
+      max_projection_args,
+      round_budget,
+      out_u,
+      out_edges,
+      stats,
+    )
+  } else {
+    stats[3] = 1
+    false
+  }
+  if found && out_u.length() > 0 {
+    let solved_u = out_u[0]
+    let edges = out_edges[0]
+    if edges.length() == 0 {
+      hou_restore_unifier(unifier, solved_u)
+      return HouDelayedGraphReport::{
+        status: HouDelayedSolved,
+        substitution: hou_substitution_since(initial, solved_u),
+        delayed_edges: [],
+        woke_edges: stats[2],
+        nodes: stats[0],
+        branches_tried: stats[1],
+      }
+    }
+    if reify_flex_flex {
+      let reified_u = hou_clone_unifier(solved_u)
+      if hou_reify_delayed_flex_flex(reified_u, edges) &&
+        hou_constraints_all_solved(constraints, reified_u) {
+        hou_restore_unifier(unifier, reified_u)
+        return HouDelayedGraphReport::{
+          status: HouDelayedSolved,
+          substitution: hou_substitution_since(initial, reified_u),
+          delayed_edges: [],
+          woke_edges: stats[2],
+          nodes: stats[0],
+          branches_tried: stats[1],
+        }
+      }
+    }
+    hou_restore_unifier(unifier, solved_u)
+    return HouDelayedGraphReport::{
+      status: HouDelayedPreUnifier,
+      substitution: hou_substitution_since(initial, solved_u),
+      delayed_edges: edges,
+      woke_edges: stats[2],
+      nodes: stats[0],
+      branches_tried: stats[1],
+    }
+  }
+  hou_restore_unifier(unifier, initial)
+  let status = if stats[0] >= max_nodes || stats[3] != 0 {
+    HouDelayedBudgetExceeded
+  } else {
+    HouDelayedNoUnifier
+  }
+  HouDelayedGraphReport::{
+    status,
+    substitution: [],
+    delayed_edges: [],
+    woke_edges: stats[2],
+    nodes: stats[0],
+    branches_tried: stats[1],
+  }
+}
+
+///|
+struct HouStreamFrame {
+  snapshot : Unifier
+  depth : Int32
+  steps : Array[(Unifier) -> Bool]
+  mut step_idx : Int32
+}
+
+///|
+/// Pull-based lazy stream iterator over normal-form higher-order unifiers:
+/// maintains an explicit resumable DFS stack so each `hou_unifier_stream_next`
+/// expands only the search prefix needed to yield the next solution.
+pub struct HouLazyUnifierStream {
+  constraints : Array[HouConstraint]
+  initial : Unifier
+  stack : Array[HouStreamFrame]
+  emitted : Array[Array[(Int32, UTerm)]]
+  max_nodes : Int32
+  max_depth : Int32
+  max_projection_args : Int32
+  round_budget : Int32
+  reify_flex_flex : Bool
+  mut root_started : Bool
+  mut exhausted : Bool
+  mut nodes_expanded : Int32
+}
+
+///|
+pub fn hou_unifier_stream_new(
+  constraints : Array[HouConstraint],
+  unifier : Unifier,
+  max_nodes~ : Int32 = 2000,
+  max_depth~ : Int32 = 4,
+  max_projection_args~ : Int32 = 2,
+  round_budget~ : Int32 = 64,
+  reify_flex_flex~ : Bool = true,
+) -> HouLazyUnifierStream {
+  HouLazyUnifierStream::{
+    constraints,
+    initial: hou_clone_unifier(unifier),
+    stack: [],
+    emitted: [],
+    max_nodes,
+    max_depth,
+    max_projection_args,
+    round_budget,
+    reify_flex_flex,
+    root_started: false,
+    exhausted: max_nodes <= 0,
+    nodes_expanded: 0,
+  }
+}
+
+///|
+pub fn hou_unifier_stream_is_exhausted(stream : HouLazyUnifierStream) -> Bool {
+  stream.exhausted
+}
+
+///|
+pub fn hou_unifier_stream_nodes(stream : HouLazyUnifierStream) -> Int32 {
+  stream.nodes_expanded
+}
+
+///|
+fn hou_stream_candidate_steps(
+  eq : HouConstraint,
+  unifier : Unifier,
+  max_projection_args : Int32,
+) -> Array[(Unifier) -> Bool] {
+  let lhs = uterm_whnf(eq.lhs, unifier)
+  let rhs = uterm_whnf(eq.rhs, unifier)
+  match (meta_head_spine(lhs, unifier), meta_head_spine(rhs, unifier)) {
+    (Some((id_a, args_a)), None) =>
+      hou_flex_step_candidates(id_a, args_a, rhs, max_projection_args)
+    (None, Some((id_b, args_b))) =>
+      hou_flex_step_candidates(id_b, args_b, lhs, max_projection_args)
+    (Some((id_a, args_a)), Some((id_b, args_b))) => {
+      let out : Array[(Unifier) -> Bool] = []
+      if id_a == id_b && args_a.length() == args_b.length() {
+        out.push(u => {
+          let fixed : Array[Int32] = []
+          for i in 0..<args_a.length() {
+            let bp = hou_clone_unifier(u)
+            if hou_unify(args_a[i], args_b[i], eq.depth, u) &&
+              hou_semantic_optimize(args_a[i], u) ==
+              hou_semantic_optimize(args_b[i], u) {
+              fixed.push(i)
+            } else {
+              hou_restore_unifier(u, bp)
+            }
+          }
+          let cid = hou_fresh_meta_id(u)
+          let cargs : Array[UTerm] = []
+          for pos in fixed {
+            cargs.push(UVar(huet_formal_index(args_a.length(), 0, pos)))
+          }
+          huet_assign_solution(u, id_a, UMeta(cid, cargs), args_a.length())
+        })
+      }
+      for s in hou_flex_step_candidates(id_a, args_a, rhs, max_projection_args) {
+        out.push(s)
+      }
+      if id_a != id_b {
+        for
+          s in hou_flex_step_candidates(
+            id_b, args_b, lhs, max_projection_args,
+          ) {
+          out.push(s)
+        }
+        out.push(u => {
+          let cid = hou_fresh_meta_id(u)
+          huet_assign_solution(u, id_a, UMeta(cid, []), args_a.length()) &&
+          huet_assign_solution(u, id_b, UMeta(cid, []), args_b.length())
+        })
+      }
+      out
+    }
+    (None, None) =>
+      [
+        u => {
+          let st : Array[Int32] = [0, 0, 0, max_projection_args]
+          hou_search_go(lhs, rhs, eq.depth, u, st, 64, 0, 2) == 1
+        },
+      ]
+  }
+}
+
+///|
+fn hou_stream_visit_node(
+  stream : HouLazyUnifierStream,
+  u : Unifier,
+  depth : Int32,
+) -> Array[(Int32, UTerm)]? {
+  if stream.nodes_expanded >= stream.max_nodes {
+    stream.stack.clear()
+    stream.exhausted = true
+    return None
+  }
+  stream.nodes_expanded = stream.nodes_expanded + 1
+  let (code, residual) = hou_residual_propagate(
+    stream.constraints,
+    u,
+    stream.round_budget,
+  )
+  if code < 0 {
+    return None
+  }
+  if residual.length() == 0 {
+    if hou_constraints_all_solved(stream.constraints, u) {
+      let sub = hou_substitution_since(stream.initial, u)
+      if !hou_contains_solution(stream.emitted, sub) {
+        stream.emitted.push(sub)
+        return Some(sub)
+      }
+    }
+    return None
+  }
+  let (active_rigid, flex_edges) = hou_partition_flex_flex_graph(residual, u)
+  if active_rigid.length() == 0 && stream.reify_flex_flex {
+    let reified = hou_clone_unifier(u)
+    if hou_reify_delayed_flex_flex(reified, flex_edges) &&
+      hou_constraints_all_solved(stream.constraints, reified) {
+      let sub = hou_substitution_since(stream.initial, reified)
+      if !hou_contains_solution(stream.emitted, sub) {
+        stream.emitted.push(sub)
+        return Some(sub)
+      }
+    }
+    return None
+  }
+  if depth < stream.max_depth {
+    let idx = hou_pick_branch_constraint(residual, u)
+    let steps = hou_stream_candidate_steps(
+      residual[idx],
+      u,
+      stream.max_projection_args,
+    )
+    if steps.length() > 0 {
+      stream.stack.push(HouStreamFrame::{
+        snapshot: hou_clone_unifier(u),
+        depth,
+        steps,
+        step_idx: 0,
+      })
+    }
+  }
+  None
+}
+
+///|
+/// Pull the next distinct normal-form higher-order unifier from `stream`,
+/// returning `None` once the search tree (or `max_nodes` budget) is exhausted.
+pub fn hou_unifier_stream_next(
+  stream : HouLazyUnifierStream,
+) -> Array[(Int32, UTerm)]? {
+  if stream.exhausted {
+    return None
+  }
+  if !stream.root_started {
+    stream.root_started = true
+    let root_u = hou_clone_unifier(stream.initial)
+    match hou_stream_visit_node(stream, root_u, 0) {
+      Some(sol) => {
+        if stream.stack.length() == 0 {
+          stream.exhausted = true
+        }
+        return Some(sol)
+      }
+      None => ()
+    }
+  }
+  while stream.stack.length() > 0 {
+    let top_idx = stream.stack.length() - 1
+    let frame = stream.stack[top_idx]
+    if frame.step_idx >= frame.steps.length() {
+      ignore(stream.stack.pop())
+      continue
+    }
+    let s_idx = frame.step_idx
+    frame.step_idx = s_idx + 1
+    let step = frame.steps[s_idx]
+    let child_u = hou_clone_unifier(frame.snapshot)
+    let next_depth = frame.depth + 1
+    if step(child_u) {
+      match hou_stream_visit_node(stream, child_u, next_depth) {
+        Some(sol) => {
+          if stream.stack.length() == 0 {
+            stream.exhausted = true
+          }
+          return Some(sol)
+        }
+        None => ()
+      }
+    }
+  }
+  stream.exhausted = true
+  None
 }

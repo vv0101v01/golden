@@ -39,8 +39,6 @@ pub fn certificate_summary(Array[BridgeCertificate]) -> String
 
 pub fn certificates_all_ok(Array[BridgeCertificate]) -> Bool
 
-pub fn check_certificate_bridge() -> Bool
-
 pub fn check_face_semiring_bridge() -> Bool
 
 pub fn check_free_category_bridge() -> Bool

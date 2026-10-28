@@ -558,12 +558,3 @@ pub fn check_ast_kan_types() -> Bool {
   )
   dv_is_nat(bool_elim_formal, 0)
 }
-
-///|
-pub fn check_ast_kan_all() -> Bool {
-  check_ast_paths() &&
-  check_ast_data() &&
-  check_ast_hits() &&
-  check_ast_kan_terms() &&
-  check_ast_kan_types()
-}

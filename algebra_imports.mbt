@@ -63,4 +63,6 @@ using @algebra {
   check_qpoly_hensel_factor_and_certificates,
   check_algebraic_radicals_and_rank6_multiquad,
   check_jacobi_block_deflation_and_multiplicity,
+  check_lll_lattice_and_van_hoeij_factor,
+  check_complex_algebraic_closure_rouche,
 }

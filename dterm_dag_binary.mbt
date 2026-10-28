@@ -248,16 +248,6 @@ pub fn dterm_dag_import_binary(
   }
 }
 
-///|
-pub fn dterm_dag_binary_to_hex(bytes : Array[Int32]) -> String {
-  compiled_module_binary_to_hex(bytes)
-}
-
-///|
-pub fn dterm_dag_binary_from_hex(text : String) -> Array[Int32]? {
-  compiled_module_binary_from_hex(text)
-}
-
 // ---------------------------------------------------------------------------
 // Phase 14: Incremental DAG delta snapshots (`CHDAGDLT` v1)
 // ---------------------------------------------------------------------------

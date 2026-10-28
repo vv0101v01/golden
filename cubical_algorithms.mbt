@@ -1284,3 +1284,500 @@ pub fn dprop_is_set_value(
     dlevel + 4,
   )
 }
+
+// ===========================================================================
+// Phase 16 (Track 5): Open-Context Dependent Path / Sigma-Path / Fibration
+// Loop Equivalences, Transport Functoriality, and 5D Stasheff Associahedron K5
+// ===========================================================================
+
+///|
+/// Transport along a reflexive path `subst(fam, refl(x), u) = u` in `fam(x)`.
+pub fn subst_refl_eq_value(
+  fam : (DValue) -> DValue,
+  x : DValue,
+  u : DValue,
+  dlevel : Int32,
+) -> DValue {
+  let fx = fam(x)
+  let line : (Dim) -> DValue = _ => fx
+  let filler = transport_filler_value(line, u, dlevel + 1)
+  DVPathLam(i => filler(DNeg(i)))
+}
+
+///|
+/// General open-context functoriality of `subst` over path concatenation:
+/// for arbitrary `fam : A -> Type`, `p : Path A x y`, `q : Path A y z`, and
+/// `u0 : fam(x)`, constructs
+///   `Path (fam z) (subst fam (p ⬝ q) u0) (subst fam q (subst fam p u0))`
+/// with definitionally exact endpoints via cubical Paulin-Mohring `J` on `q`.
+pub fn subst_trans_eq_value(
+  fam : (DValue) -> DValue,
+  a_ty : DValue,
+  p : DValue,
+  q : DValue,
+  u0 : DValue,
+  dlevel : Int32,
+) -> DValue {
+  let y0 = dapp_dim(p, DOne)
+  let motive = (z1 : DValue, q1 : DValue) => {
+    let pq1 = dpath_trans_value(a_ty, p, q1, dlevel)
+    let lhs = subst_value(fam, pq1, u0, dlevel + 1)
+    let rhs = subst_value(
+      fam,
+      q1,
+      subst_value(fam, p, u0, dlevel + 1),
+      dlevel + 2,
+    )
+    DVPathTy(_ => fam(z1), lhs, rhs)
+  }
+  let ru_p = dpath_right_unit3_value(a_ty, y0, p, dlevel)
+  let sp = subst_value(fam, p, u0, dlevel + 1)
+  let step1 : DValue = DVPathLam(t => {
+    subst_value(fam, dapp_dim(ru_p, t), u0, dlevel + 1)
+  })
+  let step2 = dpath_sym_value(subst_refl_eq_value(fam, y0, sp, dlevel + 2))
+  let refl_case = dpath_trans_value(fam(y0), step1, step2, dlevel + 3)
+  dj_singleton_elim_value(motive, refl_case, q, dlevel + 5)
+}
+
+///|
+/// First-class bidirectional equivalence between heterogeneous dependent paths
+/// and homogeneous transported paths in an open context:
+///   `Equiv (PathP (i => line i) v0 v1) (Path (line 1) (transport line v0) v1)`.
+/// Constructed by `pathToEquiv` along the 1-parameter path-type family
+/// `s ↦ PathP (i => line(i ∨ s)) (transport_filler line v0 s) v1`, whose
+/// `s = 0` and `s = 1` fibers are definitionally `PathP line v0 v1` and
+/// `Path (line 1) (transport line v0) v1`.
+pub fn pathp_equiv_transport_eq_value(
+  line : (Dim) -> DValue,
+  v0 : DValue,
+  v1 : DValue,
+  dlevel : Int32,
+  level~ : Int32 = 0,
+) -> DValue {
+  let mline = memo_dim_line(line)
+  let filler = transport_filler_value(mline, v0, dlevel)
+  let src = DVPathTy(mline, v0, v1)
+  let tr_v0 = transport_value(mline, v0, dlevel)
+  let dst = DVPathTy(_ => mline(DOne), tr_v0, v1)
+  let type_line = memo_dim_line(s => {
+    DVPathTy(i => mline(dim_simplify(DOr(i, s))), filler(s), v1)
+  })
+  path_to_equiv_value(type_line, src, dst, level, dlevel + 2)
+}
+
+///|
+/// First-class bidirectional equivalence characterizing identity in any
+/// dependent pair type `Σ (x : A), P(x)`:
+///   `Equiv (Path (Σ A P) u v) (Σ (p : Path A (fst u) (fst v)), PathP (i => P (p i)) (snd u) (snd v))`.
+/// Because the kernel enforces judgmental surjective-pairing `η` on `DVSigma`
+/// and `DVPathTy`, both round-trip homotopies reduce definitionally to `refl`.
+pub fn sigma_path_equiv_value(
+  a_ty : DValue,
+  p_fam : (DValue) -> DValue,
+  u : DValue,
+  v : DValue,
+  _dlevel : Int32,
+) -> DValue {
+  let sig_ty = DVSigma(a_ty, p_fam)
+  let src = DVPathTy(_ => sig_ty, u, v)
+  let u1 = dfst_typed(u, p_fam)
+  let v1 = dfst_typed(v, p_fam)
+  let u2 = dsnd_typed(u, a_ty, p_fam)
+  let v2 = dsnd_typed(v, a_ty, p_fam)
+  let base_path_ty = DVPathTy(_ => a_ty, u1, v1)
+  let dep_fam = (p : DValue) => DVPathTy(i => p_fam(dapp_dim(p, i)), u2, v2)
+  let dst = DVSigma(base_path_ty, dep_fam)
+  let fwd = DVLam(q => {
+    DVPair(
+      DVPathLam(i => dfst_typed(dapp_dim(q, i), p_fam)),
+      DVPathLam(i => dsnd_typed(dapp_dim(q, i), a_ty, p_fam)),
+    )
+  })
+  let bwd = DVLam(pr => {
+    let p = dfst_typed(pr, dep_fam)
+    let r = dsnd_typed(pr, base_path_ty, dep_fam)
+    DVPathLam(i => DVPair(dapp_dim(p, i), dapp_dim(r, i)))
+  })
+  equiv_make_value(
+    src,
+    dst,
+    fwd,
+    bwd,
+    DVLam(pr => dpath_refl_value(pr)),
+    DVLam(q => dpath_refl_value(q)),
+  )
+}
+
+///|
+/// Fiberwise congruence of `DVSigma` in the second component:
+/// given `fiber_eq : (x : A) -> Equiv (P x) (Q x)`, constructs
+///   `Equiv (Σ (x : A), P x) (Σ (x : A), Q x)`.
+pub fn sigma_cong_snd_equiv_value(
+  a_ty : DValue,
+  p_fam : (DValue) -> DValue,
+  q_fam : (DValue) -> DValue,
+  fiber_eq : (DValue) -> DValue,
+) -> DValue {
+  let src = DVSigma(a_ty, p_fam)
+  let dst = DVSigma(a_ty, q_fam)
+  let fwd = DVLam(w => {
+    let x = dfst_typed(w, p_fam)
+    let y = dsnd_typed(w, a_ty, p_fam)
+    DVPair(x, equiv_fun_value(fiber_eq(x), p_fam(x), q_fam(x), y))
+  })
+  let bwd = DVLam(w => {
+    let x = dfst_typed(w, q_fam)
+    let z = dsnd_typed(w, a_ty, q_fam)
+    DVPair(x, equiv_inv_fun_value(fiber_eq(x), p_fam(x), q_fam(x), z))
+  })
+  let sect = DVLam(w => {
+    let x = dfst_typed(w, q_fam)
+    let z = dsnd_typed(w, a_ty, q_fam)
+    let s = dapp_typed(
+      equiv_sect_value(fiber_eq(x), p_fam(x), q_fam(x)),
+      z,
+      q_fam(x),
+    )
+    DVPathLam(i => DVPair(x, dapp_dim(s, i)))
+  })
+  let retr = DVLam(w => {
+    let x = dfst_typed(w, p_fam)
+    let y = dsnd_typed(w, a_ty, p_fam)
+    let r = dapp_typed(
+      equiv_retr_value(fiber_eq(x), p_fam(x), q_fam(x)),
+      y,
+      p_fam(x),
+    )
+    DVPathLam(i => DVPair(x, dapp_dim(r, i)))
+  })
+  equiv_make_value(src, dst, fwd, bwd, sect, retr)
+}
+
+///|
+/// Homogeneous transport characterization of `Σ`-paths in an open context:
+///   `Equiv (Path (Σ A P) u v) (Σ (p : Path A (fst u) (fst v)), Path (P (fst v)) (subst P p (snd u)) (snd v))`.
+pub fn sigma_path_equiv_subst_value(
+  a_ty : DValue,
+  p_fam : (DValue) -> DValue,
+  u : DValue,
+  v : DValue,
+  dlevel : Int32,
+  level~ : Int32 = 0,
+) -> DValue {
+  let sig_ty = DVSigma(a_ty, p_fam)
+  let u1 = dfst_typed(u, p_fam)
+  let v1 = dfst_typed(v, p_fam)
+  let u2 = dsnd_typed(u, a_ty, p_fam)
+  let v2 = dsnd_typed(v, a_ty, p_fam)
+  let base_path_ty = DVPathTy(_ => a_ty, u1, v1)
+  let dep_fam = (p : DValue) => DVPathTy(i => p_fam(dapp_dim(p, i)), u2, v2)
+  let subst_fam = (p : DValue) => {
+    DVPathTy(_ => p_fam(v1), subst_value(p_fam, p, u2, dlevel), v2)
+  }
+  let fiber_eq_at = (p : DValue) => {
+    pathp_equiv_transport_eq_value(
+      i => p_fam(dapp_dim(p, i)),
+      u2,
+      v2,
+      dlevel,
+      level~,
+    )
+  }
+  let src_ty = DVPathTy(_ => sig_ty, u, v)
+  let dst_ty = DVSigma(base_path_ty, subst_fam)
+  let fwd = DVLam(q => {
+    let p = DVPathLam(i => dfst_typed(dapp_dim(q, i), p_fam))
+    let r_dep = DVPathLam(i => dsnd_typed(dapp_dim(q, i), a_ty, p_fam))
+    let feq = fiber_eq_at(p)
+    DVPair(p, equiv_fun_value(feq, dep_fam(p), subst_fam(p), r_dep))
+  })
+  let bwd = DVLam(pr => {
+    let p = dfst_typed(pr, subst_fam)
+    let r_hom = dsnd_typed(pr, base_path_ty, subst_fam)
+    let feq = fiber_eq_at(p)
+    let r_dep = equiv_inv_fun_value(feq, dep_fam(p), subst_fam(p), r_hom)
+    DVPathLam(i => DVPair(dapp_dim(p, i), dapp_dim(r_dep, i)))
+  })
+  let sect = DVLam(pr => {
+    let p = dfst_typed(pr, subst_fam)
+    let r_hom = dsnd_typed(pr, base_path_ty, subst_fam)
+    let feq = fiber_eq_at(p)
+    let s = dapp_typed(
+      equiv_sect_value(feq, dep_fam(p), subst_fam(p)),
+      r_hom,
+      subst_fam(p),
+    )
+    DVPathLam(k => DVPair(p, dapp_dim(s, k)))
+  })
+  let retr = DVLam(q => {
+    let p = DVPathLam(i => dfst_typed(dapp_dim(q, i), p_fam))
+    let r_dep = DVPathLam(i => dsnd_typed(dapp_dim(q, i), a_ty, p_fam))
+    let feq = fiber_eq_at(p)
+    let r = dapp_typed(
+      equiv_retr_value(feq, dep_fam(p), subst_fam(p)),
+      r_dep,
+      dep_fam(p),
+    )
+    DVPathLam(k => {
+      DVPathLam(i => DVPair(dapp_dim(p, i), dapp_dim(dapp_dim(r, k), i)))
+    })
+  })
+  equiv_make_value(src_ty, dst_ty, fwd, bwd, sect, retr)
+}
+
+///|
+/// General fibration fiber-sequence loop-space classification in an open context:
+/// for any base `B`, family `P : B -> Type`, basepoint `b0 : B`, and fiber
+/// basepoint `e0 : P(b0)`, constructs the bidirectional equivalence
+///   `Equiv (Ω¹(Σ B P, (b0, e0))) (Σ (p : Ω¹(B, b0)), Path (P b0) (subst P p e0) e0)`.
+pub fn fibration_loop_equiv_fiber_path_value(
+  b_ty : DValue,
+  p_fam : (DValue) -> DValue,
+  b0 : DValue,
+  e0 : DValue,
+  dlevel : Int32,
+  level~ : Int32 = 0,
+) -> DValue {
+  let total_pt = DVPair(b0, e0)
+  sigma_path_equiv_subst_value(b_ty, p_fam, total_pt, total_pt, dlevel, level~)
+}
+
+///|
+/// Split 5-fold parenthesization `(p ⬝ q) ⬝ ((u ⬝ v) ⬝ w)` (source vertex of
+/// the `K_5` naturality facet commuting left `(p, q, _)` and right `(u, v, w)`
+/// associators).
+pub fn dpath_k5_lhs1_value(
+  space_ty : DValue,
+  p : DValue,
+  q : DValue,
+  u : DValue,
+  v : DValue,
+  w : DValue,
+  dlevel : Int32,
+) -> DValue {
+  let pq = dpath_trans_value(space_ty, p, q, dlevel)
+  let uv = dpath_trans_value(space_ty, u, v, dlevel)
+  let uvw = dpath_trans_value(space_ty, uv, w, dlevel)
+  dpath_trans_value(space_ty, pq, uvw, dlevel)
+}
+
+///|
+/// Rightmost 5-fold path parenthesization `p ⬝ (q ⬝ (u ⬝ (v ⬝ w)))`.
+pub fn dpath_k5_rhs1_value(
+  space_ty : DValue,
+  p : DValue,
+  q : DValue,
+  u : DValue,
+  v : DValue,
+  w : DValue,
+  dlevel : Int32,
+) -> DValue {
+  let vw = dpath_trans_value(space_ty, v, w, dlevel)
+  let uvw = dpath_trans_value(space_ty, u, vw, dlevel)
+  let quvw = dpath_trans_value(space_ty, q, uvw, dlevel)
+  dpath_trans_value(space_ty, p, quvw, dlevel)
+}
+
+///|
+fn dpath_k5_interchange_square_value(
+  space_ty : DValue,
+  p : DValue,
+  q : DValue,
+  u : DValue,
+  v : DValue,
+  w : DValue,
+  dlevel : Int32,
+) -> DValue {
+  let assoc_uvw = dpath_assoc_path3_value(space_ty, u, v, w, dlevel)
+  DVPathLam(
+    memo_dim_line(a => {
+      DVPathLam(
+        memo_dim_line(b => {
+          let uvw_b = dapp_dim(assoc_uvw, b)
+          dapp_dim(dpath_assoc_path3_value(space_ty, p, q, uvw_b, dlevel), a)
+        }),
+      )
+    }),
+  )
+}
+
+///|
+/// Outer 2-edge walk of the `K_5` interchange facet:
+/// `assoc(p, q, (u ⬝ v) ⬝ w) ⬝ (p ⬝ (q ⬝ assoc(u, v, w)))`.
+pub fn dpath_k5_route_outer3_value(
+  space_ty : DValue,
+  p : DValue,
+  q : DValue,
+  u : DValue,
+  v : DValue,
+  w : DValue,
+  dlevel : Int32,
+) -> DValue {
+  let x0 = dapp_dim(p, DZero)
+  let x5 = dapp_dim(w, DOne)
+  let path1_ty = DVPathTy(_ => space_ty, x0, x5)
+  let sq = dpath_k5_interchange_square_value(space_ty, p, q, u, v, w, dlevel)
+  let b0 : DValue = DVPathLam(a => dapp_dim(dapp_dim(sq, a), DZero))
+  let r1 : DValue = DVPathLam(b => dapp_dim(dapp_dim(sq, DOne), b))
+  dpath_trans_value(path1_ty, b0, r1, dlevel + 2)
+}
+
+///|
+/// Inner 2-edge walk of the `K_5` interchange facet:
+/// `((p ⬝ q) ⬝ assoc(u, v, w)) ⬝ assoc(p, q, u ⬝ (v ⬝ w))`.
+pub fn dpath_k5_route_inner3_value(
+  space_ty : DValue,
+  p : DValue,
+  q : DValue,
+  u : DValue,
+  v : DValue,
+  w : DValue,
+  dlevel : Int32,
+) -> DValue {
+  let x0 = dapp_dim(p, DZero)
+  let x5 = dapp_dim(w, DOne)
+  let path1_ty = DVPathTy(_ => space_ty, x0, x5)
+  let sq = dpath_k5_interchange_square_value(space_ty, p, q, u, v, w, dlevel)
+  let l0 : DValue = DVPathLam(b => dapp_dim(dapp_dim(sq, DZero), b))
+  let t1 : DValue = DVPathLam(a => dapp_dim(dapp_dim(sq, a), DOne))
+  dpath_trans_value(path1_ty, l0, t1, dlevel + 2)
+}
+
+///|
+fn dpath_singleton5_transport_value(
+  fam5 : (DValue, DValue, DValue, DValue, DValue) -> DValue,
+  base_cell : DValue,
+  p : DValue,
+  q : DValue,
+  u : DValue,
+  v : DValue,
+  w : DValue,
+  dlevel : Int32,
+) -> DValue {
+  let c1 = transport_value(
+    memo_dim_line(w1 => {
+      let p1 = dpath_prefix_value(p, w1)
+      let rx = dpath_refl_value(dapp_dim(p, w1))
+      fam5(p1, rx, rx, rx, rx)
+    }),
+    base_cell,
+    dlevel + 4,
+  )
+  let c2 = transport_value(
+    memo_dim_line(w2 => {
+      let q2 = dpath_prefix_value(q, w2)
+      let rx = dpath_refl_value(dapp_dim(q, w2))
+      fam5(p, q2, rx, rx, rx)
+    }),
+    c1,
+    dlevel + 4,
+  )
+  let c3 = transport_value(
+    memo_dim_line(w3 => {
+      let u3 = dpath_prefix_value(u, w3)
+      let rx = dpath_refl_value(dapp_dim(u, w3))
+      fam5(p, q, u3, rx, rx)
+    }),
+    c2,
+    dlevel + 4,
+  )
+  let c4 = transport_value(
+    memo_dim_line(w4 => {
+      let v4 = dpath_prefix_value(v, w4)
+      let rx = dpath_refl_value(dapp_dim(v, w4))
+      fam5(p, q, u, v4, rx)
+    }),
+    c3,
+    dlevel + 4,
+  )
+  transport_value(
+    memo_dim_line(w5 => fam5(p, q, u, v, dpath_prefix_value(w, w5))),
+    c4,
+    dlevel + 4,
+  )
+}
+
+///|
+/// Northern O(1) 4-cell filler of Stasheff's `K_5` interchange square between
+/// `route_outer3` and `route_inner3` (horizontal-first diagonal filler).
+pub fn dpath_k5_hemi_north4_value(
+  space_ty : DValue,
+  _r : DValue,
+  p : DValue,
+  q : DValue,
+  u : DValue,
+  v : DValue,
+  w : DValue,
+  dlevel : Int32,
+) -> DValue {
+  let path1_ty = DVPathTy(_ => space_ty, dapp_dim(p, DZero), dapp_dim(w, DOne))
+  let sq = dpath_k5_interchange_square_value(space_ty, p, q, u, v, w, dlevel)
+  dpath_square_boundary3_value(path1_ty, sq, dlevel + 2)
+}
+
+///|
+/// Southern O(1) 4-cell filler of Stasheff's `K_5` interchange square between
+/// `route_outer3` and `route_inner3` (inverted transposed-square filler).
+pub fn dpath_k5_hemi_south4_value(
+  space_ty : DValue,
+  _r : DValue,
+  p : DValue,
+  q : DValue,
+  u : DValue,
+  v : DValue,
+  w : DValue,
+  dlevel : Int32,
+) -> DValue {
+  let path1_ty = DVPathTy(_ => space_ty, dapp_dim(p, DZero), dapp_dim(w, DOne))
+  let sq = dpath_k5_interchange_square_value(space_ty, p, q, u, v, w, dlevel)
+  let sq_tr : DValue = DVPathLam(
+    memo_dim_line(b => DVPathLam(memo_dim_line(a => dapp_dim(dapp_dim(sq, a), b)))),
+  )
+  dpath_sym_value(dpath_square_boundary3_value(path1_ty, sq_tr, dlevel + 2))
+}
+
+///|
+/// Stasheff's 5-dimensional associahedron `K_5` coherence 5-cell (`I^5 -> space_ty`):
+/// for any constant-normalizing Kan space `space_ty` and any 5 composable paths
+/// `(p, q, u, v, w)` based at `r`, constructs an explicit 5-cell filling the
+/// 3-sphere boundary between `dpath_k5_hemi_north4_value` and
+/// `dpath_k5_hemi_south4_value` by 5-stage cubical singleton contraction.
+pub fn dpath_associahedron_k5_cell5_value(
+  space_ty : DValue,
+  r : DValue,
+  p : DValue,
+  q : DValue,
+  u : DValue,
+  v : DValue,
+  w : DValue,
+  dlevel : Int32,
+) -> DValue {
+  let rr = dpath_refl_value(r)
+  let base5 = dpath_refl_value(
+    dpath_k5_hemi_north4_value(space_ty, r, rr, rr, rr, rr, rr, dlevel),
+  )
+  dpath_singleton5_transport_value(
+    (p1, q1, u1, v1, w1) => {
+      let path1_ty = DVPathTy(_ => space_ty, dapp_dim(p1, DZero), dapp_dim(w1, DOne))
+      let lhs = dpath_k5_lhs1_value(space_ty, p1, q1, u1, v1, w1, dlevel)
+      let rhs = dpath_k5_rhs1_value(space_ty, p1, q1, u1, v1, w1, dlevel)
+      let path2_ty = DVPathTy(_ => path1_ty, lhs, rhs)
+      let out3 = dpath_k5_route_outer3_value(space_ty, p1, q1, u1, v1, w1, dlevel)
+      let inn3 = dpath_k5_route_inner3_value(space_ty, p1, q1, u1, v1, w1, dlevel)
+      let path3_ty = DVPathTy(_ => path2_ty, out3, inn3)
+      DVPathTy(
+        _ => path3_ty,
+        dpath_k5_hemi_north4_value(space_ty, r, p1, q1, u1, v1, w1, dlevel),
+        dpath_k5_hemi_south4_value(space_ty, r, p1, q1, u1, v1, w1, dlevel),
+      )
+    },
+    base5,
+    p,
+    q,
+    u,
+    v,
+    w,
+    dlevel + 4,
+  )
+}

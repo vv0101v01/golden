@@ -6,9 +6,6 @@ package "vv0101v01/cubical-hermitian/cmd/symbench"
 // Errors
 
 // Types and methods
-type Case
-
-type DecCase
 
 // Type aliases
 

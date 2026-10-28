@@ -35,8 +35,8 @@
 - 有界 Huet 搜尋、版本化已編譯模組 byte codec，以及 BDD
   sifting/cache、watched-literal DPLL 與 sparse/Karatsuba `QPoly` 乘法；
 - `SPEC.md`/`SPEC.en.md` 與雙語附錄對全部型別、算子、規格、結構逐符號
-  給出規範形式與範疇化；五聯邦大一統後附錄共 **6,177 個符號**，cubical 支柱的
-  規格登記為 **121 條**；
+  給出規範形式與範疇化；五聯邦大一統後附錄共 **6,484 個符號**，cubical 支柱的
+  規格登記為 **127 條**；
 - cubical 支柱的實體套件子圖 `cmd/main → root → algebra` 與其 13 個邏輯元件，
   現與其餘四大聯邦（`symlib`、`semiring`、`topos`、`scheme`）及 `bridge`/apps 合共
   **27 套件／36 元件**，由同一 `architecture.json`/`tools/arch_check.py` 管制。
@@ -45,12 +45,12 @@
 
 ```text
 moon check --deny-warn --target wasm-gc     # 全專案通過且零警告
-moon test --release --target wasm-gc        # 全倉精煉 L8 測試 15/15（覆蓋五聯邦＋大一統＋第十五期）
-moon run --release cmd/main --target wasm-gc      # 110 項定理登記表，期望 110/110
-moon run --release cmd/showcase --target wasm-gc  # 五聯邦大一統證書，期望 39/39
+moon test --release --target wasm-gc        # 全倉精煉 L8 測試 15/15（覆蓋五聯邦＋大一統＋第十六期與健檢回歸）
+moon run --release cmd/main --target wasm-gc      # 116 項定理登記表，期望 116/116
+moon run --release cmd/showcase --target wasm-gc  # 五聯邦大一統證書，期望 42/42
 python3 tools/arch_check.py                 # 五聯邦依賴層級、唯一檔案歸位與計數
 moon info && python3 tools/audit_spec.py --check
-                                            # 雙語符號附錄與各套件介面集合相等（6,177 符號）
+                                            # 雙語符號附錄與各套件介面集合相等（6,484 符號）
 ```
 
 ## 本次升級重點
@@ -424,9 +424,11 @@ algebra/multiquad_tower.mbt / dterm_dag_binary.mbt / phase13_laws.mbt
                               四生成元多二次塔；CHDAGBIN 共圖；第十三期律束
 algebra/phase14_algebra.mbt / phase14_laws.mbt / phase15_laws.mbt
                               Hensel 因式分解證書、實代數根式與區塊 Jacobi；第十四／十五期律束
-spec.mbt / verify.mbt         121 條規格登記；110 項定理登記表
-*_wbtest.mbt                  跨五聯邦精煉 L8 測試（15 項，含第十五期）
-cmd/main/ , cmd/showcase/     打印 110 項定理登記表與 39 項五聯邦大一統證書的入口
+algebra/phase16_algebra.mbt / artifact_crypto_wal.mbt / phase16_laws.mbt
+                              LLL／Van Hoeij 與 Q̄⊂ℂ、SHA/Ed25519 與 WAL、第十六期六大工程律束
+spec.mbt / verify.mbt         127 條規格登記；116 項定理登記表
+*_wbtest.mbt                  跨五聯邦精煉 L8 測試（15 項，含第十六期與健檢回歸）
+cmd/main/ , cmd/showcase/     打印 116 項定理登記表與 42 項五聯邦大一統證書的入口
 ```
 
 ## 範圍與邊界
@@ -459,4 +461,4 @@ DSystem 最大相容補入與相關維度下降、差異導引 case-split
 與四生成元多二次塔、n≤16 精確 BDD 序與 DRUP、Tier D
 與自適應 Jacobi、環路逆元/結合律 3-胞及閉代表式分類、
 整個殘留約束集的 HOU 求解器，與工件 manifest 完整性鏈。
-第十四期補齊聯合 Σ 動機同時 IR、展開正性見證、Hensel 全分解證書與實代數根式、區塊 Jacobi、Eckmann–Hilton 3-胞與五邊形 4-胞、單值 Hopf 不變量、跨約束 HOU 回溯枚舉與認證 CAS／增量同步；第十五期進一步完成對稱軌道剪枝與連通支援分解最佳 ROBDD（28 變量四分量 exact）、索引化線性時間 LRAT 檢查與精化及 `CHLRATBN` v1 編解碼、強度 4 `ℙ¹(𝔽₈)` 覆蓋陣列＋五色 PHF＋`CheckedDCube` 與立方 Yoneda 自然性審計，並在開放變數脈絡下完整內部證明雙向雙射認證 `DVEquiv`、`π₁(S¹) = ‖Ω¹(S¹)‖₀ ≃ ℤ`、基點環路—懸掛伴隨 `(ΣA →* B) ≃ (A →* ΩB)` 及 0-連通 Freudenthal 懸掛定理 `‖Ω¹(Susp A)‖₀ ≃ 1`（`π₁(S²)=π₁(S³)=1`）與圓楔連通。現行邊界細節見 `SPEC.md` 第四節。
+第十四期補齊聯合 Σ 動機同時 IR、展開正性見證、Hensel 全分解證書與實代數根式、區塊 Jacobi、Eckmann–Hilton 3-胞與五邊形 4-胞、單值 Hopf 不變量、跨約束 HOU 回溯枚舉與認證 CAS／增量同步；第十五期進一步完成對稱軌道剪枝與連通支援分解最佳 ROBDD（28 變量四分量 exact）、索引化線性時間 LRAT 檢查與精化及 `CHLRATBN` v1 編解碼、強度 4 `ℙ¹(𝔽₈)` 覆蓋陣列＋五色 PHF＋`CheckedDCube` 與立方 Yoneda 自然性審計，並在開放變數脈絡下完整內部證明雙向雙射認證 `DVEquiv`、`π₁(S¹) = ‖Ω¹(S¹)‖₀ ≃ ℤ`、基點環路—懸掛伴隨 `(ΣA →* B) ≃ (A →* ΩB)` 及 0-連通 Freudenthal 懸掛定理 `‖Ω¹(Susp A)‖₀ ≃ 1`（`π₁(S²)=π₁(S³)=1`）與圓楔連通；第十六期再完成餘下六大核心工程：大宇宙累積同時 IR、Dybjer–Setzer 開放多解碼器同時 IR 與反循環容器正性憑證，DSATUR 著色上界最大團修復與 `0~1` 黏合圓／環面開盒合成，標準 SHA-256/512、RFC 8032 Pure-Ed25519 非對稱封緘與崩潰一致 WAL 日誌，精確有理 LLL 格約化、Van Hoeij 跡格因式重組與 `Q̄ ⊂ ℂ` Rouché 代數閉包，纖維化環路序列等價、開放變量 Hopf–Freudenthal 收縮 `∂_Hopf(σ_{S²}(p))≡p`、`π₂(S²)` 分裂截面與五維 Stasheff `K₅` 相干胞，以及 Huet 延遲 flex-flex 約束圖、拉取式惰性合一串流、模組 DAG 介面雜湊重連結與基於 LCA 的三方倉庫合併。現行邊界細節見 `SPEC.md` 第四節。

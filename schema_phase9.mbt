@@ -4056,10 +4056,57 @@ fn sim_joint_motive(spec : DSimultaneousIRSpec) -> DTerm {
 }
 
 ///|
+/// Compute the minimum cumulative universe level `>= spec.base.level`
+/// inhabited by every function's `result_type` in `spec` (supporting
+/// arbitrarily large universe codomains `codomain_level > base.level`).
+pub fn simultaneous_ir_joint_motive_level(spec : DSimultaneousIRSpec) -> Int32 {
+  let base = spec.base
+  let param_values = schema_fresh_values(base.params.length(), 13000)
+  let param_types = inductive_param_types(base, param_values)
+  let index_values = schema_fresh_values(base.indices.length(), 13040)
+  let index_types : Array[DValue] = []
+  let prior_values : Array[DValue] = []
+  for j in 0..<base.indices.length() {
+    index_types.push(
+      telescope_next_type(
+        base.indices,
+        param_types,
+        param_values,
+        index_types,
+        prior_values,
+      ),
+    )
+    prior_values.push(index_values[j])
+  }
+  let code_value : DValue = DVNeutral(DNVar(13080))
+  let mut ctx = denv_empty()
+  let mut env = denv_empty()
+  for i in 0..<param_types.length() {
+    ctx = denv_cons(param_types[i], ctx)
+    env = denv_cons(param_values[i], env)
+  }
+  for i in 0..<index_types.length() {
+    ctx = denv_cons(index_types[i], ctx)
+    env = denv_cons(index_values[i], env)
+  }
+  ctx = denv_cons(DVInductive(base, param_values, index_values), ctx)
+  env = denv_cons(code_value, env)
+  let mut max_lvl = base.level
+  for fi in 0..<spec.functions.length() {
+    match d_as_type(spec.functions[fi].result_type, ctx, env, ddim_empty()) {
+      Some(tv) => if tv.level > max_lvl { max_lvl = tv.level }
+      None => return -1
+    }
+  }
+  max_lvl
+}
+
+///|
 /// General bundle type `All_F(M)` for either a single function `g >= 0`
 /// or the joint `Σ`-tuple motive (`g == -1`).
 fn sim_general_bundle_type_term(
   spec : DSimultaneousIRSpec,
+  joint_level : Int32,
   g : Int32,
   functor : DPositiveFunctor,
   value : DTerm,
@@ -4082,6 +4129,7 @@ fn sim_general_bundle_type_term(
         (
           sim_general_bundle_type_term(
             spec,
+            joint_level,
             g,
             a,
             DFst(value),
@@ -4090,6 +4138,7 @@ fn sim_general_bundle_type_term(
           ),
           sim_general_bundle_type_term(
             spec,
+            joint_level,
             g,
             b,
             DSnd(value),
@@ -4110,6 +4159,7 @@ fn sim_general_bundle_type_term(
       let first = match
         sim_general_bundle_type_term(
           spec,
+          joint_level,
           g,
           a,
           DTVar(0),
@@ -4120,7 +4170,15 @@ fn sim_general_bundle_type_term(
         None => return None
       }
       let second = match
-        sim_general_bundle_type_term(spec, g, b, DSnd(shifted), tp2, total + 1) {
+        sim_general_bundle_type_term(
+          spec,
+          joint_level,
+          g,
+          b,
+          DSnd(shifted),
+          tp2,
+          total + 1,
+        ) {
         Some(v) => v
         None => return None
       }
@@ -4132,6 +4190,7 @@ fn sim_general_bundle_type_term(
       let tb = match
         sim_general_bundle_type_term(
           spec,
+          joint_level,
           g,
           inner,
           DApp(dterm_shift(value, 0, 1), DTVar(0)),
@@ -4169,6 +4228,7 @@ fn sim_general_bundle_type_term(
         (
           sim_general_bundle_type_term(
             spec,
+            joint_level,
             g,
             a,
             DSnd(value),
@@ -4177,6 +4237,7 @@ fn sim_general_bundle_type_term(
           ),
           sim_general_bundle_type_term(
             spec,
+            joint_level,
             g,
             b,
             DSnd(value),
@@ -4185,7 +4246,7 @@ fn sim_general_bundle_type_term(
           ),
         ) {
         (Some(ta), Some(tb)) =>
-          Some(DBoolElim(DUniv(base.level), ta, tb, DFst(value)))
+          Some(DBoolElim(DUniv(joint_level), ta, tb, DFst(value)))
         _ => None
       }
     DFunctorList(inner) => {
@@ -4197,6 +4258,7 @@ fn sim_general_bundle_type_term(
       let head_ty = match
         sim_general_bundle_type_term(
           spec,
+          joint_level,
           g,
           inner,
           DTVar(2),
@@ -4210,10 +4272,10 @@ fn sim_general_bundle_type_term(
         elem,
         DLam(
           DListTy(dterm_shift(elem, 0, 1)),
-          DLam(DUniv(base.level), DSigma(head_ty, DTVar(1))),
+          DLam(DUniv(joint_level), DSigma(head_ty, DTVar(1))),
         ),
       )
-      Some(DListElim(DUniv(base.level), DUnitTy, step, value))
+      Some(DListElim(DUniv(joint_level), DUnitTy, step, value))
     }
     DFunctorFamily(_) | DFunctorSelfFamily(_) => None
   }
@@ -4224,6 +4286,7 @@ fn sim_general_bundle_type_term(
 /// out of the single joint bundle `joint_ih : All_F(M_joint)(arg_val)`.
 fn sim_joint_project_bundle(
   spec : DSimultaneousIRSpec,
+  joint_level : Int32,
   g : Int32,
   functor : DPositiveFunctor,
   arg_val : DTerm,
@@ -4241,6 +4304,7 @@ fn sim_joint_project_bundle(
         (
           sim_joint_project_bundle(
             spec,
+            joint_level,
             g,
             a,
             DFst(arg_val),
@@ -4250,6 +4314,7 @@ fn sim_joint_project_bundle(
           ),
           sim_joint_project_bundle(
             spec,
+            joint_level,
             g,
             b,
             DSnd(arg_val),
@@ -4272,6 +4337,7 @@ fn sim_joint_project_bundle(
       let p1 = match
         sim_joint_project_bundle(
           spec,
+          joint_level,
           g,
           a,
           DTVar(0),
@@ -4285,6 +4351,7 @@ fn sim_joint_project_bundle(
       let p2 = match
         sim_joint_project_bundle(
           spec,
+          joint_level,
           g,
           b,
           DSnd(s_arg),
@@ -4301,6 +4368,7 @@ fn sim_joint_project_bundle(
       let body = match
         sim_joint_project_bundle(
           spec,
+          joint_level,
           g,
           inner,
           DApp(dterm_shift(arg_val, 0, 1), DTVar(0)),
@@ -4348,6 +4416,7 @@ fn sim_joint_project_bundle(
       let j_a = match
         sim_general_bundle_type_term(
           spec,
+          joint_level,
           -1,
           a,
           DTVar(0),
@@ -4360,6 +4429,7 @@ fn sim_joint_project_bundle(
       let j_b = match
         sim_general_bundle_type_term(
           spec,
+          joint_level,
           -1,
           b,
           DTVar(0),
@@ -4372,6 +4442,7 @@ fn sim_joint_project_bundle(
       let g_a = match
         sim_general_bundle_type_term(
           spec,
+          joint_level,
           g,
           a,
           DTVar(1),
@@ -4384,6 +4455,7 @@ fn sim_joint_project_bundle(
       let g_b = match
         sim_general_bundle_type_term(
           spec,
+          joint_level,
           g,
           b,
           DTVar(1),
@@ -4396,6 +4468,7 @@ fn sim_joint_project_bundle(
       let j_a_1 = match
         sim_general_bundle_type_term(
           spec,
+          joint_level,
           -1,
           a,
           DTVar(0),
@@ -4408,6 +4481,7 @@ fn sim_joint_project_bundle(
       let j_b_1 = match
         sim_general_bundle_type_term(
           spec,
+          joint_level,
           -1,
           b,
           DTVar(0),
@@ -4420,6 +4494,7 @@ fn sim_joint_project_bundle(
       let pa = match
         sim_joint_project_bundle(
           spec,
+          joint_level,
           g,
           a,
           DTVar(1),
@@ -4433,6 +4508,7 @@ fn sim_joint_project_bundle(
       let pb = match
         sim_joint_project_bundle(
           spec,
+          joint_level,
           g,
           b,
           DTVar(1),
@@ -4451,8 +4527,8 @@ fn sim_joint_project_bundle(
           DTVar(0),
         ),
         DPi(
-          DBoolElim(DUniv(base.level), j_a, j_b, DTVar(1)),
-          DBoolElim(DUniv(base.level), g_a, g_b, DTVar(2)),
+          DBoolElim(DUniv(joint_level), j_a, j_b, DTVar(1)),
+          DBoolElim(DUniv(joint_level), g_a, g_b, DTVar(2)),
         ),
       )
       Some(
@@ -4479,6 +4555,7 @@ fn sim_joint_project_bundle(
       let list_j_motive = match
         sim_general_bundle_type_term(
           spec,
+          joint_level,
           -1,
           DFunctorList(inner),
           DTVar(0),
@@ -4491,6 +4568,7 @@ fn sim_joint_project_bundle(
       let list_g_motive = match
         sim_general_bundle_type_term(
           spec,
+          joint_level,
           g,
           DFunctorList(inner),
           DTVar(1),
@@ -4504,6 +4582,7 @@ fn sim_joint_project_bundle(
         match
           sim_general_bundle_type_term(
             spec,
+            joint_level,
             -1,
             DFunctorList(inner),
             DTVar(0),
@@ -4516,6 +4595,7 @@ fn sim_joint_project_bundle(
         match
           sim_general_bundle_type_term(
             spec,
+            joint_level,
             g,
             DFunctorList(inner),
             DTVar(1),
@@ -4530,6 +4610,7 @@ fn sim_joint_project_bundle(
         match
           sim_general_bundle_type_term(
             spec,
+            joint_level,
             -1,
             inner,
             DTVar(2),
@@ -4542,6 +4623,7 @@ fn sim_joint_project_bundle(
         match
           sim_general_bundle_type_term(
             spec,
+            joint_level,
             -1,
             DFunctorList(inner),
             DTVar(2),
@@ -4555,6 +4637,7 @@ fn sim_joint_project_bundle(
       let head_proj = match
         sim_joint_project_bundle(
           spec,
+          joint_level,
           g,
           inner,
           DTVar(3),
@@ -4594,6 +4677,7 @@ fn sim_joint_project_bundle(
 ///|
 fn sim_joint_verify_cases(
   spec : DSimultaneousIRSpec,
+  joint_level : Int32,
   motive_term : DTerm,
   cases : Array[DTerm],
 ) -> Bool {
@@ -4629,9 +4713,13 @@ fn sim_joint_verify_cases(
   ctx = denv_cons(DVInductive(base, param_values, index_values), ctx)
   env = denv_cons(code_value, env)
   let motive_value = match
-    d_check(
+    check_schema_motive(
       motive_term,
-      inductive_motive_type(base, param_values),
+      base.indices,
+      param_types,
+      param_values,
+      idx => DVInductive(base, param_values, idx),
+      joint_level,
       ctx,
       env,
       ddim_empty(),
@@ -4685,6 +4773,10 @@ pub fn simultaneous_ir_compile_joint_block(
     empty_out.push(None)
   }
   if fn_count == 0 || !simultaneous_ir_validate(spec) {
+    return empty_out
+  }
+  let joint_level = simultaneous_ir_joint_motive_level(spec)
+  if joint_level < 0 {
     return empty_out
   }
   let base = spec.base
@@ -4742,7 +4834,7 @@ pub fn simultaneous_ir_compile_joint_block(
       for r in 0..<binder_count {
         match as_pi(case_ty) {
           Some(parts) => {
-            domains.push(quote_at(outer + r, 0, DVUniv(base.level), parts.dom))
+            domains.push(quote_at(outer + r, 0, DVUniv(joint_level), parts.dom))
             case_ty = (parts.fam)(DVNeutral(DNVar(outer + r)))
           }
           None => return empty_out
@@ -4836,6 +4928,7 @@ pub fn simultaneous_ir_compile_joint_block(
                         (
                           sim_joint_project_bundle(
                             spec,
+                            joint_level,
                             g,
                             arg.nested,
                             arg_var,
@@ -4845,6 +4938,7 @@ pub fn simultaneous_ir_compile_joint_block(
                           ),
                           sim_general_bundle_type_term(
                             spec,
+                            joint_level,
                             g,
                             arg.nested,
                             arg_var,
@@ -4882,7 +4976,7 @@ pub fn simultaneous_ir_compile_joint_block(
     }
     joint_cases.push(case_term)
   }
-  if !sim_joint_verify_cases(spec, motive_term, joint_cases) {
+  if !sim_joint_verify_cases(spec, joint_level, motive_term, joint_cases) {
     return empty_out
   }
   let joint_elim = DInductiveElim(
@@ -4934,3 +5028,702 @@ pub fn simultaneous_ir_compile_joint(
   }
   simultaneous_ir_compile_joint_block(spec)[function_index]
 }
+
+// ---------------------------------------------------------------------------
+// Phase 16: Dybjer–Setzer Open Simultaneous Induction-Recursion
+// ---------------------------------------------------------------------------
+
+///|
+/// Constructor-argument forms for open Dybjer–Setzer simultaneous
+/// induction-recursion over a code universe `U : Type[level]` equipped with
+/// `m >= 1` simultaneous decoding functions `T_0, ..., T_{m-1}`:
+/// - `DOpenArgExternal(ty)` : non-recursive external parameter `x : ty`
+///   (evaluated in the telescope of preceding constructor arguments).
+/// - `DOpenArgCode` : recursive code argument `a : U`, binding `m`
+///   simultaneous decoded-type hypotheses `T_0(a), ..., T_{m-1}(a)`.
+/// - `DOpenArgDecodedVal(source_arg, decoder_idx)` : an element
+///   `v : T_{decoder_idx}(a_{source_arg})` of a simultaneous decoder applied
+///   to an earlier `DOpenArgCode` argument `source_arg`.
+/// - `DOpenArgDecodedCodeFn(source_arg, decoder_idx)` : a family of recursive
+///   codes `f : T_{decoder_idx}(a_{source_arg}) -> U`, binding `m`
+///   simultaneous functional hypotheses
+///   `λx. T_0(f(x)), ..., λx. T_{m-1}(f(x))`.
+pub enum DOpenIRArgKind {
+  DOpenArgExternal(DTerm)
+  DOpenArgCode
+  DOpenArgDecodedVal(Int32, Int32)
+  DOpenArgDecodedCodeFn(Int32, Int32)
+} derive(Debug, Eq)
+
+///|
+pub extend DOpenIRArgKind with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend DOpenIRArgKind with Eq::{not_equal, equal}
+
+///|
+pub struct DOpenIRArg {
+  name : String
+  kind : DOpenIRArgKind
+} derive(Debug, Eq)
+
+///|
+pub extend DOpenIRArg with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend DOpenIRArg with Eq::{not_equal, equal}
+
+///|
+pub fn dopen_arg_external(name : String, ty : DTerm) -> DOpenIRArg {
+  DOpenIRArg::{ name, kind: DOpenArgExternal(ty) }
+}
+
+///|
+pub fn dopen_arg_code(name : String) -> DOpenIRArg {
+  DOpenIRArg::{ name, kind: DOpenArgCode }
+}
+
+///|
+pub fn dopen_arg_decoded_val(
+  name : String,
+  source_arg : Int32,
+  decoder_idx : Int32,
+) -> DOpenIRArg {
+  DOpenIRArg::{ name, kind: DOpenArgDecodedVal(source_arg, decoder_idx) }
+}
+
+///|
+pub fn dopen_arg_decoded_code_fn(
+  name : String,
+  source_arg : Int32,
+  decoder_idx : Int32,
+) -> DOpenIRArg {
+  DOpenIRArg::{ name, kind: DOpenArgDecodedCodeFn(source_arg, decoder_idx) }
+}
+
+///|
+pub struct DOpenIRConstructor {
+  name : String
+  args : Array[DOpenIRArg]
+} derive(Debug, Eq)
+
+///|
+pub extend DOpenIRConstructor with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend DOpenIRConstructor with Eq::{not_equal, equal}
+
+///|
+pub fn dopen_ir_constructor(
+  name : String,
+  args : Array[DOpenIRArg],
+) -> DOpenIRConstructor {
+  DOpenIRConstructor::{ name, args }
+}
+
+///|
+pub struct DOpenIRDecoder {
+  name : String
+  decode_level : Int32
+  cases : Array[DTerm]
+} derive(Debug, Eq)
+
+///|
+pub extend DOpenIRDecoder with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend DOpenIRDecoder with Eq::{not_equal, equal}
+
+///|
+pub fn dopen_ir_decoder(
+  name : String,
+  decode_level : Int32,
+  cases : Array[DTerm],
+) -> DOpenIRDecoder {
+  DOpenIRDecoder::{ name, decode_level, cases }
+}
+
+///|
+pub struct DOpenSimultaneousIRSpec {
+  name : String
+  level : Int32
+  constructors : Array[DOpenIRConstructor]
+  decoders : Array[DOpenIRDecoder]
+} derive(Debug, Eq)
+
+///|
+pub extend DOpenSimultaneousIRSpec with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend DOpenSimultaneousIRSpec with Eq::{not_equal, equal}
+
+///|
+pub fn dopen_simultaneous_ir_spec(
+  name : String,
+  level : Int32,
+  constructors : Array[DOpenIRConstructor],
+  decoders : Array[DOpenIRDecoder],
+) -> DOpenSimultaneousIRSpec {
+  DOpenSimultaneousIRSpec::{ name, level, constructors, decoders }
+}
+
+///|
+/// Inhabitant of an open simultaneous IR code universe `U`, paired with
+/// constructor-argument values supporting higher-order code families.
+pub enum DOpenIRArgVal {
+  DOpenValTerm(DTerm)
+  DOpenValCode(DOpenIRCode)
+  DOpenValCodeFn((DValue) -> DOpenIRCode)
+}
+
+///|
+pub fn dopen_val_term(tm : DTerm) -> DOpenIRArgVal {
+  DOpenValTerm(tm)
+}
+
+///|
+pub fn dopen_val_code(code : DOpenIRCode) -> DOpenIRArgVal {
+  DOpenValCode(code)
+}
+
+///|
+pub fn dopen_val_code_fn(f : (DValue) -> DOpenIRCode) -> DOpenIRArgVal {
+  DOpenValCodeFn(f)
+}
+
+///|
+pub struct DOpenIRCode {
+  ctor_idx : Int32
+  args : Array[DOpenIRArgVal]
+}
+
+///|
+pub fn dopen_ir_intro(
+  ctor_idx : Int32,
+  args : Array[DOpenIRArgVal],
+) -> DOpenIRCode {
+  DOpenIRCode::{ ctor_idx, args }
+}
+
+///|
+/// Validate a Dybjer–Setzer open simultaneous IR declaration:
+/// 1. `level >= 0`, non-empty distinct constructor & decoder names, and each
+///    decoder supplies one clause per constructor with `decode_level >= 0`.
+/// 2. In every constructor telescope, `DOpenArgExternal(ty)` is checked in the
+///    preceding argument context at level `<= spec.level` and must be strictly
+///    positive wrt `spec.name`; `DOpenArgDecodedVal(s, d)` and
+///    `DOpenArgDecodedCodeFn(s, d)` must reference an earlier `DOpenArgCode`
+///    slot `0 <= s < i` and valid decoder `0 <= d < m` whose `decode_level <=
+///    spec.level` (universe predicativity of the code type `U`).
+/// 3. Treating `U` as an opaque abstract type, every decoder clause
+///    `decoders[r].cases[c]` typechecks against `DVUniv(decoders[r].decode_level)`
+///    in the full simultaneous arg + IH telescope.
+pub fn open_ir_validate(spec : DOpenSimultaneousIRSpec) -> Bool {
+  let m = spec.decoders.length()
+  let cc = spec.constructors.length()
+  if spec.name == "" || spec.level < 0 || m == 0 || cc == 0 {
+    return false
+  }
+  for i in 0..<cc {
+    if spec.constructors[i].name == "" {
+      return false
+    }
+    for j in (i + 1)..<cc {
+      if spec.constructors[i].name == spec.constructors[j].name {
+        return false
+      }
+    }
+  }
+  for r in 0..<m {
+    let dec = spec.decoders[r]
+    if dec.name == "" || dec.decode_level < 0 || dec.cases.length() != cc {
+      return false
+    }
+    for s in (r + 1)..<m {
+      if dec.name == spec.decoders[s].name {
+        return false
+      }
+    }
+  }
+  // Abstract placeholder for `U : Type[spec.level]` so decoder bodies cannot
+  // inspect codes non-parametrically.
+  let u_abstract : DValue = DVNeutral(DNVar(94000))
+  for c in 0..<cc {
+    let ctor = spec.constructors[c]
+    // Track both the arg-only context (for `DOpenArgExternal(ty)`) and the
+    // expanded arg+IH context (for decoder clauses).
+    let mut arg_ctx = denv_empty()
+    let mut arg_env = denv_empty()
+    let mut sim_ctx = denv_empty()
+    let mut sim_env = denv_empty()
+    let code_ihs : Array[Array[DValue]] = []
+    let mut fresh_seed = 94100 + c * 200
+    for i in 0..<ctor.args.length() {
+      let arg = ctor.args[i]
+      if arg.name == "" {
+        return false
+      }
+      match arg.kind {
+        DOpenArgExternal(ty) => {
+          if !dterm_family_strictly_positive(ty, spec.name) {
+            return false
+          }
+          let tv = match d_as_type(ty, arg_ctx, arg_env, ddim_empty()) {
+            Some(v) => v
+            None => return false
+          }
+          if tv.level > spec.level {
+            return false
+          }
+          let fv : DValue = DVNeutral(DNVar(fresh_seed))
+          fresh_seed = fresh_seed + 1
+          arg_ctx = denv_cons(tv.value, arg_ctx)
+          arg_env = denv_cons(fv, arg_env)
+          sim_ctx = denv_cons(tv.value, sim_ctx)
+          sim_env = denv_cons(fv, sim_env)
+          code_ihs.push([])
+        }
+        DOpenArgCode => {
+          let fv : DValue = DVNeutral(DNVar(fresh_seed))
+          fresh_seed = fresh_seed + 1
+          arg_ctx = denv_cons(u_abstract, arg_ctx)
+          arg_env = denv_cons(fv, arg_env)
+          sim_ctx = denv_cons(u_abstract, sim_ctx)
+          sim_env = denv_cons(fv, sim_env)
+          let ih_row : Array[DValue] = []
+          for r in 0..<m {
+            let ih_ty = DVUniv(spec.decoders[r].decode_level)
+            let ih_val : DValue = DVNeutral(DNVar(fresh_seed))
+            fresh_seed = fresh_seed + 1
+            sim_ctx = denv_cons(ih_ty, sim_ctx)
+            sim_env = denv_cons(ih_val, sim_env)
+            ih_row.push(ih_val)
+          }
+          code_ihs.push(ih_row)
+        }
+        DOpenArgDecodedVal(src, dec_idx) => {
+          if src < 0 ||
+            src >= i ||
+            dec_idx < 0 ||
+            dec_idx >= m ||
+            code_ihs[src].length() != m ||
+            spec.decoders[dec_idx].decode_level > spec.level {
+            return false
+          }
+          let dom_ty = code_ihs[src][dec_idx]
+          let fv : DValue = DVNeutral(DNVar(fresh_seed))
+          fresh_seed = fresh_seed + 1
+          arg_ctx = denv_cons(dom_ty, arg_ctx)
+          arg_env = denv_cons(fv, arg_env)
+          sim_ctx = denv_cons(dom_ty, sim_ctx)
+          sim_env = denv_cons(fv, sim_env)
+          code_ihs.push([])
+        }
+        DOpenArgDecodedCodeFn(src, dec_idx) => {
+          if src < 0 ||
+            src >= i ||
+            dec_idx < 0 ||
+            dec_idx >= m ||
+            code_ihs[src].length() != m ||
+            spec.decoders[dec_idx].decode_level > spec.level {
+            return false
+          }
+          let dom_ty = code_ihs[src][dec_idx]
+          let fn_ty = DVPi(dom_ty, _ => u_abstract)
+          let fv : DValue = DVNeutral(DNVar(fresh_seed))
+          fresh_seed = fresh_seed + 1
+          arg_ctx = denv_cons(fn_ty, arg_ctx)
+          arg_env = denv_cons(fv, arg_env)
+          sim_ctx = denv_cons(fn_ty, sim_ctx)
+          sim_env = denv_cons(fv, sim_env)
+          for r in 0..<m {
+            let ih_ty = DVPi(dom_ty, _ => DVUniv(spec.decoders[r].decode_level))
+            let ih_val : DValue = DVNeutral(DNVar(fresh_seed))
+            fresh_seed = fresh_seed + 1
+            sim_ctx = denv_cons(ih_ty, sim_ctx)
+            sim_env = denv_cons(ih_val, sim_env)
+          }
+          code_ihs.push([])
+        }
+      }
+    }
+    for r in 0..<m {
+      let dec = spec.decoders[r]
+      match
+        d_check(
+          dec.cases[c],
+          DVUniv(dec.decode_level),
+          sim_ctx,
+          sim_env,
+          ddim_empty(),
+        ) {
+        Some(_) => ()
+        None => return false
+      }
+    }
+  }
+  true
+}
+
+///|
+fn open_ir_eval_all_decoders(
+  spec : DOpenSimultaneousIRSpec,
+  code : DOpenIRCode,
+  dlevel : Int32,
+) -> Array[DValue]? {
+  let m = spec.decoders.length()
+  if code.ctor_idx < 0 || code.ctor_idx >= spec.constructors.length() {
+    return None
+  }
+  let ctor = spec.constructors[code.ctor_idx]
+  if code.args.length() != ctor.args.length() {
+    return None
+  }
+  let mut arg_env = denv_empty()
+  let mut sim_env = denv_empty()
+  let mut arg_ctx = denv_empty()
+  let code_ihs : Array[Array[DValue]] = []
+  let u_abstract : DValue = DVNeutral(DNVar(94000))
+  for i in 0..<ctor.args.length() {
+    match (ctor.args[i].kind, code.args[i]) {
+      (DOpenArgExternal(ty), DOpenValTerm(tm)) => {
+        let expected = match d_as_type(ty, arg_ctx, arg_env, ddim_empty()) {
+          Some(tv) => tv.value
+          None => return None
+        }
+        let val = match d_check(tm, expected, denv_empty(), denv_empty(), ddim_empty()) {
+          Some(v) => v
+          None => return None
+        }
+        arg_ctx = denv_cons(expected, arg_ctx)
+        arg_env = denv_cons(val, arg_env)
+        sim_env = denv_cons(val, sim_env)
+        code_ihs.push([])
+      }
+      (DOpenArgCode, DOpenValCode(sub_code)) => {
+        let sub_decs = match open_ir_eval_all_decoders(spec, sub_code, dlevel) {
+          Some(ds) => ds
+          None => return None
+        }
+        arg_ctx = denv_cons(u_abstract, arg_ctx)
+        arg_env = denv_cons(DVUnit, arg_env)
+        sim_env = denv_cons(DVUnit, sim_env)
+        for r in 0..<m {
+          sim_env = denv_cons(sub_decs[r], sim_env)
+        }
+        code_ihs.push(sub_decs)
+      }
+      (DOpenArgDecodedVal(src, dec_idx), DOpenValTerm(tm)) => {
+        if src < 0 ||
+          src >= i ||
+          dec_idx < 0 ||
+          dec_idx >= m ||
+          code_ihs[src].length() != m {
+          return None
+        }
+        let expected = code_ihs[src][dec_idx]
+        let val = match
+          d_check(tm, expected, denv_empty(), denv_empty(), ddim_empty()) {
+          Some(v) => v
+          None => return None
+        }
+        arg_ctx = denv_cons(expected, arg_ctx)
+        arg_env = denv_cons(val, arg_env)
+        sim_env = denv_cons(val, sim_env)
+        code_ihs.push([])
+      }
+      (DOpenArgDecodedCodeFn(src, dec_idx), DOpenValCodeFn(f_code)) => {
+        if src < 0 ||
+          src >= i ||
+          dec_idx < 0 ||
+          dec_idx >= m ||
+          code_ihs[src].length() != m {
+          return None
+        }
+        let dom_ty = code_ihs[src][dec_idx]
+        arg_ctx = denv_cons(DVPi(dom_ty, _ => u_abstract), arg_ctx)
+        arg_env = denv_cons(DVUnit, arg_env)
+        sim_env = denv_cons(DVUnit, sim_env)
+        for r in 0..<m {
+          let r_idx = r
+          let fam_val = DVLam(x => {
+            match open_ir_eval_all_decoders(spec, f_code(x), dlevel) {
+              Some(ds) => ds[r_idx]
+              None => DVUnitTy
+            }
+          })
+          sim_env = denv_cons(fam_val, sim_env)
+        }
+        code_ihs.push([])
+      }
+      _ => return None
+    }
+  }
+  let out : Array[DValue] = []
+  for r in 0..<m {
+    out.push(deval_dim(spec.decoders[r].cases[code.ctor_idx], sim_env, ddim_empty()))
+  }
+  Some(out)
+}
+
+///|
+/// Typecheck a closed `DOpenIRCode` value against a validated open
+/// simultaneous IR declaration `spec` (including probing higher-order code
+/// families at a fresh reflected neutral element of their decoded domain).
+pub fn open_ir_check_code(
+  spec : DOpenSimultaneousIRSpec,
+  code : DOpenIRCode,
+  seed~ : Int32 = 95000,
+) -> Bool {
+  if !open_ir_validate(spec) {
+    return false
+  }
+  open_ir_check_code_rec(spec, code, seed)
+}
+
+///|
+fn open_ir_check_code_rec(
+  spec : DOpenSimultaneousIRSpec,
+  code : DOpenIRCode,
+  seed : Int32,
+) -> Bool {
+  if code.ctor_idx < 0 || code.ctor_idx >= spec.constructors.length() {
+    return false
+  }
+  let ctor = spec.constructors[code.ctor_idx]
+  if code.args.length() != ctor.args.length() {
+    return false
+  }
+  let m = spec.decoders.length()
+  let code_ihs : Array[Array[DValue]] = []
+  let mut arg_ctx = denv_empty()
+  let mut arg_env = denv_empty()
+  let u_abstract : DValue = DVNeutral(DNVar(94000))
+  for i in 0..<ctor.args.length() {
+    match (ctor.args[i].kind, code.args[i]) {
+      (DOpenArgExternal(ty), DOpenValTerm(tm)) => {
+        let expected = match d_as_type(ty, arg_ctx, arg_env, ddim_empty()) {
+          Some(tv) => tv.value
+          None => return false
+        }
+        match d_check(tm, expected, denv_empty(), denv_empty(), ddim_empty()) {
+          Some(v) => {
+            arg_ctx = denv_cons(expected, arg_ctx)
+            arg_env = denv_cons(v, arg_env)
+            code_ihs.push([])
+          }
+          None => return false
+        }
+      }
+      (DOpenArgCode, DOpenValCode(sub)) => {
+        if !open_ir_check_code_rec(spec, sub, seed + (i + 1) * 31) {
+          return false
+        }
+        match open_ir_eval_all_decoders(spec, sub, 0) {
+          Some(ds) => {
+            arg_ctx = denv_cons(u_abstract, arg_ctx)
+            arg_env = denv_cons(DVUnit, arg_env)
+            code_ihs.push(ds)
+          }
+          None => return false
+        }
+      }
+      (DOpenArgDecodedVal(src, dec_idx), DOpenValTerm(tm)) => {
+        if src < 0 ||
+          src >= i ||
+          dec_idx < 0 ||
+          dec_idx >= m ||
+          code_ihs[src].length() != m {
+          return false
+        }
+        let expected = code_ihs[src][dec_idx]
+        match d_check(tm, expected, denv_empty(), denv_empty(), ddim_empty()) {
+          Some(v) => {
+            arg_ctx = denv_cons(expected, arg_ctx)
+            arg_env = denv_cons(v, arg_env)
+            code_ihs.push([])
+          }
+          None => return false
+        }
+      }
+      (DOpenArgDecodedCodeFn(src, dec_idx), DOpenValCodeFn(f_code)) => {
+        if src < 0 ||
+          src >= i ||
+          dec_idx < 0 ||
+          dec_idx >= m ||
+          code_ihs[src].length() != m {
+          return false
+        }
+        let dom_ty = code_ihs[src][dec_idx]
+        let probe = reflect_var(seed + i * 17, dom_ty)
+        if !open_ir_check_code_rec(spec, f_code(probe), seed + (i + 1) * 53) {
+          return false
+        }
+        arg_ctx = denv_cons(DVPi(dom_ty, _ => u_abstract), arg_ctx)
+        arg_env = denv_cons(DVUnit, arg_env)
+        code_ihs.push([])
+      }
+      _ => return false
+    }
+  }
+  true
+}
+
+///|
+/// Evaluate simultaneous decoder `decoder_idx` (`T_{decoder_idx} : U -> Type`)
+/// on a `DOpenIRCode` value.
+pub fn open_ir_eval_decode(
+  spec : DOpenSimultaneousIRSpec,
+  decoder_idx : Int32,
+  code : DOpenIRCode,
+  dlevel~ : Int32 = 0,
+) -> DValue? {
+  if decoder_idx < 0 ||
+    decoder_idx >= spec.decoders.length() ||
+    !open_ir_validate(spec) {
+    return None
+  }
+  match open_ir_eval_all_decoders(spec, code, dlevel) {
+    Some(ds) => Some(ds[decoder_idx])
+    None => None
+  }
+}
+
+///|
+/// Dependent elimination over `DOpenIRCode`: each step function `cases[c]`
+/// receives an array of evaluated step arguments (external `DValue`s, recursive
+/// results `M(sub)`, decoded inhabitants `v : T_d(a_s)`, or functional step
+/// closures `DVLam(x => M(f(x)))`) and produces a `DValue`.
+pub fn open_ir_elim_value(
+  spec : DOpenSimultaneousIRSpec,
+  cases : Array[(Array[DValue]) -> DValue],
+  code : DOpenIRCode,
+  dlevel~ : Int32 = 0,
+) -> DValue? {
+  if cases.length() != spec.constructors.length() ||
+    !open_ir_check_code(spec, code) {
+    return None
+  }
+  open_ir_elim_rec(spec, cases, code, dlevel)
+}
+
+///|
+fn open_ir_elim_rec(
+  spec : DOpenSimultaneousIRSpec,
+  cases : Array[(Array[DValue]) -> DValue],
+  code : DOpenIRCode,
+  dlevel : Int32,
+) -> DValue? {
+  let ctor = spec.constructors[code.ctor_idx]
+  let step_args : Array[DValue] = []
+  let code_ihs : Array[Array[DValue]] = []
+  let mut arg_ctx = denv_empty()
+  let mut arg_env = denv_empty()
+  let u_abstract : DValue = DVNeutral(DNVar(94000))
+  for i in 0..<ctor.args.length() {
+    match (ctor.args[i].kind, code.args[i]) {
+      (DOpenArgExternal(ty), DOpenValTerm(tm)) => {
+        let expected = match d_as_type(ty, arg_ctx, arg_env, ddim_empty()) {
+          Some(tv) => tv.value
+          None => return None
+        }
+        let v = match
+          d_check(tm, expected, denv_empty(), denv_empty(), ddim_empty()) {
+          Some(val) => val
+          None => return None
+        }
+        step_args.push(v)
+        arg_ctx = denv_cons(expected, arg_ctx)
+        arg_env = denv_cons(v, arg_env)
+        code_ihs.push([])
+      }
+      (DOpenArgCode, DOpenValCode(sub)) => {
+        let ih = match open_ir_elim_rec(spec, cases, sub, dlevel) {
+          Some(v) => v
+          None => return None
+        }
+        let ds = match open_ir_eval_all_decoders(spec, sub, dlevel) {
+          Some(v) => v
+          None => return None
+        }
+        step_args.push(ih)
+        arg_ctx = denv_cons(u_abstract, arg_ctx)
+        arg_env = denv_cons(DVUnit, arg_env)
+        code_ihs.push(ds)
+      }
+      (DOpenArgDecodedVal(src, dec_idx), DOpenValTerm(tm)) => {
+        let expected = code_ihs[src][dec_idx]
+        let v = match
+          d_check(tm, expected, denv_empty(), denv_empty(), ddim_empty()) {
+          Some(val) => val
+          None => return None
+        }
+        step_args.push(v)
+        arg_ctx = denv_cons(expected, arg_ctx)
+        arg_env = denv_cons(v, arg_env)
+        code_ihs.push([])
+      }
+      (DOpenArgDecodedCodeFn(_src, _dec_idx), DOpenValCodeFn(f_code)) => {
+        step_args.push(
+          DVLam(x => {
+            match open_ir_elim_rec(spec, cases, f_code(x), dlevel) {
+              Some(v) => v
+              None => DVUnit
+            }
+          }),
+        )
+        arg_ctx = denv_cons(u_abstract, arg_ctx)
+        arg_env = denv_cons(DVUnit, arg_env)
+        code_ihs.push([])
+      }
+      _ => return None
+    }
+  }
+  Some((cases[code.ctor_idx])(step_args))
+}
+
+///|
+/// When an open simultaneous IR specification has a single decoder (`m == 1`),
+/// lower it directly to a kernel `DInductiveSpec` (`dinductive_recursive_spec`)
+/// and verify `inductive_schema_validate`.
+pub fn open_ir_lower_single_decoder(
+  spec : DOpenSimultaneousIRSpec,
+) -> DInductiveSpec? {
+  if spec.decoders.length() != 1 || !open_ir_validate(spec) {
+    return None
+  }
+  let dec = spec.decoders[0]
+  let ctors : Array[DConstructorSpec] = []
+  for c in 0..<spec.constructors.length() {
+    let src_ctor = spec.constructors[c]
+    let kargs : Array[DConstructorArg] = []
+    for i in 0..<src_ctor.args.length() {
+      let a = src_ctor.args[i]
+      match a.kind {
+        DOpenArgExternal(ty) => kargs.push(darg_external(a.name, ty))
+        DOpenArgCode => kargs.push(darg_recursive(a.name))
+        DOpenArgDecodedVal(src, 0) => kargs.push(darg_decoded(a.name, src))
+        DOpenArgDecodedCodeFn(src, 0) =>
+          kargs.push(darg_decoded_function(a.name, src))
+        _ => return None
+      }
+    }
+    ctors.push(dconstructor_spec(src_ctor.name, kargs))
+  }
+  let empty_entries : Array[DTelescopeEntry] = []
+  let lowered = dinductive_recursive_spec(
+    spec.name,
+    spec.level,
+    empty_entries,
+    empty_entries,
+    ctors,
+    dec.cases,
+    decode_level=dec.decode_level,
+  )
+  if inductive_schema_validate(lowered) {
+    Some(lowered)
+  } else {
+    None
+  }
+}
+

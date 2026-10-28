@@ -465,7 +465,8 @@
         "algebra/qpoly_certificate.mbt",
         "algebra/tower_fields.mbt",
         "algebra/multiquad_tower.mbt",
-        "algebra/phase14_algebra.mbt"
+        "algebra/phase14_algebra.mbt",
+        "algebra/phase16_algebra.mbt"
       ],
       "depends_on": [],
       "summary_en": "A physically separate exact-algebra MoonBit package: BigInt rationals, complete Q-factorization, real/complex root isolation, splitting fields, radical denesting, multiquadratic tower fields and arbitrary-precision Jacobi intervals.",
@@ -560,6 +561,7 @@
         "module_binary.mbt",
         "schema_registry_persist.mbt",
         "artifact_repository.mbt",
+        "artifact_crypto_wal.mbt",
         "dterm_dag_binary.mbt"
       ],
       "depends_on": [

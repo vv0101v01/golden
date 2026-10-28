@@ -69,13 +69,13 @@ MoonBit 以 package 為編譯單位：同一目錄的 `.mbt` 宣告共同求解�
 |---:|---|---|---|---|
 | 0 | `foundation` | root | De Morgan 維度、面公式、ROBDD、DAG BDD、sifting／對稱軌道剪枝與連通分解精確序 DP，與 Tseitin／watched-literal DPLL、CDCL+DRUP/DRAT/索引化 LRAT（`CHLRATBN`） | — |
 | 1 | `numeric-hermitian` | root | 浮點複線性代數、投影、向量系統、仿射立方體 | foundation |
-| 1 | `exact-algebra` | **algebra** | BigInt 精確多項式、完整因式分解與聯合圖樣證書、根隔離、分裂域、多二次塔去巢、Q 線性代數、代數數、Jordan、譜恆等式、任意精度／自適應 Jacobi | —（Moon core 以外） |
+| 1 | `exact-algebra` | **algebra** | BigInt 精確多項式、Hensel／LLL／Van Hoeij 因式分解與聯合圖樣證書、根隔離、`Q̄⊂ℂ` Rouché 代數閉包、分裂域、多二次塔與實代數根式、Q 線性代數、代數數、Jordan、譜恆等式、區塊消重根／自適應 Jacobi | —（Moon core 以外） |
 | 2 | `finite-cubical` | root | 簡單型別 NbE/HOAS、有限宇宙、wiring、PathP、Glue、J | foundation |
-| 3 | `dependent-kernel` | root | 一個刻意保留的 SCC：依賴 NbE、AST Kan、Equiv/Glue、checked lines、DTerm transforms／intern 圖、DSystem 最大完成、schema 生成、一等層級與同時宣告 | foundation、finite-cubical |
+| 3 | `dependent-kernel` | root | 一個刻意保留的 SCC：依賴 NbE、AST Kan（含 `0~1` 黏合圓／環面開盒）、Equiv/Glue、checked lines、DTerm transforms／intern 圖、DSATUR 最大團 DSystem 完成、schema 生成、語義容器正性憑證、一等層級與大宇宙／Dybjer–Setzer 開放同時宣告 | foundation、finite-cubical |
 | 4 | `dependent-kan-lines` | root | 宿主層 `DLine`、維度代換與簡單／有限型別嵌入 | foundation、dependent-kernel、finite-cubical |
 | 4 | `models` | root | 範疇模型、有限／子空間 Glue comp、認證數值影子與一般代數認證 | foundation、numeric、finite、exact-algebra |
-| 5 | `frontend` | root | pattern／有界 Huet／殘差 HOU elaborator、參數化模組、已編譯介面、增量快取、穩定 byte codec、CHDAGBIN 共圖與 CHARTCHN 工件鏈 | dependent-kernel、foundation（模組 codec 內的 `Dim`／`Face`） |
-| 5 | `cubical` | root | S³／一般 `SuspS(A)`、環路—懸掛伴隨 `Σ⊣Ω`、Freudenthal 0-連通定理與圓楔連通、`π₁(S¹)≃ℤ`、單值 Hopf、命題與集合截斷 `SetTruncS`、開放雙向雙射認證 `DVEquiv`、立方體演算法與計算性單值性 | foundation、finite、dependent-kernel、exact-algebra（精確有理 Hopf 的 `Rat`） |
+| 5 | `frontend` | root | pattern／Huet 延遲 flex-flex 約束圖／惰性合一串流 elaborator、參數化模組、DAG 拓樸介面雜湊重連結、穩定 byte codec、CHDAGBIN 共圖、SHA-256/512＋RFC 8032 Ed25519 CHARTSIG、CHWALJRN 交易日誌與三方倉庫合併 | dependent-kernel、foundation（模組 codec 內的 `Dim`／`Face`） |
+| 5 | `cubical` | root | S³／一般 `SuspS(A)`、環路—懸掛伴隨 `Σ⊣Ω`、Freudenthal 0-連通定理與圓楔連通、`π₁(S¹)≃ℤ`、纖維化環路序列、開放 Hopf–Freudenthal 收縮與 `π₂(S²)` 分裂截面、五維 Stasheff `K₅`、命題與集合截斷 `SetTruncS`、開放雙向雙射認證 `DVEquiv`、立方體演算法與計算性單值性 | foundation、finite、dependent-kernel、exact-algebra（精確有理 Hopf 的 `Rat`） |
 | 6 | `laws` | mixed | `*_laws.mbt` 行為律見證 | 同套件內較低層 |
 | 7 | `registry` | root | theorem/spec 登記表與 root→algebra 的集中匯入邊界 | 全部較低層 |
 | 8 | `tests` | mixed | `*_wbtest.mbt` / `*_test.mbt` | 被測套件 |

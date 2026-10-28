@@ -26,19 +26,13 @@ pub extend FaceCnfStats with @moonbitlang/core/debug.Debug::{to_repr}
 pub extend FaceCnfStats with Eq::{not_equal, equal}
 
 ///|
-enum FaceBoolExpr {
+priv enum FaceBoolExpr {
   FBEConst(Bool)
   FBEVar(Int32)
   FBENot(FaceBoolExpr)
   FBEAnd(FaceBoolExpr, FaceBoolExpr)
   FBEOr(FaceBoolExpr, FaceBoolExpr)
-} derive(Debug, Eq)
-
-///|
-pub extend FaceBoolExpr with @moonbitlang/core/debug.Debug::{to_repr}
-
-///|
-pub extend FaceBoolExpr with Eq::{not_equal, equal}
+} derive(Eq)
 
 ///|
 fn fbe_not(a : FaceBoolExpr) -> FaceBoolExpr {

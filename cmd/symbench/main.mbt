@@ -1,10 +1,10 @@
 ///|
 /// symlib 性能基準：一次搜索 → Schreier–Sims → 群作用 → 軌道折疊 全管線計時。
-/// 運行：moon run cmd/bench --target native --release
+/// 運行：moon run cmd/symbench --target native --release
 /// 注：所有時間以**毫秒**呈現；`monotonic_clock_end` 原生回傳微秒 ⇒ 各處除以 1000。
 
 ///|
-struct Case {
+priv struct Case {
   name : String
   g : @symlib.Graph
   expect : Int64

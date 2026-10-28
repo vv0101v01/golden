@@ -1730,3 +1730,302 @@ pub fn dterm_family_strictly_positive_certified(
   }
   dterm_family_strictly_positive_declared(t, name, verified_decls, scope~)
 }
+
+// ---------------------------------------------------------------------------
+// Phase 16: Semantic functorial & container positivity certificates for
+// opaque/axiomatic type operators without syntactic unfolding bodies
+// ---------------------------------------------------------------------------
+
+///|
+/// Semantic evidence justifying positivity of an opaque unary type operator
+/// `F : Type[univ_level] -> Type[univ_level]` bound at de Bruijn `level` in
+/// an ambient context `ambient_ctx`:
+/// - `DFunctorCovariantLaws(map_term, map_id_term, map_comp_term)` certifies
+///   covariant (`positive_args = [0]`, non-strict) functoriality via kernel-
+///   checked `map_F`, identity preservation, and composition preservation.
+///   By Reynolds's theorem (`(X -> Bool) -> Bool` is a lawful covariant
+///   functor yet non-strictly positive), covariance laws never grant
+///   `strict_args`.
+/// - `DFunctorContainerIso(shape_ty, position_fam, container_equiv)` certifies
+///   Abbott–Altenkirch–Ghani strict positivity (`strict_args = [0]`) by
+///   exhibiting `S : Type[univ_level]`, `P : S -> Type[univ_level]` (not
+///   referencing `F`), and a natural family of equivalences
+///   `Π (X : Type[univ_level]), Equiv (F X) (Σ (s : S), P s -> X)`.
+pub enum DFunctorPositivityEvidence {
+  DFunctorCovariantLaws(DTerm, DTerm, DTerm)
+  DFunctorContainerIso(DTerm, DTerm, DTerm)
+} derive(Debug, Eq)
+
+///|
+pub extend DFunctorPositivityEvidence with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
+
+///|
+pub extend DFunctorPositivityEvidence with Eq::{not_equal, equal}
+
+///|
+pub struct DFunctorialPositivityCert {
+  level : Int32
+  univ_level : Int32
+  claim_strict : Bool
+  evidence : DFunctorPositivityEvidence
+} derive(Debug, Eq)
+
+///|
+pub extend DFunctorialPositivityCert with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
+
+///|
+pub extend DFunctorialPositivityCert with Eq::{not_equal, equal}
+
+///|
+pub fn dfunctorial_positivity_covariant_cert(
+  level : Int32,
+  univ_level : Int32,
+  map_term : DTerm,
+  map_id_term : DTerm,
+  map_comp_term : DTerm,
+) -> DFunctorialPositivityCert {
+  DFunctorialPositivityCert::{
+    level,
+    univ_level,
+    claim_strict: false,
+    evidence: DFunctorCovariantLaws(map_term, map_id_term, map_comp_term),
+  }
+}
+
+///|
+pub fn dfunctorial_positivity_container_cert(
+  level : Int32,
+  univ_level : Int32,
+  shape_ty : DTerm,
+  position_fam : DTerm,
+  container_equiv : DTerm,
+) -> DFunctorialPositivityCert {
+  DFunctorialPositivityCert::{
+    level,
+    univ_level,
+    claim_strict: true,
+    evidence: DFunctorContainerIso(shape_ty, position_fam, container_equiv),
+  }
+}
+
+///|
+fn dterm_uses_free_var(t : DTerm, target_idx : Int32) -> Bool {
+  if target_idx < 0 {
+    return false
+  }
+  let mut found = false
+  ignore(
+    dterm_map_vars_at(t, 0, (v, depth) => {
+      if v == target_idx + depth {
+        found = true
+      }
+      DTVar(v)
+    }),
+  )
+  found
+}
+
+///|
+/// Kernel-verify a semantic functorial positivity certificate against an
+/// explicit ambient telescope `ambient_ctx` (ordered outer-to-inner).
+/// Returns the justified `DPositivityDeclaration` when valid, or `None`.
+pub fn dfunctorial_positivity_verify(
+  ambient_ctx : Array[DTerm],
+  cert : DFunctorialPositivityCert,
+) -> DPositivityDeclaration? {
+  let scope = ambient_ctx.length()
+  if cert.level < 0 || cert.level >= scope || cert.univ_level < 0 {
+    return None
+  }
+  // Check that `ambient_ctx` itself is a well-formed telescope and that the
+  // target slot `cert.level` has operator type `Type[u] -> Type[u]`.
+  let mut ctx = denv_empty()
+  let mut env = denv_empty()
+  for i in 0..<scope {
+    match d_as_type(ambient_ctx[i], ctx, env, ddim_empty()) {
+      Some(tv) => {
+        let fresh = reflect_var(i, tv.value)
+        ctx = denv_cons(tv.value, ctx)
+        env = denv_cons(fresh, env)
+      }
+      None => return None
+    }
+  }
+  let check_term_in_ctx = (tm : DTerm, expected_ty : DTerm) => {
+    match d_as_type(expected_ty, ctx, env, ddim_empty()) {
+      Some(tv) =>
+        match d_check(tm, tv.value, ctx, env, ddim_empty()) {
+          Some(_) => true
+          None => false
+        }
+      None => false
+    }
+  }
+  let u_term = DUniv(cert.univ_level)
+  let op_expected_term = DPi(u_term, DUniv(cert.univ_level))
+  let f_idx = scope - 1 - cert.level
+  if !check_term_in_ctx(DTVar(f_idx), op_expected_term) {
+    return None
+  }
+  match cert.evidence {
+    DFunctorCovariantLaws(map_term, map_id_term, map_comp_term) => {
+      if cert.claim_strict {
+        return None
+      }
+      // `map_term : Π (A : Type_u) (B : Type_u) (f : A -> B) (x : F A), F B`
+      // Under binders A (3), B (2), f (1), x (0): F is at `f_idx + 4` (or +2/+3).
+      let map_ty = DPi(
+        u_term,
+        DPi(
+          u_term,
+          DPi(
+            DPi(DTVar(1), DTVar(1)),
+            DPi(DApp(DTVar(f_idx + 3), DTVar(2)), DApp(DTVar(f_idx + 4), DTVar(2))),
+          ),
+        ),
+      )
+      if !check_term_in_ctx(map_term, map_ty) {
+        return None
+      }
+      // `map_id_term : Π (A : Type_u) (x : F A), Path (F A) (map A A (λa.a) x) x`
+      let map_s2 = dterm_shift(map_term, 0, 2)
+      let id_fn = DLam(DTVar(1), DTVar(0))
+      let map_id_lhs = DApp(
+        DApp(DApp(DApp(map_s2, DTVar(1)), DTVar(1)), id_fn),
+        DTVar(0),
+      )
+      let fa_at_2 = DApp(DTVar(f_idx + 2), DTVar(1))
+      let map_id_ty = DPi(
+        u_term,
+        DPi(
+          DApp(DTVar(f_idx + 1), DTVar(0)),
+          DPath(fa_at_2, map_id_lhs, DTVar(0)),
+        ),
+      )
+      if !check_term_in_ctx(map_id_term, map_id_ty) {
+        return None
+      }
+      // `map_comp_term : Π (A B C : Type_u) (g : B -> C) (f : A -> B) (x : F A),
+      //   Path (F C) (map A C (λa. g (f a)) x) (map B C g (map A B f x))`
+      // Under 6 binders: A=5, B=4, C=3, g=2, f=1, x=0; F is at `f_idx + 6`.
+      let map_s6 = dterm_shift(map_term, 0, 6)
+      let gf_fn = DLam(DTVar(5), DApp(DTVar(3), DApp(DTVar(2), DTVar(0))))
+      let comp_lhs = DApp(
+        DApp(DApp(DApp(map_s6, DTVar(5)), DTVar(3)), gf_fn),
+        DTVar(0),
+      )
+      let inner_fx = DApp(
+        DApp(DApp(DApp(map_s6, DTVar(5)), DTVar(4)), DTVar(1)),
+        DTVar(0),
+      )
+      let comp_rhs = DApp(
+        DApp(DApp(DApp(map_s6, DTVar(4)), DTVar(3)), DTVar(2)),
+        inner_fx,
+      )
+      let fc_at_6 = DApp(DTVar(f_idx + 6), DTVar(3))
+      let map_comp_ty = DPi(
+        u_term,
+        DPi(
+          u_term,
+          DPi(
+            u_term,
+            DPi(
+              DPi(DTVar(1), DTVar(1)),
+              DPi(
+                DPi(DTVar(3), DTVar(3)),
+                DPi(
+                  DApp(DTVar(f_idx + 5), DTVar(4)),
+                  DPath(fc_at_6, comp_lhs, comp_rhs),
+                ),
+              ),
+            ),
+          ),
+        ),
+      )
+      if !check_term_in_ctx(map_comp_term, map_comp_ty) {
+        return None
+      }
+      let empty_strict : Array[Int32] = []
+      dpositivity_declaration(
+        DTVar(f_idx),
+        1,
+        strict_args=empty_strict,
+        positive_args=[0],
+        scope~,
+      )
+    }
+    DFunctorContainerIso(shape_ty, position_fam, container_equiv) => {
+      // `shape_ty` and `position_fam` must not depend on the opaque operator `F`
+      // itself; otherwise circular container witnesses could smuggle `F`.
+      if dterm_uses_free_var(shape_ty, f_idx) ||
+        dterm_uses_free_var(position_fam, f_idx) {
+        return None
+      }
+      if !check_term_in_ctx(shape_ty, u_term) {
+        return None
+      }
+      let pos_expected = DPi(shape_ty, dterm_shift(u_term, 0, 1))
+      if !check_term_in_ctx(position_fam, pos_expected) {
+        return None
+      }
+      // `container_equiv : Π (X : Type_u), Equiv (F X) (Σ (s : S), P s -> X)`
+      // Under `X` (0): S is shifted by 1; under `X` (1) and `s` (0): P is shifted by 2.
+      let shape_s1 = dterm_shift(shape_ty, 0, 1)
+      let pos_s2 = dterm_shift(position_fam, 0, 2)
+      let container_ext = DSigma(
+        shape_s1,
+        DPi(DApp(pos_s2, DTVar(0)), DTVar(2)),
+      )
+      let equiv_ty = DPi(
+        u_term,
+        DEquivTy(DApp(DTVar(f_idx + 1), DTVar(0)), container_ext),
+      )
+      if !check_term_in_ctx(container_equiv, equiv_ty) {
+        return None
+      }
+      let strict_slots : Array[Int32] = if cert.claim_strict { [0] } else { [] }
+      let pos_slots : Array[Int32] = if cert.claim_strict { [] } else { [0] }
+      dpositivity_declaration(
+        DTVar(f_idx),
+        1,
+        strict_args=strict_slots,
+        positive_args=pos_slots,
+        scope~,
+      )
+    }
+  }
+}
+
+///|
+/// Check strict positivity of `t` wrt family `name` in `ambient_ctx` using
+/// kernel-verified semantic functorial/container certificates (`certs`) plus
+/// optional syntactic unfolding witnesses (`witnesses`).
+pub fn dterm_family_strictly_positive_functorial(
+  ambient_ctx : Array[DTerm],
+  t : DTerm,
+  name : String,
+  certs : Array[DFunctorialPositivityCert],
+  witnesses~ : Array[DPositivityWitness] = [],
+) -> Bool {
+  let scope = ambient_ctx.length()
+  let verified_decls : Array[DPositivityDeclaration] = []
+  for i in 0..<certs.length() {
+    match dfunctorial_positivity_verify(ambient_ctx, certs[i]) {
+      Some(decl) => verified_decls.push(decl)
+      None => return false
+    }
+  }
+  for i in 0..<witnesses.length() {
+    if witnesses[i].declaration.scope != scope ||
+      !dpositivity_witness_verify(witnesses[i], ambient_decls=verified_decls) {
+      return false
+    }
+    verified_decls.push(witnesses[i].declaration)
+  }
+  dterm_family_strictly_positive_declared(t, name, verified_decls, scope~)
+}
+

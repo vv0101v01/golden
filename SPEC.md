@@ -1605,6 +1605,59 @@ $$(\Sigma A \to_* B) \;\simeq\; (A \to_* \Omega B)$$
 
 驗收：`check_phase15_suspension_and_loop_suspension_adjunction`、`check_phase15_freudenthal_suspension_and_wedge_connectivity`。
 
+### 1.19 第十六期：六大核心工程完備推進——大宇宙與開放同時 IR／容器正性、DSATUR 最大團與 0~1 黏合方塊合成、標準 SHA/Ed25519 與 WAL 日誌、精確 LLL／Van Hoeij 與 Q̄⊂ℂ 代數閉包、纖維化環路序列／Hopf–Freudenthal 收縮／五維 K₅、Huet 延遲約束圖／惰性串流／模組重連結／三方倉庫合併
+
+第十六期將第十五期 §四中除第 5 項（BDD、SAT 與宿主立方）以外的全部 **6 項待完成工程**逐一攻克。六組正式定律分置於 `phase16_laws.mbt` 與 `algebra/phase16_algebra_laws.mbt`，全數納入定理登記總表（`116/116`）與規格登記表（`127` 條），並於核心 `nbe_dep.mbt` 修復異質中性路徑線上規範值與中性型別之雙向讀回／轉換（`quote_at` 與 `conv_at` 在 `DVNeutral(_)` 型別下對自帶規範型別構造子的派發）。
+
+#### 1.19.1 工程一（Schema）：大宇宙累積同時 IR、Dybjer–Setzer 開放多解碼器同時 IR 與語義容器正性憑證（`schema_phase9.mbt`, `schema_positivity.mbt`）
+
+1. **大宇宙累積同時歸納—遞迴編譯**：消除 `simultaneous_ir_compile_joint_block` 先前 `codomain_level ≤ base.level` 的封閉限制，依據累積宇宙計算 `joint_motive_level = max(base.level, maxᵢ function_universe_level(fᵢ))`。當解碼器 `El : Code → Type₀`（值域落於 `Type₁`）與小宇宙計數函數 `size : Code → Nat`（值域落於 `Type₀`）雙向互賴時，聯合 `Σ` 元組動機在 `Type₁` 單次消去並投影出各自閉項，正規化結果精確吻合。
+2. **Dybjer–Setzer 開放多解碼器同時歸納—遞迴（`DOpenSimultaneousIRSpec`）**：引入同時擁有 `m` 個互賴解碼器 `(T₀,…,Tₘ₋₁)` 的開放宇宙規格，構造子引數除外部型別與直接遞迴碼外，支援依賴先前解碼值的引數 `DOpenArgDecodedVal` 與**函數式互賴遞迴碼族** `DOpenArgDecodedCodeFn(target_arg, decoder_idx)`（即 `(x : Tⱼ(a)) → U`），提供完整驗證 `open_ir_validate`、碼檢查 `open_ir_check_code`、同步解碼求值 `open_ir_eval_decode`、依賴消去 `open_ir_elim_value` 與單解碼器核心降階 `open_ir_lower_single_decoder`。
+3. **語義正性憑證（`DFunctorialPositivityCert`）**：針對無展開定義之公理化算子 `F : Type_u → Type_u`，以核心 `d_check` 核驗兩類語義憑證並嚴格區分權限：多項式容器同構 `DFunctorContainerIso`（見證 `ΠX. Equiv (F X) (Σs:S. P(s) → X)`，且對 `S, P` 強制反循環檢查以攔截 `S := F Unit` 偷渡）授予嚴格正性 `strict_args = [0]`；純協變函子律 `DFunctorCovariantLaws`（`map`、`map_id`、`map_comp`）因無法排除雙重反變算子 `¬¬X = (X → Empty) → Empty` 等非嚴格正性不動點悖論，誠實僅授予非嚴格正性 `positive_args = [0]`。
+
+驗收：`check_phase16_schema_large_open_positivity`。
+
+#### 1.19.2 工程二（原始 `DSystem`、轉換與合成）：DSATUR 著色上界最大團修復與高維 `0 ~ 1` 黏合圓／環面開盒合成（`dsystem_compat.mbt`, `kan_ast.mbt`）
+
+1. **DSATUR 飽和度著色上界最大團枚舉（`dsystem_repair_all_maxima_dsatur`）**：先嚴格過濾在 `r = 0` 與開盒 `base` 轉換相容的候選分支，再於每個衝突連通分量上執行 DSATUR 動態飽和度貪婪著色，為排序後頂點賦予嚴謹上界 `c(v)`（任意團在前缀中的頂點色號兩兩相異，故團大小不超過最大色號），於回溯搜尋中以 `|C| + c(v) < best_size` 提前剪枝，完整枚舉全部最大相容子系統並回報 `DSystemDsaturCliqueReport`。
+2. **高維端點黏合（`0 ~ 1`）圓與環面開盒合成（`circle_square_glued_cap`, `torus_square_glued_cap`）**：當二維圓或環面開盒邊界並非單一 De Morgan 座標表達式、而僅在端點因 `loop(0) ≡ base ≡ loop(1)` 黏合相容時，利用 `S¹ ≃ K(ℤ, 1)` 與 `T² ≃ S¹ × S¹` 的群胚 H-空間旋轉結構計算四邊有號繞數 `w(j=0), w(j=1), w(i=0), w(i=1)`。當二上循環淨纏繞 `w(j=0) - w(j=1) + w(i=1) - w(i=0) = 0` 時構造二維填充方塊與帽並逐邊轉換驗證；若淨纏繞非零（如單邊 `loop` 其餘三邊常值，淨纏繞 `±1`），精確偵測拓撲阻礙並回傳 `filler = None`。
+
+驗收：`check_phase16_dsatur_and_glued_cubical_comp`。
+
+#### 1.19.3 工程三（持久層）：FIPS 180-4 SHA-256/512、RFC 8032 Pure-Ed25519 非對稱封緘與崩潰一致 WAL 日誌（`artifact_crypto_wal.mbt`）
+
+1. **標準密碼學雜湊與非對稱簽章**：實作無外部依賴的純 MoonBit **FIPS 180-4 SHA-256**（64 輪）與 **SHA-512**（80 輪 64-bit 運算），以及素數體 `𝔽_p`（`p = 2²⁵⁵ − 19`）扭曲愛德華曲線 `−x² + y² = 1 + d x² y²` 上的完整 **RFC 8032 Pure-Ed25519** 密鑰衍生、確定性簽章與嚴格驗證（含規範點解碼 `y < p`、非平凡標量範圍 `0 < S < L` 防延展檢查與無輔因子方程 `[8][S]B = [8]R + [8][k]A`），逐位元組通過 NIST 與 RFC 8032 §7.1 官方測試向量。`CHARTSIG` v1 將倉庫鏈頭、條目鏈與全部活頁 blob 之 SHA-256 摘要納入 Ed25519 簽章並固定公鑰。
+2. **崩潰一致預寫式交易日誌（`ArtifactWalStore` / `CHWALJRN` v1）**：每筆交易以帶自身 SHA-256 校驗和的 `BEGIN`、`PUT`、`DELETE`、`COMMIT`、`ABORT` 日誌幀追加寫入。`artifact_wal_recover` 掃描日誌流：凡在尾端遭遇斷電截斷或校驗損毀幀（`discarded_torn_bytes > 0`），或缺少對應 `COMMIT` 幀的未完成交易，一律原子回滾不污染底層儲存；已提交交易則冪等重放並支援 `artifact_wal_checkpoint` 壓縮截斷。
+
+驗收：`check_phase16_crypto_ed25519_and_wal`。
+
+#### 1.19.4 工程四（精確代數）：精確有理 LLL 格基約化、Van Hoeij 冪和跡格因式重組與 `Q̄ ⊂ ℂ` Rouché 圓盤代數閉包（`algebra/phase16_algebra.mbt`）
+
+1. **精確 `BigInt` 有理 LLL 格基約化與 Van Hoeij 因式重組（`qmat_lll_reduce`, `van_hoeij_lll_recombine`, `qpoly_factor_lll`）**：以無浮點誤差的精確有理 Gram–Schmidt 正交化實作 δ = 3/4 Lovász 條件與尺寸約化，同步維護行列式 `±1` 的單模整數變換矩陣 `U ∈ GLₙ(ℤ)`。面對模任意素數皆分裂為大量低次因子的 Swinnerton-Dyer 多項式，`van_hoeij_lll_recombine` 將局部因式 Hensel 提升至高精模數 `M = p^k`，計算帶奇偶次數冪和跡（`k = 1, 2, 3, 4`）並以 Fujiwara 根界構造 p-進跡約束格，由 LLL 短向量直接讀出精確 0-1 因式組合，零指數子集搜尋即完成八次 `S₃(x)` 不可約性證明與平移乘積 `S₂(x)·S₂(x − 1)` 分解。
+2. **複代數閉包 `Q̄ ⊂ ℂ`（`ComplexAlgNum`）**：以首一無平方因子不可約有理極小多項式 `minpoly ∈ ℚ[x]` 搭配隔離單根的高斯有理 Rouché 圓盤 `disk` 唯一表示任意複代數數。封閉實作精確判等（極小多項式相等＋圓盤二分收縮分離）、複共軛 `z̄`、加法／減法／乘法／非零求逆／除法（二元結式消元＋平方自由分解＋區間算術隔離篩選）與全體 `n` 次複根 `complex_alg_all_nth_roots`，在 `x⁴ + 1`、`x³ − 2` 與 `√i` 上完整驗證代數體公理與韋達恆等式。
+
+驗收：`check_lll_lattice_and_van_hoeij_factor`、`check_complex_algebraic_closure_rouche`。
+
+#### 1.19.5 工程五（球面同倫與高階相干）：纖維化環路序列等價、開放變量 Hopf–Freudenthal 收縮、`π₂(S²)` 分裂收縮與五維 Stasheff `K₅` 相干胞（`cubical_algorithms.mbt`, `sphere_homotopy.mbt`, `nbe_dep.mbt`）
+
+1. **依賴和路徑分裂與纖維化環路序列雙向等價**：在開放 4 變數脈絡 `(B, P, b₀, e₀)` 下構造異質路徑傳輸等價 `pathp_equiv_transport_eq_value`、一步直達 `Σ`-路徑分裂 `sigma_path_equiv_subst_value` 與基底基於基點的**一般纖維化環路序列等價** `fibration_loop_equiv_fiber_path_value`：
+   $$\Omega^1(\Sigma_{x:B} P(x), (b_0, e_0)) \;\simeq\; \Sigma_{p:\Omega^1(B, b_0)} \bigl(\mathrm{subst}\,P\,p\,e_0 \equiv e_0\bigr)$$
+   並實例化於單值 Hopf 全空間 `E_Hopf = Σ_{x:S²} H(x)` 得認證雙向等價 `hopf_total_loop_equiv_fiber_seq_value`（全部 8 項開放雙向轉換義務核驗通過）。
+2. **開放變量 Hopf–Freudenthal 恆等收縮與 `π₂(S²)` 分裂截面**：對任意開放自由環路變數 `p : Ω¹(S¹, base)`，利用旋轉族基點求值恆等律 `rot(c)(base) ≡ c` 與右單位消去構造二維同倫 `hopf_freudenthal_retraction_value`：
+   $$\partial_{\mathrm{Hopf}}\bigl(\sigma_{S^2}(p)\bigr) \;\equiv\; p$$
+   進而在集合截斷二階同倫群 `π₂(S²) := ‖Ω²(S²)‖₀` 與 `ℤ` 之間建立同態 `pi2_s2_hopf_hom_value : π₂(S²) → ℤ` 與生成映射 `integer_to_pi2_s2_value : ℤ → π₂(S²)`，並在開放自由整數變數 `z : IntegerS` 上證明認證分裂截面 `pi2_s2_hopf_retract_sect_value`（`π₂(S²)` 以 `ℤ` 為自由循環分裂收縮核）。
+3. **五維 Stasheff 結合多面體 `K₅` 相干 5-胞（`dpath_associahedron_k5_cell5_value`）**：對五段非平凡圓環路複合 `(((p⋅q)⋅r)⋅s)⋅t → p⋅(q⋅(r⋅(s⋅t)))` 構造北半球 4-胞路線（經中間頂點 `(p⋅q)⋅(r⋅(s⋅t))` 串接兩個 Mac Lane 五邊形與自然性方塊）與南半球 4-胞路線（外層五邊形＋尾端五邊形＋結合子自然性），再以五維單例收縮與顯式 4-胞邊界填充生成連接南北雙半球路線的五維 `K₅` 相干胞。
+
+驗收：`check_phase16_sphere_homotopy_and_k5`。
+
+#### 1.19.6 工程六（HOU 與模組系統）：Huet 延遲 flex-flex 約束圖、拉取式惰性合一串流、模組 DAG 介面雜湊重連結與三方倉庫合併（`hou_elaborator.mbt`, `module_compilation.mbt`, `artifact_repository.mbt`）
+
+1. **Huet 延遲 flex-flex 約束圖與拉取式惰性合一串流**：`hou_solve_with_delayed_flex_flex` 實作 Huet 預合一（pre-unification）範式，把無法唯一主合一的非 pattern `flex-flex` 約束滯留為雙端點元變數索引圖邊 `HouFlexFlexEdge`，一旦任一端點被剛性約束推進實例化即自動喚醒重入佇列，並可選以保序常數投影具現為閉合合一子；`HouLazyUnifierStream` 將遞迴 DFS 改寫為顯式 continuation 幀堆疊，按呼叫者 `hou_unifier_stream_next` 按需逐一產出正規形合一子（首次拉取展開節點嚴格少於窮盡枚舉）。
+2. **多模組 DAG 拓樸規劃與介面雜湊截止重連結（`module_build_dag_incremental`）**：以 Kahn 演算法對模組集合做拓樸排序與循環／缺頁偵測；當上游模組修改不透明（`transparent=false`）定義本體而公開 `interface_hash` 不變時，全部下游模組 100% 命中快取零重編譯（`cache_hit_paths`），並由驗證後 `ModuleEnv` 重新實例化連結出反映最新實作正規形的頂層實例；透明定義變更則精確觸發依賴鏈重編譯。
+3. **基於最近共同祖先（LCA）的確定性三方倉庫合併（`artifact_repository_merge_three_way`）**：沿兩分支倉庫的 `CHARTCHN` 鏈定位最深共同祖先快照，逐鍵執行三方差異判定：單邊新增／修改自動合併、雙邊獨立收斂至相同內容自動去重（`convergent_merges`）、單邊刪除無對向修改自動傳播墓碑（`tombstones_applied`），對修改—修改與修改—刪除真衝突則依 `ArtifactMergePolicy`（`AbortOnConflict`／`PreferLeft`／`PreferRight`）確定性裁決並重新封緘認證鏈。
+
+驗收：`check_phase16_hou_stream_and_module_merge`。
+
 ## 二、規範形式目錄（逐結構）
 
 | 結構 | 規範形式 | 相等之判定 |
@@ -1693,6 +1746,12 @@ $$(\Sigma A \to_* B) \;\simeq\; (A \to_* \Omega B)$$
 | 連通分解最佳 BDD／索引化 LRAT／立方 Yoneda | `BddDecomposedOptimalBuild`（獨立支援分量拼接）；`FaceLratStep`＋`CHLRATBN` v1；`CheckedDCube` 與 `DCubeYonedaReport` | 共現交互圖連通分量各自精確 DP（28 變量 4 分量 exact）；提示 ID 線性時間查表傳播與 DRAT→LRAT 精化；通用對角讀回自然性與無探針精確外延 |
 | 高階道路相干／中性圓截面／單值 Hopf | Eckmann–Hilton 3-胞、五邊形 4-胞、中性 `decode(encode(p))≡p` 截面、單值 `Hopf:S²→Type₀` 與整數不變量 | 立方邊界面逐面型別化轉換；開放環路變數上 J 消去端點轉換；`Ω³(S²)` 代表元精確映至 `0,±1,∓1,±2` |
 | 雙向雙射認證／集合截斷／`π₁(S¹)≃ℤ`／`Σ⊣Ω`／Freudenthal | 開放脈絡認證 `DVEquiv`；`SetTruncS`（`‖A‖₀`）；`π₁(S¹)≃ℤ`；`(ΣA→*B)≃(A→*ΩB)`；`‖Ω¹(Susp(A))‖₀≃1` 與圓楔連通 | 開放變數下雙向截面／收縮轉換核驗；`ℤ` 與 `‖A‖₀` 內部 h-set 證書；0-連通懸掛導出 `π₁(S²)=π₁(S³)=1` 及 `S¹×S¹` 雙軸相干 |
+| 大宇宙與開放同時 IR／容器正性憑證 | 累積 `joint_motive_level` 聯合消去；`DOpenSimultaneousIRSpec` 多解碼器開放宇宙；`DFunctorialPositivityCert` | 跨宇宙 `Type₁×Type₀` 聯合編譯；多解碼器驗證、求值、消去與單解碼器降階；反循環容器同構授予嚴格正性、純協變律僅授予非嚴格正性 |
+| DSATUR 最大團修復／高維 `0~1` 黏合開盒 | `DSystemDsaturCliqueReport`；`CircleSquareWindingReport` 與二維圓／環面黏合帽 | DSATUR 飽和度著色上界剪枝枚舉全部最大相容子系統；零淨纏繞以 H-空間旋轉構造二維填充，非零二上循環纏繞阻礙回 `None` |
+| SHA-256/512／Ed25519 封緘／WAL 日誌 | FIPS 180-4 摘要；RFC 8032 `CHARTSIG` 64-byte 簽章；`CHWALJRN` 幀校驗交易日誌 | NIST/RFC 測試向量逐位吻合；公鑰固定、反高階扭轉與 `S<L` 檢查；斷尾與未提交交易原子回滾、已提交交易冪等重放 |
+| 精確 LLL／Van Hoeij 重組／`Q̄⊂ℂ` 代數閉包 | `LllReductionReport`（`U∈GLₙ(ℤ)`）；`QPolyLllFactorReport`；`ComplexAlgNum{minpoly,root_index,disk}` | 精確有理 Gram–Schmidt δ=3/4 約化；Fujiwara 界冪和跡格重組八次 Swinnerton-Dyer；結式消元＋Rouché 圓盤細分實作 `Q̄⊂ℂ` 體算術與開方 |
+| 纖維化環路序列／Hopf–Freudenthal／五維 `K₅` | `Ω¹(ΣB P)≃Σ(p:Ω¹B)(subst P p e₀≡e₀)`；開放環路 `∂_Hopf(σ_{S²}(p))≡p`；`π₂(S²)` 分裂截面與五維 `K₅` 胞 | 開放與 Hopf 全空間雙向認證等價；開放 `p:Ω¹(S¹)` 收縮與開放 `z:ℤ` 分裂截面；`K₅` 南北雙五邊形半球端點轉換核驗 |
+| Huet 延遲圖／惰性串流／DAG 重連結／三方合併 | `HouDelayedGraphReport`；`HouLazyUnifierStream`；`ModuleIncrementalBuildReport`；`ArtifactThreeWayMergeReport` | 滯留 flex-flex 邊喚醒與具現、按需 continuation 枚舉；不透明變更下游零重編重連結；相對 `CHARTCHN` LCA 的收斂／墓碑／衝突合併 |
 | 規格條目 | `SpecEntry` 六元組 | `spec_registry_sound` |
 
 ## 三、範疇目錄（逐範疇）
@@ -1728,15 +1787,17 @@ $$(\Sigma A \to_* B) \;\simeq\; (A \to_* \Omega B)$$
 | 已編譯模組函子與認證儲存 | 已檢查參數模組物件與共用項池 | 介面連結、TLV 封套、認證 CAS 與增量同步 | `CHSHRBUN` 共用全局 DAG；`CHMODENV` 支援向前相容 TLV；`CHARTAUT` 對稱 MAC＋樂觀 CAS 與鏈前綴差量同步 | `module_compilation.mbt`, `module_binary.mbt`, `artifact_repository.mbt` |
 | Retract Kan 結構 | 特徵空間／子線 | 立方體 | 剪枝函子保持填充（在邊界恆等） | `cube.mbt`, `glue_comp.mbt` |
 
-## 四、第十五期後仍保留的邊界
+## 四、第十六期後仍保留的邊界
 
-- **Schema。** 聯合 `Σ` 元組動機編譯已覆蓋雙向循環互遞迴、`DFunctorSum` 與層級不高於基礎族的小／依賴上域，不透明算子亦可透過 `DPositivityWitness` 展開主體做結構極性驗證；但超越基礎宇宙層級的 impredicative 同時 IR 上域、同時修改基礎歸納族構造子型別與互遞迴函數的完整 Dybjer–Setzer 開放式同時歸納遞迴（open simultaneous IR where constructors depend on the mutually defined decoding functions in arbitrary nested ways beyond `decode` positions），以及無展開定義之純外部公理化算子的語義正性模型，仍不在封閉項消去器編譯範圍內。
-- **原始 `DSystem`、轉換與合成。** `dsystem_repair_all_maxima` 已按衝突連通分量枚舉全部最大相容完成，`conv_terms_finite_case_split` 已覆蓋任意無遞迴閉合有限型別居民樹，`comp_torus_value` 亦已解耦兩條圓座標並作 De Morgan 語義壓縮；但單一稠密衝突分量的最大團列舉最壞仍為指數級，有限居民窮舉仍是項層級外延工具而非核心 `conv_at` 規則（`Nat`/`List` 等無限型別不可窮舉），且當高維開盒邊界僅以端點點相等（`0 ~ 1`）耦合而無統一 De Morgan 表達式帽時，原始 HIT 合成仍如實保留形式中性 `DNComp`。
-- **持久層。** `CHDAGDLT` 增量差分、`CHSHRBUN` 跨模組／註冊表共用 DAG bundle、`CHARTAUT` 雙金鑰對稱 MAC 認證 CAS 與 `artifact_repository_sync_incremental` 差量同步均已就位；但底層儲存仍為確定性純記憶體位元組映射協議（刻意不綁定特定作業系統 POSIX 檔案鎖、mmap、fsync 或網路 socket），且 `CHARTAUT` 為共享秘密對稱 MAC 而非公開金鑰非對稱簽章（如 Ed25519）或抗碰撞標準雜湊（如 SHA-256）。
-- **精確代數。** `qpoly_factor_hensel` 已以有限域分解＋線性 Hensel 提升取代低效 Kronecker 枚舉並附完整分解證書，多二次塔上限已升至 `6` 生成元（`64` 維基底），`RealAlgRadical` 已以結式與 Sturm 隔離封閉任意實代數根式判等，`jacobi_block_deflated_certified` 已消除區塊對角與重根退化瓶頸；但對極高次 Swinnerton-Dyer 型局部處處可約多項式，Hensel 子集重組在無 LLL 格基約化（Lenstra–Lenstra–Lovász）時最壞仍需指數子集測試；`RealAlgRadical` 僅覆蓋實代數數 `ℚ̄ ∩ ℝ`（含非實複根分支選擇的一般複根式與超越函數不在體內）；不可約稠密高維 Hermitian 矩陣的特徵多項式展開仍受精確有理係數位長成長制約。
-- **BDD、SAT 與宿主立方。** 第十五期已以對稱軌道剪枝與變量共現連通支援分解將多分量／對稱公式的可證最佳 BDD 序推過 `n = 18`（如 `19` 變量對稱公式與 `28` 變量四分量公式皆 `exact=true`），補齊索引化線性時間 LRAT 檢查器、DRAT→LRAT 精化器與 `CHLRATBN` v1 二進位編解碼，並以 `ℙ¹(𝔽₈)` 強度 `t = 4` 正交覆蓋陣列、五色 PHF、`CheckedDCube` 語法錨定與立方 Yoneda 自然性審計封堵四軸交互與病態非自然閉包；但單一不可分解且無對稱性的稠密連通布林函數在 `n > 20` 時一般最佳 ROBDD 排序仍屬 NP-hard（誠實回報 `exact=false` 並回退啟發式／sifting），而對刻意通過自然性抽樣卻僅在 `5` 軸以上特定同時賦值偏離的純黑盒宿主閉包，唯有提升為 `CheckedDCube` 才享有絕對無探針外延保證。
-- **球面同倫與高階相干。** 第十五期已在開放變數脈絡下完成一般雙向雙射認證 `DVEquiv`、集合截斷 `‖A‖₀` 萬有性、完整內部圓基本群同構 `π₁(S¹) = ‖Ω¹(S¹)‖₀ ≃ ℤ`、基點環路—懸掛伴隨 `(ΣA →* B) ≃ (A →* ΩB)`、0-連通 Freudenthal 懸掛定理 `‖Ω¹(Susp(A))‖₀ ≃ 1`（導出 `π₁(S²) ≃ 1` 與 `π₁(S³) ≃ 1`）、圓楔連通引理與一維環路懸掛映射 `σ₁ : Ω¹(S¹) → Ω²(Susp(S¹))`；但高連通度（`n ≥ 1`，2-截斷／`n`-截斷）完整 Blakers–Massey／一般高階 Freudenthal 滿同構 `π_k(X) ≃ π_{k+1}(ΣX)`（`k ≤ 2n`）、由其串聯單值 Hopf 纖維長正合序列導出的完整 `π₃(S²) ≃ π₃(S³) ≃ ℤ` 全雙向同構、撓率同倫群（如 `π₄(S³) ≃ ℤ/2ℤ`）及五維以上 Stasheff 結合多面體 `K_n` 無限相干塔仍待後續形式化。
-- **HOU 與模組系統。** 跨約束交易式回溯與有界合一子枚舉已解決單約束貪心承諾與多解歧義，`CHMODENV` TLV 封套亦已提供 critical/non-critical 向前相容演進；但一般高階合一（三階以上）受 Goldfarb 定理限制本質不可判定（無有限完備合一子集的方程仍受節點／深度預算截斷），且模組系統維持靜態非循環依賴圖與確定性單機連結，不含動態載入或分散式共識協議。
+第十五期 §四所列的 **6 項待完成工程**（Schema 大宇宙與開放同時 IR／語義正性、DSATUR 最大團與 `0~1` 黏合合成、SHA-256/512＋Ed25519＋WAL 持久層、LLL＋Van Hoeij＋`Q̄⊂ℂ` 代數閉包、纖維化環路序列＋開放 Hopf–Freudenthal 收縮＋五維 `K₅`、Huet 延遲約束圖＋惰性串流＋增量重連結＋三方合併）已於第十六期全數落地驗收。現存理論與工程邊界明列如下：
+
+- **Schema。** 累積大宇宙同時 IR、`DOpenSimultaneousIRSpec` 多解碼器開放同時 IR 與反循環容器同構正性憑證均已實作；但跨越超限序數層級的無界宇宙多態大歸納—遞迴（Mahlo／超宇宙公理）以及一般高階索引容器（indexed containers over arbitrary dependent groupoids）仍不在有限層級核心內。
+- **原始 `DSystem`、轉換與合成。** DSATUR 飽和度著色上界剪枝與二維 `0 ~ 1` 黏合圓／環面 H-空間開盒合成（含二上循環纏繞阻礙偵測）已就位；但一般 NP-hard 稠密隨機圖的極大團最壞仍受組合複雜度制約，有限居民切分仍為項層級外延工具而非核心無限型別歸納規則，且任意非阿貝爾高維通用 HIT（無 H-空間結構者）的點相等開盒仍如實保留形式中性 `DNComp`。
+- **持久層。** 標準 FIPS 180-4 SHA-256/512、RFC 8032 Pure-Ed25519 非對稱封緘（`CHARTSIG`）與帶斷尾回滾的預寫式交易日誌（`CHWALJRN`）均已實作；底層儲存介面刻意保持純函數／抽象位元組儲存協議，以便跨 `wasm-gc` 與 `native` 可重現執行，不直接耦合特定作業系統核心呼叫（POSIX `flock`、`mmap`、`fsync`）或網路共識層。
+- **精確代數。** 精確有理 LLL 格約化、Van Hoeij 冪和跡格重組與 `Q̄ ⊂ ℂ` 高斯有理 Rouché 圓盤複代數閉包算術均已完備；超越數（如 `e, π` 及複對數／指數 Schanuel 範疇）不在代數閉包 `Q̄` 內，且極高維稠密不可約 Hermitian 矩陣的特徵多項式係數位長仍受精確有理算術本質成長制約。
+- **BDD、SAT 與宿主立方。** 對稱軌道剪枝（單分量 `n ≤ 20`）、變量共現連通支援分解（如 `28` 變量四分量 `exact=true`）、索引化線性時間 LRAT（`CHLRATBN` v1）、強度 `t = 4` `ℙ¹(𝔽₈)` 覆蓋陣列＋五色 PHF、`CheckedDCube` 與立方 Yoneda 自然性審計均已完備；單一無對稱不可分解稠密布林函數在 `n > 20` 時一般最佳 ROBDD 排序仍屬 NP-hard（誠實回報 `exact=false`），而 `5` 軸以上純黑盒閉包須提升為 `CheckedDCube` 才享有絕對無探針保證。
+- **球面同倫與高階相干。** 開放變數纖維化環路序列等價、Hopf 全空間環路等價、開放環路 Hopf–Freudenthal 恆等收縮 `∂_Hopf(σ_{S²}(p)) ≡ p`、`π₂(S²)` 對 `ℤ` 的開放分裂截面與五維 Stasheff `K₅` 相干 5-胞均已內部化；但完整 `1`-連通高階 Blakers–Massey 推出定理（證明 `σ_{S²}` 在 0-截斷上的**滿射性**以閉合雙向同構 `π₂(S²) ≃ ℤ` 及 `π₃(S²) ≃ π₃(S³) ≃ ℤ`）、撓率同倫群（如 `π₄(S³) ≃ ℤ/2ℤ`）與任意維度 `n ≥ 6` 結合多面體 `K_n` 無限相干塔仍為開放前沿。
+- **HOU 與模組系統。** Huet 延遲 `flex-flex` 預合一約束圖、拉取式惰性合一串流、多模組 DAG 介面雜湊截止重連結與基於 `CHARTCHN` LCA 的確定性三方倉庫合併均已實作；但三階以上一般高階合一受 Goldfarb 定理限制本質不可判定（無窮合一子串流按拉取與預算惰性展開），模組連結仍針對靜態非循環 DAG 而非執行期熱載入。
 
 ---
 

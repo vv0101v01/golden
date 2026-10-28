@@ -878,3 +878,227 @@ pub fn check_module_compilation() -> Bool {
   }
   !third_hit && module_compile_cache_size(cache) == 1
 }
+
+// ===========================================================================
+// Phase 16 (Track 6B): Topological Multi-Module DAG Planner &
+// Interface-Hash Cutoff Incremental Relinker
+// ===========================================================================
+
+///|
+pub struct ModuleBuildPlanReport {
+  ok : Bool
+  topological_order : Array[String]
+  cycle_detected : Bool
+  missing_dependency : String?
+} derive(Debug, Eq)
+
+///|
+pub extend ModuleBuildPlanReport with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+pub extend ModuleBuildPlanReport with Eq::{not_equal, equal}
+
+///|
+/// Compute a deterministic topological compilation order over `modules` using
+/// Kahn's algorithm, rejecting duplicate module paths, missing imports, and
+/// cyclic import graphs.
+pub fn module_topological_plan(
+  modules : Array[ModuleDef],
+) -> ModuleBuildPlanReport {
+  let n = modules.length()
+  let path_index = (p : String) => {
+    for i in 0..<n {
+      if modules[i].path == p {
+        return Some(i)
+      }
+    }
+    None
+  }
+  for i in 0..<n {
+    for j in (i + 1)..<n {
+      if modules[i].path == modules[j].path {
+        return ModuleBuildPlanReport::{
+          ok: false,
+          topological_order: [],
+          cycle_detected: false,
+          missing_dependency: Some(modules[i].path),
+        }
+      }
+    }
+  }
+  let indeg : Array[Int32] = Array::make(n, 0)
+  let adj : Array[Array[Int32]] = Array::makei(n, _ => [])
+  for i in 0..<n {
+    let seen_deps : Array[Int32] = []
+    for imp in modules[i].imports {
+      let dep_idx = match path_index(imp.module_path) {
+        Some(idx) => idx
+        None =>
+          return ModuleBuildPlanReport::{
+            ok: false,
+            topological_order: [],
+            cycle_detected: false,
+            missing_dependency: Some(imp.module_path),
+          }
+      }
+      if !seen_deps.contains(dep_idx) {
+        seen_deps.push(dep_idx)
+        adj[dep_idx].push(i)
+        indeg[i] = indeg[i] + 1
+      }
+    }
+  }
+  let queue : Array[Int32] = []
+  for i in 0..<n {
+    if indeg[i] == 0 {
+      queue.push(i)
+    }
+  }
+  let order : Array[String] = []
+  let mut head = 0
+  while head < queue.length() {
+    let u = queue[head]
+    head = head + 1
+    order.push(modules[u].path)
+    for v in adj[u] {
+      indeg[v] = indeg[v] - 1
+      if indeg[v] == 0 {
+        queue.push(v)
+      }
+    }
+  }
+  if order.length() != n {
+    return ModuleBuildPlanReport::{
+      ok: false,
+      topological_order: [],
+      cycle_detected: true,
+      missing_dependency: None,
+    }
+  }
+  ModuleBuildPlanReport::{
+    ok: true,
+    topological_order: order,
+    cycle_detected: false,
+    missing_dependency: None,
+  }
+}
+
+///|
+pub struct ModuleIncrementalBuildReport {
+  ok : Bool
+  compiled_env : CompiledModuleEnv
+  recompiled_paths : Array[String]
+  cache_hit_paths : Array[String]
+  relinked_instance : ModuleInstance?
+} derive(Debug, Eq)
+
+///|
+pub extend ModuleIncrementalBuildReport with @moonbitlang/core/debug.Debug::{
+  to_repr,
+}
+
+///|
+pub extend ModuleIncrementalBuildReport with Eq::{not_equal, equal}
+
+///|
+/// Incrementally compile a multi-module DAG with interface-hash early cutoff
+/// and relink `entry_path`:
+/// - When an upstream module changes only an opaque body (`transparent == false`),
+///   its `interface_hash` stays invariant, so all downstream dependents hit
+///   `cache` without recompiling (`cache_hit_paths`), while `relinked_instance`
+///   links against the updated `CompiledModuleEnv` and observes the new body!
+/// - When an upstream module changes an exported type or transparent body, its
+///   `interface_hash` changes and selectively invalidates only its transitive
+///   dependents, leaving unrelated DAG branches cached.
+pub fn module_build_dag_incremental(
+  cache : ModuleCompileCache,
+  modules : Array[ModuleDef],
+  entry_path~ : String = "",
+  entry_args~ : Array[DTerm] = [],
+) -> ModuleIncrementalBuildReport {
+  let empty_env = compiled_module_env_new()
+  let fail = () => ModuleIncrementalBuildReport::{
+    ok: false,
+    compiled_env: empty_env,
+    recompiled_paths: [],
+    cache_hit_paths: [],
+    relinked_instance: None,
+  }
+  let plan = module_topological_plan(modules)
+  if !plan.ok {
+    return fail()
+  }
+  let find_mod = (p : String) => {
+    for m in modules {
+      if m.path == p {
+        return Some(m)
+      }
+    }
+    None
+  }
+  let compiled_env = compiled_module_env_new()
+  let recompiled : Array[String] = []
+  let hits : Array[String] = []
+  for mod_path in plan.topological_order {
+    let mod_def = match find_mod(mod_path) {
+      Some(m) => m
+      None => return fail()
+    }
+    let dep_fps : Array[ModuleDependencyFingerprint] = []
+    for imp in mod_def.imports {
+      match compiled_module_env_find(compiled_env, imp.module_path) {
+        Some(dep_cm) => dep_fps.push(module_dependency_of_compiled(dep_cm))
+        None => return fail()
+      }
+    }
+    let link_src_env = compiled_module_env_to_module_env(compiled_env)
+    let (cm, was_hit) = match
+      module_compile_cached(cache, link_src_env, mod_def, dep_fps) {
+      Some(v) => v
+      None => return fail()
+    }
+    if was_hit {
+      hits.push(mod_path)
+    } else {
+      recompiled.push(mod_path)
+    }
+    if !compiled_module_env_add(compiled_env, cm) {
+      return fail()
+    }
+  }
+  let relinked = if entry_path == "" {
+    None
+  } else {
+    match find_mod(entry_path) {
+      Some(entry_mod) => {
+        // Link the verified topological module DAG directly without re-running
+        // separate compilation on cache hits, so updated upstream opaque
+        // implementations propagate through cached intermediate modules at link time.
+        let dag_env = module_env_new()
+        for mod_path in plan.topological_order {
+          if mod_path != entry_path {
+            match find_mod(mod_path) {
+              Some(m) =>
+                if !module_env_add(dag_env, m) {
+                  return fail()
+                }
+              None => return fail()
+            }
+          }
+        }
+        match module_instantiate(dag_env, entry_mod, entry_args) {
+          Some(inst) => Some(inst)
+          None => return fail()
+        }
+      }
+      None => return fail()
+    }
+  }
+  ModuleIncrementalBuildReport::{
+    ok: true,
+    compiled_env,
+    recompiled_paths: recompiled,
+    cache_hit_paths: hits,
+    relinked_instance: relinked,
+  }
+}

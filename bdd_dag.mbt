@@ -69,20 +69,24 @@ fn bdd_apply_buckets_new(size : Int32) -> Array[Array[BddApplyEntry]] {
 
 ///|
 fn bdd_node_hash(rank : Int32, lo : Int32, hi : Int32, size : Int32) -> Int32 {
-  let mut h = 0
-  h = (h * 33 + rank + 1) % size
-  h = (h * 33 + lo + 1) % size
-  h = (h * 33 + hi + 1) % size
-  h
+  let mut h = (rank * 73856093) ^ (lo * 19349663) ^ (hi * 83492791)
+  h = h ^ ((h >> 13) & 0x7ffff)
+  if (size & (size - 1)) == 0 {
+    h & (size - 1)
+  } else {
+    (h & 0x7fffffff) % size
+  }
 }
 
 ///|
 fn bdd_apply_hash(op : Int32, a : Int32, b : Int32, size : Int32) -> Int32 {
-  let mut h = 0
-  h = (h * 33 + op + 1) % size
-  h = (h * 33 + a + 1) % size
-  h = (h * 33 + b + 1) % size
-  h
+  let mut h = (op * 83492791) ^ (a * 73856093) ^ (b * 19349663)
+  h = h ^ ((h >> 13) & 0x7ffff)
+  if (size & (size - 1)) == 0 {
+    h & (size - 1)
+  } else {
+    (h & 0x7fffffff) % size
+  }
 }
 
 ///|

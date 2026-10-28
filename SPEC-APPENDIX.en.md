@@ -8,7 +8,7 @@
 > is the MoonBit package registered in `architecture.json`.
 
 <!-- APPENDIX:BEGIN -->
-**6177** public symbols (declarations + constructors + fields) in 98 specification families; by package: `algebra` 918, `bridge` 172, `cmd-semiringreport` 42, `root` 2992, `scheme` 314, `semiring-algebra` 287, `semiring-app` 24, `semiring-bp` 22, `semiring-cat` 33, `semiring-examples` 18, `semiring-graph` 40, `semiring-io` 9, `semiring-matrix` 60, `semiring-monoid` 85, `semiring-nf` 43, `semiring-par` 18, `semiring-par-host` 4, `semiring-ratelimit` 64, `semiring-sim` 42, `semiring-spline` 17, `semiring-trop` 84, `symlib` 537, `topos` 352.
+**6484** public symbols (declarations + constructors + fields) in 98 specification families; by package: `algebra` 956, `bridge` 171, `cmd-semiringreport` 42, `root` 3262, `scheme` 314, `semiring-algebra` 287, `semiring-app` 24, `semiring-bp` 22, `semiring-cat` 33, `semiring-examples` 18, `semiring-graph` 40, `semiring-io` 9, `semiring-matrix` 60, `semiring-monoid` 85, `semiring-nf` 43, `semiring-par` 18, `semiring-par-host` 4, `semiring-ratelimit` 64, `semiring-sim` 42, `semiring-spline` 17, `semiring-trop` 84, `symlib` 537, `topos` 352.
 
 ### Complex scalars
 
@@ -679,23 +679,33 @@
 
 ### AST Kan comp/hcomp
 
-- Canonical form: branches are always carried as DSystem; dispatch by type head at a generic dimension; top branches give caps and formal DNComp/DNHComp are the stuck forms
-- Categorification: every type former preserves Kan fibration structure; hcompU is Glue gluing
-- Decision: system base/overlap compatibility plus recursion on types; circle/torus branch caps are read by substituting 1 into the generic branch value's coordinate expression (keeping a traversed coordinate 1 instead of the endpoint-normalised base 0), so non-point-valued composition in Path and square types computes loop and square caps; coe/fill are segment restrictions of comp
+- Canonical form: branches are always carried as DSystem; dispatch by type head at a generic dimension; top branches give caps and formal DNComp/DNHComp are the stuck forms; CircleSquareWindingReport records 2D circle boundary windings and H-space gluing status
+- Categorification: every type former preserves Kan fibration structure; hcompU is Glue gluing; the groupoid H-space multiplication on S¹≃K(ℤ,1) and T²≃S¹×S¹ reduces 0~1 endpoint-glued 2D open-box boundaries to an integer 2-cocycle winding conservation condition
+- Decision: system base/overlap compatibility plus recursion on types; 2D endpoint-glued circle/torus open boxes construct H-space rotation caps at zero net winding and return None on non-zero winding obstructions; coe/fill are segment restrictions of comp
 
 | Symbol | Package | Kind |
 |---|---|---|
+| `CircleSquareWindingReport` | root | struct |
+| `CircleSquareWindingReport.corners_compatible` | root | field |
+| `CircleSquareWindingReport.filler` | root | field |
+| `CircleSquareWindingReport.net_boundary_winding` | root | field |
+| `CircleSquareWindingReport.used_hspace_glue` | root | field |
+| `CircleSquareWindingReport.winding_i0` | root | field |
+| `CircleSquareWindingReport.winding_i1` | root | field |
+| `CircleSquareWindingReport.winding_j0` | root | field |
+| `CircleSquareWindingReport.winding_j1` | root | field |
 | `check_ast_coe_terms` | root | function |
 | `check_ast_hcomp_data_terms` | root | function |
 | `check_ast_hcomp_hit_terms` | root | function |
 | `check_ast_hcomp_sigma_path_terms` | root | function |
 | `check_ast_hcomp_univ_term` | root | function |
-| `check_ast_kan_all` | root | function |
 | `check_ast_kan_terms` | root | function |
 | `check_ast_kan_types` | root | function |
 | `check_circle_torus_point_comp` | root | function |
 | `check_circle_torus_square_comp` | root | function |
 | `check_phase14_decoupled_torus_and_semantic_circle_norm` | root | function |
+| `circle_path_winding_int` | root | function |
+| `circle_square_glued_cap` | root | function |
 | `coe_value` | root | function |
 | `comp_glue_value` | root | function |
 | `comp_path_value` | root | function |
@@ -714,6 +724,7 @@
 | `hcomp_univ_value` | root | function |
 | `hcomp_value` | root | function |
 | `hfill_value` | root | function |
+| `torus_square_glued_cap` | root | function |
 
 ### Data types and HIT elimination
 
@@ -831,9 +842,7 @@
 | `dim_cache_key` | root | function |
 | `dterm_cache_key` | root | function |
 | `dterm_dag_binary_format_version` | root | function |
-| `dterm_dag_binary_from_hex` | root | function |
 | `dterm_dag_binary_supported_versions` | root | function |
-| `dterm_dag_binary_to_hex` | root | function |
 | `dterm_dag_binary_version_of` | root | function |
 | `dterm_dag_binary_version_policy` | root | function |
 | `dterm_dag_delta_apply` | root | function |
@@ -1802,9 +1811,6 @@
 | `BddPrunedOptimalBuild.pruned_subsets` | root | field |
 | `BddPrunedOptimalBuild.size` | root | field |
 | `BddPrunedOptimalBuild.tried` | root | field |
-| `FaceBoolExpr::equal` | root | function |
-| `FaceBoolExpr::not_equal` | root | function |
-| `FaceBoolExpr::to_repr` | root | function |
 | `FaceCdclProofResult` | root | struct |
 | `FaceCdclProofResult.decision` | root | field |
 | `FaceCdclProofResult.original_clauses` | root | field |
@@ -1938,9 +1944,9 @@
 
 ### Raw DSystem compatibility and first-match normal forms
 
-- Canonical form: compatible systems reuse the type-directed DSystem normal form; arbitrary first-match systems become disjoint effective regions DTubeNF; agreement regions of two values come in both boolean BDD form and a Face-valued form retaining both endpoints, and exact repair truncates branches to the Face-valued agreement without touching endpoints
-- Categorification: partial elements in face-relative slices; the checked constructor is a reflection into the composition-system subclass
-- Decision: local-context conversion enumerates only the dimensions actually mentioned by the branches (irrelevant dimensions are pruned by BDD cofactor structure), checking the base and pairwise overlaps; the first conflict is reported; exact repair may also sequentially supplement candidates; maximum completion first exact-restricts and then chooses a genuinely maximum compatible supplement as a maximum clique of the branch-compatibility graph, reporting exactness
+- Canonical form: compatible systems reuse the type-directed DSystem normal form; arbitrary first-match systems become disjoint effective regions DTubeNF; agreement regions of two values come in both boolean BDD form and a Face-valued form retaining both endpoints, and exact repair truncates branches to the Face-valued agreement without touching endpoints; DSystemDsaturCliqueReport records chromatic upper bounds and max-clique pruning statistics
+- Categorification: partial elements in face-relative slices; the checked constructor is a reflection into the composition-system subclass; the chromatic number χ(G[P]) is a dual upper bound on the clique number ω(G[P])
+- Decision: local-context conversion enumerates only the dimensions actually mentioned by the branches (irrelevant dimensions are pruned by BDD cofactor structure), checking the base and pairwise overlaps; exact repair and maximum completion enumerate maximum compatible subsystems by exact maximum clique or DSATUR saturation-degree chromatic upper-bound pruning
 
 | Symbol | Package | Kind |
 |---|---|---|
@@ -1957,6 +1963,12 @@
 | `DSystemCompatibility::equal` | root | function |
 | `DSystemCompatibility::not_equal` | root | function |
 | `DSystemCompatibility::to_repr` | root | function |
+| `DSystemDsaturCliqueReport` | root | struct |
+| `DSystemDsaturCliqueReport.chromatic_root_bound` | root | field |
+| `DSystemDsaturCliqueReport.color_pruned_branches` | root | field |
+| `DSystemDsaturCliqueReport.dsatur_visited_nodes` | root | field |
+| `DSystemDsaturCliqueReport.result` | root | field |
+| `DSystemDsaturCliqueReport.uncolored_visited_nodes` | root | field |
 | `DSystemIncompatibility` | root | enum |
 | `DSystemIncompatibility::DSystemBaseIncompatible` | root | constructor |
 | `DSystemIncompatibility::DSystemBranchesIncompatible` | root | constructor |
@@ -2009,12 +2021,15 @@
 | `check_dsystem_repair_phase9` | root | function |
 | `check_face_agreement_and_exact_repair` | root | function |
 | `check_phase14_dsystem_all_maxima_and_finite_case_split` | root | function |
+| `check_phase16_dsatur_and_glued_cubical_comp` | root | function |
 | `conv_at_under_face` | root | function |
 | `conv_at_under_face_in` | root | function |
 | `conv_at_under_face_report` | root | function |
 | `conv_at_under_face_report_in` | root | function |
 | `cubical_face_subcubes` | root | function |
+| `dsatur_color_order` | root | function |
 | `dsystem_repair_all_maxima` | root | function |
+| `dsystem_repair_all_maxima_dsatur` | root | function |
 | `dsystem_repair_maximum` | root | function |
 | `dtube_nf_class` | root | function |
 | `face_agreement_face` | root | function |
@@ -2168,9 +2183,9 @@
 
 ### Schema functors, positivity and induction-recursion
 
-- Canonical form: the Id/Const/Product/Sum/List/Pi/Container/DecodedFunction/Family grammar of DPositiveFunctor (Family marks host-Self versus external parameter slots with DFunctorParamArg; SelfFamily parameter strict positivity is decided by a least fixed point and foreign nested IHs are transported by term-level functor maps) and its decoded types; DPositivityReport records occurrences and polarities
-- Categorification: initial algebras of positive type functors with decoded induction hypotheses; DDecode is the decoding function of a Tarski universe (induction-recursion)
-- Decision: polarity recursion on alias-expanded DTerms: nested functors and positive positions are accepted, negative positions rejected, and unknown neutral family applications rejected unless declared; an opaque neutral operator may carry a trusted DPositivityDeclaration (matched under binders by a depth-aware shifting walk, with strict/positive argument positions), and a lambda-verified variant is approved by structural analysis (a declaration is trusted, not a proof of the opaque operator's positivity); IHs are generated by functor recursion
+- Canonical form: the Id/Const/Product/Sum/List/Pi/Container/DecodedFunction/Family/SelfFamily grammar of DPositiveFunctor and its decoded types; DPositivityReport records occurrences and polarities; DFunctorialPositivityCert carries semantic covariant-law or container-isomorphism certificates
+- Categorification: initial algebras of positive type functors with decoded induction hypotheses; DDecode is the decoding function of a Tarski universe; polynomial container isomorphisms Equiv(F X, Σs:S.P(s)→X) give an anti-circular semantic characterization of strictly positive endofunctors
+- Decision: polarity recursion on alias-expanded DTerms: nested functors and positive positions are accepted, negative positions rejected, and unknown neutral family applications rejected unless backed by a DPositivityDeclaration, a lambda-verified operator, or a kernel-checked semantic certificate (anti-circular container isomorphisms grant strict_args, whereas covariant functor laws alone grant only non-strict positive_args); IHs are generated by functor recursion
 
 | Symbol | Package | Kind |
 |---|---|---|
@@ -2180,6 +2195,20 @@
 | `DFunctorParamArg::equal` | root | function |
 | `DFunctorParamArg::not_equal` | root | function |
 | `DFunctorParamArg::to_repr` | root | function |
+| `DFunctorPositivityEvidence` | root | enum |
+| `DFunctorPositivityEvidence::DFunctorContainerIso` | root | constructor |
+| `DFunctorPositivityEvidence::DFunctorCovariantLaws` | root | constructor |
+| `DFunctorPositivityEvidence::equal` | root | function |
+| `DFunctorPositivityEvidence::not_equal` | root | function |
+| `DFunctorPositivityEvidence::to_repr` | root | function |
+| `DFunctorialPositivityCert` | root | struct |
+| `DFunctorialPositivityCert.claim_strict` | root | field |
+| `DFunctorialPositivityCert.evidence` | root | field |
+| `DFunctorialPositivityCert.level` | root | field |
+| `DFunctorialPositivityCert.univ_level` | root | field |
+| `DFunctorialPositivityCert::equal` | root | function |
+| `DFunctorialPositivityCert::not_equal` | root | function |
+| `DFunctorialPositivityCert::to_repr` | root | function |
 | `DPositiveFunctor` | root | enum |
 | `DPositiveFunctor::DFunctorConst` | root | constructor |
 | `DPositiveFunctor::DFunctorContainer` | root | constructor |
@@ -2242,6 +2271,9 @@
 | `dfunctor_self_family` | root | function |
 | `dfunctor_sigma` | root | function |
 | `dfunctor_sum` | root | function |
+| `dfunctorial_positivity_container_cert` | root | function |
+| `dfunctorial_positivity_covariant_cert` | root | function |
+| `dfunctorial_positivity_verify` | root | function |
 | `dpositivity_declaration` | root | function |
 | `dpositivity_declaration_from_lambda` | root | function |
 | `dpositivity_report` | root | function |
@@ -2254,6 +2286,7 @@
 | `dterm_family_strictly_positive` | root | function |
 | `dterm_family_strictly_positive_certified` | root | function |
 | `dterm_family_strictly_positive_declared` | root | function |
+| `dterm_family_strictly_positive_functorial` | root | function |
 | `dterm_shift` | root | function |
 | `dterm_substitute` | root | function |
 | `infer_decode` | root | function |
@@ -2906,9 +2939,11 @@
 | `loop_suspension_adjunction_equiv_value` | root | function |
 | `pi1_susp2_circle_equiv_unit_value` | root | function |
 | `pi1_susp_circle_equiv_unit_value` | root | function |
+| `sphere2_meridian_path_value` | root | function |
 | `sphere2_north_term` | root | function |
 | `sphere2_north_value` | root | function |
 | `sphere2_schema` | root | function |
+| `sphere2_type_value` | root | function |
 | `sphere3_meridian_term` | root | function |
 | `sphere3_meridian_value` | root | function |
 | `sphere3_north_term` | root | function |
@@ -3131,9 +3166,9 @@
 
 ### Higher-order unification and the bidirectional elaborator
 
-- Canonical form: Miller-pattern spines `?F x₁…xₙ` in UTerm and beta/projection-reduced zonked cores; surface STerm resolves names to de Bruijn UTerm
-- Categorification: pattern HOU is the decidable fragment of higher-order unification; bidirectional elaboration sends implicit arguments and dependent motives to the same unifier and compiles to the dependent core
-- Decision: rigid decomposition after WHNF, pattern abstraction, occurs/scope checks and a closed-term fallback; a bounded Huet-style search above the deterministic fragment tries rigid/spine decomposition, same-head invariant coordinates, distinct flex-flex constants, imitation and projection transactionally under node/depth budgets and reports solved/no-unifier/residual/budget-exceeded honestly (general HOU is undecidable, so no completeness is claimed); check/infer insert implicit metavariables and unsolved ones are rejected before DTerm translation; phase 11 adds deep imitation, a widened projection-candidate cap and same-head identification, with iterative deepening recorded in HouIterativeReport; phase 12 adds hou_unify_mgu with a three-state semantics on the Miller-pattern fragment — principal MGU, provably no unifier, or a partial substitution together with residual constraints; the phase-13 residual solver alternates principal propagation with transactional iterative-deepening Huet search over the whole residual set (still with no claim of general completeness or a single MGU)
+- Canonical form: Miller-pattern spines `?F x₁…xₙ` in UTerm and beta/projection-reduced zonked cores; surface STerm resolves names to de Bruijn UTerm; HouDelayedGraphReport stores delayed Huet flex-flex constraint-graph edges, and HouLazyUnifierStream stores an explicit pull-based continuation stack
+- Categorification: pattern HOU is the decidable fragment of higher-order unification; Huet pre-unification quotients by delayed flex-flex equations and lazy streams unfold the search tree coalgebraically; bidirectional elaboration sends implicit arguments and dependent motives to the same unifier and compiles to the dependent core
+- Decision: rigid decomposition after WHNF, pattern abstraction, occurs/scope checks, bounded Huet search, three-state Miller-pattern MGU, cross-constraint residual solving, Huet delayed flex-flex graph wake-up and pre-unifier reification, and pull-based lazy normal-form unifier streams
 
 | Symbol | Package | Kind |
 |---|---|---|
@@ -3162,6 +3197,24 @@
 | `HouConstraint::equal` | root | function |
 | `HouConstraint::not_equal` | root | function |
 | `HouConstraint::to_repr` | root | function |
+| `HouDelayedGraphReport` | root | struct |
+| `HouDelayedGraphReport.branches_tried` | root | field |
+| `HouDelayedGraphReport.delayed_edges` | root | field |
+| `HouDelayedGraphReport.nodes` | root | field |
+| `HouDelayedGraphReport.status` | root | field |
+| `HouDelayedGraphReport.substitution` | root | field |
+| `HouDelayedGraphReport.woke_edges` | root | field |
+| `HouDelayedGraphReport::equal` | root | function |
+| `HouDelayedGraphReport::not_equal` | root | function |
+| `HouDelayedGraphReport::to_repr` | root | function |
+| `HouDelayedSolveStatus` | root | enum |
+| `HouDelayedSolveStatus::HouDelayedBudgetExceeded` | root | constructor |
+| `HouDelayedSolveStatus::HouDelayedNoUnifier` | root | constructor |
+| `HouDelayedSolveStatus::HouDelayedPreUnifier` | root | constructor |
+| `HouDelayedSolveStatus::HouDelayedSolved` | root | constructor |
+| `HouDelayedSolveStatus::equal` | root | function |
+| `HouDelayedSolveStatus::not_equal` | root | function |
+| `HouDelayedSolveStatus::to_repr` | root | function |
 | `HouEnumerationReport` | root | struct |
 | `HouEnumerationReport.branches_tried` | root | field |
 | `HouEnumerationReport.capped` | root | field |
@@ -3172,6 +3225,17 @@
 | `HouEnumerationReport::equal` | root | function |
 | `HouEnumerationReport::not_equal` | root | function |
 | `HouEnumerationReport::to_repr` | root | function |
+| `HouFlexFlexEdge` | root | struct |
+| `HouFlexFlexEdge.depth` | root | field |
+| `HouFlexFlexEdge.lhs` | root | field |
+| `HouFlexFlexEdge.lhs_arity` | root | field |
+| `HouFlexFlexEdge.lhs_meta` | root | field |
+| `HouFlexFlexEdge.rhs` | root | field |
+| `HouFlexFlexEdge.rhs_arity` | root | field |
+| `HouFlexFlexEdge.rhs_meta` | root | field |
+| `HouFlexFlexEdge::equal` | root | function |
+| `HouFlexFlexEdge::not_equal` | root | function |
+| `HouFlexFlexEdge::to_repr` | root | function |
 | `HouIterativeReport` | root | struct |
 | `HouIterativeReport.report` | root | field |
 | `HouIterativeReport.rounds` | root | field |
@@ -3179,6 +3243,19 @@
 | `HouIterativeReport::equal` | root | function |
 | `HouIterativeReport::not_equal` | root | function |
 | `HouIterativeReport::to_repr` | root | function |
+| `HouLazyUnifierStream` | root | struct |
+| `HouLazyUnifierStream.constraints` | root | field |
+| `HouLazyUnifierStream.emitted` | root | field |
+| `HouLazyUnifierStream.exhausted` | root | field |
+| `HouLazyUnifierStream.initial` | root | field |
+| `HouLazyUnifierStream.max_depth` | root | field |
+| `HouLazyUnifierStream.max_nodes` | root | field |
+| `HouLazyUnifierStream.max_projection_args` | root | field |
+| `HouLazyUnifierStream.nodes_expanded` | root | field |
+| `HouLazyUnifierStream.reify_flex_flex` | root | field |
+| `HouLazyUnifierStream.root_started` | root | field |
+| `HouLazyUnifierStream.round_budget` | root | field |
+| `HouLazyUnifierStream.stack` | root | field |
 | `HouMguReport` | root | struct |
 | `HouMguReport.residual` | root | field |
 | `HouMguReport.status` | root | field |
@@ -3278,6 +3355,7 @@
 | `check_hou_residual_solver` | root | function |
 | `check_hou_search_extensions` | root | function |
 | `check_phase14_hou_backtracking_and_enumeration` | root | function |
+| `check_phase16_hou_stream_and_module_merge` | root | function |
 | `elab_check` | root | function |
 | `elab_infer` | root | function |
 | `elab_result_to_dterm` | root | function |
@@ -3285,13 +3363,18 @@
 | `elaborator_new` | root | function |
 | `hou_enumerate_unifiers` | root | function |
 | `hou_fresh_meta` | root | function |
+| `hou_reify_delayed_flex_flex` | root | function |
 | `hou_search_unify` | root | function |
 | `hou_search_unify_bool` | root | function |
 | `hou_search_unify_iterative` | root | function |
-| `hou_search_unify_iterative_bool` | root | function |
 | `hou_semantic_optimize` | root | function |
 | `hou_solve_constraints` | root | function |
 | `hou_solve_constraints_backtracking` | root | function |
+| `hou_solve_with_delayed_flex_flex` | root | function |
+| `hou_unifier_stream_is_exhausted` | root | function |
+| `hou_unifier_stream_new` | root | function |
+| `hou_unifier_stream_next` | root | function |
+| `hou_unifier_stream_nodes` | root | function |
 | `hou_unify` | root | function |
 | `hou_unify_mgu` | root | function |
 | `hou_unify_residual` | root | function |
@@ -3429,9 +3512,9 @@
 
 ### Cubical algorithms
 
-- Canonical form: KanBox packages a line, a system and a base; transport fillers are PathP values; path transitivity is the top edge of an hcomp square
-- Categorification: path-object operations generated by Kan fibration structure in a cubical CwF: inverse, concatenation, functoriality and dependent substitution
-- Decision: dispatch to kernel coe/comp/fill with endpoint conversion; unit-law 3-cells are built by connection rotations of the transitivity square (a two-phase endpoint-preserving rotation on the left, a slide on the right); closed-term builders are accepted again by dep_check_closed
+- Canonical form: KanBox packages a line, a system and a base; transport fillers are PathP values; path transitivity is the top edge of an hcomp square; Σ-path splitting, fibration loop equivalences and Stasheff's 5D associahedron K₅ coherence 5-cell
+- Categorification: path-object operations generated by Kan fibration structure in a cubical CwF, fibration loop sequences Ω¹(ΣB P)≃Σ(p:Ω¹B).(subst P p e₀≡e₀) and the K₅ 5-cell classifying five-fold A_∞ loop associativity
+- Decision: dispatch to kernel coe/comp/fill with endpoint conversion; unit-law 3-cells, Mac Lane pentagon 4-cells and the Stasheff K₅ 5-cell between northern and southern pentagon routes are verified by conversion; closed and open certified equivalences are checked by the dependent checker
 
 | Symbol | Package | Kind |
 |---|---|---|
@@ -3446,11 +3529,18 @@
 | `dj_singleton_elim_value` | root | function |
 | `dpath_assoc3_value` | root | function |
 | `dpath_assoc_path3_value` | root | function |
+| `dpath_associahedron_k5_cell5_value` | root | function |
 | `dpath_at_value` | root | function |
 | `dpath_cong_term` | root | function |
 | `dpath_cong_value` | root | function |
 | `dpath_eckmann_hilton3_value` | root | function |
 | `dpath_funext_value` | root | function |
+| `dpath_k5_hemi_north4_value` | root | function |
+| `dpath_k5_hemi_south4_value` | root | function |
+| `dpath_k5_lhs1_value` | root | function |
+| `dpath_k5_rhs1_value` | root | function |
+| `dpath_k5_route_inner3_value` | root | function |
+| `dpath_k5_route_outer3_value` | root | function |
 | `dpath_left_inverse3_value` | root | function |
 | `dpath_left_unit3_value` | root | function |
 | `dpath_lr_unit_coherence4_value` | root | function |
@@ -3480,11 +3570,18 @@
 | `dpathp_of_transport_eq_value` | root | function |
 | `dtransport_back_term` | root | function |
 | `dtransport_term` | root | function |
+| `fibration_loop_equiv_fiber_path_value` | root | function |
 | `kan_box` | root | function |
 | `kan_box_comp` | root | function |
 | `kan_box_fill` | root | function |
 | `kan_box_pathp` | root | function |
+| `pathp_equiv_transport_eq_value` | root | function |
+| `sigma_cong_snd_equiv_value` | root | function |
+| `sigma_path_equiv_subst_value` | root | function |
+| `sigma_path_equiv_value` | root | function |
 | `subst_pathp_value` | root | function |
+| `subst_refl_eq_value` | root | function |
+| `subst_trans_eq_value` | root | function |
 | `subst_value` | root | function |
 | `transport_back_value` | root | function |
 | `transport_checked_line_value` | root | function |
@@ -3533,9 +3630,9 @@
 
 ### Complete exact algebra and root isolation
 
-- Canonical form: BigInt rationals; irreducible factors and multiplicities in Q[x]; Sturm real-root intervals and disjoint Rouché complex disks; split roots in successive algebraic towers; denested radical expressions; biquadratic numbers as rational coefficients on the basis [1,√d₁,√d₂,√(d₁d₂)] for at most two squarefree generators
-- Categorification: unique factorization in Q[x], root multisets in an algebraic closure and finite splitting extensions; AlgPoly is polynomial algebra over an extension
-- Decision: irreducibility is first decided by a certificate fast path (linear, low-degree without rational roots, mod-p irreducibility, joint exclusion by several mod-p degree patterns, and Eisenstein with shifts — each independently re-verifiable), then factorization prunes by adaptive mod-p degree patterns and rational roots before Kronecker enumeration; Sturm counting, Cauchy-square Taylor exclusion and Rouché subdivision; radical equality is attempted along quadratic, biquadratic, triquadratic, multiquadratic fields with up to four squareclass-independent generators, and the pure cubic Q(∛m); multiquadratic square roots are decided recursively in-field or after adjoining one square-root generator (non-rational square classes and radicands needing general algebraic roots are the stated boundary); every certificate is recomputed with exact polynomial arithmetic
+- Canonical form: BigInt rationals; irreducible factors and multiplicities in Q[x]; exact rational LLL-reduced lattice bases with unimodular transforms U∈GLₙ(ℤ); Van Hoeij power-sum trace-lattice factors; Sturm real-root intervals, disjoint Rouché complex disks and complex algebraic closure elements ComplexAlgNum∈Q̄⊂ℂ; biquadratic numbers and denested radical expressions
+- Categorification: unique factorization in Q[x], GLₙ(ℤ) lattice-reduction orbits, Frobenius/Hensel power-sum trace sublattices and the complex-embedded direct limit of the algebraic closure Q̄⊂ℂ
+- Decision: certificate fast-path irreducibility, Hensel lifting with Fujiwara-bounded Van Hoeij LLL trace-lattice recombination (avoiding exponential combinatorics on Swinnerton-Dyer polynomials) and Kronecker fallback; Sturm counting, Cauchy/Rouché disk refinement and resultant elimination implement exact field arithmetic, conjugation, nth roots and equality in Q̄⊂ℂ
 
 | Symbol | Package | Kind |
 |---|---|---|
@@ -3554,6 +3651,10 @@
 | `BiquadNum::equal` | algebra | function |
 | `BiquadNum::not_equal` | algebra | function |
 | `BiquadNum::to_repr` | algebra | function |
+| `ComplexAlgNum` | algebra | struct |
+| `ComplexAlgNum.disk` | algebra | field |
+| `ComplexAlgNum.minpoly` | algebra | field |
+| `ComplexAlgNum.root_index` | algebra | field |
 | `ComplexDisk` | algebra | struct |
 | `ComplexDisk.im` | algebra | field |
 | `ComplexDisk.radius` | algebra | field |
@@ -3562,6 +3663,11 @@
 | `ComplexRootIsolation.disk` | algebra | field |
 | `ComplexRootIsolation.multiplicity` | algebra | field |
 | `ComplexRootIsolation.polynomial` | algebra | field |
+| `LllReductionReport` | algebra | struct |
+| `LllReductionReport.reduced_basis` | algebra | field |
+| `LllReductionReport.size_reductions` | algebra | field |
+| `LllReductionReport.swaps` | algebra | field |
+| `LllReductionReport.unimodular_u` | algebra | field |
 | `QPolyCertifiedFactor` | algebra | struct |
 | `QPolyCertifiedFactor.certificate` | algebra | field |
 | `QPolyCertifiedFactor.factor` | algebra | field |
@@ -3592,6 +3698,13 @@
 | `QPolyIrreducibilityCertificate::equal` | algebra | function |
 | `QPolyIrreducibilityCertificate::not_equal` | algebra | function |
 | `QPolyIrreducibilityCertificate::to_repr` | algebra | function |
+| `QPolyLllFactorReport` | algebra | struct |
+| `QPolyLllFactorReport.factors` | algebra | field |
+| `QPolyLllFactorReport.hensel_prime` | algebra | field |
+| `QPolyLllFactorReport.leading` | algebra | field |
+| `QPolyLllFactorReport.lll_short_dimension` | algebra | field |
+| `QPolyLllFactorReport.modular_factor_count` | algebra | field |
+| `QPolyLllFactorReport.used_lll_lattice` | algebra | field |
 | `RadicalExpr` | algebra | enum |
 | `RadicalExpr::RAdd` | algebra | constructor |
 | `RadicalExpr::RDiv` | algebra | constructor |
@@ -3658,6 +3771,8 @@
 | `biquad_to_radical` | algebra | function |
 | `biquad_zero` | algebra | function |
 | `check_biquadratic_denesting` | algebra | function |
+| `check_complex_algebraic_closure_rouche` | algebra | function |
+| `check_lll_lattice_and_van_hoeij_factor` | algebra | function |
 | `check_phase14_qpoly_hensel_factor_and_certificates` | root | function |
 | `check_qpoly_degree_pattern_certificates` | algebra | function |
 | `check_qpoly_factor_complete` | algebra | function |
@@ -3666,9 +3781,26 @@
 | `check_radical_denesting` | algebra | function |
 | `check_root_isolation` | algebra | function |
 | `check_splitting_field` | algebra | function |
+| `complex_alg_add` | algebra | function |
+| `complex_alg_all_nth_roots` | algebra | function |
+| `complex_alg_conj` | algebra | function |
+| `complex_alg_div` | algebra | function |
+| `complex_alg_eq` | algebra | function |
+| `complex_alg_eval_poly` | algebra | function |
+| `complex_alg_i` | algebra | function |
+| `complex_alg_inv` | algebra | function |
+| `complex_alg_mul` | algebra | function |
+| `complex_alg_neg` | algebra | function |
+| `complex_alg_of_rat` | algebra | function |
+| `complex_alg_pow` | algebra | function |
+| `complex_alg_refine_disk` | algebra | function |
+| `complex_alg_roots_of` | algebra | function |
+| `complex_alg_sub` | algebra | function |
 | `complex_root_isolations_are_certified` | algebra | function |
 | `qcpx_hermitian_charpoly` | algebra | function |
 | `qcpx_hermitian_eigenvalue_isolations` | algebra | function |
+| `qmat_is_lll_reduced` | algebra | function |
+| `qmat_lll_reduce` | algebra | function |
 | `qmat_symmetric_eigenvalue_isolations` | algebra | function |
 | `qpoly_complete_factorization_expand` | algebra | function |
 | `qpoly_factor_certificate_check` | algebra | function |
@@ -3676,6 +3808,7 @@
 | `qpoly_factor_complete` | algebra | function |
 | `qpoly_factor_complete_with_budget` | algebra | function |
 | `qpoly_factor_hensel` | algebra | function |
+| `qpoly_factor_lll` | algebra | function |
 | `qpoly_irreducible_upto3` | algebra | function |
 | `qpoly_is_irreducible` | algebra | function |
 | `qpoly_isolate_complex_roots` | algebra | function |
@@ -3696,15 +3829,17 @@
 | `radical_to_multiquad_upto` | algebra | function |
 | `radical_to_real_alg` | algebra | function |
 | `radical_to_triquad` | algebra | function |
+| `rat_round_nearest_bigint` | algebra | function |
 | `real_root_isolation_refine` | algebra | function |
 | `real_root_isolations_are_certified` | algebra | function |
 | `splitting_field_is_certified` | algebra | function |
+| `van_hoeij_lll_recombine` | algebra | function |
 
 ### First-class universe-polymorphic and simultaneous declaration schemas
 
-- Canonical form: level binders and instantiation in DLevelDecl; positive functors extracted after transparent-operator unfolding; iteratively compiled non-uniform nested families; joint mutual and simultaneous IR specifications
-- Categorification: universe schemes, parameter-iterated initial-algebra families, joint initial algebras of vector functors and synchronous induction-recursion structures
-- Decision: level scope, positivity reports, generated telescopes and dependent conversion; uninstantiated levels are rejected by core checking; beyond decode-position compilation, a mutually dependent simultaneous-IR block whose function level is strictly below the base family level compiles to eliminator closed terms over the single base family (each term verified case by case by forced application in a generic context; nested foreign IHs are covered by functor maps, while forward references, non-universe foreign functions and decoded/level-mismatched positions are still refused explicitly)
+- Canonical form: level binders and instantiation in DLevelDecl; positive functors extracted after transparent-operator unfolding; iteratively compiled non-uniform nested families; joint mutual, cumulative cross-universe simultaneous IR and Dybjer–Setzer open multi-decoder simultaneous IR DOpenSimultaneousIRSpec
+- Categorification: universe schemes, parameter-iterated initial-algebra families, cumulative Σ joint motives and open synchronous induction-recursion initial algebras over multi-slice fiber categories Famₘ(Type)
+- Decision: level scope, positivity reports, generated telescopes and dependent conversion; simultaneous IR compiles mutually dependent cross-universe large/small blocks at joint_motive_level = maxᵢ function_universe_level(fᵢ); open multi-decoder simultaneous IR supports validation, code checking, decoding, dependent elimination and single-decoder kernel lowering
 
 | Symbol | Package | Kind |
 |---|---|---|
@@ -3753,6 +3888,48 @@
 | `DNestedIterFamily` | root | struct |
 | `DNestedIterFamily.auxiliary` | root | field |
 | `DNestedIterFamily.decl` | root | field |
+| `DOpenIRArg` | root | struct |
+| `DOpenIRArg.kind` | root | field |
+| `DOpenIRArg.name` | root | field |
+| `DOpenIRArg::equal` | root | function |
+| `DOpenIRArg::not_equal` | root | function |
+| `DOpenIRArg::to_repr` | root | function |
+| `DOpenIRArgKind` | root | enum |
+| `DOpenIRArgKind::DOpenArgCode` | root | constructor |
+| `DOpenIRArgKind::DOpenArgDecodedCodeFn` | root | constructor |
+| `DOpenIRArgKind::DOpenArgDecodedVal` | root | constructor |
+| `DOpenIRArgKind::DOpenArgExternal` | root | constructor |
+| `DOpenIRArgKind::equal` | root | function |
+| `DOpenIRArgKind::not_equal` | root | function |
+| `DOpenIRArgKind::to_repr` | root | function |
+| `DOpenIRArgVal` | root | enum |
+| `DOpenIRArgVal::DOpenValCode` | root | constructor |
+| `DOpenIRArgVal::DOpenValCodeFn` | root | constructor |
+| `DOpenIRArgVal::DOpenValTerm` | root | constructor |
+| `DOpenIRCode` | root | struct |
+| `DOpenIRCode.args` | root | field |
+| `DOpenIRCode.ctor_idx` | root | field |
+| `DOpenIRConstructor` | root | struct |
+| `DOpenIRConstructor.args` | root | field |
+| `DOpenIRConstructor.name` | root | field |
+| `DOpenIRConstructor::equal` | root | function |
+| `DOpenIRConstructor::not_equal` | root | function |
+| `DOpenIRConstructor::to_repr` | root | function |
+| `DOpenIRDecoder` | root | struct |
+| `DOpenIRDecoder.cases` | root | field |
+| `DOpenIRDecoder.decode_level` | root | field |
+| `DOpenIRDecoder.name` | root | field |
+| `DOpenIRDecoder::equal` | root | function |
+| `DOpenIRDecoder::not_equal` | root | function |
+| `DOpenIRDecoder::to_repr` | root | function |
+| `DOpenSimultaneousIRSpec` | root | struct |
+| `DOpenSimultaneousIRSpec.constructors` | root | field |
+| `DOpenSimultaneousIRSpec.decoders` | root | field |
+| `DOpenSimultaneousIRSpec.level` | root | field |
+| `DOpenSimultaneousIRSpec.name` | root | field |
+| `DOpenSimultaneousIRSpec::equal` | root | function |
+| `DOpenSimultaneousIRSpec::not_equal` | root | function |
+| `DOpenSimultaneousIRSpec::to_repr` | root | function |
 | `DSimultaneousFunction` | root | struct |
 | `DSimultaneousFunction.cases` | root | field |
 | `DSimultaneousFunction.name` | root | field |
@@ -3771,6 +3948,7 @@
 | `check_mutual_declaration_positivity` | root | function |
 | `check_nested_iter_datatype` | root | function |
 | `check_phase14_joint_simultaneous_ir_mutual` | root | function |
+| `check_phase16_schema_large_open_positivity` | root | function |
 | `check_simultaneous_induction_recursion` | root | function |
 | `check_simultaneous_ir_compiled_decode` | root | function |
 | `check_simultaneous_ir_nested_foreign` | root | function |
@@ -3785,6 +3963,17 @@
 | `dnested_external` | root | function |
 | `dnested_iter_decl` | root | function |
 | `dnested_recursive` | root | function |
+| `dopen_arg_code` | root | function |
+| `dopen_arg_decoded_code_fn` | root | function |
+| `dopen_arg_decoded_val` | root | function |
+| `dopen_arg_external` | root | function |
+| `dopen_ir_constructor` | root | function |
+| `dopen_ir_decoder` | root | function |
+| `dopen_ir_intro` | root | function |
+| `dopen_simultaneous_ir_spec` | root | function |
+| `dopen_val_code` | root | function |
+| `dopen_val_code_fn` | root | function |
+| `dopen_val_term` | root | function |
 | `dsimultaneous_function` | root | function |
 | `dsimultaneous_ir_spec` | root | function |
 | `dterm_instantiate_levels` | root | function |
@@ -3804,6 +3993,11 @@
 | `nat_parity_double_ir` | root | function |
 | `nested_iter_intro_term_at` | root | function |
 | `nested_iter_type_term` | root | function |
+| `open_ir_check_code` | root | function |
+| `open_ir_elim_value` | root | function |
+| `open_ir_eval_decode` | root | function |
+| `open_ir_lower_single_decoder` | root | function |
+| `open_ir_validate` | root | function |
 | `simultaneous_ir_compile_decode` | root | function |
 | `simultaneous_ir_compile_eliminator` | root | function |
 | `simultaneous_ir_compile_eliminator_block` | root | function |
@@ -3812,6 +4006,7 @@
 | `simultaneous_ir_eliminator_type` | root | function |
 | `simultaneous_ir_function_universe_level` | root | function |
 | `simultaneous_ir_general_eliminator_type` | root | function |
+| `simultaneous_ir_joint_motive_level` | root | function |
 | `simultaneous_ir_uses_other_hypotheses` | root | function |
 | `simultaneous_ir_validate` | root | function |
 | `type_operator_is_strictly_positive` | root | function |
@@ -3879,9 +4074,9 @@
 
 ### Spherical homotopy representatives and the Hopf invariant
 
-- Canonical form: nested Path types for Ωⁿ; integer degree maps by iterated suspension; the pole-swapped S³ HIT; the geometric Hopf map on C² together with the internal univalent Hopf fibration H:S²→Type₀ glued along circle rotation ua; IntegerS with unique zero/posSucc/negSucc constructor forms, semantic succ/pred and an internal h-set proof; pi3 presented via QuotientS; generator powers in SphereLoopExpr
-- Categorification: representatives for the suspension functor, based maps and loop spaces; the geometric and internal univalent Hopf S¹-fibrations and connecting map Ω³(S²)→Ω(S¹)→ℤ
-- Decision: conversion checks on generating meridians; unit, inverse, associativity, symmetry-of-composite, Ω² Eckmann–Hilton interchange and Mac Lane pentagon 4-cells are verified face by face on representatives, and closed representative expressions carry recursive normalization 3-cells to canonical powers; the internal univalent Hopf invariant computes exact signed degrees on Ω³(S²) representatives alongside the Freudenthal 1-loop suspension map σ₁:Ω¹(S¹)→Ω²(Susp(S¹)) (full bidirectional π₃(S²)≃ℤ classification is not claimed)
+- Canonical form: nested Path types for Ωⁿ; integer degree maps by iterated suspension; the pole-swapped S³ HIT; geometric and internal univalent Hopf fibration H:S²→Type₀ with total space E_Hopf=Σ(x:S²)H(x); canonical IntegerS integers with an internal h-set proof; π₂(S²)=‖Ω²(S²)‖₀ and π₃ quotient presentations
+- Categorification: suspension functors, the fibration loop sequence Ω¹(E_Hopf)≃Σ(p:Ω¹(S²))Path(S¹,subst H p base,base) and the Hopf–Freudenthal identity retraction ∂_Hopf(σ_{S²}(p))≡p along suspended loops
+- Decision: groupoid laws, Ω² Eckmann–Hilton interchange and pentagon 4-cells verified face by face; the Hopf total-space loop equivalence is bidirectionally certified, and ∂_Hopf(σ_{S²}(p))≡p is proved over an open neutral loop p:Ω¹(S¹), yielding a certified split-retract section from ℤ into π₂(S²) over an open integer variable
 
 | Symbol | Package | Kind |
 |---|---|---|
@@ -3897,6 +4092,7 @@
 | `check_hopf_numeric` | root | function |
 | `check_loop_inverse_assoc_and_classification` | root | function |
 | `check_phase14_internal_circle_sect_and_hopf_invariant` | root | function |
+| `check_phase16_sphere_homotopy_and_k5` | root | function |
 | `check_sphere_homotopy_representatives` | root | function |
 | `check_sphere_loop_representatives_internal` | root | function |
 | `circle_degree_value` | root | function |
@@ -3904,6 +4100,7 @@
 | `circle_hit_loop_path_value` | root | function |
 | `circle_hit_loop_power_value` | root | function |
 | `circle_rot_equiv_value` | root | function |
+| `circle_rot_eval_base_eq_value` | root | function |
 | `circle_self_loop_value` | root | function |
 | `dpath_trans_sym_cancel_value` | root | function |
 | `freudenthal_susp_loop1_preserves_refl_value` | root | function |
@@ -3911,6 +4108,8 @@
 | `homotopy_group_type_term` | root | function |
 | `hopf_connecting_loop_value` | root | function |
 | `hopf_family_value` | root | function |
+| `hopf_freudenthal_retraction_value` | root | function |
+| `hopf_invariant_susp_retraction_value` | root | function |
 | `hopf_invariant_value` | root | function |
 | `hopf_linking_number_numeric` | root | function |
 | `hopf_map_rat` | root | function |
@@ -3919,10 +4118,14 @@
 | `hopf_phase_rotate` | root | function |
 | `hopf_rotate_rat` | root | function |
 | `hopf_south_fiber` | root | function |
+| `hopf_total_loop_equiv_fiber_seq_value` | root | function |
+| `hopf_total_space_type_value` | root | function |
+| `hopf_unit_subst_eq_value` | root | function |
 | `integer_pred_value` | root | function |
 | `integer_schema` | root | function |
 | `integer_succ_value` | root | function |
 | `integer_term` | root | function |
+| `integer_to_pi2_s2_value` | root | function |
 | `integer_type_term` | root | function |
 | `integer_type_value` | root | function |
 | `integer_value` | root | function |
@@ -3930,8 +4133,12 @@
 | `iterated_refl_value` | root | function |
 | `loop_space_type_term` | root | function |
 | `loop_space_type_value` | root | function |
+| `pi2_s2_hopf_hom_value` | root | function |
+| `pi2_s2_hopf_retract_sect_value` | root | function |
+| `pi2_s2_type_value` | root | function |
 | `pi3_sphere_point_term` | root | function |
 | `pi3_sphere_type_term` | root | function |
+| `sphere2_susp_loop1_to_loop2_value` | root | function |
 | `sphere3_from_swapped_value` | root | function |
 | `sphere3_swapped_equiv_value` | root | function |
 | `sphere3_swapped_meridian_value` | root | function |
@@ -3965,9 +4172,9 @@
 
 ### Separate module compilation and linking
 
-- Canonical form: the flattened checked telescope, exports, dependency fingerprints and public interface projection of CompiledModule; abstract declarations have body=None; the cache is indexed by source fingerprints; the stable external form is the CHMODBIN byte array specified in the Decision column (v2 appends a producer string, v3 shares a DAG term codec with CHREGBIN v2); BinaryVersionPolicy carries current/supported/oldest-writable with peer negotiation; CompiledModuleStore keeps module artifact bytes with hit/miss counters; ArtifactRepository layers named blobs, dual-hash manifests, index-last atomic commits, manifest-scan recovery and a CHARTCHN append-only integrity chain (every put/remove links the previous entry digest; the head is an external trust anchor) over an abstract byte store (a protocol, not an OS disk)
-- Categorification: compiled objects of module functors and synthetic import-free linking definitions; prefix specialization is partial functor application
-- Decision: interface hashes omit opaque bodies and implementation hashes cover all entries; implementations supply abstract exports; cache entries invalidate on source or dependency-interface fingerprints; the stable binary format is magic CHMODBIN + version u16 + length u32 + checksum u32 + payload (tag bytes, fixed-width little-endian i32 fields and UTF-16LE strings), and decoding rejects bad magic/version/truncation/checksum/malformed/trailing bytes before rerunning module validation and fingerprint checks; the loader accepts v1/v2/v3 and migrates v1 with a default producer, while legacy writers refuse newer-only nodes (such as functor tag 8) with None; v3 payloads reference earlier subterms by tag-255 back-references once a node-count threshold is met; corrupted repository blobs are rejected by hash on read, a destroyed index is rebuilt from surviving manifests or by verified chain replay, and edited/reordered/replayed chain entries are rejected against the expected head
+- Canonical form: flattened checked telescopes, exports, dependency fingerprints and public interface projections of CompiledModule; CHMODBIN v1–v3 / TLV envelopes and shared DAG term codecs; topological build plans and incremental relink reports; ArtifactRepository with FIPS 180-4 SHA-256/512, RFC 8032 Pure-Ed25519 CHARTSIG asymmetric sealing, CHWALJRN crash-consistent write-ahead logging and LCA-based three-way merge reports
+- Categorification: compiled objects of module functors, signature-quotient-invariant incremental relinking, read-only public-key verification morphisms, write-ahead atomic commit monads and three-way pushout merges relative to lowest common ancestors
+- Decision: interface hashes omit opaque bodies so downstream modules skip recompilation and relink via module_instantiate; SHA-256/512 and RFC 8032 Ed25519 enforce anti-forgery and non-malleability; CHWALJRN rolls back uncommitted transactions and torn tails via SHA-256 frame checksums with idempotent replay; three-way merges support convergent edits, tombstone propagation and three conflict policies
 
 | Symbol | Package | Kind |
 |---|---|---|
@@ -4012,6 +4219,22 @@
 | `ArtifactChainReport::equal` | root | function |
 | `ArtifactChainReport::not_equal` | root | function |
 | `ArtifactChainReport::to_repr` | root | function |
+| `ArtifactMergeConflict` | root | struct |
+| `ArtifactMergeConflict.base_blob_key` | root | field |
+| `ArtifactMergeConflict.kind` | root | field |
+| `ArtifactMergeConflict.left_blob_key` | root | field |
+| `ArtifactMergeConflict.name` | root | field |
+| `ArtifactMergeConflict.right_blob_key` | root | field |
+| `ArtifactMergeConflict::equal` | root | function |
+| `ArtifactMergeConflict::not_equal` | root | function |
+| `ArtifactMergeConflict::to_repr` | root | function |
+| `ArtifactMergePolicy` | root | enum |
+| `ArtifactMergePolicy::ArtifactMergeAbortOnConflict` | root | constructor |
+| `ArtifactMergePolicy::ArtifactMergePreferLeft` | root | constructor |
+| `ArtifactMergePolicy::ArtifactMergePreferRight` | root | constructor |
+| `ArtifactMergePolicy::equal` | root | function |
+| `ArtifactMergePolicy::not_equal` | root | function |
+| `ArtifactMergePolicy::to_repr` | root | function |
 | `ArtifactRecord` | root | struct |
 | `ArtifactRecord.blob_key` | root | field |
 | `ArtifactRecord.byte_length` | root | field |
@@ -4046,6 +4269,33 @@
 | `ArtifactSyncReport::equal` | root | function |
 | `ArtifactSyncReport::not_equal` | root | function |
 | `ArtifactSyncReport::to_repr` | root | function |
+| `ArtifactThreeWayMergeReport` | root | struct |
+| `ArtifactThreeWayMergeReport.conflicts` | root | field |
+| `ArtifactThreeWayMergeReport.convergent_merges` | root | field |
+| `ArtifactThreeWayMergeReport.final_head_a` | root | field |
+| `ArtifactThreeWayMergeReport.final_head_b` | root | field |
+| `ArtifactThreeWayMergeReport.lca_entries` | root | field |
+| `ArtifactThreeWayMergeReport.left_applied` | root | field |
+| `ArtifactThreeWayMergeReport.merged_records` | root | field |
+| `ArtifactThreeWayMergeReport.ok` | root | field |
+| `ArtifactThreeWayMergeReport.right_applied` | root | field |
+| `ArtifactThreeWayMergeReport.tombstones_applied` | root | field |
+| `ArtifactThreeWayMergeReport::equal` | root | function |
+| `ArtifactThreeWayMergeReport::not_equal` | root | function |
+| `ArtifactThreeWayMergeReport::to_repr` | root | function |
+| `ArtifactWalRecoveryReport` | root | struct |
+| `ArtifactWalRecoveryReport.active_tx_rolled_back` | root | field |
+| `ArtifactWalRecoveryReport.discarded_torn_bytes` | root | field |
+| `ArtifactWalRecoveryReport.replayed_transactions` | root | field |
+| `ArtifactWalRecoveryReport::equal` | root | function |
+| `ArtifactWalRecoveryReport::not_equal` | root | function |
+| `ArtifactWalRecoveryReport::to_repr` | root | function |
+| `ArtifactWalStore` | root | struct |
+| `ArtifactWalStore.active_tx_id` | root | field |
+| `ArtifactWalStore.backing` | root | field |
+| `ArtifactWalStore.next_tx_id` | root | field |
+| `ArtifactWalStore.staged` | root | field |
+| `ArtifactWalStore.wal_key` | root | field |
 | `BinaryVersionPolicy` | root | struct |
 | `BinaryVersionPolicy.current` | root | field |
 | `BinaryVersionPolicy.oldest_writable` | root | field |
@@ -4092,6 +4342,22 @@
 | `CompiledModuleStoreStats::equal` | root | function |
 | `CompiledModuleStoreStats::not_equal` | root | function |
 | `CompiledModuleStoreStats::to_repr` | root | function |
+| `Ed25519Keypair` | root | struct |
+| `Ed25519Keypair.public_key` | root | field |
+| `Ed25519Keypair.seed` | root | field |
+| `Ed25519Keypair::equal` | root | function |
+| `Ed25519Keypair::not_equal` | root | function |
+| `Ed25519Keypair::to_repr` | root | function |
+| `Ed25519PublicKey` | root | struct |
+| `Ed25519PublicKey.bytes` | root | field |
+| `Ed25519PublicKey::equal` | root | function |
+| `Ed25519PublicKey::not_equal` | root | function |
+| `Ed25519PublicKey::to_repr` | root | function |
+| `Ed25519Signature` | root | struct |
+| `Ed25519Signature.bytes` | root | field |
+| `Ed25519Signature::equal` | root | function |
+| `Ed25519Signature::not_equal` | root | function |
+| `Ed25519Signature::to_repr` | root | function |
 | `ModuleBinaryLoad` | root | struct |
 | `ModuleBinaryLoad.module_` | root | field |
 | `ModuleBinaryLoad.status` | root | field |
@@ -4110,6 +4376,14 @@
 | `ModuleBinaryStatus::equal` | root | function |
 | `ModuleBinaryStatus::not_equal` | root | function |
 | `ModuleBinaryStatus::to_repr` | root | function |
+| `ModuleBuildPlanReport` | root | struct |
+| `ModuleBuildPlanReport.cycle_detected` | root | field |
+| `ModuleBuildPlanReport.missing_dependency` | root | field |
+| `ModuleBuildPlanReport.ok` | root | field |
+| `ModuleBuildPlanReport.topological_order` | root | field |
+| `ModuleBuildPlanReport::equal` | root | function |
+| `ModuleBuildPlanReport::not_equal` | root | function |
+| `ModuleBuildPlanReport::to_repr` | root | function |
 | `ModuleCompileCache` | root | struct |
 | `ModuleCompileCache.entries` | root | field |
 | `ModuleCompileCache::equal` | root | function |
@@ -4128,6 +4402,15 @@
 | `ModuleDependencyFingerprint::equal` | root | function |
 | `ModuleDependencyFingerprint::not_equal` | root | function |
 | `ModuleDependencyFingerprint::to_repr` | root | function |
+| `ModuleIncrementalBuildReport` | root | struct |
+| `ModuleIncrementalBuildReport.cache_hit_paths` | root | field |
+| `ModuleIncrementalBuildReport.compiled_env` | root | field |
+| `ModuleIncrementalBuildReport.ok` | root | field |
+| `ModuleIncrementalBuildReport.recompiled_paths` | root | field |
+| `ModuleIncrementalBuildReport.relinked_instance` | root | field |
+| `ModuleIncrementalBuildReport::equal` | root | function |
+| `ModuleIncrementalBuildReport::not_equal` | root | function |
+| `ModuleIncrementalBuildReport::to_repr` | root | function |
 | `ModuleTlvSection` | root | struct |
 | `ModuleTlvSection.critical` | root | field |
 | `ModuleTlvSection.payload` | root | field |
@@ -4150,9 +4433,13 @@
 | `artifact_kind_dterm_dag` | root | function |
 | `artifact_kind_schema_registry` | root | function |
 | `artifact_memory_byte_store_new` | root | function |
+| `artifact_merge_policy_abort` | root | function |
+| `artifact_merge_policy_prefer_left` | root | function |
+| `artifact_merge_policy_prefer_right` | root | function |
 | `artifact_repository_chain_entries` | root | function |
 | `artifact_repository_chain_head` | root | function |
 | `artifact_repository_chain_report` | root | function |
+| `artifact_repository_common_ancestor_records` | root | function |
 | `artifact_repository_get` | root | function |
 | `artifact_repository_get_chained` | root | function |
 | `artifact_repository_get_compiled_module` | root | function |
@@ -4160,29 +4447,41 @@
 | `artifact_repository_get_dterm_dag_snapshot` | root | function |
 | `artifact_repository_get_registry_snapshot` | root | function |
 | `artifact_repository_list` | root | function |
+| `artifact_repository_merge_three_way` | root | function |
 | `artifact_repository_new` | root | function |
 | `artifact_repository_put` | root | function |
 | `artifact_repository_put_cas_authenticated` | root | function |
 | `artifact_repository_put_compiled_module` | root | function |
 | `artifact_repository_put_dterm_dag_snapshot` | root | function |
 | `artifact_repository_put_dterm_dag_terms` | root | function |
-| `artifact_repository_put_dterm_intern_table` | root | function |
 | `artifact_repository_put_registry_snapshot` | root | function |
 | `artifact_repository_record` | root | function |
 | `artifact_repository_recover` | root | function |
 | `artifact_repository_recover_chained` | root | function |
 | `artifact_repository_remove` | root | function |
 | `artifact_repository_seal_authenticated` | root | function |
+| `artifact_repository_seal_ed25519` | root | function |
 | `artifact_repository_stats` | root | function |
 | `artifact_repository_sync_incremental` | root | function |
 | `artifact_repository_verify_all` | root | function |
 | `artifact_repository_verify_authenticated` | root | function |
+| `artifact_repository_verify_ed25519` | root | function |
+| `artifact_wal_abort_tx` | root | function |
+| `artifact_wal_begin_tx` | root | function |
+| `artifact_wal_byte_store` | root | function |
+| `artifact_wal_checkpoint` | root | function |
+| `artifact_wal_commit_tx` | root | function |
+| `artifact_wal_delete` | root | function |
+| `artifact_wal_put` | root | function |
+| `artifact_wal_recover` | root | function |
+| `artifact_wal_store_open` | root | function |
 | `binary_negotiate_version` | root | function |
 | `check_artifact_manifest_integrity_chain` | root | function |
 | `check_module_binary_format` | root | function |
 | `check_module_binary_versions_and_store` | root | function |
 | `check_module_compilation` | root | function |
 | `check_phase14_tlv_envelope_cas_and_incremental_sync` | root | function |
+| `check_phase16_crypto_ed25519_and_wal` | root | function |
 | `compiled_module_binary_format_version` | root | function |
 | `compiled_module_binary_from_hex` | root | function |
 | `compiled_module_binary_negotiate_version` | root | function |
@@ -4216,6 +4515,14 @@
 | `compiled_module_to_binary_version` | root | function |
 | `compiled_module_to_module_def` | root | function |
 | `compiled_module_validate` | root | function |
+| `crypto_sha256` | root | function |
+| `crypto_sha256_hex` | root | function |
+| `crypto_sha512` | root | function |
+| `crypto_sha512_hex` | root | function |
+| `ed25519_keypair_from_seed` | root | function |
+| `ed25519_sign` | root | function |
+| `ed25519_verify` | root | function |
+| `module_build_dag_incremental` | root | function |
 | `module_compile` | root | function |
 | `module_compile_cache_lookup` | root | function |
 | `module_compile_cache_new` | root | function |
@@ -4228,6 +4535,7 @@
 | `module_link_instantiate` | root | function |
 | `module_link_signature` | root | function |
 | `module_source_fingerprint` | root | function |
+| `module_topological_plan` | root | function |
 | `point_client_module` | root | function |
 | `point_implementation_module` | root | function |
 | `shared_dag_bundle_load_binary_report` | root | function |
@@ -6171,7 +6479,6 @@
 | `certificate_of_symlib` | bridge | function |
 | `certificate_summary` | bridge | function |
 | `certificates_all_ok` | bridge | function |
-| `check_certificate_bridge` | bridge | function |
 | `check_face_semiring_bridge` | bridge | function |
 | `check_free_category_bridge` | bridge | function |
 | `check_graph_symmetry_bridges` | bridge | function |

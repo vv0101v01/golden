@@ -71,21 +71,11 @@ fn mod_powmod_big(
 
 ///|
 fn mod_monic(p : Int32, f0 : Array[Int32]) -> Array[Int32] {
-  let f = mod_norm(p, f0)
-  let d = mod_degree(f)
-  if d < 0 {
-    return [0]
-  }
-  let inv = mod_inv(f[d], p)
-  let out : Array[Int32] = []
-  for i in 0..<f.length() {
-    out.push(f[i] * inv % p)
-  }
-  mod_norm(p, out)
+  mod_monic_prime(p, f0)
 }
 
 ///|
-/// Distinct-degree factorization over F_p for a degree-preserving,
+/// Distinct-degree factorization over odd `F_p` for a degree-preserving,
 /// squarefree reduction of `coeffs`: returns `(g_d, d)` buckets where
 /// each `g_d` is a monic product of distinct irreducibles of degree `d`.
 fn mod_ddf_buckets(
@@ -93,49 +83,10 @@ fn mod_ddf_buckets(
   p : Int32,
 ) -> Array[(Array[Int32], Int32)]? {
   if p <= 2 {
-    return None
+    None
+  } else {
+    mod_ddf_buckets_any_prime(coeffs, p)
   }
-  let p_big = BigInt::from_int(p)
-  let reduced : Array[Int32] = []
-  for i in 0..<coeffs.length() {
-    let rem = coeffs[i] % p_big
-    let pos = if rem < 0N { rem + p_big } else { rem }
-    reduced.push(pos.to_int())
-  }
-  let f0 = mod_norm(p, reduced)
-  if mod_degree(f0) != coeffs.length() - 1 {
-    return None
-  }
-  let f = mod_monic(p, f0)
-  let deriv : Array[Int32] = []
-  for i in 1..<f.length() {
-    deriv.push(f[i] * (i % p) % p)
-  }
-  if mod_degree(mod_gcd(p, f, mod_norm(p, deriv))) > 0 {
-    return None
-  }
-  let buckets : Array[(Array[Int32], Int32)] = []
-  let mut rem = f
-  let xpoly : Array[Int32] = [0, 1]
-  let mut h = xpoly
-  let n = mod_degree(f)
-  for d in 1..<(n + 1) {
-    if mod_degree(rem) <= 0 {
-      break
-    }
-    if 2 * d > mod_degree(rem) {
-      buckets.push((mod_monic(p, rem), mod_degree(rem)))
-      break
-    }
-    h = mod_powmod(p, h, p, rem)
-    let g = mod_gcd(p, rem, mod_sub(p, h, xpoly))
-    if mod_degree(g) > 0 {
-      buckets.push((mod_monic(p, g), d))
-      rem = mod_monic(p, mod_divmod(p, rem, g).0)
-      h = mod_divmod(p, h, rem).1
-    }
-  }
-  Some(buckets)
 }
 
 ///|
@@ -238,11 +189,11 @@ fn mod_ext_gcd_one(
   let inv = mod_inv(r0[0], p)
   let su : Array[Int32] = []
   for i in 0..<s0.length() {
-    su.push(s0[i] * inv % p)
+    su.push(mod_mul_scalar(s0[i], inv, p))
   }
   let tu : Array[Int32] = []
   for i in 0..<t0.length() {
-    tu.push(t0[i] * inv % p)
+    tu.push(mod_mul_scalar(t0[i], inv, p))
   }
   Some((mod_norm(p, su), mod_norm(p, tu)))
 }

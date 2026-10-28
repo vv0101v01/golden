@@ -90,11 +90,19 @@ pub fn artifact_kind_schema_registry() -> String
 
 pub fn artifact_memory_byte_store_new() -> ArtifactByteStore
 
+pub fn artifact_merge_policy_abort() -> ArtifactMergePolicy
+
+pub fn artifact_merge_policy_prefer_left() -> ArtifactMergePolicy
+
+pub fn artifact_merge_policy_prefer_right() -> ArtifactMergePolicy
+
 pub fn artifact_repository_chain_entries(ArtifactRepository) -> Array[ArtifactChainEntry]?
 
 pub fn artifact_repository_chain_head(ArtifactRepository) -> (Int32, Int32)?
 
 pub fn artifact_repository_chain_report(ArtifactRepository, expected_head? : (Int32, Int32)?) -> ArtifactChainReport
+
+pub fn artifact_repository_common_ancestor_records(ArtifactRepository, ArtifactRepository) -> (Int32, Array[ArtifactRecord])?
 
 pub fn artifact_repository_get(ArtifactRepository, String, String) -> Array[Int32]?
 
@@ -110,6 +118,8 @@ pub fn artifact_repository_get_registry_snapshot(ArtifactRepository, String) -> 
 
 pub fn artifact_repository_list(ArtifactRepository) -> Array[ArtifactRecord]
 
+pub fn artifact_repository_merge_three_way(ArtifactRepository, ArtifactRepository, ArtifactRepository, policy? : ArtifactMergePolicy, auth_key? : ArtifactAuthKey?) -> ArtifactThreeWayMergeReport
+
 pub fn artifact_repository_new(ArtifactByteStore, prefix? : String) -> ArtifactRepository
 
 pub fn artifact_repository_put(ArtifactRepository, String, String, Array[Int32], format_version? : Int32) -> ArtifactRecord?
@@ -121,8 +131,6 @@ pub fn artifact_repository_put_compiled_module(ArtifactRepository, CompiledModul
 pub fn artifact_repository_put_dterm_dag_snapshot(ArtifactRepository, String, DTermDagSnapshot) -> ArtifactRecord?
 
 pub fn artifact_repository_put_dterm_dag_terms(ArtifactRepository, String, DTermInternTable, Array[DTerm]) -> ArtifactRecord?
-
-pub fn artifact_repository_put_dterm_intern_table(ArtifactRepository, String, DTermInternTable) -> ArtifactRecord?
 
 pub fn artifact_repository_put_registry_snapshot(ArtifactRepository, String, DSchemaRegistrySnapshot, peer_versions? : Array[Int32]) -> ArtifactRecord?
 
@@ -136,6 +144,8 @@ pub fn artifact_repository_remove(ArtifactRepository, String, String) -> Bool
 
 pub fn artifact_repository_seal_authenticated(ArtifactRepository, ArtifactAuthKey) -> Bool
 
+pub fn artifact_repository_seal_ed25519(ArtifactRepository, Ed25519Keypair) -> Bool
+
 pub fn artifact_repository_stats(ArtifactRepository) -> ArtifactRepositoryStats
 
 pub fn artifact_repository_sync_incremental(ArtifactRepository, ArtifactRepository, ArtifactAuthKey, trusted_producers? : Array[String]) -> ArtifactSyncReport
@@ -143,6 +153,26 @@ pub fn artifact_repository_sync_incremental(ArtifactRepository, ArtifactReposito
 pub fn artifact_repository_verify_all(ArtifactRepository) -> Bool
 
 pub fn artifact_repository_verify_authenticated(ArtifactRepository, ArtifactAuthKey, expected_head? : (Int32, Int32)?) -> Bool
+
+pub fn artifact_repository_verify_ed25519(ArtifactRepository, Ed25519PublicKey) -> Bool
+
+pub fn artifact_wal_abort_tx(ArtifactWalStore) -> Bool
+
+pub fn artifact_wal_begin_tx(ArtifactWalStore) -> Int32?
+
+pub fn artifact_wal_byte_store(ArtifactWalStore) -> ArtifactByteStore
+
+pub fn artifact_wal_checkpoint(ArtifactWalStore) -> Bool
+
+pub fn artifact_wal_commit_tx(ArtifactWalStore) -> Bool
+
+pub fn artifact_wal_delete(ArtifactWalStore, String) -> Bool
+
+pub fn artifact_wal_put(ArtifactWalStore, String, Array[Int32]) -> Bool
+
+pub fn artifact_wal_recover(ArtifactWalStore) -> ArtifactWalRecoveryReport?
+
+pub fn artifact_wal_store_open(ArtifactByteStore, wal_key? : String) -> (ArtifactWalStore, ArtifactWalRecoveryReport)?
 
 pub fn as_equiv_type(DValue) -> DEquivTypeParts?
 
@@ -395,8 +425,6 @@ pub fn check_ast_hcomp_sigma_path_terms() -> Bool
 pub fn check_ast_hcomp_univ_term() -> Bool
 
 pub fn check_ast_hits() -> Bool
-
-pub fn check_ast_kan_all() -> Bool
 
 pub fn check_ast_kan_terms() -> Bool
 
@@ -662,6 +690,16 @@ pub fn check_phase15_freudenthal_suspension_and_wedge_connectivity() -> Bool
 
 pub fn check_phase15_suspension_and_loop_suspension_adjunction() -> Bool
 
+pub fn check_phase16_crypto_ed25519_and_wal() -> Bool
+
+pub fn check_phase16_dsatur_and_glued_cubical_comp() -> Bool
+
+pub fn check_phase16_hou_stream_and_module_merge() -> Bool
+
+pub fn check_phase16_schema_large_open_positivity() -> Bool
+
+pub fn check_phase16_sphere_homotopy_and_k5() -> Bool
+
 pub fn check_phase5_semantic_systems() -> Bool
 
 pub fn check_phase6_infrastructure() -> Bool
@@ -836,13 +874,19 @@ pub fn circle_path_equiv_cover_value(DValue, Int32) -> DValue
 
 pub fn circle_path_equiv_cover_with_zset_value(DValue, (DValue, DValue, DValue, DValue) -> DValue, Int32) -> DValue
 
+pub fn circle_path_winding_int((Dim) -> DValue, dlevel? : Int32) -> Int32?
+
 pub fn circle_point(Dim) -> DValue
 
 pub fn circle_rot_equiv_value(DValue, Int32) -> DValue
 
+pub fn circle_rot_eval_base_eq_value(DValue, Int32) -> DValue
+
 pub fn circle_schema() -> DHitSpec
 
 pub fn circle_self_loop_value(DValue, Int32) -> DValue
+
+pub fn circle_square_glued_cap((Dim) -> DValue, (Dim) -> DValue, (Dim) -> DValue, (Dim) -> DValue, level? : Int32, dlevel? : Int32) -> CircleSquareWindingReport
 
 pub fn circle_to_susp_bool_value(DValue, Int32) -> DValue
 
@@ -1021,6 +1065,14 @@ pub fn conv_terms_finite_case_split_report(Array[DTerm], DTerm, DTerm, DTerm, de
 pub fn conv_terms_plain(Array[DTerm], DTerm, DTerm, DTerm) -> Bool
 
 pub fn conv_ty(Int32, Int32, DValue, DValue) -> Bool
+
+pub fn crypto_sha256(Array[Int32]) -> Array[Int32]
+
+pub fn crypto_sha256_hex(Array[Int32]) -> String
+
+pub fn crypto_sha512(Array[Int32]) -> Array[Int32]
+
+pub fn crypto_sha512_hex(Array[Int32]) -> String
 
 pub fn cs_finite_closed_inhabitants(DValue, depth_budget? : Int32, max_cases? : Int32) -> Array[DTerm]?
 
@@ -1256,6 +1308,12 @@ pub fn dfunctor_sigma(DPositiveFunctor, DPositiveFunctor) -> DPositiveFunctor
 
 pub fn dfunctor_sum(DPositiveFunctor, DPositiveFunctor) -> DPositiveFunctor
 
+pub fn dfunctorial_positivity_container_cert(Int32, Int32, DTerm, DTerm, DTerm) -> DFunctorialPositivityCert
+
+pub fn dfunctorial_positivity_covariant_cert(Int32, Int32, DTerm, DTerm, DTerm) -> DFunctorialPositivityCert
+
+pub fn dfunctorial_positivity_verify(Array[DTerm], DFunctorialPositivityCert) -> DPositivityDeclaration?
+
 pub fn dfunext_term(DTerm, DTerm) -> DTerm
 
 pub fn dhit_arg_face(DTerm) -> DHitFaceExpr
@@ -1374,11 +1432,35 @@ pub fn dnested_iter_decl(String, Int32, String, Int32, DTerm, Array[DNestedConst
 
 pub fn dnested_recursive(String, advance? : Int32) -> DNestedArg
 
+pub fn dopen_arg_code(String) -> DOpenIRArg
+
+pub fn dopen_arg_decoded_code_fn(String, Int32, Int32) -> DOpenIRArg
+
+pub fn dopen_arg_decoded_val(String, Int32, Int32) -> DOpenIRArg
+
+pub fn dopen_arg_external(String, DTerm) -> DOpenIRArg
+
+pub fn dopen_ir_constructor(String, Array[DOpenIRArg]) -> DOpenIRConstructor
+
+pub fn dopen_ir_decoder(String, Int32, Array[DTerm]) -> DOpenIRDecoder
+
+pub fn dopen_ir_intro(Int32, Array[DOpenIRArgVal]) -> DOpenIRCode
+
+pub fn dopen_simultaneous_ir_spec(String, Int32, Array[DOpenIRConstructor], Array[DOpenIRDecoder]) -> DOpenSimultaneousIRSpec
+
+pub fn dopen_val_code(DOpenIRCode) -> DOpenIRArgVal
+
+pub fn dopen_val_code_fn((DValue) -> DOpenIRCode) -> DOpenIRArgVal
+
+pub fn dopen_val_term(DTerm) -> DOpenIRArgVal
+
 pub fn double_dyadic_interval(Double, Int32) -> (@algebra.Rat, @algebra.Rat)?
 
 pub fn dpath_assoc3_value(DValue, DValue, DValue, DValue, DValue, Int32) -> DValue
 
 pub fn dpath_assoc_path3_value(DValue, DValue, DValue, DValue, Int32) -> DValue
+
+pub fn dpath_associahedron_k5_cell5_value(DValue, DValue, DValue, DValue, DValue, DValue, DValue, Int32) -> DValue
 
 pub fn dpath_at_value(DValue, Dim) -> DValue
 
@@ -1389,6 +1471,18 @@ pub fn dpath_cong_value(DValue, DValue, DValue) -> DValue
 pub fn dpath_eckmann_hilton3_value(DValue, DValue, DValue, DValue, Int32) -> DValue
 
 pub fn dpath_funext_value(DValue, DValue) -> DValue
+
+pub fn dpath_k5_hemi_north4_value(DValue, DValue, DValue, DValue, DValue, DValue, DValue, Int32) -> DValue
+
+pub fn dpath_k5_hemi_south4_value(DValue, DValue, DValue, DValue, DValue, DValue, DValue, Int32) -> DValue
+
+pub fn dpath_k5_lhs1_value(DValue, DValue, DValue, DValue, DValue, DValue, Int32) -> DValue
+
+pub fn dpath_k5_rhs1_value(DValue, DValue, DValue, DValue, DValue, DValue, Int32) -> DValue
+
+pub fn dpath_k5_route_inner3_value(DValue, DValue, DValue, DValue, DValue, DValue, Int32) -> DValue
+
+pub fn dpath_k5_route_outer3_value(DValue, DValue, DValue, DValue, DValue, DValue, Int32) -> DValue
 
 pub fn dpath_left_inverse3_value(DValue, DValue, DValue, Int32) -> DValue
 
@@ -1458,6 +1552,8 @@ pub fn dpositivity_witness_verify(DPositivityWitness, ambient_decls? : Array[DPo
 
 pub fn dprop_is_set_value(DValue, (DValue, DValue) -> DValue, DValue, DValue, DValue, DValue, Int32) -> DValue
 
+pub fn dsatur_color_order(Array[Array[Bool]], Array[Int32]) -> (Array[Int32], Array[Int32])
+
 pub fn dsimultaneous_function(String, DTerm, Array[DTerm]) -> DSimultaneousFunction
 
 pub fn dsimultaneous_ir_spec(DInductiveSpec, Array[DSimultaneousFunction]) -> DSimultaneousIRSpec
@@ -1504,6 +1600,8 @@ pub fn dsystem_pairwise_compatible(Int32, Int32, (Dim) -> DValue, DSystem) -> Bo
 
 pub fn dsystem_repair_all_maxima(Int32, Int32, (Dim) -> DValue, DSystem, DValue, Array[DTubeBranch], max_solutions? : Int32, node_budget? : Int32) -> DSystemRepairAllMaxima
 
+pub fn dsystem_repair_all_maxima_dsatur(Int32, Int32, (Dim) -> DValue, DSystem, DValue, Array[DTubeBranch], max_solutions? : Int32, node_budget? : Int32) -> DSystemDsaturCliqueReport
+
 pub fn dsystem_repair_maximum(Int32, Int32, (Dim) -> DValue, DSystem, DValue, Array[DTubeBranch], node_budget? : Int32) -> DSystemRepairMaximum
 
 pub fn dsystem_repair_to_base(Int32, Int32, (Dim) -> DValue, DSystem, DValue) -> DSystemRepair
@@ -1522,11 +1620,7 @@ pub fn dterm_children(DTerm) -> Array[DTerm]
 
 pub fn dterm_dag_binary_format_version() -> Int32
 
-pub fn dterm_dag_binary_from_hex(String) -> Array[Int32]?
-
 pub fn dterm_dag_binary_supported_versions() -> Array[Int32]
-
-pub fn dterm_dag_binary_to_hex(Array[Int32]) -> String
 
 pub fn dterm_dag_binary_version_of(Array[Int32]) -> Int32
 
@@ -1573,6 +1667,8 @@ pub fn dterm_family_strictly_positive(DTerm, String) -> Bool
 pub fn dterm_family_strictly_positive_certified(DTerm, String, Array[DPositivityWitness], scope? : Int32) -> Bool
 
 pub fn dterm_family_strictly_positive_declared(DTerm, String, Array[DPositivityDeclaration], scope? : Int32) -> Bool
+
+pub fn dterm_family_strictly_positive_functorial(Array[DTerm], DTerm, String, Array[DFunctorialPositivityCert], witnesses? : Array[DPositivityWitness]) -> Bool
 
 pub fn dterm_instantiate_levels(DTerm, Array[Int32]) -> DTerm?
 
@@ -1629,6 +1725,12 @@ pub fn dvalue_of_ty(Ty) -> DValue
 pub fn dvalue_subst_dims(Int32, Int32, DValue, DValue, Array[Dim]) -> (DValue, DValue)
 
 pub fn dvalue_to_pval(DValue) -> PVal
+
+pub fn ed25519_keypair_from_seed(Array[Int32]) -> Ed25519Keypair?
+
+pub fn ed25519_sign(Ed25519Keypair, Array[Int32]) -> Ed25519Signature?
+
+pub fn ed25519_verify(Ed25519PublicKey, Array[Int32], Ed25519Signature) -> Bool
 
 pub fn eigen_equations_hold(CMat, Array[Complex]) -> Bool
 
@@ -1910,6 +2012,8 @@ pub fn face_witness(Face, Int32) -> Array[Bool]?
 
 pub fn fiber_type_term(DTerm, DTerm, DTerm, DTerm) -> DTerm
 
+pub fn fibration_loop_equiv_fiber_path_value(DValue, (DValue) -> DValue, DValue, DValue, Int32, level? : Int32) -> DValue
+
 pub fn fill_subline(SubLine, VecBox) -> Cube
 
 pub fn fill_value((Dim) -> DValue, DSystem, DValue, Int32) -> (Dim) -> DValue
@@ -2044,6 +2148,10 @@ pub fn hopf_connecting_loop_value(DValue, dlevel? : Int32) -> DValue
 
 pub fn hopf_family_value(DValue, dlevel? : Int32) -> DValue
 
+pub fn hopf_freudenthal_retraction_value(DValue, dlevel? : Int32) -> DValue
+
+pub fn hopf_invariant_susp_retraction_value(DValue, dlevel? : Int32) -> DValue
+
 pub fn hopf_invariant_value(DValue, dlevel? : Int32) -> DValue
 
 pub fn hopf_linking_number_numeric(Int32) -> Double
@@ -2060,9 +2168,17 @@ pub fn hopf_rotate_rat(Array[@algebra.Rat], @algebra.Rat, @algebra.Rat) -> Array
 
 pub fn hopf_south_fiber(Double) -> Array[Double]
 
+pub fn hopf_total_loop_equiv_fiber_seq_value(dlevel? : Int32) -> DValue
+
+pub fn hopf_total_space_type_value(dlevel? : Int32) -> DValue
+
+pub fn hopf_unit_subst_eq_value(DValue, dlevel? : Int32) -> DValue
+
 pub fn hou_enumerate_unifiers(Array[HouConstraint], Unifier, max_solutions? : Int32, max_nodes? : Int32, max_depth? : Int32, max_projection_args? : Int32, round_budget? : Int32) -> HouEnumerationReport
 
 pub fn hou_fresh_meta(Unifier, Int32) -> UTerm
+
+pub fn hou_reify_delayed_flex_flex(Unifier, Array[HouFlexFlexEdge]) -> Bool
 
 pub fn hou_search_unify(UTerm, UTerm, Int32, Unifier, max_nodes? : Int32, max_depth? : Int32, max_projection_args? : Int32) -> HouSearchReport
 
@@ -2070,13 +2186,21 @@ pub fn hou_search_unify_bool(UTerm, UTerm, Int32, Unifier, max_nodes? : Int32, m
 
 pub fn hou_search_unify_iterative(UTerm, UTerm, Int32, Unifier, max_nodes_per_round? : Int32, depth_cap? : Int32, max_projection_args? : Int32) -> HouIterativeReport
 
-pub fn hou_search_unify_iterative_bool(UTerm, UTerm, Int32, Unifier, max_nodes_per_round? : Int32, depth_cap? : Int32, max_projection_args? : Int32) -> Bool
-
 pub fn hou_semantic_optimize(UTerm, Unifier) -> UTerm
 
 pub fn hou_solve_constraints(Array[HouConstraint], Unifier, max_nodes_per_round? : Int32, depth_cap? : Int32, max_projection_args? : Int32, max_rounds? : Int32) -> HouResidualSolveReport
 
 pub fn hou_solve_constraints_backtracking(Array[HouConstraint], Unifier, max_nodes? : Int32, max_depth? : Int32, max_projection_args? : Int32, round_budget? : Int32) -> HouResidualSolveReport
+
+pub fn hou_solve_with_delayed_flex_flex(Array[HouConstraint], Unifier, reify_flex_flex? : Bool, max_nodes? : Int32, max_depth? : Int32, max_projection_args? : Int32, round_budget? : Int32) -> HouDelayedGraphReport
+
+pub fn hou_unifier_stream_is_exhausted(HouLazyUnifierStream) -> Bool
+
+pub fn hou_unifier_stream_new(Array[HouConstraint], Unifier, max_nodes? : Int32, max_depth? : Int32, max_projection_args? : Int32, round_budget? : Int32, reify_flex_flex? : Bool) -> HouLazyUnifierStream
+
+pub fn hou_unifier_stream_next(HouLazyUnifierStream) -> Array[(Int32, UTerm)]?
+
+pub fn hou_unifier_stream_nodes(HouLazyUnifierStream) -> Int32
 
 pub fn hou_unify(UTerm, UTerm, Int32, Unifier) -> Bool
 
@@ -2179,6 +2303,8 @@ pub fn integer_succ_pred_sect_value(DValue) -> DValue
 pub fn integer_succ_value(DValue) -> DValue
 
 pub fn integer_term(Int32) -> DTerm
+
+pub fn integer_to_pi2_s2_value(DValue, dlevel? : Int32) -> DValue
 
 pub fn integer_type_term() -> DTerm
 
@@ -2324,6 +2450,8 @@ pub fn memo_family((DValue) -> DValue, DValue, Int32, Int32) -> (DValue) -> DVal
 
 pub fn mk_equiv_term(DTerm, DTerm, DTerm, DTerm, DTerm, DTerm) -> DTerm
 
+pub fn module_build_dag_incremental(ModuleCompileCache, Array[ModuleDef], entry_path? : String, entry_args? : Array[DTerm]) -> ModuleIncrementalBuildReport
+
 pub fn module_compile(ModuleEnv, ModuleDef, Array[ModuleDependencyFingerprint]) -> CompiledModule?
 
 pub fn module_compile_cache_lookup(ModuleCompileCache, ModuleDef, Array[ModuleDependencyFingerprint]) -> CompiledModule?
@@ -2374,6 +2502,8 @@ pub fn module_signature(ModuleEnv, ModuleDef) -> ModuleSignature?
 
 pub fn module_source_fingerprint(ModuleDef, Array[ModuleDependencyFingerprint]) -> String
 
+pub fn module_topological_plan(Array[ModuleDef]) -> ModuleBuildPlanReport
+
 pub fn module_validate(ModuleEnv, ModuleDef) -> Bool
 
 pub fn mutual_ctor_index(DMutualFamily, Int32, Int32) -> Int32
@@ -2420,6 +2550,16 @@ pub fn numeric_projector_residual(CMat) -> Double
 
 pub fn open_box_wf(Cube, Cube, Cube) -> Bool
 
+pub fn open_ir_check_code(DOpenSimultaneousIRSpec, DOpenIRCode, seed? : Int32) -> Bool
+
+pub fn open_ir_elim_value(DOpenSimultaneousIRSpec, Array[(Array[DValue]) -> DValue], DOpenIRCode, dlevel? : Int32) -> DValue?
+
+pub fn open_ir_eval_decode(DOpenSimultaneousIRSpec, Int32, DOpenIRCode, dlevel? : Int32) -> DValue?
+
+pub fn open_ir_lower_single_decoder(DOpenSimultaneousIRSpec) -> DInductiveSpec?
+
+pub fn open_ir_validate(DOpenSimultaneousIRSpec) -> Bool
+
 pub fn outer(Array[Complex]) -> CMat
 
 pub fn outer2(Array[Complex], Array[Complex]) -> CMat
@@ -2462,6 +2602,8 @@ pub fn path_trans_endpoints(Cube, Cube) -> Bool
 
 pub fn pathp_canonical(UPath, PVal) -> PathPVal
 
+pub fn pathp_equiv_transport_eq_value((Dim) -> DValue, DValue, DValue, Int32, level? : Int32) -> DValue
+
 pub fn pathp_fst(PathPVal, Equiv) -> PathPVal
 
 pub fn pathp_prod(PathPVal, PathPVal) -> PathPVal
@@ -2477,6 +2619,12 @@ pub fn pi1_set_circle_equiv_integer_value(Int32) -> DValue
 pub fn pi1_susp2_circle_equiv_unit_value(Int32) -> DValue
 
 pub fn pi1_susp_circle_equiv_unit_value(Int32) -> DValue
+
+pub fn pi2_s2_hopf_hom_value(DValue, dlevel? : Int32) -> DValue
+
+pub fn pi2_s2_hopf_retract_sect_value(DValue, dlevel? : Int32) -> DValue
+
+pub fn pi2_s2_type_value() -> DValue
 
 pub fn pi3_sphere_point_term(Int32, DTerm) -> DTerm
 
@@ -2760,6 +2908,12 @@ pub fn shared_dag_bundle_load_binary_report(Array[Int32], intern_table? : DTermI
 
 pub fn shared_dag_bundle_to_binary(SharedDagBundle) -> Array[Int32]
 
+pub fn sigma_cong_snd_equiv_value(DValue, (DValue) -> DValue, (DValue) -> DValue, (DValue) -> DValue) -> DValue
+
+pub fn sigma_path_equiv_subst_value(DValue, (DValue) -> DValue, DValue, DValue, Int32, level? : Int32) -> DValue
+
+pub fn sigma_path_equiv_value(DValue, (DValue) -> DValue, DValue, DValue, Int32) -> DValue
+
 pub fn simultaneous_ir_compile_decode(DSimultaneousIRSpec, Int32) -> DInductiveSpec?
 
 pub fn simultaneous_ir_compile_eliminator(DSimultaneousIRSpec, Int32) -> DTerm?
@@ -2775,6 +2929,8 @@ pub fn simultaneous_ir_eliminator_type(DSimultaneousIRSpec, Int32) -> DTerm?
 pub fn simultaneous_ir_function_universe_level(DSimultaneousIRSpec, Int32) -> Int32
 
 pub fn simultaneous_ir_general_eliminator_type(DSimultaneousIRSpec, Int32) -> DTerm?
+
+pub fn simultaneous_ir_joint_motive_level(DSimultaneousIRSpec) -> Int32
 
 pub fn simultaneous_ir_uses_other_hypotheses(DSimultaneousIRSpec, Int32) -> Bool
 
@@ -2792,11 +2948,17 @@ pub fn spec_registry() -> Array[SpecEntry]
 
 pub fn spec_registry_sound() -> Bool
 
+pub fn sphere2_meridian_path_value(DValue) -> DValue
+
 pub fn sphere2_north_term() -> DTerm
 
 pub fn sphere2_north_value() -> DValue
 
 pub fn sphere2_schema() -> DHitSpec
+
+pub fn sphere2_susp_loop1_to_loop2_value(DValue, dlevel? : Int32) -> DValue
+
+pub fn sphere2_type_value() -> DValue
 
 pub fn sphere3_from_swapped_value(DValue, Int32) -> DValue
 
@@ -2877,6 +3039,10 @@ pub fn subline_const(CMat) -> SubLine
 pub fn subline_from_unit_path((Double) -> Array[Complex]) -> SubLine
 
 pub fn subst_pathp_value((DValue) -> DValue, DValue, DValue, Int32) -> DValue
+
+pub fn subst_refl_eq_value((DValue) -> DValue, DValue, DValue, Int32) -> DValue
+
+pub fn subst_trans_eq_value((DValue) -> DValue, DValue, DValue, DValue, DValue, Int32) -> DValue
 
 pub fn subst_value((DValue) -> DValue, DValue, DValue, Int32) -> DValue
 
@@ -2973,6 +3139,8 @@ pub fn torus_dims_of(DValue) -> (Dim, Dim)
 pub fn torus_point(Dim, Dim) -> DValue
 
 pub fn torus_schema() -> DHitSpec
+
+pub fn torus_square_glued_cap((Dim) -> DValue, (Dim) -> DValue, (Dim) -> DValue, (Dim) -> DValue, level? : Int32, dlevel? : Int32) -> (DValue?, Int32, Int32)
 
 pub fn transport_back_value((Dim) -> DValue, DValue, Int32) -> DValue
 
@@ -3232,6 +3400,26 @@ pub fn ArtifactChainReport::equal(Self, Self) -> Bool
 pub fn ArtifactChainReport::not_equal(Self, Self) -> Bool
 pub fn ArtifactChainReport::to_repr(Self) -> @debug.Repr
 
+pub struct ArtifactMergeConflict {
+  kind : String
+  name : String
+  base_blob_key : String?
+  left_blob_key : String?
+  right_blob_key : String?
+} derive(Eq, @debug.Debug)
+pub fn ArtifactMergeConflict::equal(Self, Self) -> Bool
+pub fn ArtifactMergeConflict::not_equal(Self, Self) -> Bool
+pub fn ArtifactMergeConflict::to_repr(Self) -> @debug.Repr
+
+pub enum ArtifactMergePolicy {
+  ArtifactMergeAbortOnConflict
+  ArtifactMergePreferLeft
+  ArtifactMergePreferRight
+} derive(Eq, @debug.Debug)
+pub fn ArtifactMergePolicy::equal(Self, Self) -> Bool
+pub fn ArtifactMergePolicy::not_equal(Self, Self) -> Bool
+pub fn ArtifactMergePolicy::to_repr(Self) -> @debug.Repr
+
 pub struct ArtifactRecord {
   kind : String
   name : String
@@ -3273,6 +3461,39 @@ pub(all) struct ArtifactSyncReport {
 pub fn ArtifactSyncReport::equal(Self, Self) -> Bool
 pub fn ArtifactSyncReport::not_equal(Self, Self) -> Bool
 pub fn ArtifactSyncReport::to_repr(Self) -> @debug.Repr
+
+pub struct ArtifactThreeWayMergeReport {
+  ok : Bool
+  lca_entries : Int32
+  merged_records : Int32
+  left_applied : Int32
+  right_applied : Int32
+  convergent_merges : Int32
+  tombstones_applied : Int32
+  conflicts : Array[ArtifactMergeConflict]
+  final_head_a : Int32
+  final_head_b : Int32
+} derive(Eq, @debug.Debug)
+pub fn ArtifactThreeWayMergeReport::equal(Self, Self) -> Bool
+pub fn ArtifactThreeWayMergeReport::not_equal(Self, Self) -> Bool
+pub fn ArtifactThreeWayMergeReport::to_repr(Self) -> @debug.Repr
+
+pub struct ArtifactWalRecoveryReport {
+  replayed_transactions : Int32
+  discarded_torn_bytes : Int32
+  active_tx_rolled_back : Bool
+} derive(Eq, @debug.Debug)
+pub fn ArtifactWalRecoveryReport::equal(Self, Self) -> Bool
+pub fn ArtifactWalRecoveryReport::not_equal(Self, Self) -> Bool
+pub fn ArtifactWalRecoveryReport::to_repr(Self) -> @debug.Repr
+
+pub struct ArtifactWalStore {
+  backing : ArtifactByteStore
+  wal_key : String
+  mut next_tx_id : Int32
+  mut active_tx_id : Int32
+  staged : Array[WalOp]
+}
 
 pub enum Bdd {
   BddZero
@@ -3408,6 +3629,17 @@ pub struct CheckedDCube {
   env : DEnv
   denv : DDimEnv
   cube : DCubeFunction
+}
+
+pub struct CircleSquareWindingReport {
+  filler : DValue?
+  corners_compatible : Bool
+  winding_j0 : Int32
+  winding_j1 : Int32
+  winding_i0 : Int32
+  winding_i1 : Int32
+  net_boundary_winding : Int32
+  used_hspace_glue : Bool
 }
 
 pub struct CompiledModule {
@@ -3652,6 +3884,24 @@ pub fn DFunctorParamArg::equal(Self, Self) -> Bool
 pub fn DFunctorParamArg::not_equal(Self, Self) -> Bool
 pub fn DFunctorParamArg::to_repr(Self) -> @debug.Repr
 
+pub enum DFunctorPositivityEvidence {
+  DFunctorCovariantLaws(DTerm, DTerm, DTerm)
+  DFunctorContainerIso(DTerm, DTerm, DTerm)
+} derive(Eq, @debug.Debug)
+pub fn DFunctorPositivityEvidence::equal(Self, Self) -> Bool
+pub fn DFunctorPositivityEvidence::not_equal(Self, Self) -> Bool
+pub fn DFunctorPositivityEvidence::to_repr(Self) -> @debug.Repr
+
+pub struct DFunctorialPositivityCert {
+  level : Int32
+  univ_level : Int32
+  claim_strict : Bool
+  evidence : DFunctorPositivityEvidence
+} derive(Eq, @debug.Debug)
+pub fn DFunctorialPositivityCert::equal(Self, Self) -> Bool
+pub fn DFunctorialPositivityCert::not_equal(Self, Self) -> Bool
+pub fn DFunctorialPositivityCert::to_repr(Self) -> @debug.Repr
+
 pub struct DGlueEquivParts {
   branches : Array[DEquivBranchValue]
   face : Face
@@ -3863,6 +4113,62 @@ pub enum DNeutral {
   DNHComp(DValue, DSystem, DValue)
 }
 
+pub struct DOpenIRArg {
+  name : String
+  kind : DOpenIRArgKind
+} derive(Eq, @debug.Debug)
+pub fn DOpenIRArg::equal(Self, Self) -> Bool
+pub fn DOpenIRArg::not_equal(Self, Self) -> Bool
+pub fn DOpenIRArg::to_repr(Self) -> @debug.Repr
+
+pub enum DOpenIRArgKind {
+  DOpenArgExternal(DTerm)
+  DOpenArgCode
+  DOpenArgDecodedVal(Int32, Int32)
+  DOpenArgDecodedCodeFn(Int32, Int32)
+} derive(Eq, @debug.Debug)
+pub fn DOpenIRArgKind::equal(Self, Self) -> Bool
+pub fn DOpenIRArgKind::not_equal(Self, Self) -> Bool
+pub fn DOpenIRArgKind::to_repr(Self) -> @debug.Repr
+
+pub enum DOpenIRArgVal {
+  DOpenValTerm(DTerm)
+  DOpenValCode(DOpenIRCode)
+  DOpenValCodeFn((DValue) -> DOpenIRCode)
+}
+
+pub struct DOpenIRCode {
+  ctor_idx : Int32
+  args : Array[DOpenIRArgVal]
+}
+
+pub struct DOpenIRConstructor {
+  name : String
+  args : Array[DOpenIRArg]
+} derive(Eq, @debug.Debug)
+pub fn DOpenIRConstructor::equal(Self, Self) -> Bool
+pub fn DOpenIRConstructor::not_equal(Self, Self) -> Bool
+pub fn DOpenIRConstructor::to_repr(Self) -> @debug.Repr
+
+pub struct DOpenIRDecoder {
+  name : String
+  decode_level : Int32
+  cases : Array[DTerm]
+} derive(Eq, @debug.Debug)
+pub fn DOpenIRDecoder::equal(Self, Self) -> Bool
+pub fn DOpenIRDecoder::not_equal(Self, Self) -> Bool
+pub fn DOpenIRDecoder::to_repr(Self) -> @debug.Repr
+
+pub struct DOpenSimultaneousIRSpec {
+  name : String
+  level : Int32
+  constructors : Array[DOpenIRConstructor]
+  decoders : Array[DOpenIRDecoder]
+} derive(Eq, @debug.Debug)
+pub fn DOpenSimultaneousIRSpec::equal(Self, Self) -> Bool
+pub fn DOpenSimultaneousIRSpec::not_equal(Self, Self) -> Bool
+pub fn DOpenSimultaneousIRSpec::to_repr(Self) -> @debug.Repr
+
 pub struct DPartialValue {
   branches : Array[DFaceValue]
 }
@@ -3972,6 +4278,14 @@ pub struct DSystemCompatibility {
 pub fn DSystemCompatibility::equal(Self, Self) -> Bool
 pub fn DSystemCompatibility::not_equal(Self, Self) -> Bool
 pub fn DSystemCompatibility::to_repr(Self) -> @debug.Repr
+
+pub struct DSystemDsaturCliqueReport {
+  result : DSystemRepairAllMaxima
+  chromatic_root_bound : Int32
+  dsatur_visited_nodes : Int32
+  color_pruned_branches : Int32
+  uncolored_visited_nodes : Int32
+}
 
 pub enum DSystemIncompatibility {
   DSystemOk
@@ -4263,6 +4577,28 @@ pub struct DiscPath {
   point : (Double) -> PVal
 }
 
+pub struct Ed25519Keypair {
+  seed : Array[Int32]
+  public_key : Ed25519PublicKey
+} derive(Eq, @debug.Debug)
+pub fn Ed25519Keypair::equal(Self, Self) -> Bool
+pub fn Ed25519Keypair::not_equal(Self, Self) -> Bool
+pub fn Ed25519Keypair::to_repr(Self) -> @debug.Repr
+
+pub struct Ed25519PublicKey {
+  bytes : Array[Int32]
+} derive(Eq, @debug.Debug)
+pub fn Ed25519PublicKey::equal(Self, Self) -> Bool
+pub fn Ed25519PublicKey::not_equal(Self, Self) -> Bool
+pub fn Ed25519PublicKey::to_repr(Self) -> @debug.Repr
+
+pub struct Ed25519Signature {
+  bytes : Array[Int32]
+} derive(Eq, @debug.Debug)
+pub fn Ed25519Signature::equal(Self, Self) -> Bool
+pub fn Ed25519Signature::not_equal(Self, Self) -> Bool
+pub fn Ed25519Signature::to_repr(Self) -> @debug.Repr
+
 pub struct ElabResult {
   term : UTerm
   ty : UTerm
@@ -4306,11 +4642,6 @@ pub enum Face {
 pub fn Face::equal(Self, Self) -> Bool
 pub fn Face::not_equal(Self, Self) -> Bool
 pub fn Face::to_repr(Self) -> @debug.Repr
-
-type FaceBoolExpr derive(Eq, @debug.Debug)
-pub fn FaceBoolExpr::equal(Self, Self) -> Bool
-pub fn FaceBoolExpr::not_equal(Self, Self) -> Bool
-pub fn FaceBoolExpr::to_repr(Self) -> @debug.Repr
 
 pub struct FaceCdclProofResult {
   decision : FaceSatDecision
@@ -4461,6 +4792,28 @@ pub fn HouConstraint::equal(Self, Self) -> Bool
 pub fn HouConstraint::not_equal(Self, Self) -> Bool
 pub fn HouConstraint::to_repr(Self) -> @debug.Repr
 
+pub struct HouDelayedGraphReport {
+  status : HouDelayedSolveStatus
+  substitution : Array[(Int32, UTerm)]
+  delayed_edges : Array[HouFlexFlexEdge]
+  woke_edges : Int32
+  nodes : Int32
+  branches_tried : Int32
+} derive(Eq, @debug.Debug)
+pub fn HouDelayedGraphReport::equal(Self, Self) -> Bool
+pub fn HouDelayedGraphReport::not_equal(Self, Self) -> Bool
+pub fn HouDelayedGraphReport::to_repr(Self) -> @debug.Repr
+
+pub enum HouDelayedSolveStatus {
+  HouDelayedSolved
+  HouDelayedPreUnifier
+  HouDelayedNoUnifier
+  HouDelayedBudgetExceeded
+} derive(Eq, @debug.Debug)
+pub fn HouDelayedSolveStatus::equal(Self, Self) -> Bool
+pub fn HouDelayedSolveStatus::not_equal(Self, Self) -> Bool
+pub fn HouDelayedSolveStatus::to_repr(Self) -> @debug.Repr
+
 pub(all) struct HouEnumerationReport {
   solutions : Array[Array[(Int32, UTerm)]]
   search_exhausted : Bool
@@ -4473,6 +4826,19 @@ pub fn HouEnumerationReport::equal(Self, Self) -> Bool
 pub fn HouEnumerationReport::not_equal(Self, Self) -> Bool
 pub fn HouEnumerationReport::to_repr(Self) -> @debug.Repr
 
+pub struct HouFlexFlexEdge {
+  lhs_meta : Int32
+  lhs_arity : Int32
+  lhs : UTerm
+  rhs_meta : Int32
+  rhs_arity : Int32
+  rhs : UTerm
+  depth : Int32
+} derive(Eq, @debug.Debug)
+pub fn HouFlexFlexEdge::equal(Self, Self) -> Bool
+pub fn HouFlexFlexEdge::not_equal(Self, Self) -> Bool
+pub fn HouFlexFlexEdge::to_repr(Self) -> @debug.Repr
+
 pub struct HouIterativeReport {
   report : HouSearchReport
   solved_at_depth : Int32
@@ -4481,6 +4847,21 @@ pub struct HouIterativeReport {
 pub fn HouIterativeReport::equal(Self, Self) -> Bool
 pub fn HouIterativeReport::not_equal(Self, Self) -> Bool
 pub fn HouIterativeReport::to_repr(Self) -> @debug.Repr
+
+pub struct HouLazyUnifierStream {
+  constraints : Array[HouConstraint]
+  initial : Unifier
+  stack : Array[HouStreamFrame]
+  emitted : Array[Array[(Int32, UTerm)]]
+  max_nodes : Int32
+  max_depth : Int32
+  max_projection_args : Int32
+  round_budget : Int32
+  reify_flex_flex : Bool
+  mut root_started : Bool
+  mut exhausted : Bool
+  mut nodes_expanded : Int32
+}
 
 pub struct HouMguReport {
   status : HouMguStatus
@@ -4535,6 +4916,8 @@ pub enum HouSearchStatus {
 pub fn HouSearchStatus::equal(Self, Self) -> Bool
 pub fn HouSearchStatus::not_equal(Self, Self) -> Bool
 pub fn HouSearchStatus::to_repr(Self) -> @debug.Repr
+
+type HouStreamFrame
 
 pub struct Iso {
   src : Ty
@@ -4611,6 +4994,16 @@ pub struct ModuleBinding {
 pub fn ModuleBinding::equal(Self, Self) -> Bool
 pub fn ModuleBinding::not_equal(Self, Self) -> Bool
 pub fn ModuleBinding::to_repr(Self) -> @debug.Repr
+
+pub struct ModuleBuildPlanReport {
+  ok : Bool
+  topological_order : Array[String]
+  cycle_detected : Bool
+  missing_dependency : String?
+} derive(Eq, @debug.Debug)
+pub fn ModuleBuildPlanReport::equal(Self, Self) -> Bool
+pub fn ModuleBuildPlanReport::not_equal(Self, Self) -> Bool
+pub fn ModuleBuildPlanReport::to_repr(Self) -> @debug.Repr
 
 pub struct ModuleCompileCache {
   entries : Array[ModuleCompileCacheEntry]
@@ -4700,6 +5093,17 @@ pub struct ModuleImport {
 pub fn ModuleImport::equal(Self, Self) -> Bool
 pub fn ModuleImport::not_equal(Self, Self) -> Bool
 pub fn ModuleImport::to_repr(Self) -> @debug.Repr
+
+pub struct ModuleIncrementalBuildReport {
+  ok : Bool
+  compiled_env : CompiledModuleEnv
+  recompiled_paths : Array[String]
+  cache_hit_paths : Array[String]
+  relinked_instance : ModuleInstance?
+} derive(Eq, @debug.Debug)
+pub fn ModuleIncrementalBuildReport::equal(Self, Self) -> Bool
+pub fn ModuleIncrementalBuildReport::not_equal(Self, Self) -> Bool
+pub fn ModuleIncrementalBuildReport::to_repr(Self) -> @debug.Repr
 
 pub struct ModuleInstance {
   module_path : String
@@ -4997,6 +5401,8 @@ pub struct VecBranch {
 pub struct VecSystem {
   branches : Array[VecBranch]
 }
+
+type WalOp
 
 pub struct Wiring {
   src : Ty

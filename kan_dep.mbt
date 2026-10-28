@@ -359,7 +359,7 @@ pub fn dline_from_maps(
 
 ///|
 pub fn dbool_not(v : DValue) -> DValue {
-  match v {
+  match force_value(v) {
     DVBool(b) => DVBool(!b)
     other => other
   }
@@ -409,7 +409,7 @@ pub fn pval_to_dvalue(v : PVal) -> DValue {
 
 ///|
 pub fn dvalue_to_pval(v : DValue) -> PVal {
-  match v {
+  match force_value(v) {
     DVUnit => PVUnit
     DVBool(b) => PVBool(b)
     DVPair(a, b) => PVPair(dvalue_to_pval(a), dvalue_to_pval(b))
@@ -434,7 +434,7 @@ pub fn dline_of_upath(p : UPath) -> DLine {
 
 ///|
 fn dv_is_bool(v : DValue, expected : Bool) -> Bool {
-  match v {
+  match force_value(v) {
     DVBool(b) => b == expected
     _ => false
   }
@@ -477,7 +477,7 @@ pub fn check_kan_coe_pi_sigma() -> Bool {
 
 ///|
 fn fam_if_true(path : (Double) -> DValue) -> DLine {
-  match path(0.0) {
+  match force_value(path(0.0)) {
     DVBool(true) => dline_bool_not_ua()
     _ => dline_bool()
   }

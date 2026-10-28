@@ -1021,7 +1021,7 @@ pub fn dim_of_face(f : Face) -> Dim {
 
 ///|
 fn is_circle_base(v : DValue) -> Bool {
-  match v {
+  match force_value(v) {
     DVCirclePoint(r) => dim_is_zero(r) || dim_is_one(r)
     _ => false
   }
@@ -1266,12 +1266,25 @@ pub fn comp_circle_value(
       return circle_point(coord)
     }
   }
+  let minterm_cands = circle_cube_minterm_candidates(faces, caps)
+  for ci in 0..<minterm_cands.length() {
+    let coord = minterm_cands[ci]
+    let mut verified = true
+    for i in 0..<faces.length() {
+      if !circle_coord_agrees_on_face(coord, faces[i], caps[i]) {
+        verified = false
+      }
+    }
+    if verified {
+      return circle_point(coord)
+    }
+  }
   DVNeutral(DNComp(line, branches, base))
 }
 
 ///|
 fn is_torus_base(v : DValue) -> Bool {
-  match v {
+  match force_value(v) {
     DVTorusPoint(a, b) =>
       (dim_is_zero(a) || dim_is_one(a)) && (dim_is_zero(b) || dim_is_one(b))
     _ => false
@@ -1361,6 +1374,22 @@ pub fn comp_torus_value(
       break
     }
   }
+  if chosen_a == None {
+    let mc_a = circle_cube_minterm_candidates(faces, caps_a)
+    for ca in 0..<mc_a.length() {
+      let mut ok_a = true
+      for i in 0..<faces.length() {
+        if !circle_coord_agrees_on_face(mc_a[ca], faces[i], caps_a[i]) {
+          ok_a = false
+          break
+        }
+      }
+      if ok_a {
+        chosen_a = Some(mc_a[ca])
+        break
+      }
+    }
+  }
   let mut chosen_b : Dim? = None
   for cb in 0..<cands_b.length() {
     let mut ok_b = true
@@ -1375,8 +1404,508 @@ pub fn comp_torus_value(
       break
     }
   }
+  if chosen_b == None {
+    let mc_b = circle_cube_minterm_candidates(faces, caps_b)
+    for cb in 0..<mc_b.length() {
+      let mut ok_b = true
+      for i in 0..<faces.length() {
+        if !circle_coord_agrees_on_face(mc_b[cb], faces[i], caps_b[i]) {
+          ok_b = false
+          break
+        }
+      }
+      if ok_b {
+        chosen_b = Some(mc_b[cb])
+        break
+      }
+    }
+  }
   match (chosen_a, chosen_b) {
     (Some(ca), Some(cb)) => torus_point(ca, cb)
     _ => DVNeutral(DNComp(line, branches, base))
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Phase 16: Cube-Minterm De Morgan Synthesis + Winding-Cocycle Obstruction &
+// Endpoint-Glued (`0 ~ 1`) Square Cap Synthesis on `Circle` and `Torus`
+// ---------------------------------------------------------------------------
+
+///|
+/// Synthesize additional De Morgan coordinate candidates from the satisfying
+/// cube decomposition of `faces`: each non-base branch contributes a cube-
+/// guarded minterm `cube_dim ∧ cap_i`, while base-valued cubes (`0 ~ 1`) may
+/// either remain `0` or lift to `1` on corners forced to `1` by an overlapping
+/// non-base branch.
+fn circle_cube_minterm_candidates(
+  faces : Array[Face],
+  caps : Array[Dim],
+) -> Array[Dim] {
+  let out : Array[Dim] = []
+  let mut nvars = 0
+  for i in 0..<faces.length() {
+    let nf = face_nvars_sem(faces[i])
+    if nf > nvars {
+      nvars = nf
+    }
+    let nc = dim_nvars_sem(caps[i])
+    if nc > nvars {
+      nvars = nc
+    }
+  }
+  if nvars <= 0 || nvars > 5 {
+    return out
+  }
+  let mut active_dnf : Dim = DZero
+  let base_cubes : Array[Dim] = []
+  for i in 0..<faces.length() {
+    let cubes = bdd_satisfying_cubes(bdd_of_face(faces[i], nvars), nvars)
+    if cubes.length() > 32 {
+      return out
+    }
+    let is_base = dim_is_zero(caps[i]) || dim_is_one(caps[i])
+    for c in 0..<cubes.length() {
+      let cube = cubes[c]
+      let mut cube_dim : Dim = DOne
+      for v in 0..<cube.length() {
+        if cube[v] == 0 {
+          cube_dim = DAnd(cube_dim, DNeg(DVar(v)))
+        } else if cube[v] == 1 {
+          cube_dim = DAnd(cube_dim, DVar(v))
+        }
+      }
+      if is_base {
+        base_cubes.push(dim_simplify(cube_dim))
+      } else {
+        active_dnf = DOr(active_dnf, DAnd(cube_dim, caps[i]))
+      }
+    }
+  }
+  let simplified_active = dim_simplify(active_dnf)
+  out.push(simplified_active)
+  if base_cubes.length() > 0 && base_cubes.length() <= 5 {
+    let mask_lim = 1 << base_cubes.length()
+    for mask in 1..<mask_lim {
+      let mut lifted = simplified_active
+      for bi in 0..<base_cubes.length() {
+        if (mask & (1 << bi)) != 0 {
+          lifted = DOr(lifted, base_cubes[bi])
+        }
+      }
+      out.push(dim_simplify(lifted))
+    }
+  }
+  out
+}
+
+///|
+/// Exact signed integer winding number of a 1D path `p : I -> Circle` whose
+/// endpoints lie at the base point `0 ~ 1`. Supports elementary De Morgan
+/// coordinates (`0`, `1`, `i`, `~i`) as well as iterated `DNComp` / `hcomp`
+/// path concatenations and reversals.
+pub fn circle_path_winding_int(
+  path_fn : (Dim) -> DValue,
+  dlevel~ : Int32 = 16,
+) -> Int32? {
+  let d = DVar(dlevel)
+  circle_val_winding_wrt(path_fn(d), dlevel)
+}
+
+///|
+fn circle_val_winding_wrt(v0 : DValue, var_id : Int32) -> Int32? {
+  match force_value(v0) {
+    DVCirclePoint(r) => {
+      let r0 = dim_simplify(dim_subst(r, var_id, false))
+      let r1 = dim_simplify(dim_subst(r, var_id, true))
+      let b0 = if dim_is_zero(r0) {
+        0
+      } else if dim_is_one(r0) {
+        1
+      } else {
+        return None
+      }
+      let b1 = if dim_is_zero(r1) {
+        0
+      } else if dim_is_one(r1) {
+        1
+      } else {
+        return None
+      }
+      Some(b1 - b0)
+    }
+    DVNeutral(DNComp(_line, sys, base)) => {
+      // By homotopy invariance along the box parameter `k : 0 -> 1`, the net
+      // winding along `var_id : 0 -> 1` of the cap equals `winding(base)` plus
+      // `winding(tube_{var_id=1})` minus `winding(tube_{var_id=0})`.
+      let w_base = match circle_val_winding_wrt(base, var_id) {
+        Some(w) => w
+        None => return None
+      }
+      let mut w_at_0 = 0
+      let mut w_at_1 = 0
+      let k_id = var_id + 97
+      for b in 0..<sys.branches.length() {
+        let br = sys.branches[b]
+        let f_at_0 = face_simplify(face_subst(br.face, var_id, false))
+        let f_at_1 = face_simplify(face_subst(br.face, var_id, true))
+        if f_at_0 == FTop {
+          match
+            circle_val_winding_wrt(
+              dim_subst_in_circle_branch(br.path, var_id, false, k_id),
+              k_id,
+            ) {
+            Some(dw) => w_at_0 = dw
+            None => return None
+          }
+        }
+        if f_at_1 == FTop {
+          match
+            circle_val_winding_wrt(
+              dim_subst_in_circle_branch(br.path, var_id, true, k_id),
+              k_id,
+            ) {
+            Some(dw) => w_at_1 = dw
+            None => return None
+          }
+        }
+      }
+      Some(w_base + w_at_1 - w_at_0)
+    }
+    _ => None
+  }
+}
+
+///|
+fn dim_subst_in_circle_branch(
+  path : (Dim) -> DValue,
+  var_id : Int32,
+  bit : Bool,
+  k_id : Int32,
+) -> DValue {
+  match force_value(path(DVar(k_id))) {
+    DVCirclePoint(r) => circle_point(dim_subst(r, var_id, bit))
+    other => other
+  }
+}
+
+///|
+pub struct CircleSquareWindingReport {
+  filler : DValue?
+  corners_compatible : Bool
+  winding_j0 : Int32
+  winding_j1 : Int32
+  winding_i0 : Int32
+  winding_i1 : Int32
+  net_boundary_winding : Int32
+  used_hspace_glue : Bool
+}
+
+///|
+fn elementary_signed_coord(w : Int32, d : Dim) -> Dim? {
+  if w == 0 {
+    Some(DZero)
+  } else if w == 1 {
+    Some(d)
+  } else if w == -1 {
+    Some(DNeg(d))
+  } else {
+    None
+  }
+}
+
+///|
+/// Canonical 2-cell square filler `(i, j) ↦ Circle` for an elementary signed
+/// winding pair `(w_i, w_j) ∈ {-1, 0, 1}²` with boundary:
+/// - `j = 0` and `j = 1`: `i ↦ circle_point(u(i))` (winding `w_i`)
+/// - `i = 0` and `i = 1`: `j ↦ circle_point(v(j))` (winding `w_j`)
+/// When `w_i != 0` and `w_j != 0`, corners agree ONLY via `0 ~ 1` so no single
+/// `DVCirclePoint(r)` exists; the H-space `hcomp` retraction over
+/// `circle_point(u(i) ∨ v(j))` restricts definitionally to all four faces!
+fn circle_hspace_biloop_at(
+  w_i : Int32,
+  w_j : Int32,
+  di : Dim,
+  dj : Dim,
+  dlevel : Int32,
+) -> DValue? {
+  if w_i == 0 {
+    return match elementary_signed_coord(w_j, dj) {
+      Some(v) => Some(circle_point(v))
+      None => None
+    }
+  }
+  if w_j == 0 {
+    return match elementary_signed_coord(w_i, di) {
+      Some(u) => Some(circle_point(u))
+      None => None
+    }
+  }
+  let (u, f_u0, f_u1) = if w_i == 1 {
+    (di, FEq0(di), FEq1(di))
+  } else if w_i == -1 {
+    (DNeg(di), FEq1(di), FEq0(di))
+  } else {
+    return None
+  }
+  let (v, f_v0, f_v1) = if w_j == 1 {
+    (dj, FEq0(dj), FEq1(dj))
+  } else if w_j == -1 {
+    (DNeg(dj), FEq1(dj), FEq0(dj))
+  } else {
+    return None
+  }
+  let sys = dsystem_of([
+    tube_branch(f_u0, _k => circle_point(v)),
+    tube_branch(f_u1, k => circle_point(DAnd(v, k))),
+    tube_branch(f_v0, _k => circle_point(u)),
+    tube_branch(f_v1, k => circle_point(DAnd(u, k))),
+  ])
+  Some(hcomp_value(DVCircleTy, sys, circle_point(DOr(u, v)), dlevel))
+}
+
+///|
+/// Decide the 2-cocycle winding obstruction `δw = w(j=0) + w(i=1) - w(j=1) - w(i=0)`
+/// of a 2D open boundary `(f_i0, f_i1, f_j0, f_j1)` in `Circle`, and synthesize
+/// a face-verified 2-path filler `DVPathLam(i => DVPathLam(j => ...))` whenever
+/// corners match (`0 ~ 1`) and either a De Morgan cap or an H-space `0 ~ 1`
+/// glued square cap exists.
+pub fn circle_square_glued_cap(
+  f_i0 : (Dim) -> DValue,
+  f_i1 : (Dim) -> DValue,
+  f_j0 : (Dim) -> DValue,
+  f_j1 : (Dim) -> DValue,
+  level~ : Int32 = 0,
+  dlevel~ : Int32 = 16,
+) -> CircleSquareWindingReport {
+  let c00 = conv_at(level, dlevel, DVCircleTy, f_i0(DZero), f_j0(DZero))
+  let c01 = conv_at(level, dlevel, DVCircleTy, f_i0(DOne), f_j1(DZero))
+  let c10 = conv_at(level, dlevel, DVCircleTy, f_i1(DZero), f_j0(DOne))
+  let c11 = conv_at(level, dlevel, DVCircleTy, f_i1(DOne), f_j1(DOne))
+  let corners_ok = c00 && c01 && c10 && c11
+  let wi0 = match circle_path_winding_int(f_i0, dlevel~) {
+    Some(w) => w
+    None => 0
+  }
+  let wi1 = match circle_path_winding_int(f_i1, dlevel~) {
+    Some(w) => w
+    None => 0
+  }
+  let wj0 = match circle_path_winding_int(f_j0, dlevel~) {
+    Some(w) => w
+    None => 0
+  }
+  let wj1 = match circle_path_winding_int(f_j1, dlevel~) {
+    Some(w) => w
+    None => 0
+  }
+  let net = wj0 + wi1 - wj1 - wi0
+  if !corners_ok || net != 0 {
+    return CircleSquareWindingReport::{
+      filler: None,
+      corners_compatible: corners_ok,
+      winding_j0: wj0,
+      winding_j1: wj1,
+      winding_i0: wi0,
+      winding_i1: wi1,
+      net_boundary_winding: net,
+      used_hspace_glue: false,
+    }
+  }
+  let verify_sq = (sq : DValue) => {
+    let di = DVar(dlevel)
+    let dj = DVar(dlevel + 1)
+    conv_at(
+      level,
+      dlevel + 2,
+      DVCircleTy,
+      dapp_dim(dapp_dim(sq, DZero), dj),
+      f_i0(dj),
+    ) &&
+    conv_at(
+      level,
+      dlevel + 2,
+      DVCircleTy,
+      dapp_dim(dapp_dim(sq, DOne), dj),
+      f_i1(dj),
+    ) &&
+    conv_at(
+      level,
+      dlevel + 2,
+      DVCircleTy,
+      dapp_dim(dapp_dim(sq, di), DZero),
+      f_j0(di),
+    ) &&
+    conv_at(
+      level,
+      dlevel + 2,
+      DVCircleTy,
+      dapp_dim(dapp_dim(sq, di), DOne),
+      f_j1(di),
+    )
+  }
+  // 1. Try direct single-coordinate De Morgan `comp_circle_value` first.
+  let di_probe = DVar(dlevel)
+  let dj_probe = DVar(dlevel + 1)
+  let direct_sys = dsystem_of([
+    tube_branch(FEq0(di_probe), _k => f_i0(dj_probe)),
+    tube_branch(FEq1(di_probe), _k => f_i1(dj_probe)),
+    tube_branch(FEq0(dj_probe), _k => f_j0(di_probe)),
+    tube_branch(FEq1(dj_probe), _k => f_j1(di_probe)),
+  ])
+  let direct_pt = comp_circle_value(
+    _ => DVCircleTy,
+    direct_sys,
+    DVCirclePoint(DZero),
+    dlevel + 2,
+  )
+  match force_value(direct_pt) {
+    DVCirclePoint(_) => {
+      let sq = DVPathLam(i => {
+        DVPathLam(j => {
+          let sys_ij = dsystem_of([
+            tube_branch(FEq0(i), _k => f_i0(j)),
+            tube_branch(FEq1(i), _k => f_i1(j)),
+            tube_branch(FEq0(j), _k => f_j0(i)),
+            tube_branch(FEq1(j), _k => f_j1(i)),
+          ])
+          comp_circle_value(
+            _ => DVCircleTy,
+            sys_ij,
+            DVCirclePoint(DZero),
+            dlevel + 2,
+          )
+        })
+      })
+      if verify_sq(sq) {
+        return CircleSquareWindingReport::{
+          filler: Some(sq),
+          corners_compatible: true,
+          winding_j0: wj0,
+          winding_j1: wj1,
+          winding_i0: wi0,
+          winding_i1: wi1,
+          net_boundary_winding: 0,
+          used_hspace_glue: false,
+        }
+      }
+    }
+    _ => ()
+  }
+  // 2. Endpoint-glued H-space `rotLoop` synthesis (`wj0 == wj1` and `wi0 == wi1`).
+  if wj0 == wj1 && wi0 == wi1 {
+    match circle_hspace_biloop_at(wj0, wi0, di_probe, dj_probe, dlevel + 2) {
+      Some(_) => {
+        let sq = DVPathLam(i => {
+          DVPathLam(j => {
+            match circle_hspace_biloop_at(wj0, wi0, i, j, dlevel + 2) {
+              Some(v) => v
+              None => DVCirclePoint(DZero)
+            }
+          })
+        })
+        if verify_sq(sq) {
+          return CircleSquareWindingReport::{
+            filler: Some(sq),
+            corners_compatible: true,
+            winding_j0: wj0,
+            winding_j1: wj1,
+            winding_i0: wi0,
+            winding_i1: wi1,
+            net_boundary_winding: 0,
+            used_hspace_glue: true,
+          }
+        }
+      }
+      None => ()
+    }
+  }
+  CircleSquareWindingReport::{
+    filler: None,
+    corners_compatible: true,
+    winding_j0: wj0,
+    winding_j1: wj1,
+    winding_i0: wi0,
+    winding_i1: wi1,
+    net_boundary_winding: 0,
+    used_hspace_glue: false,
+  }
+}
+
+///|
+/// Coordinatewise endpoint-glued 2-square synthesis on `Torus = S^1 x S^1`:
+/// decomposes a 2D boundary `(f_i0, f_i1, f_j0, f_j1)` into its two circle
+/// projections, checks both 2-cocycle winding obstructions `(net_a, net_b)`,
+/// and pairs their H-space / De Morgan fillers into a `DVTorusTy` 2-path.
+pub fn torus_square_glued_cap(
+  f_i0 : (Dim) -> DValue,
+  f_i1 : (Dim) -> DValue,
+  f_j0 : (Dim) -> DValue,
+  f_j1 : (Dim) -> DValue,
+  level~ : Int32 = 0,
+  dlevel~ : Int32 = 16,
+) -> (DValue?, Int32, Int32) {
+  let proj_a = (f : (Dim) -> DValue) => {
+    (d : Dim) => {
+      let (a, _b) = torus_dims_of(force_value(f(d)))
+      circle_point(a)
+    }
+  }
+  let proj_b = (f : (Dim) -> DValue) => {
+    (d : Dim) => {
+      let (_a, b) = torus_dims_of(force_value(f(d)))
+      circle_point(b)
+    }
+  }
+  let rep_a = circle_square_glued_cap(
+    proj_a(f_i0),
+    proj_a(f_i1),
+    proj_a(f_j0),
+    proj_a(f_j1),
+    level~,
+    dlevel~,
+  )
+  let rep_b = circle_square_glued_cap(
+    proj_b(f_i0),
+    proj_b(f_i1),
+    proj_b(f_j0),
+    proj_b(f_j1),
+    level~,
+    dlevel~,
+  )
+  match (rep_a.filler, rep_b.filler) {
+    (Some(sq_a), Some(sq_b)) => {
+      // Combine `sq_a(i, j) : Circle` and `sq_b(i, j) : Circle` into `Torus`
+      // via circle elimination (`eval_circle_elim`).
+      let embed_pair = (ca : DValue, cb : DValue) => {
+        eval_circle_elim(
+          _ => DVTorusTy,
+          eval_circle_elim(
+            _ => DVTorusTy,
+            DVTorusPoint(DZero, DZero),
+            DVPathLam(b => torus_point(DZero, b)),
+            cb,
+            dlevel + 4,
+          ),
+          DVPathLam(a => {
+            eval_circle_elim(
+              _ => DVTorusTy,
+              torus_point(a, DZero),
+              DVPathLam(b => torus_point(a, b)),
+              cb,
+              dlevel + 4,
+            )
+          }),
+          ca,
+          dlevel + 4,
+        )
+      }
+      let sq = DVPathLam(i => {
+        DVPathLam(j => {
+          embed_pair(dapp_dim(dapp_dim(sq_a, i), j), dapp_dim(dapp_dim(sq_b, i), j))
+        })
+      })
+      (Some(sq), rep_a.net_boundary_winding, rep_b.net_boundary_winding)
+    }
+    _ => (None, rep_a.net_boundary_winding, rep_b.net_boundary_winding)
   }
 }

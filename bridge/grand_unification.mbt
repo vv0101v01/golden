@@ -135,10 +135,9 @@ pub fn verify_six_pillar_circle_sphere_unification() -> Bool {
 }
 
 ///|
-/// Collect all `BridgeCertificate` records produced by the Topos, Scheme,
-/// Logical Translation, Fine-Grained Geometry–Logic Atlas, and Six-Pillar
-/// Unification engines!
-pub fn grand_unification_certificates() -> Array[BridgeCertificate] {
+fn grand_unification_certificates_from_atlas(
+  atlas : Array[GeometryLogicAtlasEntry],
+) -> Array[BridgeCertificate] {
   let certs : Array[BridgeCertificate] = [
     bridge_certificate(
       "bridge/translation",
@@ -232,8 +231,29 @@ pub fn grand_unification_certificates() -> Array[BridgeCertificate] {
       ),
       detail="Susp(Bool)≃S¹, open 5-var Σ⊣Ω DVEquiv & Freudenthal ‖Ω¹(Susp S¹)‖₀≃‖Ω¹(Susp² S¹)‖₀≃1",
     ),
+    bridge_certificate(
+      "cubical/phase16",
+      "Large-Universe & Open Dybjer–Setzer Simultaneous IR, Container Positivity, DSATUR & Glued S¹/T² Comp",
+      @cub.check_phase16_schema_large_open_positivity() &&
+      @cub.check_phase16_dsatur_and_glued_cubical_comp(),
+      detail="Joint Type_1 IR + 2-decoder open IR + anti-circular container iso; DSATUR max-clique + 0~1 glued S¹/T²",
+    ),
+    bridge_certificate(
+      "cubical/phase16",
+      "FIPS SHA-256/512, RFC 8032 Ed25519 + CHARTSIG, Crash-Consistent WAL, Exact LLL/Van Hoeij & Q̄⊂ℂ Rouché",
+      @cub.check_phase16_crypto_ed25519_and_wal() &&
+      @exactalg.check_lll_lattice_and_van_hoeij_factor() &&
+      @exactalg.check_complex_algebraic_closure_rouche(),
+      detail="RFC 8032 §7.1 + WAL torn-tail rollback; Swinnerton-Dyer S₃/S₂·S₂ LLL factor + Q̄⊂ℂ Rouché field/Vieta",
+    ),
+    bridge_certificate(
+      "cubical/phase16",
+      "Fibration Loop Equiv, Open Hopf–Freudenthal Retraction, Stasheff K₅ 5-Cell, Lazy HOU & 3-Way Repo Merge",
+      @cub.check_phase16_sphere_homotopy_and_k5() &&
+      @cub.check_phase16_hou_stream_and_module_merge(),
+      detail="Ω¹(E_Hopf) fiber seq + open ∂_Hopf(σ_{S²}(p))≡p + K₅ 5-cell; Huet flex-flex graph/stream + DAG relink + LCA merge",
+    ),
   ]
-  let atlas = build_fine_grained_geometry_logic_atlas()
   for e in atlas {
     certs.push(
       bridge_certificate(
@@ -245,6 +265,16 @@ pub fn grand_unification_certificates() -> Array[BridgeCertificate] {
     )
   }
   certs
+}
+
+///|
+/// Collect all `BridgeCertificate` records produced by the Topos, Scheme,
+/// Logical Translation, Fine-Grained Geometry–Logic Atlas, and Six-Pillar
+/// Unification engines!
+pub fn grand_unification_certificates() -> Array[BridgeCertificate] {
+  grand_unification_certificates_from_atlas(
+    build_fine_grained_geometry_logic_atlas(),
+  )
 }
 
 ///|
@@ -267,14 +297,6 @@ pub fn run_grand_unification_system() -> GrandUnificationReport {
     }
   }
   let k5_ok = k5_passed == 10 && k5_edges.length() == 10
-  let pentagon_ok = verify_five_federation_pentagon_unification()
-  let six_ok = verify_six_pillar_circle_sphere_unification()
-  let trans_ok = verify_glivenko_topos_subtopos_bridge() &&
-    verify_zariski_topos_invariance_vs_nilpotent_points() &&
-    verify_quaternary_normal_forms() &&
-    verify_kapranov_tropical_laurent_bridge() &&
-    verify_quadratic_etale_torsor_galois_bridge() &&
-    verify_excision_subtopos_blowup_bridge()
   let atlas = build_fine_grained_geometry_logic_atlas()
   let mut atlas_passed = 0
   for e in atlas {
@@ -282,10 +304,24 @@ pub fn run_grand_unification_system() -> GrandUnificationReport {
       atlas_passed = atlas_passed + 1
     }
   }
-  let atlas_ok = verify_geometry_logic_atlas() &&
+  let atlas_ok = verify_atlas_entries(atlas) &&
     atlas_passed == atlas.length() &&
     atlas.length() == 18
-  let all_certs = bridge_certificates()
+  let all_certs = bridge_base_certificates()
+  let gu_certs = grand_unification_certificates_from_atlas(atlas)
+  for c in gu_certs {
+    all_certs.push(c)
+  }
+  // Extract translation (indices 0..5), pentagon (index 10), and six-pillar
+  // (index 11) statuses directly from `gu_certs` without redundant re-evaluation.
+  let trans_ok = gu_certs[0].ok &&
+    gu_certs[1].ok &&
+    gu_certs[2].ok &&
+    gu_certs[3].ok &&
+    gu_certs[4].ok &&
+    gu_certs[5].ok
+  let pentagon_ok = gu_certs[10].ok
+  let six_ok = gu_certs[11].ok
   let mut certs_passed = 0
   for c in all_certs {
     if c.ok {

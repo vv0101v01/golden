@@ -1956,40 +1956,159 @@ pub struct DSystemRepairAllMaxima {
 }
 
 ///|
-fn maxclique_all_component(
+///|
+/// DSATUR chromatic upper-bound report for maximum compatible `DSystem`
+/// enumeration across conflict components.
+pub struct DSystemDsaturCliqueReport {
+  result : DSystemRepairAllMaxima
+  chromatic_root_bound : Int32
+  dsatur_visited_nodes : Int32
+  color_pruned_branches : Int32
+  uncolored_visited_nodes : Int32
+}
+
+///|
+/// Greedy DSATUR vertex coloring on the compatibility subgraph `G[cand]`.
+/// Returns `(ordered_cand, color_bounds)` sorted in ascending color-class
+/// order `1 <= c_0 <= c_1 <= ... <= c_{m-1}`: no two compatible vertices in
+/// `cand` receive the same color, so any clique contained in
+/// `ordered_cand[0 .. idx]` has cardinality at most `color_bounds[idx]`.
+pub fn dsatur_color_order(
+  adj : Array[Array[Bool]],
+  cand : Array[Int32],
+) -> (Array[Int32], Array[Int32]) {
+  let m = cand.length()
+  if m == 0 {
+    return ([], [])
+  }
+  let deg : Array[Int32] = []
+  let color : Array[Int32] = []
+  let colored : Array[Bool] = []
+  for i in 0..<m {
+    let u = cand[i]
+    let mut d = 0
+    for j in 0..<m {
+      if i != j && adj[u][cand[j]] {
+        d = d + 1
+      }
+    }
+    deg.push(d)
+    color.push(0)
+    colored.push(false)
+  }
+  for _step in 0..<m {
+    // Pick uncolored vertex with maximum saturation degree, tie-breaking by
+    // induced degree and smallest pool index.
+    let mut best = -1
+    let mut best_sat = -1
+    let mut best_deg = -1
+    for i in 0..<m {
+      if colored[i] {
+        continue
+      }
+      let u = cand[i]
+      let seen_colors : Array[Int32] = []
+      for j in 0..<m {
+        if colored[j] && adj[u][cand[j]] {
+          let cj = color[j]
+          if !seen_colors.contains(cj) {
+            seen_colors.push(cj)
+          }
+        }
+      }
+      let sat = seen_colors.length()
+      if best < 0 ||
+        sat > best_sat ||
+        (sat == best_sat && deg[i] > best_deg) ||
+        (sat == best_sat && deg[i] == best_deg && cand[i] < cand[best]) {
+        best = i
+        best_sat = sat
+        best_deg = deg[i]
+      }
+    }
+    let u = cand[best]
+    let mut chosen_c = 1
+    while true {
+      let mut clash = false
+      for j in 0..<m {
+        if colored[j] && color[j] == chosen_c && adj[u][cand[j]] {
+          clash = true
+          break
+        }
+      }
+      if !clash {
+        break
+      }
+      chosen_c = chosen_c + 1
+    }
+    colored[best] = true
+    color[best] = chosen_c
+  }
+  // Bucket vertices in ascending color order (and pool order within each color
+  // class) so `color_bounds` is non-decreasing.
+  let mut max_c = 0
+  for i in 0..<m {
+    if color[i] > max_c {
+      max_c = color[i]
+    }
+  }
+  let ordered : Array[Int32] = []
+  let bounds : Array[Int32] = []
+  for c in 1..<=max_c {
+    for i in 0..<m {
+      if color[i] == c {
+        ordered.push(cand[i])
+        bounds.push(c)
+      }
+    }
+  }
+  (ordered, bounds)
+}
+
+///|
+fn sort_clique_asc(clq : Array[Int32]) -> Array[Int32] {
+  let out : Array[Int32] = []
+  for i in 0..<clq.length() {
+    out.push(clq[i])
+  }
+  for _p in 0..<out.length() {
+    for q in 0..<(out.length() - 1) {
+      if out[q + 1] < out[q] {
+        let tmp = out[q]
+        out[q] = out[q + 1]
+        out[q + 1] = tmp
+      }
+    }
+  }
+  out
+}
+
+///|
+fn clique_lex_lt(a : Array[Int32], b : Array[Int32]) -> Bool {
+  let len = if a.length() < b.length() { a.length() } else { b.length() }
+  for i in 0..<len {
+    if a[i] != b[i] {
+      return a[i] < b[i]
+    }
+  }
+  a.length() < b.length()
+}
+
+///|
+fn maxclique_uncolored_count_nodes(
   adj : Array[Array[Bool]],
   comp : Array[Int32],
+  target : Int32,
   budget : Int32,
-) -> (Array[Array[Int32]], Bool) {
+) -> Int32 {
   let k = comp.length()
-  if k == 0 {
-    return ([[]], true)
-  }
-  if k == 1 {
-    return ([[comp[0]]], true)
-  }
-  let (incumbent, exact1) = maxclique_exact(adj, comp, budget)
-  if !exact1 {
-    return ([incumbent], false)
-  }
-  let target = incumbent.length()
-  let all_cliques : Array[Array[Int32]] = []
   let cur : Array[Int32] = []
-  let nodes = [0, 0] // [visited_nodes, exceeded]
+  let nodes = [0, 0]
   fn dfs(start : Int32) -> Unit {
-    if nodes[1] != 0 {
+    if nodes[1] != 0 || cur.length() == target {
       return
     }
-    if cur.length() == target {
-      let snap : Array[Int32] = []
-      for i in 0..<cur.length() {
-        snap.push(cur[i])
-      }
-      all_cliques.push(snap)
-      return
-    }
-    let rem = k - start
-    if cur.length() + rem < target {
+    if cur.length() + (k - start) < target {
       return
     }
     for idx in start..<k {
@@ -2017,20 +2136,150 @@ fn maxclique_all_component(
     }
   }
   dfs(0)
-  if nodes[1] != 0 || all_cliques.length() == 0 {
-    ([incumbent], false)
-  } else {
-    (all_cliques, true)
-  }
+  nodes[0]
 }
 
 ///|
-/// Decompose the pairwise conflict graph (complement of `adj`) into
-/// connected components, enumerate all maximum-cardinality compatible
-/// branch subsets within each component independently, and take their
-/// Cartesian product (up to `max_solutions` materialized `DSystem`s,
-/// while reporting the exact `total_maximum_count`).
-pub fn dsystem_repair_all_maxima(
+/// Two-phase Tomita–Sutani / DSATUR maximum-clique enumerator on a single
+/// conflict component `comp`: Phase 1 finds the exact clique number `ω` via
+/// DSATUR branch-and-bound; Phase 2 enumerates ALL cliques of size `ω` using
+/// `|cur| + color_bound[idx] < ω` pruning, returning `(cliques, exact,
+/// root_chromatic_bound, visited_nodes, color_pruned_branches)`.
+fn maxclique_dsatur_component(
+  adj : Array[Array[Bool]],
+  comp : Array[Int32],
+  budget : Int32,
+) -> (Array[Array[Int32]], Bool, Int32, Int32, Int32) {
+  let k = comp.length()
+  if k == 0 {
+    return ([[]], true, 0, 0, 0)
+  }
+  if k == 1 {
+    return ([[comp[0]]], true, 1, 1, 0)
+  }
+  let (root_ord, root_bounds) = dsatur_color_order(adj, comp)
+  let root_chi = root_bounds[root_bounds.length() - 1]
+  // Phase 1: find exact maximum clique size `best[0]` with DSATUR bound.
+  let best_clq : Array[Int32] = [comp[0]]
+  let cur1 : Array[Int32] = []
+  let stats = [0, 0, 0] // [visited_nodes, color_pruned, exceeded]
+  fn search_omega(ord : Array[Int32], bounds : Array[Int32]) -> Unit {
+    if stats[2] != 0 {
+      return
+    }
+    let mut idx = ord.length() - 1
+    while idx >= 0 {
+      if cur1.length() + bounds[idx] <= best_clq.length() {
+        stats[1] = stats[1] + (idx + 1)
+        break
+      }
+      stats[0] = stats[0] + 1
+      if stats[0] > budget {
+        stats[2] = 1
+        return
+      }
+      let v = ord[idx]
+      cur1.push(v)
+      let next_cand : Array[Int32] = []
+      for t in 0..<idx {
+        let u = ord[t]
+        if adj[v][u] {
+          next_cand.push(u)
+        }
+      }
+      if next_cand.length() == 0 {
+        if cur1.length() > best_clq.length() {
+          best_clq.clear()
+          for z in 0..<cur1.length() {
+            best_clq.push(cur1[z])
+          }
+        }
+      } else if cur1.length() + next_cand.length() > best_clq.length() {
+        let (sub_ord, sub_bounds) = dsatur_color_order(adj, next_cand)
+        search_omega(sub_ord, sub_bounds)
+      }
+      ignore(cur1.pop())
+      if stats[2] != 0 {
+        return
+      }
+      idx = idx - 1
+    }
+  }
+  search_omega(root_ord, root_bounds)
+  if stats[2] != 0 {
+    return ([sort_clique_asc(best_clq)], false, root_chi, stats[0], stats[1])
+  }
+  let target = best_clq.length()
+  // Phase 2: enumerate ALL cliques of size `target` using DSATUR upper bounds.
+  let all_cliques : Array[Array[Int32]] = []
+  let cur2 : Array[Int32] = []
+  fn enum_omega(ord : Array[Int32], bounds : Array[Int32]) -> Unit {
+    if stats[2] != 0 {
+      return
+    }
+    if cur2.length() == target {
+      all_cliques.push(sort_clique_asc(cur2))
+      return
+    }
+    let mut idx = ord.length() - 1
+    while idx >= 0 {
+      if cur2.length() + bounds[idx] < target {
+        stats[1] = stats[1] + (idx + 1)
+        break
+      }
+      stats[0] = stats[0] + 1
+      if stats[0] > budget {
+        stats[2] = 1
+        return
+      }
+      let v = ord[idx]
+      cur2.push(v)
+      if cur2.length() == target {
+        all_cliques.push(sort_clique_asc(cur2))
+      } else {
+        let next_cand : Array[Int32] = []
+        for t in 0..<idx {
+          let u = ord[t]
+          if adj[v][u] {
+            next_cand.push(u)
+          }
+        }
+        if cur2.length() + next_cand.length() >= target {
+          let (sub_ord, sub_bounds) = dsatur_color_order(adj, next_cand)
+          enum_omega(sub_ord, sub_bounds)
+        }
+      }
+      ignore(cur2.pop())
+      if stats[2] != 0 {
+        return
+      }
+      idx = idx - 1
+    }
+  }
+  enum_omega(root_ord, root_bounds)
+  if stats[2] != 0 || all_cliques.length() == 0 {
+    return ([sort_clique_asc(best_clq)], false, root_chi, stats[0], stats[1])
+  }
+  // Deterministic lexicographic order over pool indices.
+  for _p in 0..<all_cliques.length() {
+    for q in 0..<(all_cliques.length() - 1) {
+      if clique_lex_lt(all_cliques[q + 1], all_cliques[q]) {
+        let tmp = all_cliques[q]
+        all_cliques[q] = all_cliques[q + 1]
+        all_cliques[q + 1] = tmp
+      }
+    }
+  }
+  (all_cliques, true, root_chi, stats[0], stats[1])
+}
+
+///|
+/// Decompose the pairwise conflict graph into connected components and run
+/// Tomita–Sutani DSATUR chromatic upper-bound branch-and-bound on every
+/// component, returning both the exact maximum-compatible `DSystem` solutions
+/// and DSATUR pruning telemetry (`chromatic_root_bound`,
+/// `dsatur_visited_nodes`, `color_pruned_branches`, `uncolored_visited_nodes`).
+pub fn dsystem_repair_all_maxima_dsatur(
   level : Int32,
   dlevel : Int32,
   line : (Dim) -> DValue,
@@ -2039,7 +2288,7 @@ pub fn dsystem_repair_all_maxima(
   candidates : Array[DTubeBranch],
   max_solutions~ : Int32 = 32,
   node_budget~ : Int32 = 200000,
-) -> DSystemRepairAllMaxima {
+) -> DSystemDsaturCliqueReport {
   let pool : Array[DTubeBranch] = []
   for i in 0..<system.branches.length() {
     let br = system.branches[i]
@@ -2078,17 +2327,23 @@ pub fn dsystem_repair_all_maxima(
   let n = pool.length()
   if n == 0 {
     let empty_sys = dsystem_of([])
-    return DSystemRepairAllMaxima::{
-      systems: if max_solutions > 0 {
-        [empty_sys]
-      } else {
-        []
+    return DSystemDsaturCliqueReport::{
+      result: DSystemRepairAllMaxima::{
+        systems: if max_solutions > 0 {
+          [empty_sys]
+        } else {
+          []
+        },
+        max_branch_count: 0,
+        total_maximum_count: 1,
+        conflict_components: 0,
+        all_compatible: true,
+        exact: true,
       },
-      max_branch_count: 0,
-      total_maximum_count: 1,
-      conflict_components: 0,
-      all_compatible: true,
-      exact: true,
+      chromatic_root_bound: 0,
+      dsatur_visited_nodes: 0,
+      color_pruned_branches: 0,
+      uncolored_visited_nodes: 0,
     }
   }
   let adj : Array[Array[Bool]] = []
@@ -2139,7 +2394,6 @@ pub fn dsystem_repair_all_maxima(
         }
       }
     }
-    // Sort component indices in pool order for deterministic output.
     for _p in 0..<comp.length() {
       for q in 0..<(comp.length() - 1) {
         if comp[q + 1] < comp[q] {
@@ -2155,13 +2409,27 @@ pub fn dsystem_repair_all_maxima(
   let mut exact = true
   let mut max_branches = 0
   let mut total_count = 1
+  let mut root_chi_sum = 0
+  let mut dsatur_nodes = 0
+  let mut pruned_sum = 0
+  let mut uncolored_nodes = 0
   for ci in 0..<components.length() {
-    let (sols, ex) = maxclique_all_component(adj, components[ci], node_budget)
+    let (sols, ex, chi, d_nodes, pruned) = maxclique_dsatur_component(
+      adj,
+      components[ci],
+      node_budget,
+    )
     if !ex {
       exact = false
     }
-    max_branches = max_branches + sols[0].length()
+    let omega = sols[0].length()
+    max_branches = max_branches + omega
     total_count = total_count * sols.length()
+    root_chi_sum = root_chi_sum + chi
+    dsatur_nodes = dsatur_nodes + d_nodes
+    pruned_sum = pruned_sum + pruned
+    uncolored_nodes = uncolored_nodes +
+      maxclique_uncolored_count_nodes(adj, components[ci], omega, node_budget)
     comp_solutions.push(sols)
   }
   let cap = if max_solutions < 0 { 0 } else { max_solutions }
@@ -2216,12 +2484,46 @@ pub fn dsystem_repair_all_maxima(
       out_systems.push(sys)
     }
   }
-  DSystemRepairAllMaxima::{
-    systems: out_systems,
-    max_branch_count: max_branches,
-    total_maximum_count: total_count,
-    conflict_components: components.length(),
-    all_compatible: all_ok,
-    exact,
+  DSystemDsaturCliqueReport::{
+    result: DSystemRepairAllMaxima::{
+      systems: out_systems,
+      max_branch_count: max_branches,
+      total_maximum_count: total_count,
+      conflict_components: components.length(),
+      all_compatible: all_ok,
+      exact,
+    },
+    chromatic_root_bound: root_chi_sum,
+    dsatur_visited_nodes: dsatur_nodes,
+    color_pruned_branches: pruned_sum,
+    uncolored_visited_nodes: uncolored_nodes,
   }
+}
+
+///|
+/// Decompose the pairwise conflict graph (complement of `adj`) into
+/// connected components, enumerate all maximum-cardinality compatible
+/// branch subsets within each component independently, and take their
+/// Cartesian product (up to `max_solutions` materialized `DSystem`s,
+/// while reporting the exact `total_maximum_count`).
+pub fn dsystem_repair_all_maxima(
+  level : Int32,
+  dlevel : Int32,
+  line : (Dim) -> DValue,
+  system : DSystem,
+  base : DValue,
+  candidates : Array[DTubeBranch],
+  max_solutions~ : Int32 = 32,
+  node_budget~ : Int32 = 200000,
+) -> DSystemRepairAllMaxima {
+  dsystem_repair_all_maxima_dsatur(
+    level,
+    dlevel,
+    line,
+    system,
+    base,
+    candidates,
+    max_solutions~,
+    node_budget~,
+  ).result
 }

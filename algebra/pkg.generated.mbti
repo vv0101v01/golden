@@ -227,6 +227,8 @@ pub fn check_algebraic_radicals_and_rank6_multiquad() -> Bool
 
 pub fn check_biquadratic_denesting() -> Bool
 
+pub fn check_complex_algebraic_closure_rouche() -> Bool
+
 pub fn check_jacobi_adaptive_exact_fallback() -> Bool
 
 pub fn check_jacobi_block_deflation_and_multiplicity() -> Bool
@@ -234,6 +236,8 @@ pub fn check_jacobi_block_deflation_and_multiplicity() -> Bool
 pub fn check_jacobi_cluster_aware_iteration() -> Bool
 
 pub fn check_jacobi_cluster_separation() -> Bool
+
+pub fn check_lll_lattice_and_van_hoeij_factor() -> Bool
 
 pub fn check_multiquadratic_tower() -> Bool
 
@@ -298,6 +302,36 @@ pub fn cinterval_sub(CInterval, CInterval) -> CInterval
 pub fn cinterval_subset(CInterval, CInterval) -> Bool
 
 pub fn cinterval_zero() -> CInterval
+
+pub fn complex_alg_add(ComplexAlgNum, ComplexAlgNum, max_degree? : Int32) -> ComplexAlgNum?
+
+pub fn complex_alg_all_nth_roots(ComplexAlgNum, Int32, max_degree? : Int32) -> Array[ComplexAlgNum]
+
+pub fn complex_alg_conj(ComplexAlgNum) -> ComplexAlgNum
+
+pub fn complex_alg_div(ComplexAlgNum, ComplexAlgNum, max_degree? : Int32) -> ComplexAlgNum?
+
+pub fn complex_alg_eq(ComplexAlgNum, ComplexAlgNum) -> Bool
+
+pub fn complex_alg_eval_poly(QPoly, ComplexAlgNum, max_degree? : Int32) -> ComplexAlgNum?
+
+pub fn complex_alg_i() -> ComplexAlgNum
+
+pub fn complex_alg_inv(ComplexAlgNum) -> ComplexAlgNum?
+
+pub fn complex_alg_mul(ComplexAlgNum, ComplexAlgNum, max_degree? : Int32) -> ComplexAlgNum?
+
+pub fn complex_alg_neg(ComplexAlgNum) -> ComplexAlgNum
+
+pub fn complex_alg_of_rat(Rat) -> ComplexAlgNum
+
+pub fn complex_alg_pow(ComplexAlgNum, Int32, max_degree? : Int32) -> ComplexAlgNum?
+
+pub fn complex_alg_refine_disk(ComplexAlgNum, Int32) -> ComplexDisk
+
+pub fn complex_alg_roots_of(QPoly) -> Array[(ComplexAlgNum, Int32)]
+
+pub fn complex_alg_sub(ComplexAlgNum, ComplexAlgNum, max_degree? : Int32) -> ComplexAlgNum?
 
 pub fn complex_root_isolations_are_certified(QPoly, Array[ComplexRootIsolation]) -> Bool
 
@@ -613,7 +647,11 @@ pub fn qmat_inverse(QMat) -> QMat?
 
 pub fn qmat_is_diagonalizable_rational(QMat) -> Bool
 
+pub fn qmat_is_lll_reduced(Array[Array[Rat]], delta_num? : Int32, delta_den? : Int32) -> Bool
+
 pub fn qmat_is_zero(QMat) -> Bool
+
+pub fn qmat_lll_reduce(Array[Array[Rat]], delta_num? : Int32, delta_den? : Int32) -> LllReductionReport
 
 pub fn qmat_minimal_polynomial(QMat) -> QPoly
 
@@ -688,6 +726,8 @@ pub fn qpoly_factor_complete_with_budget(QPoly, Int32) -> QPolyCompleteFactoriza
 pub fn qpoly_factor_degree_candidates(QPoly, Int32) -> Array[Int32]
 
 pub fn qpoly_factor_hensel(QPoly) -> QPolyCompleteFactorization
+
+pub fn qpoly_factor_lll(QPoly) -> QPolyLllFactorReport
 
 pub fn qpoly_factor_rational_roots(QPoly) -> QPolyRationalFactorization
 
@@ -943,6 +983,8 @@ pub fn rat_one() -> Rat
 
 pub fn rat_round_down_pow2(Rat, Int32) -> Rat
 
+pub fn rat_round_nearest_bigint(Rat) -> @bigint.BigInt
+
 pub fn rat_round_up_pow2(Rat, Int32) -> Rat
 
 pub fn rat_sign(Rat) -> Int32
@@ -1169,6 +1211,8 @@ pub fn upoly_x() -> UPoly
 
 pub fn upoly_zero() -> UPoly
 
+pub fn van_hoeij_lll_recombine(QPoly, Array[@bigint.BigInt], @bigint.BigInt, Int32, Array[Array[Int32]]) -> (Array[QPoly], Int32)?
+
 // Errors
 
 // Types and methods
@@ -1239,6 +1283,12 @@ pub struct CInterval {
 pub fn CInterval::equal(Self, Self) -> Bool
 pub fn CInterval::not_equal(Self, Self) -> Bool
 pub fn CInterval::to_repr(Self) -> @debug.Repr
+
+pub struct ComplexAlgNum {
+  minpoly : QPoly
+  root_index : Int32
+  disk : ComplexDisk
+}
 
 pub struct ComplexDisk {
   re : Rat
@@ -1348,6 +1398,13 @@ pub struct JacobiRotationCertificate {
 pub fn JacobiRotationCertificate::equal(Self, Self) -> Bool
 pub fn JacobiRotationCertificate::not_equal(Self, Self) -> Bool
 pub fn JacobiRotationCertificate::to_repr(Self) -> @debug.Repr
+
+pub struct LllReductionReport {
+  reduced_basis : Array[Array[Rat]]
+  unimodular_u : Array[Array[@bigint.BigInt]]
+  swaps : Int32
+  size_reductions : Int32
+}
 
 pub struct MultiQuadNum {
   basis : Array[@bigint.BigInt]
@@ -1493,6 +1550,15 @@ pub enum QPolyIrreducibilityCertificate {
 pub fn QPolyIrreducibilityCertificate::equal(Self, Self) -> Bool
 pub fn QPolyIrreducibilityCertificate::not_equal(Self, Self) -> Bool
 pub fn QPolyIrreducibilityCertificate::to_repr(Self) -> @debug.Repr
+
+pub struct QPolyLllFactorReport {
+  leading : Rat
+  factors : Array[QPolyFactor]
+  hensel_prime : Int32
+  modular_factor_count : Int32
+  lll_short_dimension : Int32
+  used_lll_lattice : Bool
+}
 
 pub struct QPolyRationalFactorization {
   roots : Array[Rat]

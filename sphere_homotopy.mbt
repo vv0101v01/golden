@@ -2191,4 +2191,297 @@ pub fn freudenthal_susp_loop1_preserves_refl_value(
   })
 }
 
+// ---------------------------------------------------------------------------
+// Phase 16 (Track 5): Hopf Fiber-Sequence Loop Classification, Open-Variable
+// Hopf-Freudenthal Retraction `∂_Hopf(σ_{S^2}(p)) = p`, and Split-Retract
+// Certification of `ℤ` inside `π_2(S^2) = ‖Ω^2(S^2, north)‖_0`
+// ---------------------------------------------------------------------------
+
+///|
+/// Schema `S^2` HIT type value (`sphere2_schema()`).
+pub fn sphere2_type_value() -> DValue {
+  DVHitType(sphere2_schema(), [], [])
+}
+
+///|
+/// Meridian path `merid(x) : Path S^2 north south` on `sphere2_schema()`.
+pub fn sphere2_meridian_path_value(x : DValue) -> DValue {
+  let spec = sphere2_schema()
+  DVPathLam(i => hit_cell_value(spec, 2, [], [x], [i]))
+}
+
+///|
+/// Total space `E_Hopf = Σ (x : S^2), Hopf(x)` of Brunerie's Hopf fibration
+/// (`S^1 -> E_Hopf -> S^2`, homotopically `S^3`).
+pub fn hopf_total_space_type_value(dlevel~ : Int32 = 16) -> DValue {
+  DVSigma(sphere2_type_value(), pt => hopf_family_value(pt, dlevel~))
+}
+
+///|
+/// First-class bidirectional Hopf fiber-sequence loop space equivalence
+///   `Equiv (Ω¹(E_Hopf, (north, base))) (Σ (p : Ω¹(S^2, north)), Path S^1 (subst Hopf p base) base)`.
+pub fn hopf_total_loop_equiv_fiber_seq_value(dlevel~ : Int32 = 16) -> DValue {
+  fibration_loop_equiv_fiber_path_value(
+    sphere2_type_value(),
+    pt => hopf_family_value(pt, dlevel~),
+    sphere2_north_value(),
+    circle_hit_base_value(),
+    dlevel + 6,
+  )
+}
+
+///|
+/// Open-variable circle elimination proving `fwd(circle_rot_equiv(x))(base) = x`
+/// for arbitrary (closed or neutral) `x : S^1`.
+pub fn circle_rot_eval_base_eq_value(x : DValue, dlevel : Int32) -> DValue {
+  let c_spec = circle_schema()
+  let s1 = circle_hit_type_value()
+  let base = circle_hit_base_value()
+  eval_hit_elim(
+    c_spec,
+    (_idx, pt) => {
+      DVPathTy(
+        _ => s1,
+        equiv_fun_value(circle_rot_equiv_value(pt, dlevel), s1, s1, base),
+        pt,
+      )
+    },
+    [
+      dpath_refl_value(base),
+      DVPathLam(i => dpath_refl_value(hit_cell_value(c_spec, 1, [], [], [i]))),
+    ],
+    [],
+    [],
+    x,
+    dlevel,
+  )
+}
+
+///|
+/// Freudenthal suspension map `σ_{S^2} : Ω¹(S^1, base) -> Ω²(S^2, north)` on
+/// `sphere2_schema()`, defined uniformly on arbitrary open/neutral loops `p`.
+pub fn sphere2_susp_loop1_to_loop2_value(
+  p : DValue,
+  dlevel~ : Int32 = 16,
+) -> DValue {
+  let s2 = sphere2_type_value()
+  let north = sphere2_north_value()
+  let base_s1 = circle_hit_base_value()
+  let loop1_ty = DVPathTy(_ => s2, north, north)
+  let m0 = sphere2_meridian_path_value(base_s1)
+  let canc = dpath_trans_sym_cancel_value(s2, m0, north, dlevel)
+  DVPathLam(t => {
+    let pt = dapp_dim(p, t)
+    let unit_t = dpath_trans_value(
+      s2,
+      sphere2_meridian_path_value(pt),
+      dpath_sym_value(m0),
+      dlevel,
+    )
+    let sys = dsystem_of([
+      tube_branch(face_simplify(FEq0(t)), j => dapp_dim(canc, j)),
+      tube_branch(face_simplify(FEq1(t)), j => dapp_dim(canc, j)),
+    ])
+    hcomp_value(loop1_ty, sys, unit_t, dlevel + 4)
+  })
+}
+
+///|
+/// Open-variable computation of Hopf meridian-loop transport:
+/// for arbitrary `x : S^1`, constructs
+///   `Path S^1 (subst Hopf (merid(x) ⬝ sym(merid(base))) base) x`
+/// by chaining `subst_trans_eq_value`, `ua_beta_path_value` on
+/// `circle_rot_equiv(x)`, `circle_rot_eval_base_eq_value(x)`, and
+/// `ua_beta_back_path_value` on `equiv_id(S^1)`.
+pub fn hopf_unit_subst_eq_value(
+  x : DValue,
+  dlevel~ : Int32 = 16,
+) -> DValue {
+  let s1 = circle_hit_type_value()
+  let base = circle_hit_base_value()
+  let s2 = sphere2_type_value()
+  let hopf_fam = (pt : DValue) => hopf_family_value(pt, dlevel~)
+  let mx = sphere2_meridian_path_value(x)
+  let m0_inv = dpath_sym_value(sphere2_meridian_path_value(base))
+  let step_split = subst_trans_eq_value(
+    hopf_fam,
+    s2,
+    mx,
+    m0_inv,
+    base,
+    dlevel + 6,
+  )
+  let rot_x = circle_rot_equiv_value(x, dlevel)
+  let ua_fwd = dpath_sym_value(
+    ua_beta_path_value(rot_x, s1, s1, 0, base, dlevel + 5),
+  )
+  let eval_x = circle_rot_eval_base_eq_value(x, dlevel)
+  let mx_to_x = dpath_trans_value(s1, ua_fwd, eval_x, dlevel + 6)
+  let step_mid : DValue = DVPathLam(
+    memo_dim_line(k => {
+      subst_value(hopf_fam, m0_inv, dapp_dim(mx_to_x, k), dlevel + 6)
+    }),
+  )
+  let ua_bwd = dpath_sym_value(
+    ua_beta_back_path_value(equiv_id_value(s1), s1, s1, 0, x, dlevel + 5),
+  )
+  dpath_trans_value(
+    s1,
+    dpath_trans_value(s1, step_split, step_mid, dlevel + 8),
+    ua_bwd,
+    dlevel + 8,
+  )
+}
+
+///|
+/// Open-variable Hopf–Freudenthal retraction theorem:
+/// for arbitrary (closed or neutral) `p : Ω¹(S^1, base)`, constructs a
+/// pointed 2-path
+///   `Path (Ω¹(S^1, base)) (hopf_connecting_loop (sphere2_susp_loop1_to_loop2 p)) p`
+/// purely inside the cubical kernel.
+pub fn hopf_freudenthal_retraction_value(
+  p : DValue,
+  dlevel~ : Int32 = 16,
+) -> DValue {
+  let s1 = circle_hit_type_value()
+  let base = circle_hit_base_value()
+  let s2 = sphere2_type_value()
+  let north = sphere2_north_value()
+  let loop1_s2_ty = DVPathTy(_ => s2, north, north)
+  let hopf_fam = (pt : DValue) => hopf_family_value(pt, dlevel~)
+  let m0 = sphere2_meridian_path_value(base)
+  let m0_sym = dpath_sym_value(m0)
+  let canc = dpath_trans_sym_cancel_value(s2, m0, north, dlevel)
+  let lhs_loop = hopf_connecting_loop_value(
+    sphere2_susp_loop1_to_loop2_value(p, dlevel~),
+    dlevel~,
+  )
+  let psi_at = memo_dim_line(t => {
+    let pt = dapp_dim(p, t)
+    let unit_t = dpath_trans_value(
+      s2,
+      sphere2_meridian_path_value(pt),
+      m0_sym,
+      dlevel,
+    )
+    let sys = dsystem_of([
+      tube_branch(face_simplify(FEq0(t)), j => dapp_dim(canc, j)),
+      tube_branch(face_simplify(FEq1(t)), j => dapp_dim(canc, j)),
+    ])
+    let cap_fill = fill_value(_ => loop1_s2_ty, sys, unit_t, dlevel + 4)
+    let uncap : DValue = DVPathLam(
+      memo_dim_line(s => {
+        subst_value(hopf_fam, cap_fill(DNeg(s)), base, dlevel + 6)
+      }),
+    )
+    let unit_eq = hopf_unit_subst_eq_value(pt, dlevel~)
+    dpath_trans_value(s1, uncap, unit_eq, dlevel + 8)
+  })
+  let theta0 = psi_at(DZero)
+  // `theta0 : Ω¹(S^1, base)` is closed and never traverses `loop`, so its
+  // helix winding is definitionally `0` (`circle_decode(0) ≡ refl_base`).
+  let lid0 = dpath_sym_value(circle_decode_encode_retr_value(theta0, dlevel + 10))
+  let lid0_at = memo_dim_line(k => dapp_dim(lid0, k))
+  DVPathLam(
+    memo_dim_line(r => {
+      DVPathLam(
+        memo_dim_line(t => {
+          let mid = psi_at(t)
+          let sys = dsystem_of([
+            tube_branch(face_simplify(FEq0(r)), _ => dapp_dim(lhs_loop, t)),
+            tube_branch(face_simplify(FEq1(r)), _ => dapp_dim(p, t)),
+            tube_branch(face_simplify(FEq0(t)), k => dapp_dim(lid0_at(k), r)),
+            tube_branch(face_simplify(FEq1(t)), k => dapp_dim(lid0_at(k), r)),
+          ])
+          hcomp_value(s1, sys, dapp_dim(mid, r), dlevel + 14)
+        }),
+      )
+    }),
+  )
+}
+
+///|
+/// Open-variable integer retraction witness
+///   `Path IntegerS (hopf_invariant (sphere2_susp_loop1_to_loop2 (circle_decode z))) z`
+/// valid for arbitrary neutral `z : IntegerS`.
+pub fn hopf_invariant_susp_retraction_value(
+  z : DValue,
+  dlevel~ : Int32 = 16,
+) -> DValue {
+  let z_ty = integer_type_value()
+  let loop_s1_ty = circle_loop_space_type_value()
+  let dec_z = circle_decode_value(z, dlevel)
+  let retr_p = hopf_freudenthal_retraction_value(dec_z, dlevel~)
+  let step1 = dpath_cong_value(
+    DVLam(q => circle_encode_value(q, dlevel + 10)),
+    loop_s1_ty,
+    retr_p,
+  )
+  let step2 = circle_encode_decode_sect_value(z, dlevel + 10)
+  dpath_trans_value(z_ty, step1, step2, dlevel + 12)
+}
+
+///|
+/// 0-truncated second homotopy group `π_2(S^2) = ‖Ω²(S^2, north)‖_0`.
+pub fn pi2_s2_type_value() -> DValue {
+  set_trunc_type_value(
+    loop_space_type_value(sphere2_type_value(), sphere2_north_value(), 2),
+  )
+}
+
+///|
+/// 0-truncated Hopf invariant homomorphism `π_2(S^2) -> IntegerS`, induced on
+/// `‖Ω²(S^2, north)‖_0` via `set_trunc_rec_value` and `integer_is_set_value`.
+pub fn pi2_s2_hopf_hom_value(
+  elem : DValue,
+  dlevel~ : Int32 = 16,
+) -> DValue {
+  let omega2_ty = loop_space_type_value(
+    sphere2_type_value(),
+    sphere2_north_value(),
+    2,
+  )
+  set_trunc_rec_set_value(
+    omega2_ty,
+    integer_type_value(),
+    (a, b, p1, p2) => integer_is_set_value(a, b, p1, p2, dlevel + 12),
+    alpha => hopf_invariant_value(alpha, dlevel~),
+    elem,
+    dlevel + 14,
+  )
+}
+
+///|
+/// Canonical Freudenthal generator map `IntegerS -> π_2(S^2)` sending `z` to
+/// `|σ_{S^2}(circle_decode(z))|_0`.
+pub fn integer_to_pi2_s2_value(
+  z : DValue,
+  dlevel~ : Int32 = 16,
+) -> DValue {
+  let omega2_ty = loop_space_type_value(
+    sphere2_type_value(),
+    sphere2_north_value(),
+    2,
+  )
+  set_trunc_point_value(
+    omega2_ty,
+    sphere2_susp_loop1_to_loop2_value(circle_decode_value(z, dlevel), dlevel~),
+  )
+}
+
+///|
+/// Open-variable split-retract section certificate for `π_2(S^2)`:
+/// for arbitrary `z : IntegerS`, `pi2_s2_hopf_hom(integer_to_pi2_s2(z))`
+/// computes definitionally on `|·|_0` to `hopf_invariant(σ_{S^2}(decode z))`,
+/// so `hopf_invariant_susp_retraction_value(z)` directly inhabits
+///   `Path IntegerS (pi2_s2_hopf_hom (integer_to_pi2_s2 z)) z`,
+/// certifying `IntegerS` as a split retract of `π_2(S^2)`.
+pub fn pi2_s2_hopf_retract_sect_value(
+  z : DValue,
+  dlevel~ : Int32 = 16,
+) -> DValue {
+  hopf_invariant_susp_retraction_value(z, dlevel~)
+}
+
+
 

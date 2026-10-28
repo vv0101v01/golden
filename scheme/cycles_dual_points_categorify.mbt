@@ -754,6 +754,7 @@ pub fn fcomm_dual_numbers(p : Int32) -> (FiniteCommRing, FiniteRingHom) {
   let add_t = Array::make(sz * sz, 0)
   let mul_t = Array::make(sz * sz, 0)
   let proj_vals = Array::make(sz, 0)
+  let p64 = p.to_int64()
   for x in 0..<sz {
     let a1 = x % p
     let b1 = x / p
@@ -765,8 +766,9 @@ pub fn fcomm_dual_numbers(p : Int32) -> (FiniteCommRing, FiniteRingHom) {
       let sa = (a1 + a2) % p
       let sb = (b1 + b2) % p
       add_t[x * sz + y] = sa + sb * p
-      let ma = a1 * a2 % p
-      let mb = (a1 * b2 + b1 * a2) % p
+      let ma = (a1.to_int64() * a2.to_int64() % p64).to_int()
+      let mb = ((a1.to_int64() * b2.to_int64() + b1.to_int64() * a2.to_int64()) %
+      p64).to_int()
       mul_t[x * sz + y] = ma + mb * p
     }
   }

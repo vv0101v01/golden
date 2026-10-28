@@ -67,6 +67,15 @@ pub fn certificate_summary(certs : Array[BridgeCertificate]) -> String {
 ///|
 /// 五聯邦原生證書與全部跨聯邦橋、幾何—邏輯精細圖譜、大一統定理之總證書列。
 pub fn bridge_certificates() -> Array[BridgeCertificate] {
+  let out = bridge_base_certificates()
+  for c in grand_unification_certificates() {
+    out.push(c)
+  }
+  out
+}
+
+///|
+fn bridge_base_certificates() -> Array[BridgeCertificate] {
   let cub_res : @cub.CheckResult = {
     name: "ua/coe definitional NbE, canonical ROBDD & adjoint equivalence fibers",
     ok: @cub.check_coe_definitional() &&
@@ -96,7 +105,7 @@ pub fn bridge_certificates() -> Array[BridgeCertificate] {
   } else {
     bridge_certificate("symlib", "C4 proof suite", false, detail="empty")
   }
-  let out : Array[BridgeCertificate] = [
+  [
     certificate_of_cubical(cub_res),
     sym_native,
     bridge_certificate(
@@ -124,17 +133,4 @@ pub fn bridge_certificates() -> Array[BridgeCertificate] {
       face_semiring_law_report(),
     ),
   ]
-  for c in grand_unification_certificates() {
-    out.push(c)
-  }
-  out
-}
-
-///|
-pub fn check_certificate_bridge() -> Bool {
-  let certs = bridge_certificates()
-  certs.length() >= 2 &&
-  certs[0].source == "cubical" &&
-  certs[1].source == "symlib" &&
-  certificates_all_ok(certs)
 }
