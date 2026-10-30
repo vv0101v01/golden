@@ -59,26 +59,6 @@ pub(all) struct CompactCoherentReport {
 ///|
 /// Check whether `phi : site_c -> site_d` is cover-preserving: every covering
 /// sieve `S ∈ J(u)` maps to arrows generating a covering sieve in `K(Phi(u))`.
-pub fn is_cover_preserving_functor(
-  site_c : Site,
-  site_d : Site,
-  phi : @sym.FinFunctor,
-) -> Bool {
-  guard @sym.is_fin_functor(phi) else { return false }
-  for u in 0..<site_c.cat.nobj {
-    for s in site_c.topology.covers[u] {
-      let mapped : Array[Int32] = []
-      for f in s.arrows {
-        mapped.push(phi.mor[f])
-      }
-      let gen_d = sieve_generate(site_d.cat, phi.obj[u], mapped)
-      if !topology_covers(site_d.topology, gen_d) {
-        return false
-      }
-    }
-  }
-  true
-}
 
 ///|
 /// Direct image presheaf functor `(f_* Q)(u) = Q(Phi(u))` along `Phi : C -> D`.

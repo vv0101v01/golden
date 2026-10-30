@@ -127,8 +127,6 @@ pub fn verify_excision_subtopos_blowup_bridge() -> Bool
 
 pub fn verify_five_federation_pentagon_unification() -> Bool
 
-pub fn verify_geometry_logic_atlas() -> Bool
-
 pub fn verify_glivenko_topos_subtopos_bridge() -> Bool
 
 pub fn verify_k5_federation_bridges() -> Array[FederationPairBridge]

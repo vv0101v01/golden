@@ -340,22 +340,7 @@ pub fn Decomp::automorphism_group(self : Decomp) -> PermGroup {
 }
 
 ///|
-/// 分解式規範形式（衍生演算法之入口）。
-pub fn canonical_form_decomposed(g : Graph) -> Graph {
-  decompose(g).canonical_form()
-}
-
-///|
-/// 分解式規範編碼。
-pub fn block_encoding_of(g : Graph) -> Array[Int32] {
-  decompose(g).block_encoding()
-}
-
-///|
 /// 分解式 |Aut|（積公式）。
-pub fn aut_order_decomposed(g : Graph) -> Int64 {
-  decompose(g).aut_order()
-}
 
 ///|
 /// 分解鍵相等（分量規範編碼之多集相等）：可證明之完全不變量。
@@ -378,32 +363,6 @@ pub fn isomorphic_decomposed(g1 : Graph, g2 : Graph) -> Bool {
 
 ///|
 /// 分解式顯式同構 σ : G1 → G2（逐分量以規範標號對齊；附驗證證書）。
-pub fn isomorphism_decomposed(g1 : Graph, g2 : Graph) -> Perm? {
-  guard isomorphic_decomposed(g1, g2) else { return None }
-  let d1 = decompose(g1)
-  let d2 = decompose(g2)
-  let n = d1.n
-  if n == 0 {
-    return Some(Perm::identity(0))
-  }
-  let img = Array::make(n, 0)
-  for t in 0..<d1.comps.length() {
-    let c1 = d1.comps[t]
-    let c2 = d2.comps[t]
-    let l1 = d1.labs[t]
-    let l2 = d2.labs[t]
-    for i in 0..<c1.length() {
-      img[c1[l1[i]]] = c2[l2[i]]
-    }
-  }
-  let s = Perm::from_img(img)
-  // 證書：逐邊驗證
-  for e in g1.edge_list() {
-    let (u, v) = e
-    guard g2.has_edge(s.apply(u), s.apply(v)) else { return None }
-  }
-  Some(s)
-}
 
 ///|
 /// 分解定理之機器證書：

@@ -1,0 +1,73 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "vv0101v01/cubical-hermitian/hostfs"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn check_durable_write_protocol() -> Bool
+
+pub fn disk_apply(DiskState, StoreOp) -> Unit
+
+pub fn disk_recover(DiskState, String) -> Recovery
+
+pub fn disk_state_new(String, Int32) -> DiskState
+
+pub fn durable_delete_protocol(String) -> Array[StoreOp]
+
+pub fn durable_write_protocol(String, Int32) -> Array[StoreOp]
+
+pub fn protocol_deletes_on_completion(Array[StoreOp], String, Int32) -> Bool
+
+pub fn protocol_durable_on_completion(Array[StoreOp], String, Int32, Int32) -> Bool
+
+pub fn protocol_first_tear(Array[StoreOp], String, Int32) -> Int32
+
+pub fn protocol_is_crash_consistent(Array[StoreOp], String, Int32, Int32) -> Bool
+
+pub fn torn_write_protocol(String, Int32) -> Array[StoreOp]
+
+pub fn unacknowledged_delete_protocol(String) -> Array[StoreOp]
+
+pub fn unacknowledged_write_protocol(String, Int32) -> Array[StoreOp]
+
+// Errors
+
+// Types and methods
+pub struct DiskState {
+  mut inode_at : Array[(String, Int32)]
+  mut inode_content : Array[(Int32, Int32)]
+  durable_inode : Array[Int32]
+  mut durable_dirent : Array[(String, Int32)]
+  mut next_inode : Int32
+} derive(Eq, @debug.Debug)
+pub fn DiskState::equal(Self, Self) -> Bool
+pub fn DiskState::not_equal(Self, Self) -> Bool
+pub fn DiskState::to_repr(Self) -> @debug.Repr
+
+pub enum Recovery {
+  RecoveredAbsent
+  RecoveredValue(Int32)
+  RecoveredTorn
+} derive(Eq, @debug.Debug)
+pub fn Recovery::equal(Self, Self) -> Bool
+pub fn Recovery::not_equal(Self, Self) -> Bool
+pub fn Recovery::to_repr(Self) -> @debug.Repr
+
+pub enum StoreOp {
+  OpWrite(String, Int32)
+  OpFsync(String)
+  OpRename(String, String)
+  OpFsyncParent(String)
+  OpUnlink(String)
+  OpLock(String)
+  OpUnlock(String)
+} derive(Eq, @debug.Debug)
+pub fn StoreOp::equal(Self, Self) -> Bool
+pub fn StoreOp::not_equal(Self, Self) -> Bool
+pub fn StoreOp::to_repr(Self) -> @debug.Repr
+
+// Type aliases
+
+// Traits

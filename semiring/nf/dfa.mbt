@@ -257,55 +257,5 @@ pub fn regex_equiv(a : Regex, b : Regex, alphabet : Array[Int32]) -> Bool {
 }
 
 ///|
-/// 最小 DFA 的狀態數（Myhill–Nerode 等價類個數）。
-pub fn regex_state_count(r : Regex, alphabet : Array[Int32]) -> Int32 {
-  dfa_minimize(dfa_of_regex(r, alphabet)).nstates()
-}
-
-///|
 /// 反向語言：把 DFA 的邊反向，起點 = 原接受集，接受集 = 原起點。
 /// 得到的是 NFA（多起點），這裡以「集合狀態」表示成完整 DFA。
-pub fn dfa_reverse(d : Dfa) -> Dfa {
-  let n = d.nstates()
-  let nsym = d.nsym
-  // 子集構造：一個狀態 = 原狀態的集合（以位元向量表示，n ≤ 64）
-  let sets : Array[Array[Bool]] = [d.accept]
-  let trans : Array[Int32] = []
-  let mut head = 0
-  while head < sets.length() {
-    let cur = sets[head]
-    for k in 0..<nsym {
-      // 反向：若 s --k--> t 且 t 在當前集合中，則 s 進入下一個集合
-      let nxt : Array[Bool] = Array::make(n, false)
-      for t in 0..<n {
-        if !cur[t] {
-          continue
-        }
-        for s in 0..<n {
-          if d.trans[s * nsym + k] == t {
-            nxt[s] = true
-          }
-        }
-      }
-      let mut idx = -1
-      for q in 0..<sets.length() {
-        if sets[q] == nxt {
-          idx = q
-          break
-        }
-      }
-      if idx < 0 {
-        idx = sets.length()
-        sets.push(nxt)
-      }
-      trans.push(idx)
-    }
-    head = head + 1
-  }
-  let m = sets.length()
-  let accept : Array[Bool] = Array::make(m, false)
-  for i in 0..<m {
-    accept[i] = sets[i][d.start]
-  }
-  { nsym, alphabet: d.alphabet, start: 0, accept, trans, }
-}

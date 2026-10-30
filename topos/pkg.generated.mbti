@@ -8,8 +8,6 @@ import {
 }
 
 // Values
-pub fn abelian_presheaf_constant_q(@symlib.FinCat, Int32) -> AbelianPresheafQ
-
 pub fn all_sieves_on(@symlib.FinCat, Int32) -> Array[Sieve]
 
 pub fn analyze_atomic_topos(Site) -> AtomicToposReport
@@ -96,8 +94,6 @@ pub fn is_connected_essential_functor(@symlib.FinFunctor) -> Bool
 
 pub fn is_covariant_point_functor(FlatPointFunctor) -> Bool
 
-pub fn is_cover_preserving_functor(Site, Site, @symlib.FinFunctor) -> Bool
-
 pub fn is_de_morgan_topos(Site) -> Bool
 
 pub fn is_diaconescu_point(Site, FlatPointFunctor) -> Bool
@@ -108,15 +104,9 @@ pub fn is_internal_group_torsor_sheaf(InternalGroupTorsor) -> Bool
 
 pub fn is_lawvere_tierney_operator(SubobjectClassifierData, PresheafHom) -> Bool
 
-pub fn is_matching_family(@symlib.Presheaf, MatchingFamily) -> Bool
-
 pub fn is_separated_presheaf(Site, @symlib.Presheaf) -> Bool
 
 pub fn is_sheaf(Site, @symlib.Presheaf) -> Bool
-
-pub fn is_valid_abelian_presheaf(AbelianPresheafQ) -> Bool
-
-pub fn is_valid_groupoid(FiniteGroupoid) -> Bool
 
 pub fn is_valid_subpresheaf(Subpresheaf) -> Bool
 
@@ -125,8 +115,6 @@ pub fn kripke_joyal_forces(Site, SheafStructure, Int32, Array[Int32], GeoFormula
 pub fn lawvere_tierney_of_site(Site) -> (SubobjectClassifierData, PresheafHom)
 
 pub fn model_satisfies_sequent(Site, SheafStructure, GeoSequent) -> Bool
-
-pub fn model_satisfies_theory(Site, SheafStructure, GeometricTheory) -> Bool
 
 pub fn nerve_constant_cochain_complex_q(SimplicialNerve) -> CochainComplexQ
 
@@ -162,8 +150,6 @@ pub fn presheaf_hom_eq(PresheafHom, PresheafHom) -> Bool
 
 pub fn presheaf_hom_id(@symlib.Presheaf) -> PresheafHom
 
-pub fn presheaf_hom_is_epi_presheaf(PresheafHom) -> Bool
-
 pub fn presheaf_hom_is_iso(PresheafHom) -> Bool
 
 pub fn presheaf_hom_is_mono(PresheafHom) -> Bool
@@ -191,8 +177,6 @@ pub fn rect_qmat_id(Int32) -> RectQMat
 pub fn rect_qmat_zero(Int32, Int32) -> RectQMat
 
 pub fn right_kan_presheaf(@symlib.FinFunctor, @symlib.Presheaf, cap? : Int32) -> @symlib.Presheaf
-
-pub fn roos_site_cochain_complex(AbelianPresheafQ) -> CochainComplexQ
 
 pub fn rp2_minimal_nerve() -> SimplicialNerve
 

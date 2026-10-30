@@ -685,14 +685,6 @@ pub fn ideal_is_zero(idl : Ideal) -> Bool {
 
 ///|
 /// Check `idl1 ⊆ idl2`.
-pub fn ideal_subset(idl1 : Ideal, idl2 : Ideal) -> Bool {
-  for g in idl1.rgb.gens {
-    if !ideal_contains(idl2, g) {
-      return false
-    }
-  }
-  true
-}
 
 ///|
 /// Exact ideal equality `idl1 == idl2` (structural equality of canonical `GRevLex` RGB!).
@@ -713,15 +705,6 @@ pub fn ideal_add(i1 : Ideal, i2 : Ideal) -> Ideal {
 
 ///|
 /// Product of ideals `I * J`.
-pub fn ideal_mul(i1 : Ideal, i2 : Ideal) -> Ideal {
-  let gens : Array[MPoly] = []
-  for f in i1.rgb.gens {
-    for g in i2.rgb.gens {
-      gens.push(mpoly_mul(f, g))
-    }
-  }
-  ideal_new(i1.nvars, gens)
-}
 
 ///|
 /// Elimination ideal `I ∩ Q[x_k, ..., x_{n-1}]` (returned as an ideal in the
@@ -820,16 +803,6 @@ pub fn ideal_quotient_poly(idl : Ideal, f : MPoly) -> Ideal {
 
 ///|
 /// Ideal colon `(I : J) = ∩_{g ∈ J} (I : <g>)`.
-pub fn ideal_quotient(i1 : Ideal, i2 : Ideal) -> Ideal {
-  if i2.rgb.gens.length() == 0 {
-    return ideal_new(i1.nvars, [mpoly_int(i1.nvars, 1)])
-  }
-  let mut acc = ideal_quotient_poly(i1, i2.rgb.gens[0])
-  for k in 1..<i2.rgb.gens.length() {
-    acc = ideal_intersect(acc, ideal_quotient_poly(i1, i2.rgb.gens[k]))
-  }
-  acc
-}
 
 ///|
 /// Saturation `(I : f^∞) = (<I, 1 - t * f>) ∩ Q[x_0..x_{n-1}]` via Rabinowitsch

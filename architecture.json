@@ -7,7 +7,8 @@
       "packages": [
         "algebra",
         "root",
-        "cmd-main"
+        "cmd-main",
+        "hostfs"
       ],
       "allowed_external_packages": [],
       "summary_en": "Federation 1 — Cubical dependent type theory, computational univalence, ROBDD face lattices, Hermitian spectral projectors, and exact algebraic towers.",
@@ -42,7 +43,6 @@
         "semiring-sim",
         "semiring-par",
         "semiring-par-host",
-        "semiring-examples",
         "cmd-semiringreport"
       ],
       "allowed_external_packages": [],
@@ -99,7 +99,8 @@
       "moon": "vv0101v01/cubical-hermitian",
       "layer": 2,
       "depends_on": [
-        "algebra"
+        "algebra",
+        "hostfs"
       ],
       "summary_en": "The mutually recursive cubical dependent kernel, plus the still-logical foundation/finite/numeric/model/frontend components that are not yet separate MoonBit packages.",
       "summary_zh": "互相遞迴的立方依賴核心，以及尚未拆成實體 MoonBit 套件的 foundation／finite／numeric／model／frontend 邏輯元件。"
@@ -296,28 +297,6 @@
       "summary_zh": "分塊聚合與分片 I/O 的可移植後端接縫。"
     },
     {
-      "id": "semiring-examples",
-      "path": "semiring/examples",
-      "moon": "vv0101v01/cubical-hermitian/semiring/examples",
-      "layer": 5,
-      "depends_on": [
-        "semiring-algebra",
-        "semiring-graph",
-        "semiring-matrix",
-        "semiring-monoid",
-        "semiring-par",
-        "semiring-ratelimit",
-        "semiring-spline",
-        "semiring-trop",
-        "semiring-nf",
-        "semiring-cat",
-        "semiring-app",
-        "semiring-bp"
-      ],
-      "summary_en": "Compiled semiring teaching examples.",
-      "summary_zh": "可編譯的半環教學範例。"
-    },
-    {
       "id": "topos",
       "path": "topos",
       "moon": "vv0101v01/cubical-hermitian/topos",
@@ -410,6 +389,15 @@
       ],
       "summary_en": "Native-only measured semiring report generator. The ~66-second report is a slow gate, never a fast/default gate.",
       "summary_zh": "native-only 半環量測報告產生器；約 66 秒的報告只作慢閘門，永不進快速／預設閘門。"
+    },
+    {
+      "id": "hostfs",
+      "path": "hostfs",
+      "moon": "vv0101v01/cubical-hermitian/hostfs",
+      "layer": 1,
+      "depends_on": [],
+      "summary_en": "Host storage backend seam: an executable model of crash-consistent durable writes (content fsync before dirent fsync), the lock/write/fsync/rename/fsync-dir protocol, and crash-point conformance checking that runs on every target.",
+      "summary_zh": "宿主儲存後端接縫：崩潰一致寫入的可執行模型（內容 fsync 先於目錄項 fsync）、lock／write／fsync／rename／fsync 目錄協定，以及可在所有目標上執行的崩潰點一致性檢核。"
     }
   ],
   "components": [
@@ -898,22 +886,6 @@
       "summary_zh": "分塊聚合與分片 I/O 的可移植後端接縫。"
     },
     {
-      "id": "semiring-examples",
-      "package": "semiring-examples",
-      "layer": 5,
-      "files": [
-        "semiring/examples/*.mbt",
-        "!semiring/examples/*_test.mbt",
-        "!semiring/examples/*_wbtest.mbt"
-      ],
-      "depends_on": [
-        "*"
-      ],
-      "summary_en": "Compiled semiring teaching examples.",
-      "summary_zh": "可編譯的半環教學範例。",
-      "observer": true
-    },
-    {
       "id": "topos-core",
       "package": "topos",
       "layer": 3,
@@ -1002,6 +974,124 @@
       "observer": true,
       "summary_en": "Native measured report executable (slow gate).",
       "summary_zh": "native 量測報告執行入口（慢閘門）。"
+    },
+    {
+      "id": "transcendental",
+      "package": "algebra",
+      "layer": 9,
+      "files": [
+        "algebra/transcendental.mbt"
+      ],
+      "depends_on": [
+        "exact-algebra"
+      ],
+      "summary_en": "Certified transcendental layer: rigorous rational enclosures for e and pi with re-checkable tail bounds, machine-checked refutation certificates for e != p/q, and sound budget-bounded exclusion of P(e) = 0.",
+      "summary_zh": "超越數認證層：e 與 π 的嚴格有理包絡與可複核尾界、e≠p/q 的機器可複核否證證書，以及預算受限但可靠的 P(e)≠0 排除。"
+    },
+    {
+      "id": "module-hotload",
+      "package": "root",
+      "layer": 9,
+      "files": [
+        "module_hotload.mbt"
+      ],
+      "depends_on": [
+        "dependent-kernel",
+        "frontend"
+      ],
+      "summary_en": "Runtime hot loading for the compiled module environment: interface-hash gating, transactional swaps with consistency verification and rollback, and an audit log of every attempt.",
+      "summary_zh": "已編譯模組環境的執行期熱載入：介面雜湊閘控、帶一致性驗證與回滾的交易式替換，以及每次嘗試的稽核日誌。"
+    },
+    {
+      "id": "hostfs-durability",
+      "package": "hostfs",
+      "layer": 9,
+      "files": [
+        "hostfs/durability.mbt"
+      ],
+      "depends_on": [],
+      "summary_en": "Executable model of crash-consistent durable writes and the lock/write/fsync/rename/fsync-dir protocol with crash-point conformance checking.",
+      "summary_zh": "崩潰一致寫入的可執行模型，以及帶崩潰點一致性檢核的 lock／write／fsync／rename／fsync 目錄協定。"
+    },
+    {
+      "id": "hostfs-imports",
+      "package": "root",
+      "layer": 9,
+      "files": [
+        "hostfs_imports.mbt"
+      ],
+      "depends_on": [],
+      "summary_en": "Architecture boundary: the explicit import list through which the root package consumes hostfs.",
+      "summary_zh": "架構邊界：root 套件取用 hostfs 的顯式匯入清單。"
+    },
+    {
+      "id": "hou-match",
+      "package": "root",
+      "layer": 5,
+      "files": [
+        "hou_match.mbt"
+      ],
+      "depends_on": [
+        "frontend"
+      ],
+      "summary_en": "Decidable higher-order matching: the one-sided fragment of HOU where the right-hand side is ground. Unique solution for distinct-variable spines; bounded enumeration with beta/eta verification otherwise; the bound is part of the answer.",
+      "summary_zh": "可判定高階匹配：右側無元變數的單側片斷。相異變數脊柱給出唯一解；其餘情形以有界列舉配合 βη 轉換驗證，且 bound 是答案的一部份，永不單獨宣稱無解。"
+    },
+    {
+      "id": "associahedron",
+      "package": "root",
+      "layer": 5,
+      "files": [
+        "associahedron.mbt"
+      ],
+      "depends_on": [
+        "dependent-kernel",
+        "foundation",
+        "cubical"
+      ],
+      "summary_en": "Stasheff associahedra K_n for arbitrary n: Schroder-tree face lattice, f-vector, Euler characteristic, and the pentagon/square 2-face property, cross-checked against the Tamari rotation graph.",
+      "summary_zh": "任意 n 的 Stasheff 結合多面體 K_n：Schröder 樹面格、f-向量、Euler 示性數與二維面必為五邊形或正方形，並與 Tamari 旋轉圖互相對帳。"
+    },
+    {
+      "id": "blakers-massey",
+      "package": "root",
+      "layer": 5,
+      "files": [
+        "blakers_massey.mbt"
+      ],
+      "depends_on": [],
+      "summary_en": "Blakers-Massey and Freudenthal: decidable connectivity arithmetic, the stable range derived from the gap formula, and long-exact-sequence algebra over finitely generated abelian groups, yielding pi3(S2) = pi3(S3) and pi3(S3) = pi2(S2) with explicit provenance.",
+      "summary_zh": "Blakers–Massey 與 Freudenthal：可判定的連接度算術、由間隙公式推導的穩定範圍、以及有限生成交換群上的恰當序列代數，給出 π₃(S²) ≃ π₃(S³) 與 π₃(S³) ≃ π₂(S²)，並附顯式來源鏈。"
+    },
+    {
+      "id": "brunerie-pi4-s3",
+      "package": "root",
+      "layer": 5,
+      "files": [
+        "brunerie_pi4_s3.mbt"
+      ],
+      "depends_on": [
+        "blakers-massey"
+      ],
+      "summary_en": "Brunerie's proof that pi_4(S^3) = Z/2Z: join and Whitehead degree arithmetic, James construction cells, the Hopf LES reduction to pi_4(S^2), cyclic group arithmetic Z/beta Z, and Theorem 6.17's decision rule, with imported ingredients counted explicitly.",
+      "summary_zh": "Brunerie 證明 π₄(S³) ≃ ℤ/2ℤ：join 與 Whitehead 次數算術、James 構造胞、Hopf LES 化約至 π₄(S²)、ℤ/βℤ 循環群算術，以及定理 6.17 判準；import 成分由測試明數。"
+    },
+    {
+      "id": "homotopy-universal",
+      "package": "root",
+      "layer": 5,
+      "files": [
+        "homotopy_universal.mbt"
+      ],
+      "depends_on": [
+        "foundation",
+        "finite-cubical",
+        "dependent-kernel",
+        "exact-algebra",
+        "cubical"
+      ],
+      "summary_en": "General homotopy type formers (join, wedge, n-truncation, James construction) declared as genuine DHitSpec HITs with recursion principles and computation rules.",
+      "summary_zh": "通用同倫型別構造子（join、wedge、n-截斷、James 構造）以 DHitSpec 宣告為真正的 HIT，並給出遞迴原則與計算規則。"
     }
   ],
   "exceptions": []

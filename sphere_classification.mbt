@@ -194,22 +194,6 @@ pub fn pi3_sphere_type_term(dim : Int32) -> DTerm {
 
 ///|
 /// The quotient point represented by a closed 3-loop term.
-pub fn pi3_sphere_point_term(dim : Int32, loop_term : DTerm) -> DTerm {
-  let loop_ty = loop_space_type_term(
-    sphere_type_term(dim),
-    sphere_north_term(dim),
-    3,
-  )
-  let relation = DLam(
-    loop_ty,
-    DLam(loop_ty, trunc_type_term(DPath(loop_ty, DTVar(1), DTVar(0)))),
-  )
-  quotient_point_term([loop_ty, relation], loop_term)
-}
-
-// ---------------------------------------------------------------------------
-// Semantic loop spaces and suspension of loops
-// ---------------------------------------------------------------------------
 
 ///|
 pub fn sphere_type_value(dim : Int32) -> DValue {

@@ -349,7 +349,11 @@ pub fn set_trunc_rec_set_value(
         let tr_base_p = transport_value(loop_line, base_p, dlevel + 2)
         let loop_eq = is_set_b(hub_val, hub_val, tr_base_p, base_p)
         let loop_p = dpathp_of_transport_eq_value(
-          loop_line, base_p, base_p, loop_eq, dlevel + 2,
+          loop_line,
+          base_p,
+          base_p,
+          loop_eq,
+          dlevel + 2,
         )
         eval_hit_elim(
           c_spec,
@@ -439,7 +443,11 @@ pub fn set_trunc_elim_set_value(
           dlevel + 4,
         )
         let loop_p = dpathp_of_transport_eq_value(
-          loop_line, base_spoke, base_spoke, loop_eq, dlevel + 4,
+          loop_line,
+          base_spoke,
+          base_spoke,
+          loop_eq,
+          dlevel + 4,
         )
         eval_hit_elim(
           c_spec,

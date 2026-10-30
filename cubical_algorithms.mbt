@@ -116,9 +116,6 @@ pub fn kan_box_pathp(box : KanBox) -> DValue {
 
 ///|
 /// The point of a semantic path at a dimension.
-pub fn dpath_at_value(p : DValue, d : Dim) -> DValue {
-  dapp_dim(p, d)
-}
 
 ///|
 /// Reflexivity: the constant path.
@@ -237,9 +234,6 @@ pub fn dtransport_back_term(line_body : DTerm, x : DTerm) -> DTerm {
 }
 
 ///|
-pub fn dpath_refl_term(x : DTerm) -> DTerm {
-  DLamDim(x)
-}
 
 ///|
 pub fn dpath_sym_term(p : DTerm) -> DTerm {
@@ -1732,7 +1726,9 @@ pub fn dpath_k5_hemi_south4_value(
   let path1_ty = DVPathTy(_ => space_ty, dapp_dim(p, DZero), dapp_dim(w, DOne))
   let sq = dpath_k5_interchange_square_value(space_ty, p, q, u, v, w, dlevel)
   let sq_tr : DValue = DVPathLam(
-    memo_dim_line(b => DVPathLam(memo_dim_line(a => dapp_dim(dapp_dim(sq, a), b)))),
+    memo_dim_line(b => {
+      DVPathLam(memo_dim_line(a => dapp_dim(dapp_dim(sq, a), b)))
+    }),
   )
   dpath_sym_value(dpath_square_boundary3_value(path1_ty, sq_tr, dlevel + 2))
 }
@@ -1759,12 +1755,20 @@ pub fn dpath_associahedron_k5_cell5_value(
   )
   dpath_singleton5_transport_value(
     (p1, q1, u1, v1, w1) => {
-      let path1_ty = DVPathTy(_ => space_ty, dapp_dim(p1, DZero), dapp_dim(w1, DOne))
+      let path1_ty = DVPathTy(
+        _ => space_ty,
+        dapp_dim(p1, DZero),
+        dapp_dim(w1, DOne),
+      )
       let lhs = dpath_k5_lhs1_value(space_ty, p1, q1, u1, v1, w1, dlevel)
       let rhs = dpath_k5_rhs1_value(space_ty, p1, q1, u1, v1, w1, dlevel)
       let path2_ty = DVPathTy(_ => path1_ty, lhs, rhs)
-      let out3 = dpath_k5_route_outer3_value(space_ty, p1, q1, u1, v1, w1, dlevel)
-      let inn3 = dpath_k5_route_inner3_value(space_ty, p1, q1, u1, v1, w1, dlevel)
+      let out3 = dpath_k5_route_outer3_value(
+        space_ty, p1, q1, u1, v1, w1, dlevel,
+      )
+      let inn3 = dpath_k5_route_inner3_value(
+        space_ty, p1, q1, u1, v1, w1, dlevel,
+      )
       let path3_ty = DVPathTy(_ => path2_ty, out3, inn3)
       DVPathTy(
         _ => path3_ty,

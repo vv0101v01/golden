@@ -23,7 +23,9 @@ test "topos sheafification universal property and geometric DNF soundness" {
   )
   let sh = sheafify(s1_site, two_psh)
   assert_true(!is_sheaf(s1_site, two_psh))
-  assert_true(verify_sheafification_universal_property(s1_site, two_psh, sh.sheaf))
+  assert_true(
+    verify_sheafification_universal_property(s1_site, two_psh, sh.sheaf),
+  )
 
   let sierp = @sym.cat_arrow()
   let sierp_site = site_new(sierp, topology_trivial(sierp))

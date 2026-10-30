@@ -33,8 +33,6 @@ pub fn alg_make(QPoly, QPoly) -> AlgNum
 
 pub fn alg_minimal_polynomial(AlgNum) -> QPoly
 
-pub fn alg_modulus_irreducible_small(AlgNum) -> Bool
-
 pub fn alg_mul(AlgNum, AlgNum) -> AlgNum
 
 pub fn alg_multiplication_matrix(AlgNum) -> QMat
@@ -63,10 +61,6 @@ pub fn alg_sqrt_rat(Rat) -> AlgNum
 
 pub fn alg_sub(AlgNum, AlgNum) -> AlgNum
 
-pub fn alg_to_quad(AlgNum) -> QuadNum?
-
-pub fn alg_to_rat(AlgNum) -> Rat?
-
 pub fn alg_trace(AlgNum) -> Rat
 
 pub fn alg_zero(QPoly) -> AlgNum
@@ -74,8 +68,6 @@ pub fn alg_zero(QPoly) -> AlgNum
 pub fn algmat_Jordan_chains(AlgMat, AlgNum) -> Array[Array[Array[AlgNum]]]
 
 pub fn algmat_Jordan_decomposition(AlgMat, Array[AlgNum]) -> AlgJordanDecomposition?
-
-pub fn algmat_add(AlgMat, AlgMat) -> AlgMat
 
 pub fn algmat_charpoly(AlgMat) -> Array[AlgNum]
 
@@ -215,6 +207,10 @@ pub fn biquad_to_radical(BiquadNum) -> RadicalExpr
 
 pub fn biquad_zero() -> BiquadNum
 
+pub fn certified_e(Int32) -> CertEnclosure
+
+pub fn certified_pi(Int32) -> CertEnclosure
+
 pub fn charpoly_sym(SymMat) -> UPoly
 
 pub fn check_Jacobi_arbitrary_precision() -> Bool
@@ -275,7 +271,7 @@ pub fn check_symbolic_pruning() -> Bool
 
 pub fn check_tower_fields() -> Bool
 
-pub fn cinterval(RatInterval, RatInterval) -> CInterval
+pub fn check_transcendental_boundary_layer() -> Bool
 
 pub fn cinterval_add(CInterval, CInterval) -> CInterval
 
@@ -365,6 +361,12 @@ pub fn cubic_sign(CubicNum) -> Int32
 
 pub fn cubic_sub(CubicNum, CubicNum) -> CubicNum?
 
+pub fn e_irr_certificate_verify(EIrrCertificate) -> Bool
+
+pub fn e_irrationality_certificate(@bigint.BigInt, Int32) -> EIrrCertificate
+
+pub fn e_refute_rational(@bigint.BigInt, Int32) -> Bool
+
 pub fn eigen_interval_contains(EigenInterval, Rat) -> Bool
 
 pub fn frac_add(SymFrac, SymFrac) -> SymFrac
@@ -396,12 +398,6 @@ pub fn frac_var(Int32) -> SymFrac
 pub fn frac_zero() -> SymFrac
 
 pub fn int_abs(Int32) -> Int32
-
-pub fn int_gcd(Int32, Int32) -> Int32
-
-pub fn int_sqrt_exact(Int32) -> Int32?
-
-pub fn int_squarefree_decomp(Int32) -> (Int32, Int32)
 
 pub fn jacobi_block_components(QCpxMat) -> Array[Array[Int32]]
 
@@ -445,8 +441,6 @@ pub fn multiquad_eq_upto(MultiQuadNum, MultiQuadNum, max_gens? : Int32) -> Bool
 
 pub fn multiquad_inv(MultiQuadNum) -> MultiQuadNum?
 
-pub fn multiquad_is_rat(MultiQuadNum) -> Bool
-
 pub fn multiquad_is_zero(MultiQuadNum) -> Bool
 
 pub fn multiquad_make(Array[@bigint.BigInt], Array[Rat]) -> MultiQuadNum?
@@ -459,17 +453,9 @@ pub fn multiquad_mul_upto(MultiQuadNum, MultiQuadNum, max_gens? : Int32) -> Mult
 
 pub fn multiquad_neg(MultiQuadNum) -> MultiQuadNum
 
-pub fn multiquad_of_biquad(BiquadNum) -> MultiQuadNum?
-
-pub fn multiquad_of_quad(QuadNum) -> MultiQuadNum?
-
-pub fn multiquad_of_triquad(TriquadNum) -> MultiQuadNum?
-
 pub fn multiquad_rat(Rat) -> MultiQuadNum
 
 pub fn multiquad_rational_square_adjustment(MultiQuadNum) -> (@bigint.BigInt, MultiQuadNum)?
-
-pub fn multiquad_reembed(MultiQuadNum, Array[@bigint.BigInt]) -> MultiQuadNum?
 
 pub fn multiquad_sign(MultiQuadNum) -> Int32
 
@@ -483,13 +469,11 @@ pub fn multiquad_sqrt_rat(Rat) -> MultiQuadNum?
 
 pub fn multiquad_sub(MultiQuadNum, MultiQuadNum) -> MultiQuadNum?
 
-pub fn multiquad_to_rat(MultiQuadNum) -> Rat?
-
 pub fn multiquad_zero() -> MultiQuadNum
 
-pub fn poly_add(Poly, Poly) -> Poly
+pub fn pi_refute_rational_refined(@bigint.BigInt, Int32, Int32) -> RefutationResult
 
-pub fn poly_box_cap(PolyOpenBox) -> PolyCube?
+pub fn poly_add(Poly, Poly) -> Poly
 
 pub fn poly_box_face(Int32, Bool, PolyCube) -> PolyBoxFace
 
@@ -505,8 +489,6 @@ pub fn poly_box_validate(PolyOpenBox) -> Bool
 
 pub fn poly_const(Rat) -> Poly
 
-pub fn poly_cube(Int32, Array[Poly]) -> PolyCube
-
 pub fn poly_cube_add(PolyCube, PolyCube) -> PolyCube
 
 pub fn poly_cube_compose(PolyCube, PolyCube) -> PolyCube
@@ -520,8 +502,6 @@ pub fn poly_cube_eq(PolyCube, PolyCube) -> Bool
 pub fn poly_cube_eval(PolyCube, Array[Rat]) -> Array[Rat]
 
 pub fn poly_cube_face(PolyCube, Int32, Bool) -> PolyCube
-
-pub fn poly_cube_identity(Int32) -> PolyCube
 
 pub fn poly_cube_scale(Poly, PolyCube) -> PolyCube
 
@@ -545,13 +525,13 @@ pub fn poly_mul(Poly, Poly) -> Poly
 
 pub fn poly_neg(Poly) -> Poly
 
+pub fn poly_nonzero_at_e(Array[@bigint.BigInt], Int32) -> RefutationResult
+
 pub fn poly_normalize(Array[PolyTerm]) -> Poly
 
 pub fn poly_one() -> Poly
 
 pub fn poly_open_box(Int32, Array[PolyBoxFace]) -> PolyOpenBox
-
-pub fn poly_scale(Rat, Poly) -> Poly
 
 pub fn poly_sub(Poly, Poly) -> Poly
 
@@ -561,13 +541,9 @@ pub fn poly_var(Int32) -> Poly
 
 pub fn poly_zero() -> Poly
 
-pub fn qci_mat_add(QCIntervalMat, QCIntervalMat) -> QCIntervalMat
-
 pub fn qci_mat_adjoint(QCIntervalMat) -> QCIntervalMat
 
 pub fn qci_mat_contains(QCIntervalMat, QCIntervalMat) -> Bool
-
-pub fn qci_mat_contains_point(QCIntervalMat, QCpxMat) -> Bool
 
 pub fn qci_mat_from_point(QCpxMat) -> QCIntervalMat
 
@@ -606,8 +582,6 @@ pub fn qcpx_mat_from_rows(Array[Array[QCpx]]) -> QCpxMat
 pub fn qcpx_mat_is_hermitian(QCpxMat) -> Bool
 
 pub fn qcpx_real(Rat) -> QCpx
-
-pub fn qmat_Jordan_block_sizes(QMat, Rat) -> Array[Int32]
 
 pub fn qmat_Jordan_chains(QMat, Rat) -> Array[Array[Array[Rat]]]
 
@@ -671,8 +645,6 @@ pub fn qmat_primary_subspace_basis(QMat, QPoly) -> Array[Array[Rat]]
 
 pub fn qmat_rank(QMat) -> Int32
 
-pub fn qmat_rational_spectrum(QMat) -> QRationalSpectrum
-
 pub fn qmat_scalar(Rat, Int32) -> QMat
 
 pub fn qmat_scale(Rat, QMat) -> QMat
@@ -682,8 +654,6 @@ pub fn qmat_sub(QMat, QMat) -> QMat
 pub fn qmat_symmetric_eigenvalue_isolations(QMat, Int32) -> Array[RealRootIsolation]?
 
 pub fn qmat_trace(QMat) -> Rat
-
-pub fn qmat_transpose(QMat) -> QMat
 
 pub fn qmat_vec(QMat, Array[Rat]) -> Array[Rat]
 
@@ -734,8 +704,6 @@ pub fn qpoly_factor_rational_roots(QPoly) -> QPolyRationalFactorization
 pub fn qpoly_gcd(QPoly, QPoly) -> QPoly
 
 pub fn qpoly_int(Int32) -> QPoly
-
-pub fn qpoly_integer_coeffs(QPoly) -> Array[Int32]
 
 pub fn qpoly_integer_coeffs_big(QPoly) -> Array[@bigint.BigInt]
 
@@ -819,8 +787,6 @@ pub fn quad_add(QuadNum, QuadNum) -> QuadNum
 
 pub fn quad_compatible(QuadNum, QuadNum) -> Bool
 
-pub fn quad_conj(QuadNum) -> QuadNum
-
 pub fn quad_denested_cuberoot(QuadNum) -> QuadNum?
 
 pub fn quad_denested_sqrt(QuadNum) -> (QuadNum, QuadNum)?
@@ -832,8 +798,6 @@ pub fn quad_eq(QuadNum, QuadNum) -> Bool
 pub fn quad_int(Int32) -> QuadNum
 
 pub fn quad_inv(QuadNum) -> QuadNum?
-
-pub fn quad_is_rat(QuadNum) -> Bool
 
 pub fn quad_is_zero(QuadNum) -> Bool
 
@@ -860,8 +824,6 @@ pub fn quad_sqrt_int(Int32) -> QuadNum
 pub fn quad_sqrt_rat(Rat) -> QuadNum
 
 pub fn quad_sub(QuadNum, QuadNum) -> QuadNum
-
-pub fn quad_to_rat(QuadNum) -> Rat?
 
 pub fn quad_trace(QuadNum) -> Rat
 
@@ -891,8 +853,6 @@ pub fn radical_equal_exact(RadicalExpr, RadicalExpr) -> Bool?
 
 pub fn radical_int(Int32) -> RadicalExpr
 
-pub fn radical_rat(Rat) -> RadicalExpr
-
 pub fn radical_simplify(RadicalExpr) -> RadicalExpr
 
 pub fn radical_sqrt(RadicalExpr) -> RadicalExpr
@@ -920,8 +880,6 @@ pub fn rat_cmp_exact(Rat, Rat) -> Int32
 pub fn rat_div(Rat, Rat) -> Rat
 
 pub fn rat_eq(Rat, Rat) -> Bool
-
-pub fn rat_fits_int32(Rat) -> Bool
 
 pub fn rat_int(Int32) -> Rat
 
@@ -961,8 +919,6 @@ pub fn rat_inv(Rat) -> Rat
 
 pub fn rat_is_one(Rat) -> Bool
 
-pub fn rat_is_square(Rat) -> Bool
-
 pub fn rat_is_zero(Rat) -> Bool
 
 pub fn rat_le_exact(Rat, Rat) -> Bool
@@ -970,8 +926,6 @@ pub fn rat_le_exact(Rat, Rat) -> Bool
 pub fn rat_make(Int32, Int32) -> Rat
 
 pub fn rat_make_big(@bigint.BigInt, @bigint.BigInt) -> Rat
-
-pub fn rat_make_decimal_strings(String, String) -> Rat
 
 pub fn rat_mul(Rat, Rat) -> Rat
 
@@ -996,8 +950,6 @@ pub fn rat_sqrt_interval(Rat, Int32) -> RatInterval?
 pub fn rat_sub(Rat, Rat) -> Rat
 
 pub fn rat_to_double(Rat) -> Double
-
-pub fn rat_to_string(Rat) -> String
 
 pub fn rat_zero() -> Rat
 
@@ -1026,8 +978,6 @@ pub fn real_root_isolation_refine(RealRootIsolation, Int32) -> RealRootIsolation
 pub fn real_root_isolations_are_certified(QPoly, Array[RealRootIsolation]) -> Bool
 
 pub fn rpoly_add(RPoly, RPoly) -> RPoly
-
-pub fn rpoly_const(SymFrac) -> RPoly
 
 pub fn rpoly_degree(RPoly) -> Int32
 
@@ -1066,8 +1016,6 @@ pub fn sc_add(SymC, SymC) -> SymC
 pub fn sc_conj(SymC) -> SymC
 
 pub fn sc_eq(SymC, SymC) -> Bool
-
-pub fn sc_i() -> SymC
 
 pub fn sc_int(Int32) -> SymC
 
@@ -1133,13 +1081,9 @@ pub fn sym_mat_identity(Int32) -> SymMat
 
 pub fn sym_mat_mul(SymMat, SymMat) -> SymMat
 
-pub fn sym_mat_of_qmat(QMat) -> SymMat
-
 pub fn sym_mat_scale(SymFrac, SymMat) -> SymMat
 
 pub fn sym_mat_sub(SymMat, SymMat) -> SymMat
-
-pub fn sym_mat_trace(SymMat) -> SymC
 
 pub fn sym_mat_vec(SymMat, Array[SymC]) -> Array[SymC]
 
@@ -1149,8 +1093,6 @@ pub fn sym_outer(Array[SymC]) -> SymMat
 
 pub fn sym_projector_rank_one(Array[SymC]) -> SymMat
 
-pub fn sym_scalar_matrix(SymFrac, Int32) -> SymMat
-
 pub fn sym_square_fill((SymFrac) -> Array[SymC], (SymFrac) -> Array[SymC], (SymFrac) -> Array[SymC]) -> (SymFrac, SymFrac) -> Array[SymC]
 
 pub fn sym_vec_add(Array[SymC], Array[SymC]) -> Array[SymC]
@@ -1158,8 +1100,6 @@ pub fn sym_vec_add(Array[SymC], Array[SymC]) -> Array[SymC]
 pub fn sym_vec_eq(Array[SymC], Array[SymC]) -> Bool
 
 pub fn sym_vec_scale(SymFrac, Array[SymC]) -> Array[SymC]
-
-pub fn sym_vec_scale_c(SymC, Array[SymC]) -> Array[SymC]
 
 pub fn sym_vec_sub(Array[SymC], Array[SymC]) -> Array[SymC]
 
@@ -1284,6 +1224,16 @@ pub fn CInterval::equal(Self, Self) -> Bool
 pub fn CInterval::not_equal(Self, Self) -> Bool
 pub fn CInterval::to_repr(Self) -> @debug.Repr
 
+pub struct CertEnclosure {
+  lo : Rat
+  hi : Rat
+  terms : Int32
+  tail : Rat
+} derive(Eq, @debug.Debug)
+pub fn CertEnclosure::equal(Self, Self) -> Bool
+pub fn CertEnclosure::not_equal(Self, Self) -> Bool
+pub fn CertEnclosure::to_repr(Self) -> @debug.Repr
+
 pub struct ComplexAlgNum {
   minpoly : QPoly
   root_index : Int32
@@ -1311,6 +1261,24 @@ pub struct CubicNum {
 pub fn CubicNum::equal(Self, Self) -> Bool
 pub fn CubicNum::not_equal(Self, Self) -> Bool
 pub fn CubicNum::to_repr(Self) -> @debug.Repr
+
+pub struct EIrrCertificate {
+  p : @bigint.BigInt
+  q : @bigint.BigInt
+  n : Int32
+  m : @bigint.BigInt
+  a : @bigint.BigInt
+  scaled_lo : Rat
+  scaled_hi : Rat
+  e_lo : Rat
+  e_hi : Rat
+  tail_bound : Rat
+  q_divides_m : Bool
+  verified : Bool
+} derive(Eq, @debug.Debug)
+pub fn EIrrCertificate::equal(Self, Self) -> Bool
+pub fn EIrrCertificate::not_equal(Self, Self) -> Bool
+pub fn EIrrCertificate::to_repr(Self) -> @debug.Repr
 
 pub struct EigenInterval {
   lo : Rat
@@ -1574,12 +1542,6 @@ pub struct QPrimaryProjector {
   complement : QMat
 }
 
-pub struct QRationalSpectrum {
-  eigenvalues : Array[Rat]
-  multiplicities : Array[Int32]
-  residual : QPoly
-}
-
 pub struct QRref {
   rows : Array[Array[Rat]]
   pivots : Array[Int32]
@@ -1646,6 +1608,16 @@ pub struct RealRootIsolation {
   upper : Rat
   multiplicity : Int32
 }
+
+pub struct RefutationResult {
+  refuted : Bool
+  terms : Int32
+  lo : Rat
+  hi : Rat
+} derive(Eq, @debug.Debug)
+pub fn RefutationResult::equal(Self, Self) -> Bool
+pub fn RefutationResult::not_equal(Self, Self) -> Bool
+pub fn RefutationResult::to_repr(Self) -> @debug.Repr
 
 pub struct SeparatedEigenInterval {
   lo : Rat

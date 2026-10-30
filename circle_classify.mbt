@@ -708,11 +708,7 @@ pub fn circle_decode_step_value(n : DValue, dlevel : Int32) -> DValue {
 
 ///|
 /// Fiberwise universal-cover encoder `(x : S^1) -> Path S^1 base x -> Cover(x)`.
-pub fn circle_encode_x_value(
-  _x : DValue,
-  p : DValue,
-  dlevel : Int32,
-) -> DValue {
+pub fn circle_encode_x_value(_x : DValue, p : DValue, dlevel : Int32) -> DValue {
   subst_value(y => circle_cover_value(y), p, integer_value(0), dlevel)
 }
 
@@ -723,11 +719,7 @@ pub fn circle_encode_x_value(
 /// Over `base` it reduces definitionally to `circle_decode_value`; over
 /// `loop` it reconciles backward `ua(succ)` transport with right path
 /// composition via `circle_decode_step_value`.
-pub fn circle_decode_x_value(
-  x : DValue,
-  c : DValue,
-  dlevel : Int32,
-) -> DValue {
+pub fn circle_decode_x_value(x : DValue, c : DValue, dlevel : Int32) -> DValue {
   let c_spec = circle_schema()
   let c_ty = circle_hit_type_value()
   let base = circle_hit_base_value()
@@ -929,7 +921,9 @@ pub fn circle_path_equiv_cover_with_zset_value(
     cov_ty,
     DVLam(p => circle_encode_x_value(x, p, dlevel)),
     DVLam(c => circle_decode_x_value(x, c, dlevel)),
-    DVLam(c => circle_encode_decode_x_sect_with_zset_value(x, c, is_set_z, dlevel)),
+    DVLam(c => {
+      circle_encode_decode_x_sect_with_zset_value(x, c, is_set_z, dlevel)
+    }),
     DVLam(p => circle_decode_encode_x_retr_value(x, p, dlevel)),
   )
 }
@@ -1103,7 +1097,11 @@ fn nat_s_decode_value(
           (_, bv) => dec_ty(sm, bv),
           [
             DVLam(u0 => {
-              empty_inductive_elim_value(DVPathTy(_ => n_ty, sm, n0), u0, dlevel)
+              empty_inductive_elim_value(
+                DVPathTy(_ => n_ty, sm, n0),
+                u0,
+                dlevel,
+              )
             }),
             DVLam(k => {
               DVLam(_ => {
@@ -1253,10 +1251,14 @@ fn integer_diag_code_is_prop_value(
     [
       unit_prop,
       DVLam(a => {
-        DVLam(u0 => DVLam(v0 => nat_s_diag_code_is_prop_value(a, u0, v0, dlevel)))
+        DVLam(u0 => {
+          DVLam(v0 => nat_s_diag_code_is_prop_value(a, u0, v0, dlevel))
+        })
       }),
       DVLam(a => {
-        DVLam(u0 => DVLam(v0 => nat_s_diag_code_is_prop_value(a, u0, v0, dlevel)))
+        DVLam(u0 => {
+          DVLam(v0 => nat_s_diag_code_is_prop_value(a, u0, v0, dlevel))
+        })
       }),
     ],
     [],
@@ -1323,7 +1325,11 @@ fn integer_eq_decode_value(
           (_, yv) => dec_ty(pa, yv),
           [
             DVLam(u0 => {
-              empty_inductive_elim_value(DVPathTy(_ => z_ty, pa, z0), u0, dlevel)
+              empty_inductive_elim_value(
+                DVPathTy(_ => z_ty, pa, z0),
+                u0,
+                dlevel,
+              )
             }),
             DVLam(b => {
               DVLam(u0 => {
@@ -1357,7 +1363,11 @@ fn integer_eq_decode_value(
           (_, yv) => dec_ty(na, yv),
           [
             DVLam(u0 => {
-              empty_inductive_elim_value(DVPathTy(_ => z_ty, na, z0), u0, dlevel)
+              empty_inductive_elim_value(
+                DVPathTy(_ => z_ty, na, z0),
+                u0,
+                dlevel,
+              )
             }),
             DVLam(b => {
               DVLam(u0 => {
@@ -1477,12 +1487,7 @@ fn integer_loop_trivial_value(
     p0,
     dlevel + 6,
   )
-  let code_eq = integer_diag_code_is_prop_value(
-    x,
-    encode_at(p0),
-    cr_x,
-    dlevel,
-  )
+  let code_eq = integer_diag_code_is_prop_value(x, encode_at(p0), cr_x, dlevel)
   DVPathLam(t => {
     DVPathLam(i => {
       let base_z = dapp_dim(

@@ -163,15 +163,3 @@ pub fn max_abs_diff(
 ///
 /// 解量化之後，取貢獻最大的 k（`e^(−x/h)` 最大 ⇔ x 最小）必須與 min-plus 的 argmin 相同——
 /// 這是熱帶幾何裡「領先項」的概念，也是 h 夠小時可以完全決定的部分。
-pub fn argmin_k(a : Array[Double], b : Array[Double]) -> Int32 {
-  let mut best = 1.0e300
-  let mut idx = -1
-  for k in 0..<a.length() {
-    let v = a[k] + b[k]
-    if v < best {
-      best = v
-      idx = k
-    }
-  }
-  idx
-}

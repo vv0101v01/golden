@@ -11,19 +11,13 @@ pub fn app_bool(Int32, Array[(Int32, Int32)]) -> @matrix.Mat[@algebra.BoolSr]
 
 pub fn[E : @algebra.StarSemiring] app_closure(Int32, Array[(Int32, Int32, E)]) -> @matrix.Mat[E]
 
-pub fn app_counts(Int32, Array[(Int32, Int32, Int64)]) -> @matrix.Mat[@algebra.Counting]
-
 pub fn app_minplus(Int32, Array[(Int32, Int32, Int32)]) -> @matrix.Mat[@algebra.Trop]
-
-pub fn app_mostlikely(Int32, Array[(Int32, Int32, Double)]) -> (@matrix.Mat[@algebra.Prob], Bool)
 
 pub fn app_widest(Int32, Array[(Int32, Int32, Int32)]) -> @matrix.Mat[@algebra.Bottleneck]
 
 pub fn[E : @algebra.Semiring] build(Int32, Array[(Int32, Int32, E)]) -> @matrix.Mat[E]
 
 pub fn consensus_trop(@matrix.Mat[@algebra.Trop], Int32, inject_wrong? : Bool) -> Verdict
-
-pub fn most_likely_bruteforce(Int32, Array[(Int32, Int32, Double)]) -> Array[Array[Double]]
 
 pub fn reach_bfs(Int32, Array[(Int32, Int32)]) -> Array[Array[Bool]]
 

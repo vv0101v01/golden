@@ -12,8 +12,6 @@ pub fn bspline_basis(Array[Double], Int32, Int32, Double) -> Double
 
 pub fn cubic_pole() -> Double
 
-pub fn eval_deboor(Array[Double], Array[Double], Int32, Double) -> Double
-
 pub fn interp_cubic_banded(Array[Double]) -> Array[Double]
 
 pub fn interp_cubic_dense(Array[Double]) -> Array[Double]
@@ -25,8 +23,6 @@ pub fn interp_cubic_periodic(Array[Double]) -> Array[Double]
 pub fn solve_banded(Banded, Array[Double]) -> Array[Double]?
 
 pub fn solve_dense(Array[Array[Double]], Array[Double]) -> Array[Double]?
-
-pub fn uniform_knots(Int32, Int32) -> Array[Double]
 
 // Errors
 

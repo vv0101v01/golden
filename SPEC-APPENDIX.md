@@ -7,7 +7,7 @@
 > `architecture.json` 登記的 MoonBit 套件。
 
 <!-- APPENDIX:BEGIN -->
-共 **6484** 個公共符號（宣告＋構造子＋欄位），分屬 98 個規格族；按套件：`algebra` 956、`bridge` 171、`cmd-semiringreport` 42、`root` 3262、`scheme` 314、`semiring-algebra` 287、`semiring-app` 24、`semiring-bp` 22、`semiring-cat` 33、`semiring-examples` 18、`semiring-graph` 40、`semiring-io` 9、`semiring-matrix` 60、`semiring-monoid` 85、`semiring-nf` 43、`semiring-par` 18、`semiring-par-host` 4、`semiring-ratelimit` 64、`semiring-sim` 42、`semiring-spline` 17、`semiring-trop` 84、`symlib` 537、`topos` 352。
+共 **6564** 個公共符號（宣告＋構造子＋欄位），分屬 97 個規格族；按套件：`algebra` 954、`bridge` 170、`cmd-semiringreport` 42、`hostfs` 40、`root` 3378、`scheme` 299、`semiring-algebra` 287、`semiring-app` 21、`semiring-bp` 20、`semiring-cat` 30、`semiring-graph` 39、`semiring-io` 9、`semiring-matrix` 60、`semiring-monoid` 85、`semiring-nf` 41、`semiring-par` 17、`semiring-par-host` 4、`semiring-ratelimit` 64、`semiring-sim` 42、`semiring-spline` 15、`semiring-trop` 84、`symlib` 519、`topos` 344。
 
 ### 複數標量
 
@@ -184,15 +184,10 @@
 | `check_bdd_optimal_order_dp` | root | 函數 |
 | `check_interval_faces` | root | 函數 |
 | `contains_int` | root | 函數 |
-| `dim_and` | root | 函數 |
-| `dim_neg` | root | 函數 |
 | `dim_of_face` | root | 函數 |
-| `dim_one` | root | 函數 |
-| `dim_or` | root | 函數 |
 | `dim_simplify` | root | 函數 |
 | `dim_subst` | root | 函數 |
 | `dim_var` | root | 函數 |
-| `dim_zero` | root | 函數 |
 | `face_and` | root | 函數 |
 | `face_bot` | root | 函數 |
 | `face_bound` | root | 函數 |
@@ -625,7 +620,6 @@
 | `dep_nf_closed` | root | 函數 |
 | `dep_type_of_closed` | root | 函數 |
 | `dep_type_val_of` | root | 函數 |
-| `deval` | root | 函數 |
 | `dfst_typed` | root | 函數 |
 | `dsnd_typed` | root | 函數 |
 | `lty_to_dterm` | root | 函數 |
@@ -859,20 +853,16 @@
 | `dterm_dag_snapshot_validate` | root | 函數 |
 | `dterm_distinct_subterm_count` | root | 函數 |
 | `dterm_intern` | root | 函數 |
-| `dterm_intern_all` | root | 函數 |
 | `dterm_intern_id` | root | 函數 |
 | `dterm_intern_lookup_id` | root | 函數 |
 | `dterm_intern_node` | root | 函數 |
-| `dterm_intern_table_children` | root | 函數 |
 | `dterm_intern_table_new` | root | 函數 |
 | `dterm_intern_table_prefix_digest` | root | 函數 |
 | `dterm_intern_table_size` | root | 函數 |
 | `dterm_intern_table_snapshot` | root | 函數 |
 | `dterm_intern_table_term` | root | 函數 |
 | `dterm_local_shell` | root | 函數 |
-| `dterm_local_stamp` | root | 函數 |
 | `dterm_rebuild` | root | 函數 |
-| `dterm_sharing_ratio` | root | 函數 |
 | `dterm_tree_node_count` | root | 函數 |
 | `force_value` | root | 函數 |
 | `lazy_deval` | root | 函數 |
@@ -913,6 +903,7 @@
 | `DTubeBranch.face` | root | 欄位 |
 | `DTubeBranch.path` | root | 欄位 |
 | `check_dsystem_canonical_partial_nf` | root | 函數 |
+| `check_dsystem_compatibility` | root | 函數 |
 | `check_dsystem_structural_agreement_and_supplementation` | root | 函數 |
 | `check_multibranch_glue_partial` | root | 函數 |
 | `check_phase5_semantic_systems` | root | 函數 |
@@ -920,8 +911,6 @@
 | `dface_value` | root | 函數 |
 | `dsystem_canonical` | root | 函數 |
 | `dsystem_checked` | root | 函數 |
-| `dsystem_checked_of` | root | 函數 |
-| `dsystem_compatibility` | root | 函數 |
 | `dsystem_compatibility_report` | root | 函數 |
 | `dsystem_compatibility_report_in` | root | 函數 |
 | `dsystem_compatible_with_base` | root | 函數 |
@@ -1030,7 +1019,6 @@
 | `darg_external` | root | 函數 |
 | `darg_function` | root | 函數 |
 | `darg_mutual` | root | 函數 |
-| `darg_mutual_function` | root | 函數 |
 | `darg_nested` | root | 函數 |
 | `darg_recursive` | root | 函數 |
 | `dconstructor_constraint` | root | 函數 |
@@ -1097,9 +1085,7 @@
 | `schema_registry_binary_version_policy` | root | 函數 |
 | `schema_registry_from_binary` | root | 函數 |
 | `schema_registry_hit_by_id` | root | 函數 |
-| `schema_registry_hit_by_name` | root | 函數 |
 | `schema_registry_hit_plan` | root | 函數 |
-| `schema_registry_inductive_by_id` | root | 函數 |
 | `schema_registry_inductive_by_name` | root | 函數 |
 | `schema_registry_inductive_plan` | root | 函數 |
 | `schema_registry_manifest` | root | 函數 |
@@ -1191,16 +1177,13 @@
 | `hit_index_types` | root | 函數 |
 | `hit_index_types_cached` | root | 函數 |
 | `hit_intro_term` | root | 函數 |
-| `hit_motive_type` | root | 函數 |
 | `hit_param_types` | root | 函數 |
 | `hit_param_types_cached` | root | 函數 |
 | `hit_parameter_positivity` | root | 函數 |
-| `hit_plan_type_term` | root | 函數 |
 | `hit_result_indices` | root | 函數 |
 | `hit_schema_examples` | root | 函數 |
 | `hit_schema_key` | root | 函數 |
 | `hit_schema_validate` | root | 函數 |
-| `hit_type_term` | root | 函數 |
 | `infer_hit_elim` | root | 函數 |
 | `infer_hit_intro` | root | 函數 |
 | `infer_hit_type` | root | 函數 |
@@ -1301,7 +1284,6 @@
 | `frac_var` | algebra | 函數 |
 | `frac_zero` | algebra | 函數 |
 | `int_abs` | algebra | 函數 |
-| `int_gcd` | algebra | 函數 |
 | `poly_add` | algebra | 函數 |
 | `poly_const` | algebra | 函數 |
 | `poly_drop_atom` | algebra | 函數 |
@@ -1316,7 +1298,6 @@
 | `poly_normalize` | algebra | 函數 |
 | `poly_one` | algebra | 函數 |
 | `poly_open_box` | algebra | 函數 |
-| `poly_scale` | algebra | 函數 |
 | `poly_sub` | algebra | 函數 |
 | `poly_subst_all` | algebra | 函數 |
 | `poly_var` | algebra | 函數 |
@@ -1325,15 +1306,12 @@
 | `rat_big_int` | algebra | 函數 |
 | `rat_div` | algebra | 函數 |
 | `rat_eq` | algebra | 函數 |
-| `rat_fits_int32` | algebra | 函數 |
 | `rat_int` | algebra | 函數 |
 | `rat_inv` | algebra | 函數 |
 | `rat_is_one` | algebra | 函數 |
-| `rat_is_square` | algebra | 函數 |
 | `rat_is_zero` | algebra | 函數 |
 | `rat_make` | algebra | 函數 |
 | `rat_make_big` | algebra | 函數 |
-| `rat_make_decimal_strings` | algebra | 函數 |
 | `rat_mul` | algebra | 函數 |
 | `rat_neg` | algebra | 函數 |
 | `rat_nth_root_exact` | algebra | 函數 |
@@ -1342,12 +1320,10 @@
 | `rat_sqrt_if_square` | algebra | 函數 |
 | `rat_sub` | algebra | 函數 |
 | `rat_to_double` | algebra | 函數 |
-| `rat_to_string` | algebra | 函數 |
 | `rat_zero` | algebra | 函數 |
 | `sc_add` | algebra | 函數 |
 | `sc_conj` | algebra | 函數 |
 | `sc_eq` | algebra | 函數 |
-| `sc_i` | algebra | 函數 |
 | `sc_int` | algebra | 函數 |
 | `sc_is_zero` | algebra | 函數 |
 | `sc_make` | algebra | 函數 |
@@ -1370,19 +1346,15 @@
 | `sym_mat_from_rows` | algebra | 函數 |
 | `sym_mat_identity` | algebra | 函數 |
 | `sym_mat_mul` | algebra | 函數 |
-| `sym_mat_of_qmat` | algebra | 函數 |
 | `sym_mat_scale` | algebra | 函數 |
 | `sym_mat_sub` | algebra | 函數 |
-| `sym_mat_trace` | algebra | 函數 |
 | `sym_mat_vec` | algebra | 函數 |
 | `sym_mat_zero` | algebra | 函數 |
 | `sym_outer` | algebra | 函數 |
 | `sym_projector_rank_one` | algebra | 函數 |
-| `sym_scalar_matrix` | algebra | 函數 |
 | `sym_vec_add` | algebra | 函數 |
 | `sym_vec_eq` | algebra | 函數 |
 | `sym_vec_scale` | algebra | 函數 |
-| `sym_vec_scale_c` | algebra | 函數 |
 | `sym_vec_sub` | algebra | 函數 |
 | `upoly_add` | algebra | 函數 |
 | `upoly_const` | algebra | 函數 |
@@ -1417,7 +1389,6 @@
 | `check_symbolic_nonlinear_boundary` | algebra | 函數 |
 | `check_symbolic_pruning` | algebra | 函數 |
 | `rpoly_add` | algebra | 函數 |
-| `rpoly_const` | algebra | 函數 |
 | `rpoly_degree` | algebra | 函數 |
 | `rpoly_divisible_by` | algebra | 函數 |
 | `rpoly_divmod_monic` | algebra | 函數 |
@@ -1484,13 +1455,10 @@
 | `elems_of` | root | 函數 |
 | `in_ty` | root | 函數 |
 | `pval_fst` | root | 函數 |
-| `pval_not` | root | 函數 |
 | `pval_snd` | root | 函數 |
-| `pval_swap` | root | 函數 |
 | `pval_to_dvalue` | root | 函數 |
 | `ty_bool` | root | 函數 |
 | `ty_prod` | root | 函數 |
-| `ty_unit` | root | 函數 |
 
 ### Wiring 符號等價
 
@@ -1567,14 +1535,12 @@
 | `equiv_comp` | root | 函數 |
 | `equiv_compose_value` | root | 函數 |
 | `equiv_ext_eq` | root | 函數 |
-| `equiv_ext_eq_oracle` | root | 函數（差分測試 oracle，非判定路徑） |
 | `equiv_fun_value` | root | 函數 |
 | `equiv_fwd_value` | root | 函數 |
 | `equiv_id` | root | 函數 |
 | `equiv_id_value` | root | 函數 |
 | `equiv_inv` | root | 函數 |
 | `equiv_inv_fun_value` | root | 函數 |
-| `equiv_inv_value` | root | 函數 |
 | `equiv_make_value` | root | 函數 |
 | `equiv_of_wiring` | root | 函數 |
 | `equiv_parts` | root | 函數 |
@@ -1584,20 +1550,16 @@
 | `equiv_sect_type` | root | 函數 |
 | `equiv_sect_value` | root | 函數 |
 | `equiv_swap` | root | 函數 |
-| `equiv_type_term` | root | 函數 |
 | `equiv_wf` | root | 函數 |
-| `equiv_wf_extensional` | root | 函數（差分測試 oracle，非判定路徑） |
 | `iso_bool_not` | root | 函數 |
 | `iso_of_wiring` | root | 函數 |
 | `iso_swap` | root | 函數 |
 | `iso_to_equiv` | root | 函數 |
 | `iso_to_path` | root | 函數 |
 | `iso_wf` | root | 函數 |
-| `iso_wf_extensional` | root | 函數（差分測試 oracle，非判定路徑） |
 | `swap_naturality` | root | 函數 |
 | `ua` | root | 函數 |
 | `ua_line_value` | root | 函數 |
-| `ua_term` | root | 函數 |
 | `ua_type_at` | root | 函數 |
 | `ua_value` | root | 函數 |
 | `upath_eq` | root | 函數 |
@@ -1665,7 +1627,6 @@
 | `glue_equiv_restrict_arg_under_face` | root | 函數 |
 | `glue_equiv_store_partial` | root | 函數 |
 | `glue_equiv_systems_conv` | root | 函數 |
-| `glue_equiv_term` | root | 函數 |
 | `glue_equiv_top_index` | root | 函數 |
 | `glue_from_base` | root | 函數 |
 | `glue_restrict` | root | 函數 |
@@ -1737,7 +1698,6 @@
 | `map_cube_matrix` | root | 函數 |
 | `outer2` | root | 函數 |
 | `prune_cube_subline` | root | 函數 |
-| `subline_const` | root | 函數 |
 | `subline_from_unit_path` | root | 函數 |
 | `vec_box` | root | 函數 |
 | `vec_normalize` | root | 函數 |
@@ -1907,7 +1867,6 @@
 | `bdd_manager_cache_stats` | root | 函數 |
 | `bdd_manager_new` | root | 函數 |
 | `bdd_manager_node_count` | root | 函數 |
-| `bdd_manager_stats` | root | 函數 |
 | `bdd_manager_with_order` | root | 函數 |
 | `bdd_tree_of_dag` | root | 函數 |
 | `bdd_var_order_candidates` | root | 函數 |
@@ -1939,7 +1898,6 @@
 | `face_sat_cdcl_report` | root | 函數 |
 | `face_sat_dpll` | root | 函數 |
 | `face_sat_watched_dpll` | root | 函數 |
-| `face_sat_within_budget` | root | 函數 |
 
 ### 原始 DSystem 相容性與 first-match 範形
 
@@ -2014,7 +1972,6 @@
 | `DTubeNFClass.path` | root | 欄位 |
 | `DTubeNFClass.region` | root | 欄位 |
 | `check_conv_under_face_relevant_descent` | root | 函數 |
-| `check_dsystem_compatibility` | root | 函數 |
 | `check_dsystem_first_match_nf` | root | 函數 |
 | `check_dsystem_maximum_completion` | root | 函數 |
 | `check_dsystem_repair_phase9` | root | 函數 |
@@ -2030,7 +1987,6 @@
 | `dsystem_repair_all_maxima` | root | 函數 |
 | `dsystem_repair_all_maxima_dsatur` | root | 函數 |
 | `dsystem_repair_maximum` | root | 函數 |
-| `dtube_nf_class` | root | 函數 |
 | `face_agreement_face` | root | 函數 |
 | `face_agreement_face_sound` | root | 函數 |
 | `face_agreement_region` | root | 函數 |
@@ -2112,19 +2068,14 @@
 | `checked_comp_value` | root | 函數 |
 | `checked_constant_type_line` | root | 函數 |
 | `checked_constant_type_line_closed` | root | 函數 |
-| `checked_fill_value` | root | 函數 |
 | `checked_line_at` | root | 函數 |
-| `checked_line_body` | root | 函數 |
-| `checked_line_conv` | root | 函數 |
 | `checked_line_endpoints` | root | 函數 |
 | `checked_line_fn` | root | 函數 |
 | `checked_line_is_constant` | root | 函數 |
 | `checked_line_level` | root | 函數 |
-| `checked_line_of_pathp_term` | root | 函數 |
 | `checked_line_quote_body` | root | 函數 |
 | `checked_line_reify_closed` | root | 函數 |
 | `checked_line_reparam_closed` | root | 函數 |
-| `checked_pathp_type` | root | 函數 |
 | `checked_type_line` | root | 函數 |
 | `checked_type_line_closed` | root | 函數 |
 | `checked_ua_line` | root | 函數 |
@@ -2258,7 +2209,6 @@
 | `conv_decode_neutral` | root | 函數 |
 | `conv_schema_args_full` | root | 函數 |
 | `decode_term` | root | 函數 |
-| `dfunctor_const` | root | 函數 |
 | `dfunctor_container` | root | 函數 |
 | `dfunctor_family` | root | 函數 |
 | `dfunctor_identity` | root | 函數 |
@@ -2268,7 +2218,6 @@
 | `dfunctor_pi` | root | 函數 |
 | `dfunctor_product` | root | 函數 |
 | `dfunctor_self_family` | root | 函數 |
-| `dfunctor_sigma` | root | 函數 |
 | `dfunctor_sum` | root | 函數 |
 | `dfunctorial_positivity_container_cert` | root | 函數 |
 | `dfunctorial_positivity_covariant_cert` | root | 函數 |
@@ -2335,14 +2284,10 @@
 | `circle_level_scheme` | root | 函數 |
 | `compile_mutual_inductive` | root | 函數 |
 | `cube3_schema` | root | 函數 |
-| `dlevel_const` | root | 函數 |
 | `dlevel_eval` | root | 函數 |
 | `dlevel_hit_decl` | root | 函數 |
 | `dlevel_inductive_decl` | root | 函數 |
-| `dlevel_max` | root | 函數 |
-| `dlevel_succ` | root | 函數 |
 | `dlevel_term_decl` | root | 函數 |
-| `dlevel_var` | root | 函數 |
 | `equal_nat_pair_schema` | root | 函數 |
 | `even_odd_components` | root | 函數 |
 | `even_odd_family` | root | 函數 |
@@ -2355,16 +2300,13 @@
 | `mutual_ctor_index` | root | 函數 |
 | `mutual_decl_elaborate` | root | 函數 |
 | `mutual_decl_positivity` | root | 函數 |
-| `mutual_elim_term` | root | 函數 |
 | `mutual_intro_term` | root | 函數 |
 | `mutual_intro_value` | root | 函數 |
 | `mutual_motive_function` | root | 函數 |
 | `mutual_nat_term` | root | 函數 |
 | `mutual_nat_value` | root | 函數 |
 | `mutual_type_term` | root | 函數 |
-| `mutual_type_value` | root | 函數 |
 | `quotient_eq_term` | root | 函數 |
-| `quotient_point_term` | root | 函數 |
 | `quotient_schema` | root | 函數 |
 | `rose_tree_schema` | root | 函數 |
 | `tarski_universe_schema` | root | 函數 |
@@ -2432,7 +2374,6 @@
 | `qmat_scale` | algebra | 函數 |
 | `qmat_sub` | algebra | 函數 |
 | `qmat_trace` | algebra | 函數 |
-| `qmat_transpose` | algebra | 函數 |
 | `qmat_vec` | algebra | 函數 |
 | `qmat_zero` | algebra | 函數 |
 | `qpoly_add` | algebra | 函數 |
@@ -2450,7 +2391,6 @@
 | `qpoly_factor_rational_roots` | algebra | 函數 |
 | `qpoly_gcd` | algebra | 函數 |
 | `qpoly_int` | algebra | 函數 |
-| `qpoly_integer_coeffs` | algebra | 函數 |
 | `qpoly_integer_coeffs_big` | algebra | 函數 |
 | `qpoly_irreducibility_certificate` | algebra | 函數 |
 | `qpoly_irreducibility_certificate_check` | algebra | 函數 |
@@ -2554,7 +2494,6 @@
 | `alg_is_zero` | algebra | 函數 |
 | `alg_make` | algebra | 函數 |
 | `alg_minimal_polynomial` | algebra | 函數 |
-| `alg_modulus_irreducible_small` | algebra | 函數 |
 | `alg_mul` | algebra | 函數 |
 | `alg_multiplication_matrix` | algebra | 函數 |
 | `alg_neg` | algebra | 函數 |
@@ -2569,8 +2508,6 @@
 | `alg_sqrt_in_field` | algebra | 函數 |
 | `alg_sqrt_rat` | algebra | 函數 |
 | `alg_sub` | algebra | 函數 |
-| `alg_to_quad` | algebra | 函數 |
-| `alg_to_rat` | algebra | 函數 |
 | `alg_trace` | algebra | 函數 |
 | `alg_zero` | algebra | 函數 |
 | `check_algebraic_radicals_and_rank6_multiquad` | algebra | 函數 |
@@ -2591,8 +2528,6 @@
 | `cubic_rat` | algebra | 函數 |
 | `cubic_sign` | algebra | 函數 |
 | `cubic_sub` | algebra | 函數 |
-| `int_sqrt_exact` | algebra | 函數 |
-| `int_squarefree_decomp` | algebra | 函數 |
 | `multiquad_add` | algebra | 函數 |
 | `multiquad_add_upto` | algebra | 函數 |
 | `multiquad_align` | algebra | 函數 |
@@ -2601,37 +2536,29 @@
 | `multiquad_eq` | algebra | 函數 |
 | `multiquad_eq_upto` | algebra | 函數 |
 | `multiquad_inv` | algebra | 函數 |
-| `multiquad_is_rat` | algebra | 函數 |
 | `multiquad_is_zero` | algebra | 函數 |
 | `multiquad_make` | algebra | 函數 |
 | `multiquad_make_upto` | algebra | 函數 |
 | `multiquad_mul` | algebra | 函數 |
 | `multiquad_mul_upto` | algebra | 函數 |
 | `multiquad_neg` | algebra | 函數 |
-| `multiquad_of_biquad` | algebra | 函數 |
-| `multiquad_of_quad` | algebra | 函數 |
-| `multiquad_of_triquad` | algebra | 函數 |
 | `multiquad_rat` | algebra | 函數 |
 | `multiquad_rational_square_adjustment` | algebra | 函數 |
-| `multiquad_reembed` | algebra | 函數 |
 | `multiquad_sign` | algebra | 函數 |
 | `multiquad_sqrt_extended` | algebra | 函數 |
 | `multiquad_sqrt_extended_upto` | algebra | 函數 |
 | `multiquad_sqrt_in_field` | algebra | 函數 |
 | `multiquad_sqrt_rat` | algebra | 函數 |
 | `multiquad_sub` | algebra | 函數 |
-| `multiquad_to_rat` | algebra | 函數 |
 | `multiquad_zero` | algebra | 函數 |
 | `quad_add` | algebra | 函數 |
 | `quad_compatible` | algebra | 函數 |
-| `quad_conj` | algebra | 函數 |
 | `quad_denested_cuberoot` | algebra | 函數 |
 | `quad_denested_sqrt` | algebra | 函數 |
 | `quad_div` | algebra | 函數 |
 | `quad_eq` | algebra | 函數 |
 | `quad_int` | algebra | 函數 |
 | `quad_inv` | algebra | 函數 |
-| `quad_is_rat` | algebra | 函數 |
 | `quad_is_zero` | algebra | 函數 |
 | `quad_make` | algebra | 函數 |
 | `quad_make_big` | algebra | 函數 |
@@ -2646,7 +2573,6 @@
 | `quad_sqrt_rat` | algebra | 函數 |
 | `quad_sub` | algebra | 函數 |
 | `quad_to_double` | root | 函數 |
-| `quad_to_rat` | algebra | 函數 |
 | `quad_trace` | algebra | 函數 |
 | `quad_zero` | algebra | 函數 |
 | `real_alg_add` | algebra | 函數 |
@@ -2723,13 +2649,8 @@
 | `QPrimaryProjector.factor` | algebra | 欄位 |
 | `QPrimaryProjector.polynomial` | algebra | 欄位 |
 | `QPrimaryProjector.projector` | algebra | 欄位 |
-| `QRationalSpectrum` | algebra | 結構 |
-| `QRationalSpectrum.eigenvalues` | algebra | 欄位 |
-| `QRationalSpectrum.multiplicities` | algebra | 欄位 |
-| `QRationalSpectrum.residual` | algebra | 欄位 |
 | `algmat_Jordan_chains` | algebra | 函數 |
 | `algmat_Jordan_decomposition` | algebra | 函數 |
-| `algmat_add` | algebra | 函數 |
 | `algmat_charpoly` | algebra | 函數 |
 | `algmat_eigenvalue_multiplicity` | algebra | 函數 |
 | `algmat_eq` | algebra | 函數 |
@@ -2754,7 +2675,6 @@
 | `algvec_rank` | algebra | 函數 |
 | `algvec_zero` | algebra | 函數 |
 | `check_algebraic_extensions_and_Jordan` | algebra | 函數 |
-| `qmat_Jordan_block_sizes` | algebra | 函數 |
 | `qmat_Jordan_chains` | algebra | 函數 |
 | `qmat_Jordan_decomposition` | algebra | 函數 |
 | `qmat_Jordan_decomposition_auto` | algebra | 函數 |
@@ -2766,7 +2686,6 @@
 | `qmat_is_diagonalizable_rational` | algebra | 函數 |
 | `qmat_primary_projector` | algebra | 函數 |
 | `qmat_primary_subspace_basis` | algebra | 函數 |
-| `qmat_rational_spectrum` | algebra | 函數 |
 | `qmat_vector_annihilator` | algebra | 函數 |
 
 ### 認證數值影子與精確立方體
@@ -2820,7 +2739,6 @@
 | `alg_cert_is_projector` | root | 函數 |
 | `alg_cert_mat_adjoint` | root | 函數 |
 | `alg_cert_mat_eq` | root | 函數 |
-| `alg_cert_mat_from_rows` | root | 函數 |
 | `alg_cert_mat_mul` | root | 函數 |
 | `alg_cert_mat_vec` | root | 函數 |
 | `alg_cert_outer` | root | 函數 |
@@ -2828,21 +2746,16 @@
 | `alg_cert_path_in_image` | root | 函數 |
 | `alg_cert_square_eval` | root | 函數 |
 | `alg_cert_square_in_image` | root | 函數 |
-| `alg_cert_vec_add` | root | 函數 |
 | `alg_cert_vec_eq` | root | 函數 |
 | `alg_cert_vec_scale` | root | 函數 |
 | `algc_add` | root | 函數 |
 | `algc_conj` | root | 函數 |
 | `algc_eq` | root | 函數 |
 | `algc_i` | root | 函數 |
-| `algc_is_zero` | root | 函數 |
-| `algc_make` | root | 函數 |
 | `algc_mul` | root | 函數 |
-| `algc_neg` | root | 函數 |
 | `algc_one` | root | 函數 |
 | `algc_real` | root | 函數 |
 | `algc_scale_alg` | root | 函數 |
-| `algc_sub` | root | 函數 |
 | `algc_zero` | root | 函數 |
 | `cert_complement` | root | 函數 |
 | `cert_eigenspace_kan_sound` | root | 函數 |
@@ -2861,7 +2774,6 @@
 | `cert_mat_from_rows` | root | 函數 |
 | `cert_mat_identity` | root | 函數 |
 | `cert_mat_mul` | root | 函數 |
-| `cert_mat_scale_quad` | root | 函數 |
 | `cert_mat_sub` | root | 函數 |
 | `cert_mat_to_numeric` | root | 函數 |
 | `cert_mat_trace` | root | 函數 |
@@ -2869,7 +2781,6 @@
 | `cert_mat_zero` | root | 函數 |
 | `cert_open_box_wf` | root | 函數 |
 | `cert_outer` | root | 函數 |
-| `cert_path_const` | root | 函數 |
 | `cert_path_end` | root | 函數 |
 | `cert_path_eq` | root | 函數 |
 | `cert_path_in_image` | root | 函數 |
@@ -2877,22 +2788,18 @@
 | `cert_path_line` | root | 函數 |
 | `cert_path_start` | root | 函數 |
 | `cert_path_sym` | root | 函數 |
-| `cert_projector_of_vector` | root | 函數 |
 | `cert_pruning_repairs_filler` | root | 函數 |
 | `cert_square_add` | root | 函數 |
 | `cert_square_apply` | root | 函數 |
 | `cert_square_bilinear` | root | 函數 |
 | `cert_square_bump` | root | 函數 |
-| `cert_square_eq` | root | 函數 |
 | `cert_square_face` | root | 函數 |
 | `cert_square_fill` | root | 函數 |
 | `cert_square_in_image` | root | 函數 |
 | `cert_vec_add` | root | 函數 |
 | `cert_vec_eq` | root | 函數 |
 | `cert_vec_scale` | root | 函數 |
-| `cert_vec_scale_quad` | root | 函數 |
 | `cert_vec_sub` | root | 函數 |
-| `cert_vec_to_numeric` | root | 函數 |
 | `cert_vec_zero` | root | 函數 |
 | `certify_numeric_projector` | root | 函數 |
 | `certify_projector` | root | 函數 |
@@ -2908,13 +2815,11 @@
 | `qcc_eq` | root | 函數 |
 | `qcc_i` | root | 函數 |
 | `qcc_is_zero` | root | 函數 |
-| `qcc_make` | root | 函數 |
 | `qcc_mul` | root | 函數 |
 | `qcc_neg` | root | 函數 |
 | `qcc_one` | root | 函數 |
 | `qcc_rat` | root | 函數 |
 | `qcc_real` | root | 函數 |
-| `qcc_scale_quad` | root | 函數 |
 | `qcc_sub` | root | 函數 |
 | `qcc_to_complex` | root | 函數 |
 | `qcc_zero` | root | 函數 |
@@ -3091,7 +2996,6 @@
 | `check_jacobi_block_deflation_and_multiplicity` | algebra | 函數 |
 | `check_jacobi_cluster_separation` | algebra | 函數 |
 | `check_phase14_jacobi_block_deflation_and_multiplicity` | root | 函數 |
-| `cinterval` | algebra | 函數 |
 | `cinterval_add` | algebra | 函數 |
 | `cinterval_conj` | algebra | 函數 |
 | `cinterval_contains` | algebra | 函數 |
@@ -3119,10 +3023,8 @@
 | `jacobi_similarity_interval` | algebra | 函數 |
 | `jacobi_unitary_interval` | algebra | 函數 |
 | `jacobi_unitary_residual_contains_zero` | algebra | 函數 |
-| `qci_mat_add` | algebra | 函數 |
 | `qci_mat_adjoint` | algebra | 函數 |
 | `qci_mat_contains` | algebra | 函數 |
-| `qci_mat_contains_point` | algebra | 函數 |
 | `qci_mat_from_point` | algebra | 函數 |
 | `qci_mat_from_rows` | algebra | 函數 |
 | `qci_mat_hermitian_hull` | algebra | 函數 |
@@ -3255,6 +3157,13 @@
 | `HouLazyUnifierStream.root_started` | root | 欄位 |
 | `HouLazyUnifierStream.round_budget` | root | 欄位 |
 | `HouLazyUnifierStream.stack` | root | 欄位 |
+| `HouMatchResult` | root | 列舉 |
+| `HouMatchResult::HouMatchBudgetExceeded` | root | 構造子 |
+| `HouMatchResult::HouMatchNoneWithinBound` | root | 構造子 |
+| `HouMatchResult::HouMatchSolved` | root | 構造子 |
+| `HouMatchResult::equal` | root | 函數 |
+| `HouMatchResult::not_equal` | root | 函數 |
+| `HouMatchResult::to_repr` | root | 函數 |
 | `HouMguReport` | root | 結構 |
 | `HouMguReport.residual` | root | 欄位 |
 | `HouMguReport.status` | root | 欄位 |
@@ -3350,6 +3259,7 @@
 | `Unifier::to_repr` | root | 函數 |
 | `check_hou_bounded_search` | root | 函數 |
 | `check_hou_elaborator` | root | 函數 |
+| `check_hou_matching` | root | 函數 |
 | `check_hou_phase9_extensions` | root | 函數 |
 | `check_hou_residual_solver` | root | 函數 |
 | `check_hou_search_extensions` | root | 函數 |
@@ -3360,8 +3270,11 @@
 | `elab_result_to_dterm` | root | 函數 |
 | `elab_type_to_dterm` | root | 函數 |
 | `elaborator_new` | root | 函數 |
+| `hou_conv` | root | 函數 |
 | `hou_enumerate_unifiers` | root | 函數 |
 | `hou_fresh_meta` | root | 函數 |
+| `hou_match` | root | 函數 |
+| `hou_match_solved_within` | root | 函數 |
 | `hou_reify_delayed_flex_flex` | root | 函數 |
 | `hou_search_unify` | root | 函數 |
 | `hou_search_unify_bool` | root | 函數 |
@@ -3382,7 +3295,6 @@
 | `uterm_whnf` | root | 函數 |
 | `uty_arrow` | root | 函數 |
 | `uty_bool` | root | 函數 |
-| `uty_implicit_arrow` | root | 函數 |
 | `uty_nat` | root | 函數 |
 | `uty_unit` | root | 函數 |
 
@@ -3517,19 +3429,82 @@
 
 | 符號 | 套件 | 類別 |
 |---|---|---|
+| `BrunerieNorm` | root | 列舉 |
+| `BrunerieNorm::DoesNotNormalise` | root | 構造子 |
+| `BrunerieNorm::NeverNormalised` | root | 構造子 |
+| `BrunerieNorm::NormalisesTo` | root | 構造子 |
+| `BrunerieNorm::equal` | root | 函數 |
+| `BrunerieNorm::not_equal` | root | 函數 |
+| `BrunerieNorm::to_repr` | root | 函數 |
+| `BrunerieNumber` | root | 結構 |
+| `BrunerieNumber.complexity` | root | 欄位 |
+| `BrunerieNumber.name` | root | 欄位 |
+| `BrunerieNumber.norm` | root | 欄位 |
+| `BrunerieNumber::equal` | root | 函數 |
+| `BrunerieNumber::not_equal` | root | 函數 |
+| `BrunerieNumber::to_repr` | root | 函數 |
+| `FgAb` | root | 結構 |
+| `FgAb.rank` | root | 欄位 |
+| `FgAb.torsion` | root | 欄位 |
+| `FgAb::equal` | root | 函數 |
+| `FgAb::not_equal` | root | 函數 |
+| `FgAb::to_repr` | root | 函數 |
+| `FreuStatus` | root | 列舉 |
+| `FreuStatus::FreuEquiv` | root | 構造子 |
+| `FreuStatus::FreuNone` | root | 構造子 |
+| `FreuStatus::FreuSurj` | root | 構造子 |
+| `FreuStatus::equal` | root | 函數 |
+| `FreuStatus::not_equal` | root | 函數 |
+| `FreuStatus::to_repr` | root | 函數 |
 | `KanBox` | root | 結構 |
 | `KanBox.base` | root | 欄位 |
 | `KanBox.dlevel` | root | 欄位 |
 | `KanBox.line` | root | 欄位 |
 | `KanBox.system` | root | 欄位 |
+| `Origin` | root | 列舉 |
+| `Origin::Imported` | root | 構造子 |
+| `Origin::Prior` | root | 構造子 |
+| `Origin::Proved` | root | 構造子 |
+| `Origin::equal` | root | 函數 |
+| `Origin::not_equal` | root | 函數 |
+| `Origin::to_repr` | root | 函數 |
+| `Paren` | root | 列舉 |
+| `Paren::PLeaf` | root | 構造子 |
+| `Paren::PNode` | root | 構造子 |
+| `Paren::equal` | root | 函數 |
+| `Paren::not_equal` | root | 函數 |
+| `Paren::to_repr` | root | 函數 |
+| `Stree` | root | 列舉 |
+| `Stree::SLeaf` | root | 構造子 |
+| `Stree::SNode` | root | 構造子 |
+| `Stree::equal` | root | 函數 |
+| `Stree::not_equal` | root | 函數 |
+| `Stree::to_repr` | root | 函數 |
+| `assoc_euler_characteristic` | root | 函數 |
+| `assoc_fvector` | root | 函數 |
+| `assoc_tree_value` | root | 函數 |
+| `assoc_two_faces` | root | 函數 |
+| `bm_gap` | root | 函數 |
+| `brunerie_family_decreasing` | root | 函數 |
+| `brunerie_family_establishes` | root | 函數 |
+| `brunerie_new_family` | root | 函數 |
+| `brunerie_norm_establishes` | root | 函數 |
+| `brunerie_original` | root | 函數 |
+| `brunerie_whitehead_lives_in` | root | 函數 |
+| `catalan` | root | 函數 |
+| `check_assoc_faces` | root | 函數 |
+| `check_blakers_massey` | root | 函數 |
+| `check_brunerie_pi4_s3` | root | 函數 |
 | `check_cubical_algorithms` | root | 函數 |
+| `check_homotopy_universal` | root | 函數 |
 | `check_phase14_eckmann_hilton_and_pentagon_coherence` | root | 函數 |
+| `conn_of_sphere` | root | 函數 |
+| `cyclic_of_beta` | root | 函數 |
 | `dfunext_term` | root | 函數 |
 | `dj_singleton_elim_value` | root | 函數 |
 | `dpath_assoc3_value` | root | 函數 |
 | `dpath_assoc_path3_value` | root | 函數 |
 | `dpath_associahedron_k5_cell5_value` | root | 函數 |
-| `dpath_at_value` | root | 函數 |
 | `dpath_cong_term` | root | 函數 |
 | `dpath_cong_value` | root | 函數 |
 | `dpath_eckmann_hilton3_value` | root | 函數 |
@@ -3550,7 +3525,6 @@
 | `dpath_pentagon_path_top3_value` | root | 函數 |
 | `dpath_pentagon_top3_value` | root | 函數 |
 | `dpath_prefix_value` | root | 函數 |
-| `dpath_refl_term` | root | 函數 |
 | `dpath_refl_value` | root | 函數 |
 | `dpath_right_inverse3_value` | root | 函數 |
 | `dpath_right_unit3_value` | root | 函數 |
@@ -3569,24 +3543,94 @@
 | `dpathp_of_transport_eq_value` | root | 函數 |
 | `dtransport_back_term` | root | 函數 |
 | `dtransport_term` | root | 函數 |
+| `fg_is_trivial` | root | 函數 |
+| `fg_rank_le` | root | 函數 |
+| `fg_z` | root | 函數 |
+| `fg_zero` | root | 函數 |
+| `fg_zmod` | root | 函數 |
 | `fibration_loop_equiv_fiber_path_value` | root | 函數 |
+| `freudenthal_status` | root | 函數 |
+| `gap_equiv_below` | root | 函數 |
+| `gap_surj_at` | root | 函數 |
+| `homotopy_universal_remaining` | root | 函數 |
+| `hopf_les_injective` | root | 函數 |
+| `hopf_les_iso` | root | 函數 |
+| `hopf_les_surjective` | root | 函數 |
+| `james_cell_dim` | root | 函數 |
+| `james_cells` | root | 函數 |
+| `james_cons_value` | root | 函數 |
+| `james_nil_value` | root | 函數 |
+| `james_rec_value` | root | 函數 |
+| `james_schema` | root | 函數 |
+| `james_schema_at` | root | 函數 |
+| `james_type_value` | root | 函數 |
+| `join_cocone_type_value` | root | 函數 |
+| `join_dim` | root | 函數 |
+| `join_inl_value` | root | 函數 |
+| `join_inr_value` | root | 函數 |
+| `join_push_value` | root | 函數 |
+| `join_rec_value` | root | 函數 |
+| `join_schema` | root | 函數 |
+| `join_schema_at` | root | 函數 |
+| `join_sphere_dim` | root | 函數 |
+| `join_type_value` | root | 函數 |
 | `kan_box` | root | 函數 |
 | `kan_box_comp` | root | 函數 |
 | `kan_box_fill` | root | 函數 |
 | `kan_box_pathp` | root | 函數 |
+| `les_middle_is_injective` | root | 函數 |
+| `les_middle_is_iso` | root | 函數 |
+| `les_middle_is_surjective` | root | 函數 |
+| `paren_all` | root | 函數 |
+| `paren_k5_lhs1` | root | 函數 |
+| `paren_leaves` | root | 函數 |
+| `paren_left_spine` | root | 函數 |
+| `paren_renumber` | root | 函數 |
+| `paren_right_spine` | root | 函數 |
+| `paren_rotation_edge_count` | root | 函數 |
+| `paren_rotation_graph_connected` | root | 函數 |
+| `paren_rotations` | root | 函數 |
 | `pathp_equiv_transport_eq_value` | root | 函數 |
+| `pi2_s2_iso_z_halves` | root | 函數 |
+| `pi2_s2_iso_z_origins` | root | 函數 |
+| `pi3_s2_iso_pi3_s3` | root | 函數 |
+| `pi3_s2_iso_pi3_s3_origins` | root | 函數 |
+| `pi3_s3_iso_pi2_s2` | root | 函數 |
+| `pi3_s3_iso_pi2_s2_origins` | root | 函數 |
+| `pi4_s3_group` | root | 函數 |
+| `pi4_s3_iso_pi4_s2` | root | 函數 |
+| `pi4_s3_origins` | root | 函數 |
+| `pi_circle` | root | 函數 |
+| `s3_is_join_of_two_circles` | root | 函數 |
 | `sigma_cong_snd_equiv_value` | root | 函數 |
 | `sigma_path_equiv_subst_value` | root | 函數 |
 | `sigma_path_equiv_value` | root | 函數 |
+| `stree_all` | root | 函數 |
+| `stree_dim` | root | 函數 |
+| `stree_leaves` | root | 函數 |
 | `subst_pathp_value` | root | 函數 |
 | `subst_refl_eq_value` | root | 函數 |
 | `subst_trans_eq_value` | root | 函數 |
 | `subst_value` | root | 函數 |
+| `suspension_gap` | root | 函數 |
 | `transport_back_value` | root | 函數 |
 | `transport_checked_line_value` | root | 函數 |
 | `transport_filler_value` | root | 函數 |
 | `transport_pathp_value` | root | 函數 |
 | `transport_value` | root | 函數 |
+| `trunc_inc_value` | root | 函數 |
+| `trunc_rec_value` | root | 函數 |
+| `trunc_schema` | root | 函數 |
+| `trunc_schema_at` | root | 函數 |
+| `trunc_type_value` | root | 函數 |
+| `wedge_glue_value` | root | 函數 |
+| `wedge_rec_value` | root | 函數 |
+| `wedge_schema` | root | 函數 |
+| `wedge_schema_at` | root | 函數 |
+| `wedge_type_value` | root | 函數 |
+| `wedge_winl_value` | root | 函數 |
+| `wedge_winr_value` | root | 函數 |
+| `whitehead_degree` | root | 函數 |
 
 ### 計算性單值性（univalence）
 
@@ -3619,7 +3663,6 @@
 | `universe_path_normal_form` | root | 函數 |
 | `universe_path_of_checked_line` | root | 函數 |
 | `universe_path_of_ua_term_closed` | root | 函數 |
-| `universe_path_path_value` | root | 函數 |
 | `universe_path_to_equiv_value` | root | 函數 |
 | `universe_path_transport_conv` | root | 函數 |
 | `upath_refl` | root | 函數 |
@@ -3650,6 +3693,14 @@
 | `BiquadNum::equal` | algebra | 函數 |
 | `BiquadNum::not_equal` | algebra | 函數 |
 | `BiquadNum::to_repr` | algebra | 函數 |
+| `CertEnclosure` | algebra | 結構 |
+| `CertEnclosure.hi` | algebra | 欄位 |
+| `CertEnclosure.lo` | algebra | 欄位 |
+| `CertEnclosure.tail` | algebra | 欄位 |
+| `CertEnclosure.terms` | algebra | 欄位 |
+| `CertEnclosure::equal` | algebra | 函數 |
+| `CertEnclosure::not_equal` | algebra | 函數 |
+| `CertEnclosure::to_repr` | algebra | 函數 |
 | `ComplexAlgNum` | algebra | 結構 |
 | `ComplexAlgNum.disk` | algebra | 欄位 |
 | `ComplexAlgNum.minpoly` | algebra | 欄位 |
@@ -3662,6 +3713,22 @@
 | `ComplexRootIsolation.disk` | algebra | 欄位 |
 | `ComplexRootIsolation.multiplicity` | algebra | 欄位 |
 | `ComplexRootIsolation.polynomial` | algebra | 欄位 |
+| `EIrrCertificate` | algebra | 結構 |
+| `EIrrCertificate.a` | algebra | 欄位 |
+| `EIrrCertificate.e_hi` | algebra | 欄位 |
+| `EIrrCertificate.e_lo` | algebra | 欄位 |
+| `EIrrCertificate.m` | algebra | 欄位 |
+| `EIrrCertificate.n` | algebra | 欄位 |
+| `EIrrCertificate.p` | algebra | 欄位 |
+| `EIrrCertificate.q` | algebra | 欄位 |
+| `EIrrCertificate.q_divides_m` | algebra | 欄位 |
+| `EIrrCertificate.scaled_hi` | algebra | 欄位 |
+| `EIrrCertificate.scaled_lo` | algebra | 欄位 |
+| `EIrrCertificate.tail_bound` | algebra | 欄位 |
+| `EIrrCertificate.verified` | algebra | 欄位 |
+| `EIrrCertificate::equal` | algebra | 函數 |
+| `EIrrCertificate::not_equal` | algebra | 函數 |
+| `EIrrCertificate::to_repr` | algebra | 函數 |
 | `LllReductionReport` | algebra | 結構 |
 | `LllReductionReport.reduced_basis` | algebra | 欄位 |
 | `LllReductionReport.size_reductions` | algebra | 欄位 |
@@ -3717,6 +3784,14 @@
 | `RealRootIsolation.multiplicity` | algebra | 欄位 |
 | `RealRootIsolation.polynomial` | algebra | 欄位 |
 | `RealRootIsolation.upper` | algebra | 欄位 |
+| `RefutationResult` | algebra | 結構 |
+| `RefutationResult.hi` | algebra | 欄位 |
+| `RefutationResult.lo` | algebra | 欄位 |
+| `RefutationResult.refuted` | algebra | 欄位 |
+| `RefutationResult.terms` | algebra | 欄位 |
+| `RefutationResult::equal` | algebra | 函數 |
+| `RefutationResult::not_equal` | algebra | 函數 |
+| `RefutationResult::to_repr` | algebra | 函數 |
 | `SplittingField` | algebra | 結構 |
 | `SplittingField.modulus` | algebra | 欄位 |
 | `SplittingField.roots` | algebra | 欄位 |
@@ -3769,6 +3844,8 @@
 | `biquad_sub` | algebra | 函數 |
 | `biquad_to_radical` | algebra | 函數 |
 | `biquad_zero` | algebra | 函數 |
+| `certified_e` | algebra | 函數 |
+| `certified_pi` | algebra | 函數 |
 | `check_biquadratic_denesting` | algebra | 函數 |
 | `check_complex_algebraic_closure_rouche` | algebra | 函數 |
 | `check_lll_lattice_and_van_hoeij_factor` | algebra | 函數 |
@@ -3780,6 +3857,7 @@
 | `check_radical_denesting` | algebra | 函數 |
 | `check_root_isolation` | algebra | 函數 |
 | `check_splitting_field` | algebra | 函數 |
+| `check_transcendental_boundary_layer` | algebra | 函數 |
 | `complex_alg_add` | algebra | 函數 |
 | `complex_alg_all_nth_roots` | algebra | 函數 |
 | `complex_alg_conj` | algebra | 函數 |
@@ -3796,6 +3874,11 @@
 | `complex_alg_roots_of` | algebra | 函數 |
 | `complex_alg_sub` | algebra | 函數 |
 | `complex_root_isolations_are_certified` | algebra | 函數 |
+| `e_irr_certificate_verify` | algebra | 函數 |
+| `e_irrationality_certificate` | algebra | 函數 |
+| `e_refute_rational` | algebra | 函數 |
+| `pi_refute_rational_refined` | algebra | 函數 |
+| `poly_nonzero_at_e` | algebra | 函數 |
 | `qcpx_hermitian_charpoly` | algebra | 函數 |
 | `qcpx_hermitian_eigenvalue_isolations` | algebra | 函數 |
 | `qmat_is_lll_reduced` | algebra | 函數 |
@@ -3819,7 +3902,6 @@
 | `radical_equal_algebraic` | algebra | 函數 |
 | `radical_equal_exact` | algebra | 函數 |
 | `radical_int` | algebra | 函數 |
-| `radical_rat` | algebra | 函數 |
 | `radical_simplify` | algebra | 函數 |
 | `radical_sqrt` | algebra | 函數 |
 | `radical_to_biquad` | algebra | 函數 |
@@ -3843,9 +3925,6 @@
 | 符號 | 套件 | 類別 |
 |---|---|---|
 | `DLevelDecl` | root | 列舉 |
-| `DLevelDecl::DLevelHit` | root | 構造子 |
-| `DLevelDecl::DLevelInductive` | root | 構造子 |
-| `DLevelDecl::DLevelTerm` | root | 構造子 |
 | `DLevelHitDecl` | root | 結構 |
 | `DLevelHitDecl.binders` | root | 欄位 |
 | `DLevelHitDecl.result_level` | root | 欄位 |
@@ -3980,10 +4059,6 @@
 | `dtype_operator_decl` | root | 函數 |
 | `eval_simultaneous_ir` | root | 函數 |
 | `extract_positive_functor` | root | 函數 |
-| `level_decl_hit` | root | 函數 |
-| `level_decl_inductive` | root | 函數 |
-| `level_decl_term` | root | 函數 |
-| `level_decl_validate` | root | 函數 |
 | `level_hit_decl_validate` | root | 函數 |
 | `level_identity_decl` | root | 函數 |
 | `level_inductive_decl_validate` | root | 函數 |
@@ -4022,8 +4097,6 @@
 | `DAdjointEquivParts` | root | 結構 |
 | `DAdjointEquivParts.equiv` | root | 欄位 |
 | `DAdjointEquivParts.triangle` | root | 欄位 |
-| `adjoint_equiv_make` | root | 函數 |
-| `adjoint_equiv_to_equiv` | root | 函數 |
 | `adjoint_equiv_type_term` | root | 函數 |
 | `adjoint_id_value` | root | 函數 |
 | `adjointify_equiv_value` | root | 函數 |
@@ -4042,7 +4115,6 @@
 | `equiv_triangle_type` | root | 函數 |
 | `equiv_with_improved_sect` | root | 函數 |
 | `fiber_type_term` | root | 函數 |
-| `identity_fibers_contractible_value` | root | 函數 |
 | `is_contr_type_term` | root | 函數 |
 | `prop_trunc_elim_prop_value` | root | 函數 |
 | `prop_trunc_point_value` | root | 函數 |
@@ -4135,7 +4207,6 @@
 | `pi2_s2_hopf_hom_value` | root | 函數 |
 | `pi2_s2_hopf_retract_sect_value` | root | 函數 |
 | `pi2_s2_type_value` | root | 函數 |
-| `pi3_sphere_point_term` | root | 函數 |
 | `pi3_sphere_type_term` | root | 函數 |
 | `sphere2_susp_loop1_to_loop2_value` | root | 函數 |
 | `sphere3_from_swapped_value` | root | 函數 |
@@ -4146,9 +4217,7 @@
 | `sphere3_swapped_schema` | root | 函數 |
 | `sphere3_swapped_sect_value` | root | 函數 |
 | `sphere3_swapped_south_value` | root | 函數 |
-| `sphere3_swapped_type_term` | root | 函數 |
 | `sphere3_to_swapped_value` | root | 函數 |
-| `sphere_degree_function_value` | root | 函數 |
 | `sphere_degree_value` | root | 函數 |
 | `sphere_loop_canonical_expr` | root | 函數 |
 | `sphere_loop_canonical_value` | root | 函數 |
@@ -4341,6 +4410,15 @@
 | `CompiledModuleStoreStats::equal` | root | 函數 |
 | `CompiledModuleStoreStats::not_equal` | root | 函數 |
 | `CompiledModuleStoreStats::to_repr` | root | 函數 |
+| `DiskState` | hostfs | 結構 |
+| `DiskState.durable_dirent` | hostfs | 欄位 |
+| `DiskState.durable_inode` | hostfs | 欄位 |
+| `DiskState.inode_at` | hostfs | 欄位 |
+| `DiskState.inode_content` | hostfs | 欄位 |
+| `DiskState.next_inode` | hostfs | 欄位 |
+| `DiskState::equal` | hostfs | 函數 |
+| `DiskState::not_equal` | hostfs | 函數 |
+| `DiskState::to_repr` | hostfs | 函數 |
 | `Ed25519Keypair` | root | 結構 |
 | `Ed25519Keypair.public_key` | root | 欄位 |
 | `Ed25519Keypair.seed` | root | 欄位 |
@@ -4357,6 +4435,43 @@
 | `Ed25519Signature::equal` | root | 函數 |
 | `Ed25519Signature::not_equal` | root | 函數 |
 | `Ed25519Signature::to_repr` | root | 函數 |
+| `HotLoadDecision` | root | 列舉 |
+| `HotLoadDecision::HotAdd` | root | 構造子 |
+| `HotLoadDecision::HotOpaqueSwap` | root | 構造子 |
+| `HotLoadDecision::HotReject` | root | 構造子 |
+| `HotLoadDecision::HotRelink` | root | 構造子 |
+| `HotLoadDecision::equal` | root | 函數 |
+| `HotLoadDecision::not_equal` | root | 函數 |
+| `HotLoadDecision::to_repr` | root | 函數 |
+| `HotLoadEnv` | root | 結構 |
+| `HotLoadEnv.epoch` | root | 欄位 |
+| `HotLoadEnv.history` | root | 欄位 |
+| `HotLoadEnv.modules` | root | 欄位 |
+| `HotLoadEnv::equal` | root | 函數 |
+| `HotLoadEnv::not_equal` | root | 函數 |
+| `HotLoadEnv::to_repr` | root | 函數 |
+| `HotLoadRecord` | root | 結構 |
+| `HotLoadRecord.epoch` | root | 欄位 |
+| `HotLoadRecord.interface_changed` | root | 欄位 |
+| `HotLoadRecord.path` | root | 欄位 |
+| `HotLoadRecord.reason` | root | 欄位 |
+| `HotLoadRecord.replacements` | root | 欄位 |
+| `HotLoadRecord.rolled_back` | root | 欄位 |
+| `HotLoadRecord::equal` | root | 函數 |
+| `HotLoadRecord::not_equal` | root | 函數 |
+| `HotLoadRecord::to_repr` | root | 函數 |
+| `HotLoadReport` | root | 結構 |
+| `HotLoadReport.accepted` | root | 欄位 |
+| `HotLoadReport.epoch_after` | root | 欄位 |
+| `HotLoadReport.epoch_before` | root | 欄位 |
+| `HotLoadReport.interface_changed` | root | 欄位 |
+| `HotLoadReport.reason` | root | 欄位 |
+| `HotLoadReport.replacements` | root | 欄位 |
+| `HotLoadReport.rolled_back` | root | 欄位 |
+| `HotLoadReport.stale` | root | 欄位 |
+| `HotLoadReport::equal` | root | 函數 |
+| `HotLoadReport::not_equal` | root | 函數 |
+| `HotLoadReport::to_repr` | root | 函數 |
 | `ModuleBinaryLoad` | root | 結構 |
 | `ModuleBinaryLoad.module_` | root | 欄位 |
 | `ModuleBinaryLoad.status` | root | 欄位 |
@@ -4417,6 +4532,13 @@
 | `ModuleTlvSection::equal` | root | 函數 |
 | `ModuleTlvSection::not_equal` | root | 函數 |
 | `ModuleTlvSection::to_repr` | root | 函數 |
+| `Recovery` | hostfs | 列舉 |
+| `Recovery::RecoveredAbsent` | hostfs | 構造子 |
+| `Recovery::RecoveredTorn` | hostfs | 構造子 |
+| `Recovery::RecoveredValue` | hostfs | 構造子 |
+| `Recovery::equal` | hostfs | 函數 |
+| `Recovery::not_equal` | hostfs | 函數 |
+| `Recovery::to_repr` | hostfs | 函數 |
 | `SharedDagBundle` | root | 結構 |
 | `SharedDagBundle.modules` | root | 欄位 |
 | `SharedDagBundle.registry` | root | 欄位 |
@@ -4426,6 +4548,17 @@
 | `SharedDagBundleLoad.reused_dag_nodes` | root | 欄位 |
 | `SharedDagBundleLoad.shared_term_entries` | root | 欄位 |
 | `SharedDagBundleLoad.status` | root | 欄位 |
+| `StoreOp` | hostfs | 列舉 |
+| `StoreOp::OpFsync` | hostfs | 構造子 |
+| `StoreOp::OpFsyncParent` | hostfs | 構造子 |
+| `StoreOp::OpLock` | hostfs | 構造子 |
+| `StoreOp::OpRename` | hostfs | 構造子 |
+| `StoreOp::OpUnlink` | hostfs | 構造子 |
+| `StoreOp::OpUnlock` | hostfs | 構造子 |
+| `StoreOp::OpWrite` | hostfs | 構造子 |
+| `StoreOp::equal` | hostfs | 函數 |
+| `StoreOp::not_equal` | hostfs | 函數 |
+| `StoreOp::to_repr` | hostfs | 函數 |
 | `abstract_point_module` | root | 函數 |
 | `artifact_byte_store_new` | root | 函數 |
 | `artifact_kind_compiled_module` | root | 函數 |
@@ -4476,9 +4609,11 @@
 | `artifact_wal_store_open` | root | 函數 |
 | `binary_negotiate_version` | root | 函數 |
 | `check_artifact_manifest_integrity_chain` | root | 函數 |
+| `check_durable_write_protocol` | hostfs | 函數 |
 | `check_module_binary_format` | root | 函數 |
 | `check_module_binary_versions_and_store` | root | 函數 |
 | `check_module_compilation` | root | 函數 |
+| `check_module_runtime_hot_loading` | root | 函數 |
 | `check_phase14_tlv_envelope_cas_and_incremental_sync` | root | 函數 |
 | `check_phase16_crypto_ed25519_and_wal` | root | 函數 |
 | `compiled_module_binary_format_version` | root | 函數 |
@@ -4518,9 +4653,26 @@
 | `crypto_sha256_hex` | root | 函數 |
 | `crypto_sha512` | root | 函數 |
 | `crypto_sha512_hex` | root | 函數 |
+| `disk_apply` | hostfs | 函數 |
+| `disk_recover` | hostfs | 函數 |
+| `disk_state_new` | hostfs | 函數 |
+| `durable_delete_protocol` | hostfs | 函數 |
+| `durable_write_protocol` | hostfs | 函數 |
 | `ed25519_keypair_from_seed` | root | 函數 |
 | `ed25519_sign` | root | 函數 |
 | `ed25519_verify` | root | 函數 |
+| `hot_load_apply` | root | 函數 |
+| `hot_load_consistent` | root | 函數 |
+| `hot_load_dependents` | root | 函數 |
+| `hot_load_env_epoch` | root | 函數 |
+| `hot_load_env_history` | root | 函數 |
+| `hot_load_env_modules` | root | 函數 |
+| `hot_load_env_new` | root | 函數 |
+| `hot_load_env_to_compiled` | root | 函數 |
+| `hot_load_instantiate` | root | 函數 |
+| `hot_load_plan` | root | 函數 |
+| `hot_load_signature` | root | 函數 |
+| `hot_load_stale_modules` | root | 函數 |
 | `module_build_dag_incremental` | root | 函數 |
 | `module_compile` | root | 函數 |
 | `module_compile_cache_lookup` | root | 函數 |
@@ -4537,8 +4689,15 @@
 | `module_topological_plan` | root | 函數 |
 | `point_client_module` | root | 函數 |
 | `point_implementation_module` | root | 函數 |
+| `protocol_deletes_on_completion` | hostfs | 函數 |
+| `protocol_durable_on_completion` | hostfs | 函數 |
+| `protocol_first_tear` | hostfs | 函數 |
+| `protocol_is_crash_consistent` | hostfs | 函數 |
 | `shared_dag_bundle_load_binary_report` | root | 函數 |
 | `shared_dag_bundle_to_binary` | root | 函數 |
+| `torn_write_protocol` | hostfs | 函數 |
+| `unacknowledged_delete_protocol` | hostfs | 函數 |
+| `unacknowledged_write_protocol` | hostfs | 函數 |
 
 ### 範疇化總檢
 
@@ -4736,25 +4895,21 @@
 | `dcube_cubes_conv_covering_report` | root | 函數 |
 | `dcube_cubes_conv_stratified` | root | 函數 |
 | `dcube_cubes_conv_stratified_report` | root | 函數 |
-| `dcube_degenerate` | root | 函數 |
 | `dcube_face` | root | 函數 |
 | `dcube_filler_faces_ok` | root | 函數 |
 | `dcube_filler_faces_ok_stratified` | root | 函數 |
 | `dcube_function` | root | 函數 |
 | `dcube_generic_dims` | root | 函數 |
 | `dcube_of_path` | root | 函數 |
-| `dcube_of_point` | root | 函數 |
 | `dcube_open_box` | root | 函數 |
 | `dcube_phf_5colors` | root | 函數 |
 | `dcube_yoneda_audit_report` | root | 函數 |
-| `poly_box_cap` | algebra | 函數 |
 | `poly_box_face` | algebra | 函數 |
 | `poly_box_face_of` | algebra | 函數 |
 | `poly_box_fill` | algebra | 函數 |
 | `poly_box_fill_verified` | algebra | 函數 |
 | `poly_box_filler_faces_ok` | algebra | 函數 |
 | `poly_box_validate` | algebra | 函數 |
-| `poly_cube` | algebra | 函數 |
 | `poly_cube_add` | algebra | 函數 |
 | `poly_cube_compose` | algebra | 函數 |
 | `poly_cube_const` | algebra | 函數 |
@@ -4762,7 +4917,6 @@
 | `poly_cube_eq` | algebra | 函數 |
 | `poly_cube_eval` | algebra | 函數 |
 | `poly_cube_face` | algebra | 函數 |
-| `poly_cube_identity` | algebra | 函數 |
 | `poly_cube_scale` | algebra | 函數 |
 | `poly_cube_sub` | algebra | 函數 |
 
@@ -4873,24 +5027,19 @@
 | `SearchStats.nodes` | symlib | 欄位 |
 | `analyze` | symlib | 函數 |
 | `analyze_m` | symlib | 函數 |
-| `arr_less` | symlib | 函數 |
 | `aut_functorial` | symlib | 函數 |
 | `aut_generators` | symlib | 函數 |
 | `aut_map` | symlib | 函數 |
 | `aut_on_line` | symlib | 函數 |
 | `aut_order` | symlib | 函數 |
-| `aut_order_decomposed` | symlib | 函數 |
 | `automorphism_group` | symlib | 函數 |
 | `automorphism_group_colored` | symlib | 函數 |
 | `automorphism_group_dual` | symlib | 函數 |
 | `canon_digest` | symlib | 函數 |
 | `canon_encoding` | symlib | 函數 |
-| `canon_encoding_dual` | symlib | 函數 |
 | `canonical_dual` | symlib | 函數 |
 | `canonical_form` | symlib | 函數 |
-| `canonical_form_decomposed` | symlib | 函數 |
 | `canonical_labeling` | symlib | 函數 |
-| `canonical_labeling_m` | symlib | 函數 |
 | `cmp_arr` | symlib | 函數 |
 | `colored_canonical_key` | symlib | 函數 |
 | `digest_from` | symlib | 函數 |
@@ -4902,20 +5051,14 @@
 | `impl Eq for Graph` | symlib | trait 實作 |
 | `impl Show for BitVec` | symlib | trait 實作 |
 | `impl Show for Graph` | symlib | trait 實作 |
-| `is_asymmetric` | symlib | 函數 |
 | `is_automorphism` | symlib | 函數 |
-| `is_colored_automorphism` | symlib | 函數 |
 | `is_dual_side` | symlib | 函數 |
-| `is_edge_transitive` | symlib | 函數 |
-| `is_vertex_transitive` | symlib | 函數 |
 | `isolated_count` | symlib | 函數 |
 | `isomorphic` | symlib | 函數 |
-| `isomorphic_colored` | symlib | 函數 |
 | `isomorphic_decomposed` | symlib | 函數 |
 | `isomorphic_dual` | symlib | 函數 |
 | `isomorphic_line` | symlib | 函數 |
 | `isomorphism` | symlib | 函數 |
-| `isomorphism_decomposed` | symlib | 函數 |
 | `isomorphism_dual` | symlib | 函數 |
 | `isomorphism_via_line` | symlib | 函數 |
 | `isomorphisms_m` | symlib | 函數 |
@@ -4924,8 +5067,6 @@
 | `labeling_perm` | symlib | 函數 |
 | `pack_bits` | symlib | 函數 |
 | `refine_colors` | symlib | 函數 |
-| `refine_equitable` | symlib | 函數 |
-| `search_bad_witness` | symlib | 函數 |
 | `search_graph` | symlib | 函數 |
 | `search_graph_colored` | symlib | 函數 |
 | `search_graph_flags` | symlib | 函數 |
@@ -5093,9 +5234,7 @@
 | `marks_cert` | symlib | 函數 |
 | `permset` | symlib | 函數 |
 | `permset_canon` | symlib | 函數 |
-| `permset_cert` | symlib | 函數 |
 | `permset_encoding` | symlib | 函數 |
-| `permset_isomorphic` | symlib | 函數 |
 | `subgroup_classes` | symlib | 函數 |
 | `table_of_marks` | symlib | 函數 |
 | `table_of_marks_formula` | symlib | 函數 |
@@ -5162,13 +5301,11 @@
 | `FoldedGraph::summary` | symlib | 函數 |
 | `FoldedGraph::to_repr` | symlib | 函數 |
 | `FoldedGraph::to_string` | symlib | 函數 |
-| `block_encoding_of` | symlib | 函數 |
 | `decomp_cert` | symlib | 函數 |
 | `decomp_key_equal` | symlib | 函數 |
 | `decompose` | symlib | 函數 |
 | `dual_cert` | symlib | 函數 |
 | `dual_cross_check` | symlib | 函數 |
-| `dual_digest` | symlib | 函數 |
 | `dual_pair` | symlib | 函數 |
 | `fold_candidates` | symlib | 函數 |
 | `fold_canonical` | symlib | 函數 |
@@ -5368,7 +5505,6 @@
 | `impl Debug for Cert` | symlib | trait 實作 |
 | `impl Debug for SymmetryReport` | symlib | trait 實作 |
 | `impl Show for SymmetryReport` | symlib | trait 實作 |
-| `int_rows_to_string` | symlib | 函數 |
 | `ints_to_string` | symlib | 函數 |
 | `lcg_step` | symlib | 函數 |
 | `prove_all` | symlib | 函數 |
@@ -5882,7 +6018,6 @@
 | `has_negative_cycle` | semiring-graph | 函數 |
 | `pareto_sssp` | semiring-graph | 函數 |
 | `total_labels` | semiring-graph | 函數 |
-| `widest_path` | semiring-graph | 函數 |
 
 ### 半環實驗室：樣條
 
@@ -5901,14 +6036,12 @@
 | `affine_steps` | semiring-spline | 函數 |
 | `bspline_basis` | semiring-spline | 函數 |
 | `cubic_pole` | semiring-spline | 函數 |
-| `eval_deboor` | semiring-spline | 函數 |
 | `interp_cubic_banded` | semiring-spline | 函數 |
 | `interp_cubic_dense` | semiring-spline | 函數 |
 | `interp_cubic_dense_open` | semiring-spline | 函數 |
 | `interp_cubic_periodic` | semiring-spline | 函數 |
 | `solve_banded` | semiring-spline | 函數 |
 | `solve_dense` | semiring-spline | 函數 |
-| `uniform_knots` | semiring-spline | 函數 |
 
 ### 半環實驗室：熱帶幾何
 
@@ -6040,7 +6173,6 @@
 | `dfa_equiv` | semiring-nf | 函數 |
 | `dfa_minimize` | semiring-nf | 函數 |
 | `dfa_of_regex` | semiring-nf | 函數 |
-| `dfa_reverse` | semiring-nf | 函數 |
 | `idempotent_identity_holds` | semiring-nf | 函數 |
 | `idempotent_identity_holds_via_dfa` | semiring-nf | 函數 |
 | `mono_cmp` | semiring-nf | 函數 |
@@ -6051,7 +6183,6 @@
 | `r_sum` | semiring-nf | 函數 |
 | `regex_cmp` | semiring-nf | 函數 |
 | `regex_equiv` | semiring-nf | 函數 |
-| `regex_state_count` | semiring-nf | 函數 |
 | `rx_accepts` | semiring-nf | 函數 |
 | `sexpr_to_regex` | semiring-nf | 函數 |
 
@@ -6084,18 +6215,15 @@
 | `SetMat::add` | semiring-cat | 函數 |
 | `SetMat::get` | semiring-cat | 函數 |
 | `SetMat::new` | semiring-cat | 函數 |
-| `argmin_k` | semiring-cat | 函數 |
 | `decategorify` | semiring-cat | 函數 |
 | `dequant_error` | semiring-cat | 函數 |
 | `dequantize` | semiring-cat | 函數 |
 | `dequantize_naive` | semiring-cat | 函數 |
 | `dequantized_mul` | semiring-cat | 函數 |
-| `distinct_witnesses` | semiring-cat | 函數 |
 | `max_abs_diff` | semiring-cat | 函數 |
 | `minplus_mul` | semiring-cat | 函數 |
 | `smat_mul` | semiring-cat | 函數 |
 | `smat_plus` | semiring-cat | 函數 |
-| `witness_equal` | semiring-cat | 函數 |
 
 ### 半環實驗室：代數路徑問題
 
@@ -6118,13 +6246,10 @@
 | `Verdict.winner_us` | semiring-app | 欄位 |
 | `app_bool` | semiring-app | 函數 |
 | `app_closure` | semiring-app | 函數 |
-| `app_counts` | semiring-app | 函數 |
 | `app_minplus` | semiring-app | 函數 |
-| `app_mostlikely` | semiring-app | 函數 |
 | `app_widest` | semiring-app | 函數 |
 | `build` | semiring-app | 函數 |
 | `consensus_trop` | semiring-app | 函數 |
-| `most_likely_bruteforce` | semiring-app | 函數 |
 | `reach_bfs` | semiring-app | 函數 |
 | `shortest_fw` | semiring-app | 函數 |
 | `widest_fw` | semiring-app | 函數 |
@@ -6151,12 +6276,10 @@
 | `FactorGraph.factors` | semiring-bp | 欄位 |
 | `FactorGraph.nvar` | semiring-bp | 欄位 |
 | `bp_marginals` | semiring-bp | 函數 |
-| `brute_force_max_product` | semiring-bp | 函數 |
 | `brute_force_sum_product` | semiring-bp | 函數 |
 | `decode_assign` | semiring-bp | 函數 |
 | `factor_size` | semiring-bp | 函數 |
 | `is_tree` | semiring-bp | 函數 |
-| `marginals_max_product` | semiring-bp | 函數 |
 | `marginals_sum_product` | semiring-bp | 函數 |
 | `table_index` | semiring-bp | 函數 |
 | `total_assignments` | semiring-bp | 函數 |
@@ -6325,7 +6448,6 @@
 | `par_for` | semiring-par | 函數 |
 | `par_map_chunks` | semiring-par | 函數 |
 | `par_scan` | semiring-par | 函數 |
-| `par_sum` | semiring-par | 函數 |
 | `scan_depth` | semiring-par | 函數 |
 | `scan_sequential` | semiring-par | 函數 |
 | `shard_io_bench` | semiring-par | 函數 |
@@ -6342,33 +6464,6 @@
 | `is_host_backend` | semiring-par-host | 函數 |
 | `par_for` | semiring-par-host | 函數 |
 | `shard_io_bench` | semiring-par-host | 函數 |
-
-### 半環實驗室：範例
-
-- 規範形式：可編譯教學範例的輸出值
-- 範疇化：半環支柱各構造的具體見證
-- 判定：範例白盒測試
-
-| 符號 | 套件 | 類別 |
-|---|---|---|
-| `example_aggregates` | semiring-examples | 函數 |
-| `example_app_five_semirings` | semiring-examples | 函數 |
-| `example_belief` | semiring-examples | 函數 |
-| `example_blocking` | semiring-examples | 函數 |
-| `example_counting_paths` | semiring-examples | 函數 |
-| `example_csr` | semiring-examples | 函數 |
-| `example_float_minplus` | semiring-examples | 函數 |
-| `example_free_category` | semiring-examples | 函數 |
-| `example_min_dfa_states` | semiring-examples | 函數 |
-| `example_parallel` | semiring-examples | 函數 |
-| `example_pareto` | semiring-examples | 函數 |
-| `example_ratelimit` | semiring-examples | 函數 |
-| `example_regex_equiv` | semiring-examples | 函數 |
-| `example_shortest_path` | semiring-examples | 函數 |
-| `example_spline` | semiring-examples | 函數 |
-| `example_tropical_curve` | semiring-examples | 函數 |
-| `example_tropical_det` | semiring-examples | 函數 |
-| `example_tropical_roots` | semiring-examples | 函數 |
 
 ### 半環實驗室：量測報告
 
@@ -6556,7 +6651,6 @@
 | `cat_opposite` | topos | 函數 |
 | `cat_satisfies_right_ore` | topos | 函數 |
 | `enumerate_matching_families` | topos | 函數 |
-| `is_matching_family` | topos | 函數 |
 | `presheaf_are_isomorphic` | topos | 函數 |
 | `presheaf_coequalizer` | topos | 函數 |
 | `presheaf_constant_raw` | topos | 函數 |
@@ -6566,7 +6660,6 @@
 | `presheaf_hom_enumerate` | topos | 函數 |
 | `presheaf_hom_eq` | topos | 函數 |
 | `presheaf_hom_id` | topos | 函數 |
-| `presheaf_hom_is_epi_presheaf` | topos | 函數 |
 | `presheaf_hom_is_iso` | topos | 函數 |
 | `presheaf_hom_is_mono` | topos | 函數 |
 | `presheaf_hom_is_natural` | topos | 函數 |
@@ -6697,7 +6790,6 @@
 | `inverse_image_sheaf` | topos | 函數 |
 | `is_atom_sheaf` | topos | 函數 |
 | `is_covariant_point_functor` | topos | 函數 |
-| `is_cover_preserving_functor` | topos | 函數 |
 | `is_diaconescu_point` | topos | 函數 |
 | `is_flat_point_functor` | topos | 函數 |
 | `point_skyscraper_sheaf` | topos | 函數 |
@@ -6788,7 +6880,6 @@
 | `is_valid_subpresheaf` | topos | 函數 |
 | `kripke_joyal_forces` | topos | 函數 |
 | `model_satisfies_sequent` | topos | 函數 |
-| `model_satisfies_theory` | topos | 函數 |
 | `subpresheaf_exists` | topos | 函數 |
 | `subpresheaf_forall` | topos | 函數 |
 | `subpresheaf_pullback` | topos | 函數 |
@@ -6857,7 +6948,6 @@
 | `SimplicialNerve.num_vertices` | topos | 欄位 |
 | `SimplicialNerve.tetrahedra` | topos | 欄位 |
 | `SimplicialNerve.triangles` | topos | 欄位 |
-| `abelian_presheaf_constant_q` | topos | 函數 |
 | `boundary_simplex_nerve` | topos | 函數 |
 | `build_circle_z2_torsor_stack` | topos | 函數 |
 | `canonical_descent_datum` | topos | 函數 |
@@ -6869,12 +6959,9 @@
 | `compute_nerve_homotopy_type` | topos | 函數 |
 | `descent_data_isomorphic` | topos | 函數 |
 | `groupoid_of_fincat` | topos | 函數 |
-| `is_valid_abelian_presheaf` | topos | 函數 |
-| `is_valid_groupoid` | topos | 函數 |
 | `nerve_constant_cochain_complex_q` | topos | 函數 |
 | `rect_qmat_id` | topos | 函數 |
 | `rect_qmat_zero` | topos | 函數 |
-| `roos_site_cochain_complex` | topos | 函數 |
 | `rp2_minimal_nerve` | topos | 函數 |
 | `verify_descent_cocycle` | topos | 函數 |
 | `verify_euler_poincare` | topos | 函數 |
@@ -6970,17 +7057,14 @@
 | `ideal_is_unit` | scheme | 函數 |
 | `ideal_is_zero` | scheme | 函數 |
 | `ideal_krull_dimension` | scheme | 函數 |
-| `ideal_mul` | scheme | 函數 |
 | `ideal_new` | scheme | 函數 |
 | `ideal_normal_form` | scheme | 函數 |
-| `ideal_quotient` | scheme | 函數 |
 | `ideal_quotient_poly` | scheme | 函數 |
 | `ideal_quotient_vector_space_dim` | scheme | 函數 |
 | `ideal_radical` | scheme | 函數 |
 | `ideal_radical_contains` | scheme | 函數 |
 | `ideal_saturate` | scheme | 函數 |
 | `ideal_standard_monomials` | scheme | 函數 |
-| `ideal_subset` | scheme | 函數 |
 | `monomial_cmp` | scheme | 函數 |
 | `mpoly_add` | scheme | 函數 |
 | `mpoly_const` | scheme | 函數 |
@@ -7050,7 +7134,6 @@
 | `RingHom::not_equal` | scheme | 函數 |
 | `RingHom::to_repr` | scheme | 函數 |
 | `affine_is_reduced` | scheme | 函數 |
-| `affine_nilpotent_witness` | scheme | 函數 |
 | `affine_reduction` | scheme | 函數 |
 | `affine_scheme` | scheme | 函數 |
 | `coord_ring_eq` | scheme | 函數 |
@@ -7061,13 +7144,11 @@
 | `localize_quasicoherent_module` | scheme | 函數 |
 | `localized_section_eq` | scheme | 函數 |
 | `principal_open_subset` | scheme | 函數 |
-| `restrict_localized_section` | scheme | 函數 |
 | `ring_hom_apply` | scheme | 函數 |
 | `ring_hom_compose` | scheme | 函數 |
 | `ring_hom_id` | scheme | 函數 |
 | `ring_hom_is_surjective` | scheme | 函數 |
 | `ring_hom_is_valid` | scheme | 函數 |
-| `ring_hom_kernel` | scheme | 函數 |
 | `solve_ideal_linear_combination` | scheme | 函數 |
 | `verify_affine_reduction_universal_property` | scheme | 函數 |
 
@@ -7120,8 +7201,6 @@
 | `analyze_scheme_properness` | scheme | 函數 |
 | `global_sections_dimension_upto_deg` | scheme | 函數 |
 | `is_affine_morphism` | scheme | 函數 |
-| `is_proper_morphism` | scheme | 函數 |
-| `is_proper_scheme` | scheme | 函數 |
 | `is_separated_scheme` | scheme | 函數 |
 | `laurent_add` | scheme | 函數 |
 | `laurent_const` | scheme | 函數 |
@@ -7131,23 +7210,19 @@
 | `laurent_monomial` | scheme | 函數 |
 | `laurent_mul` | scheme | 函數 |
 | `laurent_sub` | scheme | 函數 |
-| `morphism_closed_immersion_in_projective_space` | scheme | 函數 |
 | `morphism_hopf_punctured_plane_to_p1` | scheme | 函數 |
 | `morphism_punctured_plane_to_a2` | scheme | 函數 |
 | `morphism_to_spec_q` | scheme | 函數 |
 | `mpoly_eval_laurent` | scheme | 函數 |
 | `scheme_affine_space` | scheme | 函數 |
 | `scheme_doubled_origin_line` | scheme | 函數 |
-| `scheme_fat_point` | scheme | 函數 |
 | `scheme_from_affine` | scheme | 函數 |
-| `scheme_is_reduced` | scheme | 函數 |
 | `scheme_is_valid` | scheme | 函數 |
 | `scheme_morphism_compose` | scheme | 函數 |
 | `scheme_morphism_is_valid` | scheme | 函數 |
 | `scheme_projective_space` | scheme | 函數 |
 | `scheme_projective_subscheme` | scheme | 函數 |
 | `scheme_punctured_plane` | scheme | 函數 |
-| `scheme_reduction` | scheme | 函數 |
 | `valuative_extension_classes_for_arc` | scheme | 函數 |
 
 ### 概形：有理等價、對偶複形、點函子法與動機範疇化
@@ -7224,7 +7299,6 @@
 | `eval_scheme_functor_of_points` | scheme | 函數 |
 | `fcomm_dual_numbers` | scheme | 函數 |
 | `fcomm_fp` | scheme | 函數 |
-| `fcomm_product` | scheme | 函數 |
 | `finite_ring_hom_is_valid` | scheme | 函數 |
 | `mpoly_eval_finite_ring` | scheme | 函數 |
 | `p1_correspondence_bidegree` | scheme | 函數 |
@@ -7238,7 +7312,6 @@
 | `verify_motivic_p1_categorification` | scheme | 函數 |
 | `verify_serre_duality_and_riemann_roch_p1` | scheme | 函數 |
 | `verify_serre_duality_p2` | scheme | 函數 |
-| `weil_divisor_p1_add` | scheme | 函數 |
 | `weil_divisor_p1_degree` | scheme | 函數 |
 | `weil_divisor_p1_normalize` | scheme | 函數 |
 | `weil_divisor_p1_sub` | scheme | 函數 |
@@ -7268,7 +7341,6 @@
 | `affine_is_smooth` | scheme | 函數 |
 | `affine_jacobian_ideal` | scheme | 函數 |
 | `affine_kahler_differentials` | scheme | 函數 |
-| `affine_singular_locus_ideal` | scheme | 函數 |
 | `affine_tjurina_number` | scheme | 函數 |
 | `blowup_plane_curve_at_origin` | scheme | 函數 |
 | `fcomm_fp2` | scheme | 函數 |
@@ -7363,7 +7435,6 @@
 | `verify_dependent_cubical_topos_bridge` | bridge | 函數 |
 | `verify_excision_subtopos_blowup_bridge` | bridge | 函數 |
 | `verify_five_federation_pentagon_unification` | bridge | 函數 |
-| `verify_geometry_logic_atlas` | bridge | 函數 |
 | `verify_glivenko_topos_subtopos_bridge` | bridge | 函數 |
 | `verify_k5_federation_bridges` | bridge | 函數 |
 | `verify_kapranov_tropical_laurent_bridge` | bridge | 函數 |

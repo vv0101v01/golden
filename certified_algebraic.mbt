@@ -25,9 +25,6 @@ pub struct AlgC {
 }
 
 ///|
-pub fn algc_make(re : AlgNum, im : AlgNum) -> AlgC {
-  AlgC::{ re, im, }
-}
 
 ///|
 pub fn algc_zero(modulus : QPoly) -> AlgC {
@@ -60,14 +57,6 @@ pub fn algc_add(a : AlgC, b : AlgC) -> AlgC {
 }
 
 ///|
-pub fn algc_neg(a : AlgC) -> AlgC {
-  AlgC::{ re: alg_neg(a.re), im: alg_neg(a.im), }
-}
-
-///|
-pub fn algc_sub(a : AlgC, b : AlgC) -> AlgC {
-  algc_add(a, algc_neg(b))
-}
 
 ///|
 pub fn algc_mul(a : AlgC, b : AlgC) -> AlgC {
@@ -93,9 +82,6 @@ pub fn algc_eq(a : AlgC, b : AlgC) -> Bool {
 }
 
 ///|
-pub fn algc_is_zero(a : AlgC) -> Bool {
-  alg_is_zero(a.re) && alg_is_zero(a.im)
-}
 
 ///|
 pub type AlgCertVec = Array[AlgC]
@@ -107,13 +93,6 @@ pub struct AlgCertMat {
 }
 
 ///|
-pub fn alg_cert_vec_add(a : AlgCertVec, b : AlgCertVec) -> AlgCertVec {
-  let out : AlgCertVec = []
-  for i in 0..<a.length() {
-    out.push(algc_add(a[i], b[i]))
-  }
-  out
-}
 
 ///|
 pub fn alg_cert_vec_scale(c : AlgC, a : AlgCertVec) -> AlgCertVec {
@@ -148,9 +127,6 @@ pub fn alg_cert_inner(modulus : QPoly, a : AlgCertVec, b : AlgCertVec) -> AlgC {
 }
 
 ///|
-pub fn alg_cert_mat_from_rows(rows : Array[Array[AlgC]]) -> AlgCertMat {
-  AlgCertMat::{ n: rows.length(), rows, }
-}
 
 ///|
 pub fn alg_cert_mat_vec(a : AlgCertMat, v : AlgCertVec) -> AlgCertVec {

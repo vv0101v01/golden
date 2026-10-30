@@ -12,19 +12,19 @@
 // ============================================================================
 
 ///|
-fn u32_rotr(x : UInt, n : Int) -> UInt {
+fn u32_rotr(x : UInt32, n : Int32) -> UInt32 {
   (x >> n) | (x << (32 - n))
 }
 
 ///|
-fn u64_rotr(x : UInt64, n : Int) -> UInt64 {
+fn u64_rotr(x : UInt64, n : Int32) -> UInt64 {
   (x >> n) | (x << (64 - n))
 }
 
 ///|
 /// FIPS 180-4 SHA-256 digest returning 32 big-endian bytes (`0..255`).
 pub fn crypto_sha256(msg : Array[Int32]) -> Array[Int32] {
-  let k : Array[UInt] = [
+  let k : Array[UInt32] = [
     0x428a2f98U, 0x71374491U, 0xb5c0fbcfU, 0xe9b5dba5U, 0x3956c25bU, 0x59f111f1U,
     0x923f82a4U, 0xab1c5ed5U, 0xd807aa98U, 0x12835b01U, 0x243185beU, 0x550c7dc3U,
     0x72be5d74U, 0x80deb1feU, 0x9bdc06a7U, 0xc19bf174U, 0xe49b69c1U, 0xefbe4786U,
@@ -61,7 +61,7 @@ pub fn crypto_sha256(msg : Array[Int32]) -> Array[Int32] {
   }
   let mut offset = 0
   while offset < padded.length() {
-    let w : Array[UInt] = []
+    let w : Array[UInt32] = []
     for i in 0..<16 {
       let idx = offset + i * 4
       let b0 = padded[idx].reinterpret_as_uint()
@@ -194,9 +194,7 @@ pub fn crypto_sha512(msg : Array[Int32]) -> Array[Int32] {
       let s0 = u64_rotr(w[i - 15], 1) ^
         u64_rotr(w[i - 15], 8) ^
         (w[i - 15] >> 7)
-      let s1 = u64_rotr(w[i - 2], 19) ^
-        u64_rotr(w[i - 2], 61) ^
-        (w[i - 2] >> 6)
+      let s1 = u64_rotr(w[i - 2], 19) ^ u64_rotr(w[i - 2], 61) ^ (w[i - 2] >> 6)
       w.push(w[i - 16] + s0 + w[i - 7] + s1)
     }
     let mut a = h0
@@ -376,7 +374,7 @@ fn ed_recover_x(y : BigInt, sign : Int32, p : BigInt, d : BigInt) -> BigInt? {
 
 ///|
 fn ed_zero_point() -> EdPoint {
-  EdPoint::{ x: 0N, y: 1N, z: 1N, t: 0N }
+  EdPoint::{ x: 0N, y: 1N, z: 1N, t: 0N, }
 }
 
 ///|
@@ -386,11 +384,16 @@ fn ed_base_point(p : BigInt, d : BigInt) -> EdPoint {
     Some(v) => v
     None => 0N
   }
-  EdPoint::{ x: bx, y: by, z: 1N, t: bx * by % p }
+  EdPoint::{ x: bx, y: by, z: 1N, t: bx * by % p, }
 }
 
 ///|
-fn ed_point_add(a : EdPoint, b : EdPoint, p : BigInt, two_d : BigInt) -> EdPoint {
+fn ed_point_add(
+  a : EdPoint,
+  b : EdPoint,
+  p : BigInt,
+  two_d : BigInt,
+) -> EdPoint {
   let ca = ed_mod(a.y - a.x, p) * ed_mod(b.y - b.x, p) % p
   let cb = (a.y + a.x) % p * ((b.y + b.x) % p) % p
   let cc = a.t * two_d % p * b.t % p
@@ -399,12 +402,7 @@ fn ed_point_add(a : EdPoint, b : EdPoint, p : BigInt, two_d : BigInt) -> EdPoint
   let cf = ed_mod(cd - cc, p)
   let cg = (cd + cc) % p
   let ch = (cb + ca) % p
-  EdPoint::{
-    x: ce * cf % p,
-    y: cg * ch % p,
-    z: cf * cg % p,
-    t: ce * ch % p,
-  }
+  EdPoint::{ x: ce * cf % p, y: cg * ch % p, z: cf * cg % p, t: ce * ch % p, }
 }
 
 ///|
@@ -462,13 +460,17 @@ fn ed_point_decode(enc : Array[Int32], p : BigInt, d : BigInt) -> EdPoint? {
   }
   let sign = (enc[31] >> 7) & 1
   match ed_recover_x(y, sign, p, d) {
-    Some(x) => Some(EdPoint::{ x, y, z: 1N, t: x * y % p })
+    Some(x) => Some(EdPoint::{ x, y, z: 1N, t: x * y % p, })
     None => None
   }
 }
 
 ///|
-fn le_bytes_to_bigint(bytes : Array[Int32], start : Int32, len : Int32) -> BigInt {
+fn le_bytes_to_bigint(
+  bytes : Array[Int32],
+  start : Int32,
+  len : Int32,
+) -> BigInt {
   let mut acc = 0N
   for i in 0..<len {
     let b = bytes[start + i] & 0xff
@@ -524,7 +526,7 @@ pub fn ed25519_keypair_from_seed(seed : Array[Int32]) -> Ed25519Keypair? {
       }
       Some(Ed25519Keypair::{
         seed: seed_copy,
-        public_key: Ed25519PublicKey::{ bytes: pk_bytes },
+        public_key: Ed25519PublicKey::{ bytes: pk_bytes, },
       })
     }
     None => None
@@ -580,7 +582,7 @@ pub fn ed25519_sign(
   for b in s_enc {
     sig.push(b)
   }
-  Some(Ed25519Signature::{ bytes: sig })
+  Some(Ed25519Signature::{ bytes: sig, })
 }
 
 ///|
@@ -961,10 +963,7 @@ fn wal_decode_payload(payload : Array[Int32]) -> (Int32, Array[WalOp])? {
 fn wal_apply_ops(backing : ArtifactByteStore, ops : Array[WalOp]) -> Bool {
   for op in ops {
     match op {
-      WalPut(k, bytes) =>
-        if !(backing.write)(k, bytes) {
-          return false
-        }
+      WalPut(k, bytes) => if !(backing.write)(k, bytes) { return false }
       WalDel(k) => ignore((backing.remove)(k))
     }
   }

@@ -52,9 +52,6 @@ pub fn quad_to_double(x : QuadNum) -> Double {
 }
 
 ///|
-pub fn qcc_make(re : QuadNum, im : QuadNum) -> QuadC {
-  QuadC::{ re, im, }
-}
 
 ///|
 pub fn qcc_zero() -> QuadC {
@@ -107,11 +104,6 @@ pub fn qcc_mul(a : QuadC, b : QuadC) -> QuadC {
 ///|
 pub fn qcc_conj(a : QuadC) -> QuadC {
   QuadC::{ re: a.re, im: quad_neg(a.im), }
-}
-
-///|
-pub fn qcc_scale_quad(c : QuadNum, a : QuadC) -> QuadC {
-  QuadC::{ re: quad_mul(c, a.re), im: quad_mul(c, a.im), }
 }
 
 ///|
@@ -174,15 +166,6 @@ pub fn cert_vec_scale(c : QuadC, a : CertVec) -> CertVec {
   let out : CertVec = []
   for i in 0..<a.length() {
     out.push(qcc_mul(c, a[i]))
-  }
-  out
-}
-
-///|
-pub fn cert_vec_scale_quad(c : QuadNum, a : CertVec) -> CertVec {
-  let out : CertVec = []
-  for i in 0..<a.length() {
-    out.push(qcc_scale_quad(c, a[i]))
   }
   out
 }
@@ -294,15 +277,6 @@ pub fn cert_mat_adjoint(a : CertMat) -> CertMat {
 }
 
 ///|
-pub fn cert_mat_scale_quad(c : QuadNum, a : CertMat) -> CertMat {
-  let rows : Array[Array[QuadC]] = []
-  for i in 0..<a.n {
-    rows.push(cert_vec_scale_quad(c, a.rows[i]))
-  }
-  CertMat::{ n: a.n, rows, }
-}
-
-///|
 pub fn cert_mat_eq(a : CertMat, b : CertMat) -> Bool {
   if a.n != b.n {
     return false
@@ -339,13 +313,6 @@ pub fn cert_outer(v : CertVec) -> CertMat {
 
 ///|
 /// The exact rank-one orthogonal projector `vv†/(v†v)`.
-pub fn cert_projector_of_vector(v : CertVec) -> CertMat? {
-  let norm = cert_inner(v, v).re
-  match quad_inv(norm) {
-    Some(inv) => Some(cert_mat_scale_quad(inv, cert_outer(v)))
-    None => None
-  }
-}
 
 ///|
 pub fn cert_complement(p : CertMat) -> CertMat {
@@ -449,9 +416,6 @@ fn cert_path_make(coeffs : Array[CertVec]) -> CertPath {
 }
 
 ///|
-pub fn cert_path_const(v : CertVec) -> CertPath {
-  cert_path_make([v])
-}
 
 ///|
 pub fn cert_path_line(a : CertVec, b : CertVec) -> CertPath {
@@ -600,16 +564,6 @@ pub fn cert_square_face(s : CertSquare, face : Int32) -> CertPath {
 }
 
 ///|
-pub fn cert_square_eq(a : CertSquare, b : CertSquare) -> Bool {
-  for i in 0..<3 {
-    for j in 0..<3 {
-      if !cert_vec_eq(a.coeffs[i][j], b.coeffs[i][j]) {
-        return false
-      }
-    }
-  }
-  true
-}
 
 ///|
 /// Apply a linear map to every polynomial coefficient.  For a
@@ -735,13 +689,6 @@ pub fn cert_mat_to_numeric(a : CertMat) -> CMat {
 }
 
 ///|
-pub fn cert_vec_to_numeric(v : CertVec) -> CVec {
-  let out : CVec = []
-  for i in 0..<v.length() {
-    out.push(qcc_to_complex(v[i]))
-  }
-  out
-}
 
 ///|
 /// Maximum entrywise deviation, measured in the max norm on real and

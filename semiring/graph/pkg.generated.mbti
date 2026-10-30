@@ -23,8 +23,6 @@ pub fn pareto_sssp(Graph, Int32, max_rounds? : Int32, ops? : @algebra.Ops) -> (A
 
 pub fn total_labels(Array[@algebra.ParetoSet]) -> Int32
 
-pub fn widest_path(Graph, Int32) -> Array[Int32]
-
 // Errors
 
 // Types and methods

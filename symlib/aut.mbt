@@ -39,24 +39,7 @@ pub fn edge_orbits(g : Graph) -> (Array[(Int32, Int32)], Array[Int32]) {
 }
 
 ///|
-/// 是否頂點可遷（單軌道：所有頂點對稱等价）。
-pub fn is_vertex_transitive(g : Graph) -> Bool {
-  let n = g.order()
-  n > 0 && automorphism_group(g).is_transitive()
-}
-
-///|
-/// 是否非對稱圖（|Aut| = 1：除恆等外無自同構）。
-pub fn is_asymmetric(g : Graph) -> Bool {
-  automorphism_group(g).order() == 1L
-}
-
-///|
 /// 是否邊可遷（邊軌道數 = 1）。
-pub fn is_edge_transitive(g : Graph) -> Bool {
-  let (reps, _) = edge_orbits(g)
-  reps.length() <= 1
-}
 
 ///|
 /// 有色圖的保色自同構群。`colors` 的等值類是剛性的：
@@ -71,16 +54,3 @@ pub fn automorphism_group_colored(
 
 ///|
 /// 有色圖的保色自同構驗證。
-pub fn is_colored_automorphism(
-  g : Graph,
-  colors : Array[Int32],
-  s : Perm,
-) -> Bool {
-  guard colors.length() == g.order() && is_automorphism(g, s) else {
-    return false
-  }
-  for i in 0..<g.order() {
-    guard colors[s.apply(i)] == colors[i] else { return false }
-  }
-  true
-}

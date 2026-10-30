@@ -133,34 +133,4 @@ pub fn decategorify(m : SetMat) -> @mat.Mat[@alg.Counting] {
 }
 
 ///|
-/// 兩條路徑是否為同一個見證（用於偵測重複計數）。
-pub fn witness_equal(a : Array[Int32], b : Array[Int32]) -> Bool {
-  if a.length() != b.length() {
-    return false
-  }
-  for i in 0..<a.length() {
-    if a[i] != b[i] {
-      return false
-    }
-  }
-  true
-}
-
-///|
 /// 見證清單去重後的大小（若 `smat_mul` 產生重複，這裡會抓出來）。
-pub fn distinct_witnesses(ws : Array[Array[Int32]]) -> Int32 {
-  let uniq : Array[Array[Int32]] = []
-  for w in ws {
-    let mut seen = false
-    for u in uniq {
-      if witness_equal(u, w) {
-        seen = true
-        break
-      }
-    }
-    if !seen {
-      uniq.push(w)
-    }
-  }
-  uniq.length()
-}

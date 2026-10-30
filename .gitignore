@@ -1,7 +1,4 @@
-.DS_Store
 _build/
-target/
 .mooncakes/
-.moonagent/
-__pycache__/
-*.py[cod]
+*.exe
+.DS_Store

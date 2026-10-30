@@ -36,7 +36,7 @@
   sifting/cache、watched-literal DPLL 與 sparse/Karatsuba `QPoly` 乘法；
 - `SPEC.md`/`SPEC.en.md` 與雙語附錄對全部型別、算子、規格、結構逐符號
   給出規範形式與範疇化；五聯邦大一統後附錄共 **6,484 個符號**，cubical 支柱的
-  規格登記為 **127 條**；
+  規格登記為 **135 條**；
 - cubical 支柱的實體套件子圖 `cmd/main → root → algebra` 與其 13 個邏輯元件，
   現與其餘四大聯邦（`symlib`、`semiring`、`topos`、`scheme`）及 `bridge`/apps 合共
   **27 套件／36 元件**，由同一 `architecture.json`/`tools/arch_check.py` 管制。
@@ -46,7 +46,7 @@
 ```text
 moon check --deny-warn --target wasm-gc     # 全專案通過且零警告
 moon test --release --target wasm-gc        # 全倉精煉 L8 測試 15/15（覆蓋五聯邦＋大一統＋第十六期與健檢回歸）
-moon run --release cmd/main --target wasm-gc      # 116 項定理登記表，期望 116/116
+moon run --release cmd/main --target wasm-gc      # 124 項定理登記表，期望 124/124
 moon run --release cmd/showcase --target wasm-gc  # 五聯邦大一統證書，期望 42/42
 python3 tools/arch_check.py                 # 五聯邦依賴層級、唯一檔案歸位與計數
 moon info && python3 tools/audit_spec.py --check
@@ -370,7 +370,7 @@ point、PathP 或巢狀 PathP square，端點由低維 face 的消去值給出�
 | 第十一期收束 | 跨家族函子／同時 IR 編譯、Face 合意與精確修復、lemIso 一般點、CHREGBIN＋hash-consing、圖樣剪枝／雙二次去巢、不透明立方／最佳序／CDCL、圓 encode/decode、模組交錯與 v2 遷移 | `schema_functor.mbt`, `dcube_filler.mbt`, `dterm_intern.mbt`, `schema_registry_persist.mbt`, `algebra/biquad_denest.mbt`, `algebra/poly_cube.mbt`, `circle_classify.mbt`, `phase11_laws.mbt` |
 | 第十三期收束 | SelfFamily 正性不動點／foreign 巢狀 IH 函子映射、相關維度下降／最大相容補入、差異導引 Bool 切分／驗證方塊帽、CHDAGBIN 共圖／CHARTCHN 完整性鏈、聯合不可約證書／四生成元多二次塔／自適應 Jacobi、n≤16 精確序／DRUP／Tier D、逆元結合律 3-胞／閉代表式分類、HOU 殘差求解器 | `schema_positivity.mbt`, `dsystem_compat.mbt`, `conv_case_split.mbt`, `dterm_dag_binary.mbt`, `algebra/multiquad_tower.mbt`, `phase13_laws.mbt` |
 | 第十二期收束 | 同規格自嵌／正性宣告、同時 IR eliminator 編譯、結構合意與補入、Bool case-split 與路徑值 comp、artifact 儲存庫／DAG codec／版本協商、不可約證書／三次三二次塔／簇感知 Jacobi、子集 DP 序／CDCL 刪除＋RUP、分層外延、單位律 3-胞／精確 Hopf、HOU 三態 MGU | `schema_phase9.mbt`, `schema_positivity.mbt`, `conv_case_split.mbt`, `artifact_repository.mbt`, `algebra/qpoly_certificate.mbt`, `algebra/tower_fields.mbt`, `phase12_laws.mbt` |
-| 套件與依賴治理 | `cmd/main → root → algebra`、13 元件、禁止向上邊 | `architecture.json`, `tools/arch_check.py`, `ARCHITECTURE.md` |
+| 套件與依賴治理 | `cmd/main → root → algebra`、17 元件、禁止向上邊 | `architecture.json`, `tools/arch_check.py`, `ARCHITECTURE.md` |
 | 規格範形登記 | cubical 101 條目＋全倉 5,054 雙語附錄符號＋多套件審計 | `spec.mbt`, `SPEC*.md`, `SPEC-APPENDIX*.md`, `tools/audit_spec.py` |
 
 ## 檔案地圖
@@ -426,9 +426,9 @@ algebra/phase14_algebra.mbt / phase14_laws.mbt / phase15_laws.mbt
                               Hensel 因式分解證書、實代數根式與區塊 Jacobi；第十四／十五期律束
 algebra/phase16_algebra.mbt / artifact_crypto_wal.mbt / phase16_laws.mbt
                               LLL／Van Hoeij 與 Q̄⊂ℂ、SHA/Ed25519 與 WAL、第十六期六大工程律束
-spec.mbt / verify.mbt         127 條規格登記；116 項定理登記表
+spec.mbt / verify.mbt         135 條規格登記；124 項定理登記表
 *_wbtest.mbt                  跨五聯邦精煉 L8 測試（15 項，含第十六期與健檢回歸）
-cmd/main/ , cmd/showcase/     打印 116 項定理登記表與 42 項五聯邦大一統證書的入口
+cmd/main/ , cmd/showcase/     打印 124 項定理登記表與 42 項五聯邦大一統證書的入口
 ```
 
 ## 範圍與邊界

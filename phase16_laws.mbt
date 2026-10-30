@@ -131,7 +131,12 @@ pub fn check_phase16_schema_large_open_positivity() -> Bool {
   if !conv_ty(0, 0, el_pair, DVSigma(DVBoolTy, _ => DVBoolTy)) {
     return false
   }
-  if !conv_ty(0, 0, obs_pair, DVPi(DVUnitTy, _ => DVPi(DVBoolTy, _ => DVUnitTy))) {
+  if !conv_ty(
+      0,
+      0,
+      obs_pair,
+      DVPi(DVUnitTy, _ => DVPi(DVBoolTy, _ => DVUnitTy)),
+    ) {
     return false
   }
   let depth_val = match
@@ -166,10 +171,7 @@ pub fn check_phase16_schema_large_open_positivity() -> Bool {
     ],
   )
   match open_ir_lower_single_decoder(single_open) {
-    Some(ind) =>
-      if !inductive_schema_validate(ind) {
-        return false
-      }
+    Some(ind) => if !inductive_schema_validate(ind) { return false }
     None => return false
   }
 
@@ -208,12 +210,9 @@ pub fn check_phase16_schema_large_open_positivity() -> Bool {
     return false
   }
   let f_rec = DApp(DTVar(1), rec_ref)
-  if !dterm_family_strictly_positive_functorial(
-      ambient_cont,
-      f_rec,
-      "Rec",
-      [cont_cert],
-    ) {
+  if !dterm_family_strictly_positive_functorial(ambient_cont, f_rec, "Rec", [
+      cont_cert,
+    ]) {
     return false
   }
   if dterm_family_strictly_positive_functorial(
@@ -309,12 +308,9 @@ pub fn check_phase16_schema_large_open_positivity() -> Bool {
   let f_rec_cov = DApp(DTVar(3), rec_ref)
   cov_decl.strict_args.length() == 0 &&
   cov_decl.positive_args == [0] &&
-  !dterm_family_strictly_positive_functorial(
-    ambient_cov,
-    f_rec_cov,
-    "Rec",
-    [cov_cert],
-  )
+  !dterm_family_strictly_positive_functorial(ambient_cov, f_rec_cov, "Rec", [
+    cov_cert,
+  ])
 }
 
 ///|
@@ -371,10 +367,34 @@ pub fn check_phase16_dsatur_and_glued_cubical_comp() -> Bool {
     !cap_rep.used_hspace_glue {
     return false
   }
-  if !conv_at(0, 4, DVCircleTy, dapp_dim(dapp_dim(sq, DZero), dj), DVCirclePoint(dj)) ||
-    !conv_at(0, 4, DVCircleTy, dapp_dim(dapp_dim(sq, DOne), dj), DVCirclePoint(dj)) ||
-    !conv_at(0, 4, DVCircleTy, dapp_dim(dapp_dim(sq, di), DZero), DVCirclePoint(di)) ||
-    !conv_at(0, 4, DVCircleTy, dapp_dim(dapp_dim(sq, di), DOne), DVCirclePoint(di)) {
+  if !conv_at(
+      0,
+      4,
+      DVCircleTy,
+      dapp_dim(dapp_dim(sq, DZero), dj),
+      DVCirclePoint(dj),
+    ) ||
+    !conv_at(
+      0,
+      4,
+      DVCircleTy,
+      dapp_dim(dapp_dim(sq, DOne), dj),
+      DVCirclePoint(dj),
+    ) ||
+    !conv_at(
+      0,
+      4,
+      DVCircleTy,
+      dapp_dim(dapp_dim(sq, di), DZero),
+      DVCirclePoint(di),
+    ) ||
+    !conv_at(
+      0,
+      4,
+      DVCircleTy,
+      dapp_dim(dapp_dim(sq, di), DOne),
+      DVCirclePoint(di),
+    ) {
     return false
   }
 
@@ -476,7 +496,10 @@ pub fn check_phase16_crypto_ed25519_and_wal() -> Bool {
     Some((w, _)) => w
     None => return false
   }
-  let repo = artifact_repository_new(artifact_wal_byte_store(wal), prefix="repo")
+  let repo = artifact_repository_new(
+    artifact_wal_byte_store(wal),
+    prefix="repo",
+  )
   if artifact_repository_put(repo, "blob", "alpha", [10, 20, 30]) == None {
     return false
   }
@@ -524,8 +547,7 @@ pub fn check_phase16_crypto_ed25519_and_wal() -> Bool {
     Some(p) => p
     None => return false
   }
-  if rec_rep.replayed_transactions <= 0 ||
-    rec_rep.discarded_torn_bytes <= 0 {
+  if rec_rep.replayed_transactions <= 0 || rec_rep.discarded_torn_bytes <= 0 {
     return false
   }
   let recovered_bs = artifact_wal_byte_store(wal_recovered)
@@ -582,7 +604,9 @@ pub fn check_phase16_sphere_homotopy_and_k5() -> Bool {
     !equiv_bidirectional_certified_in(ctx5, env5, ddim_empty(), pathp_eq_open) {
     return false
   }
-  let fib_loop_eq = fibration_loop_equiv_fiber_path_value(b_ty, p_fam, b0, e0, 16)
+  let fib_loop_eq = fibration_loop_equiv_fiber_path_value(
+    b_ty, p_fam, b0, e0, 16,
+  )
   if !equiv_bidirectional_certified_in(ctx4, env4, ddim_empty(), fib_loop_eq) {
     return false
   }
@@ -637,35 +661,10 @@ pub fn check_phase16_sphere_homotopy_and_k5() -> Bool {
   let lp = circle_hit_loop_path_value()
   let lp_inv = dpath_sym_value(lp)
   let k5 = dpath_associahedron_k5_cell5_value(
-    s1_ty,
-    c0,
-    lp,
-    lp,
-    lp_inv,
-    lp,
-    lp,
-    2,
+    s1_ty, c0, lp, lp, lp_inv, lp, lp, 2,
   )
-  let north4 = dpath_k5_hemi_north4_value(
-    s1_ty,
-    c0,
-    lp,
-    lp,
-    lp_inv,
-    lp,
-    lp,
-    2,
-  )
-  let south4 = dpath_k5_hemi_south4_value(
-    s1_ty,
-    c0,
-    lp,
-    lp,
-    lp_inv,
-    lp,
-    lp,
-    2,
-  )
+  let north4 = dpath_k5_hemi_north4_value(s1_ty, c0, lp, lp, lp_inv, lp, lp, 2)
+  let south4 = dpath_k5_hemi_south4_value(s1_ty, c0, lp, lp, lp_inv, lp, lp, 2)
   let lhs1 = dpath_k5_lhs1_value(s1_ty, lp, lp, lp_inv, lp, lp, 2)
   let rhs1 = dpath_k5_rhs1_value(s1_ty, lp, lp, lp_inv, lp, lp, 2)
   let out3 = dpath_k5_route_outer3_value(s1_ty, lp, lp, lp_inv, lp, lp, 2)
@@ -726,7 +725,7 @@ pub fn check_phase16_hou_stream_and_module_merge() -> Bool {
   let u_stream = unifier_new()
   ignore(hou_fresh_meta(u_stream, 0))
   let ca = UApp(c_fn, a_tm)
-  let eq_multi = HouConstraint::{ lhs: UMeta(0, [ca, ca]), rhs: ca, depth: 0 }
+  let eq_multi = HouConstraint::{ lhs: UMeta(0, [ca, ca]), rhs: ca, depth: 0, }
   let stream = hou_unifier_stream_new(
     [eq_multi],
     u_stream,
@@ -888,7 +887,9 @@ pub fn check_phase16_hou_stream_and_module_merge() -> Bool {
     !artifact_repository_seal_authenticated(right_repo, key) {
     return false
   }
-  let conflict_target = artifact_repository_new(artifact_memory_byte_store_new())
+  let conflict_target = artifact_repository_new(
+    artifact_memory_byte_store_new(),
+  )
   let c_abort = artifact_repository_merge_three_way(
     left_repo,
     right_repo,

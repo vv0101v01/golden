@@ -322,9 +322,6 @@ pub extend CInterval with @moonbitlang/core/debug.Debug::{to_repr}
 pub extend CInterval with Eq::{not_equal, equal}
 
 ///|
-pub fn cinterval(re : RatInterval, im : RatInterval) -> CInterval {
-  CInterval::{ re, im, }
-}
 
 ///|
 pub fn cinterval_point(a : QCpx) -> CInterval {
@@ -486,17 +483,6 @@ pub fn qci_mat_adjoint(a : QCIntervalMat) -> QCIntervalMat {
 }
 
 ///|
-pub fn qci_mat_add(a : QCIntervalMat, b : QCIntervalMat) -> QCIntervalMat {
-  let rows : Array[Array[CInterval]] = []
-  for i in 0..<a.n {
-    let row : Array[CInterval] = []
-    for j in 0..<a.n {
-      row.push(cinterval_add(a.rows[i][j], b.rows[i][j]))
-    }
-    rows.push(row)
-  }
-  qci_mat_from_rows(rows)
-}
 
 ///|
 pub fn qci_mat_sub(a : QCIntervalMat, b : QCIntervalMat) -> QCIntervalMat {
@@ -588,19 +574,6 @@ pub fn qci_mat_is_hermitian(a : QCIntervalMat) -> Bool {
 }
 
 ///|
-pub fn qci_mat_contains_point(a : QCIntervalMat, x : QCpxMat) -> Bool {
-  if a.n != x.n {
-    return false
-  }
-  for i in 0..<a.n {
-    for j in 0..<a.n {
-      if !cinterval_contains(a.rows[i][j], x.rows[i][j]) {
-        return false
-      }
-    }
-  }
-  true
-}
 
 ///|
 pub fn qci_mat_contains(a : QCIntervalMat, b : QCIntervalMat) -> Bool {

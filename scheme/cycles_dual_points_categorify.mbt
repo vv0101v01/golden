@@ -191,16 +191,6 @@ pub fn weil_divisor_p1_normalize(
 
 ///|
 /// Addition `D_1 + D_2` of Weil divisors on `P^1_Q`.
-pub fn weil_divisor_p1_add(
-  d1 : WeilDivisorP1,
-  d2 : WeilDivisorP1,
-) -> WeilDivisorP1 {
-  let raw = d1.terms.copy()
-  for t in d2.terms {
-    raw.push(t)
-  }
-  weil_divisor_p1_normalize(raw)
-}
 
 ///|
 /// Subtraction `D_1 - D_2` of Weil divisors on `P^1_Q`.
@@ -785,38 +775,6 @@ pub fn fcomm_dual_numbers(p : Int32) -> (FiniteCommRing, FiniteRingHom) {
 
 ///|
 /// Direct product ring `R_1 × R_2` (`size == R_1.size * R_2.size`).
-pub fn fcomm_product(
-  r1 : FiniteCommRing,
-  r2 : FiniteCommRing,
-) -> FiniteCommRing {
-  let s1 = r1.size
-  let s2 = r2.size
-  let sz = s1 * s2
-  let neg_t = Array::make(sz, 0)
-  let add_t = Array::make(sz * sz, 0)
-  let mul_t = Array::make(sz * sz, 0)
-  for x in 0..<sz {
-    let a1 = x % s1
-    let b1 = x / s1
-    neg_t[x] = r1.neg_table[a1] + r2.neg_table[b1] * s1
-    for y in 0..<sz {
-      let a2 = y % s1
-      let b2 = y / s1
-      add_t[x * sz + y] = r1.add_table[a1 * s1 + a2] +
-        r2.add_table[b1 * s2 + b2] * s1
-      mul_t[x * sz + y] = r1.mul_table[a1 * s1 + a2] +
-        r2.mul_table[b1 * s2 + b2] * s1
-    }
-  }
-  {
-    size: sz,
-    zero: r1.zero + r2.zero * s1,
-    one: r1.one + r2.one * s1,
-    neg_table: neg_t,
-    add_table: add_t,
-    mul_table: mul_t,
-  }
-}
 
 ///|
 /// Verify `hom : src -> dst` preserves `0, 1, +, *`.

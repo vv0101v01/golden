@@ -141,21 +141,6 @@ pub fn ring_hom_compose(phi : RingHom, psi : RingHom) -> RingHom {
 /// Compute the exact algebraic kernel ideal `ker(hom) ⊆ Q[x_0..x_{src.nvars-1}]`
 /// (presenting the **scheme-theoretic image closure** of `Spec(dst) -> Spec(src)`!)
 /// by eliminating `y_0..y_{dst.nvars-1}` from `<dst.ideal(y), x_i - hom(x_i)(y)>`!
-pub fn ring_hom_kernel(hom : RingHom) -> Ideal {
-  let ny = hom.dst.nvars
-  let nx = hom.src.nvars
-  let total_n = ny + nx
-  let gens : Array[MPoly] = []
-  for g in hom.dst.ideal.rgb.gens {
-    gens.push(mpoly_extend_vars(g, nx, false))
-  }
-  for i in 0..<nx {
-    let xi = mpoly_var(total_n, ny + i)
-    let phi_i = mpoly_extend_vars(hom.var_images[i], nx, false)
-    gens.push(mpoly_sub(xi, phi_i))
-  }
-  ideal_eliminate_first_k(ideal_new(total_n, gens), ny)
-}
 
 ///|
 /// Decide whether `hom : src -> dst` is **surjective** as a `Q`-algebra homomorphism
@@ -372,34 +357,6 @@ pub fn solve_ideal_linear_combination(
 ///|
 /// Restrict a structure-sheaf section `sec ∈ O(D(sec.den_base))` to a smaller
 /// principal open `D(sub_h) ⊆ D(sec.den_base)`!
-pub fn restrict_localized_section(
-  ring : CoordRing,
-  sec : LocalizedSection,
-  sub_h : MPoly,
-) -> LocalizedSection? {
-  if !principal_open_subset(ring, sub_h, sec.den_base) {
-    return None
-  }
-  if sec.exp == 0 {
-    return Some({ num: coord_ring_nf(ring, sec.num), den_base: sub_h, exp: 0, })
-  }
-  // Find `m >= 1` and `c ∈ Q[x]` such that `c * sec.den_base ≡ sub_h^m (mod ring.ideal)`.
-  for m in 1..<6 {
-    let hm = mpoly_pow(sub_h, m)
-    match solve_ideal_linear_combination(ring, [sec.den_base], hm, max_deg=4) {
-      Some(cs) => {
-        let c = cs[0]
-        let new_num = coord_ring_nf(
-          ring,
-          mpoly_mul(sec.num, mpoly_pow(c, sec.exp)),
-        )
-        return Some({ num: new_num, den_base: sub_h, exp: m * sec.exp, })
-      }
-      None => ()
-    }
-  }
-  None
-}
 
 ///|
 /// Verify whether `{ D(cover_fs[i]) }` is a valid Zariski open cover of `Spec(ring)`:
@@ -564,15 +521,6 @@ pub fn affine_scheme(ring : CoordRing) -> AffineScheme {
 ///|
 /// Search for an explicit nonzero **Nilpotent Witness** `w ∈ A` (`w ∉ I` and
 /// `w^m ∈ I` for some `m >= 2`): returns `None` iff `Spec(ring)` is **Reduced**!
-pub fn affine_nilpotent_witness(x : AffineScheme) -> MPoly? {
-  let rad = ideal_radical(x.ring.ideal)
-  for g in rad.rgb.gens {
-    if !ideal_contains(x.ring.ideal, g) {
-      return Some(coord_ring_nf(x.ring, g))
-    }
-  }
-  None
-}
 
 ///|
 /// Decide whether `x = Spec(A)` is a **Reduced Scheme** (`√I_A == I_A`, i.e.,

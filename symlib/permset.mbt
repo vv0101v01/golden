@@ -52,40 +52,6 @@ pub fn permset_canon(ps : PermSet, cap : Int32) -> Array[Int32] {
 }
 
 ///|
-/// G-集同構判定（規範形式相等）：需同維度、同生成元個數。
-pub fn permset_isomorphic(a : PermSet, b : PermSet, cap : Int32) -> Bool {
-  guard a.n == b.n && a.gens.length() == b.gens.length() else { return false }
-  cmp_arr(permset_canon(a, cap), permset_canon(b, cap)) == 0
-}
-
-///|
 /// G-集規範形式之機器證書：
 /// (a) 重標號不變性；(b) 冪等性（規範化後再規範化不變）；
 /// (c) 與「共軛」判準一致：b = λ^{-1}∘a∘λ ⇒ 同構。
-pub fn permset_cert(
-  ps : PermSet,
-  lambda : Perm,
-  cap : Int32,
-) -> (Bool, Bool, Bool) {
-  let c0 = permset_canon(ps, cap)
-  let relab : Array[Perm] = []
-  let linv = lambda.inverse()
-  for p in ps.gens {
-    relab.push(linv.compose(p).compose(lambda))
-  }
-  let ps2 = permset(ps.n, relab)
-  let a = cmp_arr(c0, permset_canon(ps2, cap)) == 0
-  // 冪等：以 c0 反推之 G-集（生成元 = 編碼切片）再規範化
-  let k = ps.gens.length()
-  let gens0 : Array[Perm] = []
-  for j in 0..<k {
-    let img = Array::make(ps.n, 0)
-    for i in 0..<ps.n {
-      img[i] = c0[j * ps.n + i]
-    }
-    gens0.push(Perm::from_img(img))
-  }
-  let b = cmp_arr(permset_canon(permset(ps.n, gens0), cap), c0) == 0
-  let c = permset_isomorphic(ps, ps2, cap)
-  (a, b, c)
-}

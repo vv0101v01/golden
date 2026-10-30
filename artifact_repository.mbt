@@ -1829,7 +1829,10 @@ pub extend ArtifactThreeWayMergeReport with @moonbitlang/core/debug.Debug::{
 pub extend ArtifactThreeWayMergeReport with Eq::{not_equal, equal}
 
 ///|
-fn artifact_record_same_content(a : ArtifactRecord?, b : ArtifactRecord?) -> Bool {
+fn artifact_record_same_content(
+  a : ArtifactRecord?,
+  b : ArtifactRecord?,
+) -> Bool {
   match (a, b) {
     (None, None) => true
     (Some(ra), Some(rb)) =>
@@ -1900,19 +1903,17 @@ pub fn artifact_repository_merge_three_way(
   policy~ : ArtifactMergePolicy = ArtifactMergeAbortOnConflict,
   auth_key~ : ArtifactAuthKey? = None,
 ) -> ArtifactThreeWayMergeReport {
-  let fail = (lca_n : Int32, conflicts : Array[ArtifactMergeConflict]) => {
-    ArtifactThreeWayMergeReport::{
-      ok: false,
-      lca_entries: lca_n,
-      merged_records: 0,
-      left_applied: 0,
-      right_applied: 0,
-      convergent_merges: 0,
-      tombstones_applied: 0,
-      conflicts,
-      final_head_a: 0,
-      final_head_b: 0,
-    }
+  let fail = (lca_n : Int32, conflicts : Array[ArtifactMergeConflict]) => ArtifactThreeWayMergeReport::{
+    ok: false,
+    lca_entries: lca_n,
+    merged_records: 0,
+    left_applied: 0,
+    right_applied: 0,
+    convergent_merges: 0,
+    tombstones_applied: 0,
+    conflicts,
+    final_head_a: 0,
+    final_head_b: 0,
   }
   match auth_key {
     Some(k) =>
@@ -2082,7 +2083,13 @@ pub fn artifact_repository_merge_three_way(
 
   for s in staged {
     let (kind, name, bytes, fmt_ver) = s
-    if artifact_repository_put(target, kind, name, bytes, format_version=fmt_ver) ==
+    if artifact_repository_put(
+        target,
+        kind,
+        name,
+        bytes,
+        format_version=fmt_ver,
+      ) ==
       None {
       return fail(lca_len, conflicts)
     }

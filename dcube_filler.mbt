@@ -52,9 +52,6 @@ pub fn dcube_of_path(path : (Dim) -> DValue) -> DCubeFunction {
 }
 
 ///|
-pub fn dcube_of_point(value : DValue) -> DCubeFunction {
-  { arity: 0, at: _ => value, }
-}
 
 ///|
 fn dcube_without_axis(dims : Array[Dim], axis : Int32) -> Array[Dim] {
@@ -103,12 +100,6 @@ pub fn dcube_face(
 
 ///|
 /// Insert a degenerate (unused) axis at position `axis`.
-pub fn dcube_degenerate(cube : DCubeFunction, axis : Int32) -> DCubeFunction {
-  {
-    arity: cube.arity + 1,
-    at: dims => dcube_at(cube, dcube_without_axis(dims, axis)),
-  }
-}
 
 ///|
 pub struct DCubeBoxFace {
@@ -752,12 +743,7 @@ fn dcube_four_stratum_pool(
   shared_s : Dim,
   shared_t : Dim,
 ) -> Array[Dim] {
-  [
-    DZero,
-    DOne,
-    axis_var,
-    DAnd(DOr(axis_var, shared_s), DNeg(shared_t)),
-  ]
+  [DZero, DOne, axis_var, DAnd(DOr(axis_var, shared_s), DNeg(shared_t))]
 }
 
 ///|
@@ -925,17 +911,29 @@ pub fn dcube_cubes_conv_covering_phf_report(
   }
   let n = f.arity
   if n == 0 {
-    let ok = conv_at(level, ambient_dlevel, ty, dcube_at(f, []), dcube_at(g, []))
+    let ok = conv_at(
+      level,
+      ambient_dlevel,
+      ty,
+      dcube_at(f, []),
+      dcube_at(g, []),
+    )
     return DCubeCoveringReport::{
       equal: ok,
       probes: 1,
-      failed: if ok { 0 } else { 1 },
+      failed: if ok {
+        0
+      } else {
+        1
+      },
       interaction_strength: strength,
       complete_for_strength: true,
     }
   }
   if n == 1 {
-    let rep = dcube_cubes_conv_stratified_report(level, ambient_dlevel, ty, f, g)
+    let rep = dcube_cubes_conv_stratified_report(
+      level, ambient_dlevel, ty, f, g,
+    )
     return DCubeCoveringReport::{
       equal: rep.equal,
       probes: rep.probes,
@@ -945,7 +943,9 @@ pub fn dcube_cubes_conv_covering_phf_report(
     }
   }
   if n > 16 {
-    let rep = dcube_cubes_conv_stratified_report(level, ambient_dlevel, ty, f, g)
+    let rep = dcube_cubes_conv_stratified_report(
+      level, ambient_dlevel, ty, f, g,
+    )
     return DCubeCoveringReport::{
       equal: rep.equal,
       probes: rep.probes,
@@ -1110,7 +1110,10 @@ pub fn checked_dcube_closed(
 /// they are convertible at the **single** generic point `(i_0, ..., i_{n-1})`!
 /// Decides exact universal extensionality in `O(1)` (`1` kernel conversion
 /// check) for arbitrary arity `n = 16, 32, ...` with zero grid blowup.
-pub fn checked_dcube_extensional_eq(c1 : CheckedDCube, c2 : CheckedDCube) -> Bool {
+pub fn checked_dcube_extensional_eq(
+  c1 : CheckedDCube,
+  c2 : CheckedDCube,
+) -> Bool {
   if c1.arity != c2.arity ||
     denv_len(c1.ctx) != denv_len(c2.ctx) ||
     ddim_len(c1.denv) != ddim_len(c2.denv) {
@@ -1207,7 +1210,11 @@ pub fn dcube_yoneda_audit_report(
       natural: ok,
       generic_reified_term: t_yoneda,
       audited_substitutions: 1,
-      failed_substitutions: if ok { 0 } else { 1 },
+      failed_substitutions: if ok {
+        0
+      } else {
+        1
+      },
     }
   }
   let strat = dcube_cubes_conv_stratified_report(

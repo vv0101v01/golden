@@ -181,13 +181,6 @@ pub fn sphere_degree_value(
 
 ///|
 /// The degree-`n` spherical endomap as a semantic function value.
-pub fn sphere_degree_function_value(dimension : Int32, n : Int32) -> DValue {
-  DVLam(point => sphere_degree_value(dimension, n, point, dimension + 2))
-}
-
-// ---------------------------------------------------------------------------
-// The suspension-to-loop unit
-// ---------------------------------------------------------------------------
 
 ///|
 /// A meridian of a suspension sphere, as a semantic path.
@@ -249,9 +242,6 @@ pub fn sphere3_swapped_schema() -> DHitSpec {
 
 ///|
 /// The pole-swapped `S^3` type.
-pub fn sphere3_swapped_type_term() -> DTerm {
-  DHitType(sphere3_swapped_schema(), [])
-}
 
 ///|
 /// The north pole (cell 1) of the swapped presentation.
@@ -1103,12 +1093,10 @@ pub fn susp_type_schema_at(level : Int32) -> DHitSpec {
   dhit_spec("SuspS", level, [dtelescope_entry("A", DUniv(level))], [], [
     dhit_cell_spec("north", 0, [], []),
     dhit_cell_spec("south", 0, [], []),
-    dhit_cell_spec(
-      "meridian",
-      1,
-      [darg_external("point", DTVar(0))],
-      [dhit_face(0, [], []), dhit_face(1, [], [])],
-    ),
+    dhit_cell_spec("meridian", 1, [darg_external("point", DTVar(0))], [
+      dhit_face(0, [], []),
+      dhit_face(1, [], []),
+    ]),
   ])
 }
 
@@ -1150,10 +1138,9 @@ pub fn based_map_type_value(
   src_base : DValue,
   dst_base : DValue,
 ) -> DValue {
-  DVSigma(
-    DVPi(src_ty, _ => dst_ty),
-    f => DVPathTy(_ => dst_ty, dapp_typed(f, src_base, src_ty), dst_base),
-  )
+  DVSigma(DVPi(src_ty, _ => dst_ty), f => {
+    DVPathTy(_ => dst_ty, dapp_typed(f, src_base, src_ty), dst_base)
+  })
 }
 
 ///|
@@ -1234,12 +1221,7 @@ pub fn susp_bool_equiv_circle_value(dlevel : Int32) -> DValue {
   let base = circle_hit_base_value()
   let lp = circle_hit_loop_path_value()
 
-  let sq_c = dpath_trans_square_value(
-    c_ty,
-    lp,
-    dpath_refl_value(base),
-    dlevel,
-  )
+  let sq_c = dpath_trans_square_value(c_ty, lp, dpath_refl_value(base), dlevel)
   let loop_sect : DValue = DVPathLam(i => {
     DVPathLam(t => dapp_dim(dapp_dim(sq_c, i), DNeg(t)))
   })
@@ -1249,7 +1231,10 @@ pub fn susp_bool_equiv_circle_value(dlevel : Int32) -> DValue {
       (_, pt) => {
         DVPathTy(
           _ => c_ty,
-          susp_bool_to_circle_value(circle_to_susp_bool_value(pt, dlevel), dlevel),
+          susp_bool_to_circle_value(
+            circle_to_susp_bool_value(pt, dlevel),
+            dlevel,
+          ),
           pt,
         )
       },
@@ -1388,7 +1373,11 @@ pub fn susp_universal_equiv_value(
       eval_hit_elim(
         spec,
         (_, pt) => {
-          DVPathTy(_ => b_ty, dapp_typed(bf, pt, susp_ty), dapp_typed(f, pt, susp_ty))
+          DVPathTy(
+            _ => b_ty,
+            dapp_typed(bf, pt, susp_ty),
+            dapp_typed(f, pt, susp_ty),
+          )
         },
         [
           dpath_refl_value(dapp_typed(f, north, susp_ty)),
@@ -1502,9 +1491,7 @@ pub fn susp_based_to_cocone_equiv_value(
         dapp_typed(f, hit_cell_value(spec, 2, [a_ty], [a], [DNeg(k)]), susp_ty)
       })
       let sq = dpath_trans_square_value(b_ty, sym_fa, p, dlevel)
-      DVPathLam(i => {
-        DVPathLam(t => dapp_dim(dapp_dim(sq, DNeg(i)), DNeg(t)))
-      })
+      DVPathLam(i => DVPathLam(t => dapp_dim(dapp_dim(sq, DNeg(i)), DNeg(t))))
     })
     let pw = DVLam(z => {
       eval_hit_elim(
@@ -1593,9 +1580,7 @@ pub fn cocone_to_based_loop_equiv_value(
   let h_loop_at = (ga : DValue, q : DValue, t : Dim) => {
     DVPathLam(i => {
       let sys = dsystem_of([
-        tube_branch(face_simplify(FEq0(i)), j => {
-          dapp_dim(dapp_dim(q, t), j)
-        }),
+        tube_branch(face_simplify(FEq0(i)), j => dapp_dim(dapp_dim(q, t), j)),
         tube_branch(face_simplify(FEq1(i)), _ => b0),
         tube_branch(face_simplify(FEq1(t)), _ => dapp_dim(ga, i)),
       ])
@@ -1622,10 +1607,7 @@ pub fn cocone_to_based_loop_equiv_value(
         let sys = dsystem_of([
           tube_branch(face_simplify(FEq0(i)), _ => b0),
           tube_branch(face_simplify(FEq1(i)), _ => b0),
-          tube_branch(
-            face_simplify(FEq1(dim_simplify(DOr(t, u)))),
-            _ => b0,
-          ),
+          tube_branch(face_simplify(FEq1(dim_simplify(DOr(t, u)))), _ => b0),
         ])
         hcomp_value(b_ty, sys, b0, dlevel)
       })
@@ -1713,9 +1695,7 @@ pub fn circle_0_connected_value(x : DValue, dlevel : Int32) -> DValue {
     DVPathTy(_ => c_ty, base, base),
     dpath_refl_value(base),
   )
-  let loop_line = memo_dim_line(i => {
-    mot(hit_cell_value(c_spec, 1, [], [], [i]))
-  })
+  let loop_line = memo_dim_line(i => mot(hit_cell_value(c_spec, 1, [], [], [i])))
   let tr = transport_value(loop_line, base_inc, dlevel)
   let sq_eq = prop_trunc_squash_path_value(
     DVPathTy(_ => c_ty, base, base),
@@ -1723,11 +1703,7 @@ pub fn circle_0_connected_value(x : DValue, dlevel : Int32) -> DValue {
     base_inc,
   )
   let loop_case = dpathp_of_transport_eq_value(
-    loop_line,
-    base_inc,
-    base_inc,
-    sq_eq,
-    dlevel,
+    loop_line, base_inc, base_inc, sq_eq, dlevel,
   )
   eval_hit_elim(
     c_spec,
@@ -1883,19 +1859,13 @@ pub fn freudenthal_pi1_susp_connected_equiv_unit_value(
     set_trunc_elim_prop_value(
       loop_ty,
       mot_w,
-      (u, q1, q2, dl) => {
-        set_trunc_is_set_value(loop_ty, c_north, u, q1, q2, dl)
-      },
+      (u, q1, q2, dl) => set_trunc_is_set_value(loop_ty, c_north, u, q1, q2, dl),
       q => {
         dj_singleton_elim_value(
           (z1, q1) => {
             let p_ty = DVPathTy(_ => susp_ty, north, z1)
             let st_z1 = set_trunc_type_value(p_ty)
-            DVPathTy(
-              _ => st_z1,
-              center_at(z1),
-              set_trunc_point_value(p_ty, q1),
-            )
+            DVPathTy(_ => st_z1, center_at(z1), set_trunc_point_value(p_ty, q1))
           },
           dpath_refl_value(c_north),
           q,
@@ -2003,7 +1973,12 @@ pub fn wedge_connectivity_circle_set_ext_value(
   let tr_glue = dpath_cong_value(
     DVLam(v => transport_value(line_x_at_base, v, dlevel + 12)),
     p00,
-    dpath_trans_value(p00, dpath_sym_value(coe_base), dpath_sym_value(glue_pt), dlevel + 8),
+    dpath_trans_value(
+      p00,
+      dpath_sym_value(coe_base),
+      dpath_sym_value(glue_pt),
+      dlevel + 8,
+    ),
   )
   let base_y_eq = dpath_trans_value(
     p00,
@@ -2013,7 +1988,11 @@ pub fn wedge_connectivity_circle_set_ext_value(
   )
 
   let mot_y = (yv : DValue) => {
-    DVPathTy(_ => p_fam(base, yv), dapp_typed(tr_base_fn, yv, c_ty), f_right(yv))
+    DVPathTy(
+      _ => p_fam(base, yv),
+      dapp_typed(tr_base_fn, yv, c_ty),
+      f_right(yv),
+    )
   }
   let loop_y_line = memo_dim_line(j => {
     mot_y(hit_cell_value(c_spec, 1, [], [], [j]))
@@ -2092,11 +2071,11 @@ pub fn wedge_connectivity_circle_left_coh_value(
       p_fam, is_set_p, f_left, f_right, glue_pt, xv, base, dlevel,
     )
   }
-  let mot = (xv : DValue) => DVPathTy(_ => p_fam(xv, base), ext_x(xv), f_left(xv))
+  let mot = (xv : DValue) => {
+    DVPathTy(_ => p_fam(xv, base), ext_x(xv), f_left(xv))
+  }
   let base_case = dpath_sym_value(glue_pt)
-  let loop_line = memo_dim_line(i => {
-    mot(hit_cell_value(c_spec, 1, [], [], [i]))
-  })
+  let loop_line = memo_dim_line(i => mot(hit_cell_value(c_spec, 1, [], [], [i])))
   let tr_base = transport_value(loop_line, base_case, dlevel + 46)
   let set_eq = is_set_p(
     base,
@@ -2293,10 +2272,7 @@ pub fn sphere2_susp_loop1_to_loop2_value(
 /// by chaining `subst_trans_eq_value`, `ua_beta_path_value` on
 /// `circle_rot_equiv(x)`, `circle_rot_eval_base_eq_value(x)`, and
 /// `ua_beta_back_path_value` on `equiv_id(S^1)`.
-pub fn hopf_unit_subst_eq_value(
-  x : DValue,
-  dlevel~ : Int32 = 16,
-) -> DValue {
+pub fn hopf_unit_subst_eq_value(x : DValue, dlevel~ : Int32 = 16) -> DValue {
   let s1 = circle_hit_type_value()
   let base = circle_hit_base_value()
   let s2 = sphere2_type_value()
@@ -2380,7 +2356,9 @@ pub fn hopf_freudenthal_retraction_value(
   let theta0 = psi_at(DZero)
   // `theta0 : Ω¹(S^1, base)` is closed and never traverses `loop`, so its
   // helix winding is definitionally `0` (`circle_decode(0) ≡ refl_base`).
-  let lid0 = dpath_sym_value(circle_decode_encode_retr_value(theta0, dlevel + 10))
+  let lid0 = dpath_sym_value(
+    circle_decode_encode_retr_value(theta0, dlevel + 10),
+  )
   let lid0_at = memo_dim_line(k => dapp_dim(lid0, k))
   DVPathLam(
     memo_dim_line(r => {
@@ -2432,10 +2410,7 @@ pub fn pi2_s2_type_value() -> DValue {
 ///|
 /// 0-truncated Hopf invariant homomorphism `π_2(S^2) -> IntegerS`, induced on
 /// `‖Ω²(S^2, north)‖_0` via `set_trunc_rec_value` and `integer_is_set_value`.
-pub fn pi2_s2_hopf_hom_value(
-  elem : DValue,
-  dlevel~ : Int32 = 16,
-) -> DValue {
+pub fn pi2_s2_hopf_hom_value(elem : DValue, dlevel~ : Int32 = 16) -> DValue {
   let omega2_ty = loop_space_type_value(
     sphere2_type_value(),
     sphere2_north_value(),
@@ -2454,10 +2429,7 @@ pub fn pi2_s2_hopf_hom_value(
 ///|
 /// Canonical Freudenthal generator map `IntegerS -> π_2(S^2)` sending `z` to
 /// `|σ_{S^2}(circle_decode(z))|_0`.
-pub fn integer_to_pi2_s2_value(
-  z : DValue,
-  dlevel~ : Int32 = 16,
-) -> DValue {
+pub fn integer_to_pi2_s2_value(z : DValue, dlevel~ : Int32 = 16) -> DValue {
   let omega2_ty = loop_space_type_value(
     sphere2_type_value(),
     sphere2_north_value(),
@@ -2482,6 +2454,3 @@ pub fn pi2_s2_hopf_retract_sect_value(
 ) -> DValue {
   hopf_invariant_susp_retraction_value(z, dlevel~)
 }
-
-
-

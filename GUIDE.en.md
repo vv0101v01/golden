@@ -30,7 +30,7 @@ A set of intertwined concepts made into an **executable, testable computational 
 ```text
 moon check --deny-warn --target wasm-gc            # whole project, zero warnings
 moon test --release --target wasm-gc               # consolidated L8 suite 15/15 across all federations
-moon run --release cmd/main --target wasm-gc       # theorem registry, expected 116/116
+moon run --release cmd/main --target wasm-gc       # theorem registry, expected 124/124
 moon run --release cmd/showcase --target wasm-gc   # 5-federation grand unification, expected 42/42
 python3 tools/arch_check.py                        # layers, unique file ownership, counts
 moon info && python3 tools/audit_spec.py --check
@@ -252,12 +252,12 @@ algebra/phase14_algebra.mbt / phase14_laws.mbt / phase15_laws.mbt
                               Hensel factorization certificates, real algebraic radicals, block Jacobi; phase-14/15 laws
 algebra/phase16_algebra.mbt / artifact_crypto_wal.mbt / phase16_laws.mbt
                               LLL/Van Hoeij & Q̄⊂ℂ, SHA-256/512 + Ed25519 + WAL, phase-16 six-track laws
-spec.mbt / verify.mbt         127 registry entries; 116 theorem checks
+spec.mbt / verify.mbt         135 registry entries; 124 theorem checks
 *_wbtest.mbt                  consolidated L8 tests across all 5 federations (15 tests)
 architecture.json             package/component ownership and dependency manifest
 tools/arch_check.py           architecture/count gate
 tools/audit_spec.py           bilingual multi-package symbol-appendix generator/audit
-cmd/main/ , cmd/showcase/     executable 116-theorem and 42-certificate unification reports
+cmd/main/ , cmd/showcase/     executable 124-theorem and 42-certificate unification reports
 ```
 
 ## Scope and boundaries

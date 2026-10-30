@@ -1184,18 +1184,6 @@ pub fn presheaf_hom_is_mono(alpha : PresheafHom) -> Bool {
 
 ///|
 /// Epimorphism check in PSh(C): delegates componentwise to `@sym.FinMap::is_epi`.
-pub fn presheaf_hom_is_epi_presheaf(alpha : PresheafHom) -> Bool {
-  for u in 0..<alpha.cat.nobj {
-    if !@sym.FinMap::new(
-        alpha.dom_size[u],
-        alpha.cod_size[u],
-        alpha.components[u],
-      ).is_epi() {
-      return false
-    }
-  }
-  true
-}
 
 ///|
 /// Isomorphism check in PSh(C) / Sh(C, J): delegates componentwise to `@sym.FinMap::is_iso`.

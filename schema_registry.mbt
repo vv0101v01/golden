@@ -258,16 +258,6 @@ pub fn schema_registry_hit_plan(
 }
 
 ///|
-pub fn schema_registry_inductive_by_id(
-  registry : DSchemaRegistry,
-  id : Int32,
-) -> DInductivePlan? {
-  if id >= 0 && id < registry.inductives.length() {
-    Some(registry.inductives[id])
-  } else {
-    None
-  }
-}
 
 ///|
 pub fn schema_registry_hit_by_id(
@@ -295,17 +285,6 @@ pub fn schema_registry_inductive_by_name(
 }
 
 ///|
-pub fn schema_registry_hit_by_name(
-  registry : DSchemaRegistry,
-  name : String,
-) -> DHitPlan? {
-  for i in 0..<registry.hits.length() {
-    if registry.hits[i].spec.name == name {
-      return Some(registry.hits[i])
-    }
-  }
-  None
-}
 
 ///|
 pub fn schema_registry_validate_inductive(
@@ -474,13 +453,6 @@ pub fn inductive_plan_type_term(
 }
 
 ///|
-pub fn hit_plan_type_term(plan : DHitPlan, args : Array[DTerm]) -> DTerm {
-  DHitType(plan.spec, args)
-}
-
-// ---------------------------------------------------------------------------
-// Persistence, snapshots, and incremental registration
-// ---------------------------------------------------------------------------
 
 ///|
 /// A persistent snapshot of a registry: the descriptors and their

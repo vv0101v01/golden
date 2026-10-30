@@ -23,13 +23,6 @@
 using @mon {type AffineM, type OppositeM, prefix_scan}
 
 ///|
-/// 均勻節點向量：t_i = i - p（i = 0..n+p），使曲線定義域為 [0, n-p]。
-pub fn uniform_knots(p : Int32, n : Int32) -> Array[Double] {
-  let len = n + p + 1
-  Array::makei(len, fn(i) { (i - p).to_double() })
-}
-
-///|
 /// Cox–de Boor 遞迴：第 i 個 p 次 B 樣條在 t 的值。
 ///
 /// 直接照定義遞迴，O(p²)。用於驗證 de Boor 演算法（交叉檢查）。
@@ -58,59 +51,6 @@ pub fn bspline_basis(
   }
   left + right
 }
-
-///|
-/// 找到 t 所屬的區間索引（knots[span] ≤ t < knots[span+1]）。
-fn find_span(knots : Array[Double], p : Int32, n : Int32, t : Double) -> Int32 {
-  if t >= knots[n] {
-    return n - 1
-  }
-  if t <= knots[p] {
-    return p
-  }
-  let mut lo = p
-  let mut hi = n
-  while lo < hi - 1 {
-    let mid = (lo + hi) / 2
-    if t >= knots[mid] {
-      lo = mid
-    } else {
-      hi = mid
-    }
-  }
-  lo
-}
-
-///|
-/// de Boor 演算法：O(p²) 且數值穩定地算出曲線在 t 的值。
-pub fn eval_deboor(
-  coeffs : Array[Double],
-  knots : Array[Double],
-  p : Int32,
-  t : Double,
-) -> Double {
-  let n = coeffs.length()
-  let span = find_span(knots, p, n, t)
-  let d = Array::make(p + 1, 0.0)
-  for j in 0..<=p {
-    d[j] = coeffs[span - p + j]
-  }
-  for r in 1..<=p {
-    let mut j = p
-    while j >= r {
-      let i = j + span - p
-      let denom = knots[i + p + 1 - r] - knots[i]
-      let alpha = if denom == 0.0 { 0.0 } else { (t - knots[i]) / denom }
-      d[j] = (1.0 - alpha) * d[j - 1] + alpha * d[j]
-      j = j - 1
-    }
-  }
-  d[p]
-}
-
-// ---------------------------------------------------------------------------
-// 配點（collocation）系統：三種解法
-// ---------------------------------------------------------------------------
 
 ///|
 /// 均勻三次樣條在整數節點的配點矩陣是循環矩陣 (z⁻¹+4+z)/6。

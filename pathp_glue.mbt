@@ -38,9 +38,6 @@ pub fn ty_bool() -> Ty {
 
 ///|
 /// Cross-package constructor for the Unit finite type.
-pub fn ty_unit() -> Ty {
-  TyUnit
-}
 
 ///|
 /// Cross-package constructor for finite product types.
@@ -114,24 +111,8 @@ pub fn pval_snd(v : PVal) -> PVal {
 }
 
 ///|
-pub fn pval_not(v : PVal) -> PVal {
-  match v {
-    PVBool(b) => PVBool(!b)
-    other => other
-  }
-}
 
 ///|
-pub fn pval_swap(v : PVal) -> PVal {
-  match v {
-    PVPair(a, b) => PVPair(b, a)
-    other => other
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Iso, Equiv, ua
-// ---------------------------------------------------------------------------
 
 ///|
 pub struct Iso {
@@ -192,27 +173,6 @@ pub fn iso_bool_not() -> Iso {
 }
 
 ///|
-/// Isomorphism laws by enumerating all elements: the *oracle*, kept for
-/// differential testing of the symbolic decision below.
-pub fn iso_wf_extensional(i : Iso) -> Bool {
-  let xs = elems_of(i.src)
-  for k in 0..<xs.length() {
-    let x = xs[k]
-    if !in_ty((i.to_fn)(x), i.dst) || (i.from_fn)((i.to_fn)(x)) != x {
-      return false
-    }
-  }
-  let ys = elems_of(i.dst)
-  for k in 0..<ys.length() {
-    let y = ys[k]
-    if !in_ty((i.from_fn)(y), i.src) || (i.to_fn)((i.from_fn)(y)) != y {
-      return false
-    }
-  }
-  true
-}
-
-///|
 /// Isomorphism laws, decided symbolically: the wiring is a signed
 /// permutation between the stated types.
 pub fn iso_wf(i : Iso) -> Bool {
@@ -269,37 +229,7 @@ pub fn equiv_wf(e : Equiv) -> Bool {
 }
 
 ///|
-/// Equivalence laws by enumeration (oracle for differential testing).
-pub fn equiv_wf_extensional(e : Equiv) -> Bool {
-  iso_wf_extensional(Iso::{
-    src: e.src,
-    dst: e.dst,
-    to_fn: e.fwd,
-    from_fn: e.bwd,
-    wiring: e.wiring,
-  })
-}
-
-///|
 /// Extensional equality by enumeration (oracle for differential testing).
-pub fn equiv_ext_eq_oracle(e1 : Equiv, e2 : Equiv) -> Bool {
-  if e1.src != e2.src || e1.dst != e2.dst {
-    return false
-  }
-  let xs = elems_of(e1.src)
-  for k in 0..<xs.length() {
-    if (e1.fwd)(xs[k]) != (e2.fwd)(xs[k]) {
-      return false
-    }
-  }
-  let ys = elems_of(e1.dst)
-  for k in 0..<ys.length() {
-    if (e1.bwd)(ys[k]) != (e2.bwd)(ys[k]) {
-      return false
-    }
-  }
-  true
-}
 
 ///|
 /// Equality of equivalences, decided by canonical-form (wiring) equality.

@@ -23,40 +23,9 @@
 // ---------------------------------------------------------------------------
 
 ///|
-pub fn int_sqrt_exact(n : Int32) -> Int32? {
-  if n < 0 {
-    return None
-  }
-  let mut r = 0
-  while r * r < n {
-    r = r + 1
-  }
-  if r * r == n {
-    Some(r)
-  } else {
-    None
-  }
-}
 
 ///|
 /// Write `n = s²·d` with `d` squarefree; returns `(s, d)`.
-pub fn int_squarefree_decomp(n : Int32) -> (Int32, Int32) {
-  if n == 0 {
-    return (0, 1)
-  }
-  let sign = if n < 0 { -1 } else { 1 }
-  let mut rest = int_abs(n)
-  let mut scale = 1
-  let mut p = 2
-  while p * p <= rest {
-    while rest % (p * p) == 0 {
-      rest = rest / (p * p)
-      scale = scale * p
-    }
-    p = p + 1
-  }
-  (scale, sign * rest)
-}
 
 ///|
 /// Floor square root of a nonnegative BigInt by Newton iteration.
@@ -135,16 +104,6 @@ pub fn rat_sqrt_if_square(r : Rat) -> Rat? {
 }
 
 ///|
-pub fn rat_is_square(r : Rat) -> Bool {
-  match rat_sqrt_if_square(r) {
-    Some(_) => true
-    None => false
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Quadratic numbers a + b√d
-// ---------------------------------------------------------------------------
 
 ///|
 pub struct QuadNum {
@@ -221,18 +180,8 @@ pub fn quad_sqrt_int(n : Int32) -> QuadNum {
 }
 
 ///|
-pub fn quad_is_rat(x : QuadNum) -> Bool {
-  rat_is_zero(x.b)
-}
 
 ///|
-pub fn quad_to_rat(x : QuadNum) -> Rat? {
-  if rat_is_zero(x.b) {
-    Some(x.a)
-  } else {
-    None
-  }
-}
 
 ///|
 pub fn quad_compatible(x : QuadNum, y : QuadNum) -> Bool {
@@ -287,9 +236,6 @@ pub fn quad_mul(x : QuadNum, y : QuadNum) -> QuadNum {
 }
 
 ///|
-pub fn quad_conj(x : QuadNum) -> QuadNum {
-  QuadNum::{ a: x.a, b: rat_neg(x.b), d: x.d, }
-}
 
 ///|
 pub fn quad_norm(x : QuadNum) -> Rat {
@@ -539,13 +485,6 @@ pub fn alg_div(x : AlgNum, y : AlgNum) -> AlgNum? {
 }
 
 ///|
-pub fn alg_to_rat(x : AlgNum) -> Rat? {
-  if qpoly_degree(x.poly) <= 0 {
-    Some(qpoly_coeff(x.poly, 0))
-  } else {
-    None
-  }
-}
 
 ///|
 pub fn alg_of_quad(x : QuadNum) -> AlgNum {
@@ -618,13 +557,6 @@ pub fn alg_rebase_to_minimal(x : AlgNum) -> AlgNum {
 }
 
 ///|
-pub fn alg_modulus_irreducible_small(x : AlgNum) -> Bool {
-  qpoly_irreducible_upto3(x.modulus)
-}
-
-// ---------------------------------------------------------------------------
-// Matrices over an algebraic extension
-// ---------------------------------------------------------------------------
 
 ///|
 pub type AlgVec = Array[AlgNum]
@@ -700,17 +632,6 @@ pub fn algvec_is_zero(v : AlgVec) -> Bool {
 }
 
 ///|
-pub fn algmat_add(a : AlgMat, b : AlgMat) -> AlgMat {
-  let rows : Array[Array[AlgNum]] = []
-  for i in 0..<a.rows.length() {
-    let row : Array[AlgNum] = []
-    for j in 0..<a.rows[i].length() {
-      row.push(alg_add(a.rows[i][j], b.rows[i][j]))
-    }
-    rows.push(row)
-  }
-  AlgMat::{ n: a.n, rows, modulus: a.modulus, }
-}
 
 ///|
 pub fn algmat_sub(a : AlgMat, b : AlgMat) -> AlgMat {

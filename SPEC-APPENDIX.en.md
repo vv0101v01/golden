@@ -8,7 +8,7 @@
 > is the MoonBit package registered in `architecture.json`.
 
 <!-- APPENDIX:BEGIN -->
-**6484** public symbols (declarations + constructors + fields) in 98 specification families; by package: `algebra` 956, `bridge` 171, `cmd-semiringreport` 42, `root` 3262, `scheme` 314, `semiring-algebra` 287, `semiring-app` 24, `semiring-bp` 22, `semiring-cat` 33, `semiring-examples` 18, `semiring-graph` 40, `semiring-io` 9, `semiring-matrix` 60, `semiring-monoid` 85, `semiring-nf` 43, `semiring-par` 18, `semiring-par-host` 4, `semiring-ratelimit` 64, `semiring-sim` 42, `semiring-spline` 17, `semiring-trop` 84, `symlib` 537, `topos` 352.
+**6564** public symbols (declarations + constructors + fields) in 97 specification families; by package: `algebra` 954, `bridge` 170, `cmd-semiringreport` 42, `hostfs` 40, `root` 3378, `scheme` 299, `semiring-algebra` 287, `semiring-app` 21, `semiring-bp` 20, `semiring-cat` 30, `semiring-graph` 39, `semiring-io` 9, `semiring-matrix` 60, `semiring-monoid` 85, `semiring-nf` 41, `semiring-par` 17, `semiring-par-host` 4, `semiring-ratelimit` 64, `semiring-sim` 42, `semiring-spline` 15, `semiring-trop` 84, `symlib` 519, `topos` 344.
 
 ### Complex scalars
 
@@ -185,15 +185,10 @@
 | `check_bdd_optimal_order_dp` | root | function |
 | `check_interval_faces` | root | function |
 | `contains_int` | root | function |
-| `dim_and` | root | function |
-| `dim_neg` | root | function |
 | `dim_of_face` | root | function |
-| `dim_one` | root | function |
-| `dim_or` | root | function |
 | `dim_simplify` | root | function |
 | `dim_subst` | root | function |
 | `dim_var` | root | function |
-| `dim_zero` | root | function |
 | `face_and` | root | function |
 | `face_bot` | root | function |
 | `face_bound` | root | function |
@@ -626,7 +621,6 @@
 | `dep_nf_closed` | root | function |
 | `dep_type_of_closed` | root | function |
 | `dep_type_val_of` | root | function |
-| `deval` | root | function |
 | `dfst_typed` | root | function |
 | `dsnd_typed` | root | function |
 | `lty_to_dterm` | root | function |
@@ -860,20 +854,16 @@
 | `dterm_dag_snapshot_validate` | root | function |
 | `dterm_distinct_subterm_count` | root | function |
 | `dterm_intern` | root | function |
-| `dterm_intern_all` | root | function |
 | `dterm_intern_id` | root | function |
 | `dterm_intern_lookup_id` | root | function |
 | `dterm_intern_node` | root | function |
-| `dterm_intern_table_children` | root | function |
 | `dterm_intern_table_new` | root | function |
 | `dterm_intern_table_prefix_digest` | root | function |
 | `dterm_intern_table_size` | root | function |
 | `dterm_intern_table_snapshot` | root | function |
 | `dterm_intern_table_term` | root | function |
 | `dterm_local_shell` | root | function |
-| `dterm_local_stamp` | root | function |
 | `dterm_rebuild` | root | function |
-| `dterm_sharing_ratio` | root | function |
 | `dterm_tree_node_count` | root | function |
 | `force_value` | root | function |
 | `lazy_deval` | root | function |
@@ -914,6 +904,7 @@
 | `DTubeBranch.face` | root | field |
 | `DTubeBranch.path` | root | field |
 | `check_dsystem_canonical_partial_nf` | root | function |
+| `check_dsystem_compatibility` | root | function |
 | `check_dsystem_structural_agreement_and_supplementation` | root | function |
 | `check_multibranch_glue_partial` | root | function |
 | `check_phase5_semantic_systems` | root | function |
@@ -921,8 +912,6 @@
 | `dface_value` | root | function |
 | `dsystem_canonical` | root | function |
 | `dsystem_checked` | root | function |
-| `dsystem_checked_of` | root | function |
-| `dsystem_compatibility` | root | function |
 | `dsystem_compatibility_report` | root | function |
 | `dsystem_compatibility_report_in` | root | function |
 | `dsystem_compatible_with_base` | root | function |
@@ -1031,7 +1020,6 @@
 | `darg_external` | root | function |
 | `darg_function` | root | function |
 | `darg_mutual` | root | function |
-| `darg_mutual_function` | root | function |
 | `darg_nested` | root | function |
 | `darg_recursive` | root | function |
 | `dconstructor_constraint` | root | function |
@@ -1098,9 +1086,7 @@
 | `schema_registry_binary_version_policy` | root | function |
 | `schema_registry_from_binary` | root | function |
 | `schema_registry_hit_by_id` | root | function |
-| `schema_registry_hit_by_name` | root | function |
 | `schema_registry_hit_plan` | root | function |
-| `schema_registry_inductive_by_id` | root | function |
 | `schema_registry_inductive_by_name` | root | function |
 | `schema_registry_inductive_plan` | root | function |
 | `schema_registry_manifest` | root | function |
@@ -1192,16 +1178,13 @@
 | `hit_index_types` | root | function |
 | `hit_index_types_cached` | root | function |
 | `hit_intro_term` | root | function |
-| `hit_motive_type` | root | function |
 | `hit_param_types` | root | function |
 | `hit_param_types_cached` | root | function |
 | `hit_parameter_positivity` | root | function |
-| `hit_plan_type_term` | root | function |
 | `hit_result_indices` | root | function |
 | `hit_schema_examples` | root | function |
 | `hit_schema_key` | root | function |
 | `hit_schema_validate` | root | function |
-| `hit_type_term` | root | function |
 | `infer_hit_elim` | root | function |
 | `infer_hit_intro` | root | function |
 | `infer_hit_type` | root | function |
@@ -1302,7 +1285,6 @@
 | `frac_var` | algebra | function |
 | `frac_zero` | algebra | function |
 | `int_abs` | algebra | function |
-| `int_gcd` | algebra | function |
 | `poly_add` | algebra | function |
 | `poly_const` | algebra | function |
 | `poly_drop_atom` | algebra | function |
@@ -1317,7 +1299,6 @@
 | `poly_normalize` | algebra | function |
 | `poly_one` | algebra | function |
 | `poly_open_box` | algebra | function |
-| `poly_scale` | algebra | function |
 | `poly_sub` | algebra | function |
 | `poly_subst_all` | algebra | function |
 | `poly_var` | algebra | function |
@@ -1326,15 +1307,12 @@
 | `rat_big_int` | algebra | function |
 | `rat_div` | algebra | function |
 | `rat_eq` | algebra | function |
-| `rat_fits_int32` | algebra | function |
 | `rat_int` | algebra | function |
 | `rat_inv` | algebra | function |
 | `rat_is_one` | algebra | function |
-| `rat_is_square` | algebra | function |
 | `rat_is_zero` | algebra | function |
 | `rat_make` | algebra | function |
 | `rat_make_big` | algebra | function |
-| `rat_make_decimal_strings` | algebra | function |
 | `rat_mul` | algebra | function |
 | `rat_neg` | algebra | function |
 | `rat_nth_root_exact` | algebra | function |
@@ -1343,12 +1321,10 @@
 | `rat_sqrt_if_square` | algebra | function |
 | `rat_sub` | algebra | function |
 | `rat_to_double` | algebra | function |
-| `rat_to_string` | algebra | function |
 | `rat_zero` | algebra | function |
 | `sc_add` | algebra | function |
 | `sc_conj` | algebra | function |
 | `sc_eq` | algebra | function |
-| `sc_i` | algebra | function |
 | `sc_int` | algebra | function |
 | `sc_is_zero` | algebra | function |
 | `sc_make` | algebra | function |
@@ -1371,19 +1347,15 @@
 | `sym_mat_from_rows` | algebra | function |
 | `sym_mat_identity` | algebra | function |
 | `sym_mat_mul` | algebra | function |
-| `sym_mat_of_qmat` | algebra | function |
 | `sym_mat_scale` | algebra | function |
 | `sym_mat_sub` | algebra | function |
-| `sym_mat_trace` | algebra | function |
 | `sym_mat_vec` | algebra | function |
 | `sym_mat_zero` | algebra | function |
 | `sym_outer` | algebra | function |
 | `sym_projector_rank_one` | algebra | function |
-| `sym_scalar_matrix` | algebra | function |
 | `sym_vec_add` | algebra | function |
 | `sym_vec_eq` | algebra | function |
 | `sym_vec_scale` | algebra | function |
-| `sym_vec_scale_c` | algebra | function |
 | `sym_vec_sub` | algebra | function |
 | `upoly_add` | algebra | function |
 | `upoly_const` | algebra | function |
@@ -1418,7 +1390,6 @@
 | `check_symbolic_nonlinear_boundary` | algebra | function |
 | `check_symbolic_pruning` | algebra | function |
 | `rpoly_add` | algebra | function |
-| `rpoly_const` | algebra | function |
 | `rpoly_degree` | algebra | function |
 | `rpoly_divisible_by` | algebra | function |
 | `rpoly_divmod_monic` | algebra | function |
@@ -1485,13 +1456,10 @@
 | `elems_of` | root | function |
 | `in_ty` | root | function |
 | `pval_fst` | root | function |
-| `pval_not` | root | function |
 | `pval_snd` | root | function |
-| `pval_swap` | root | function |
 | `pval_to_dvalue` | root | function |
 | `ty_bool` | root | function |
 | `ty_prod` | root | function |
-| `ty_unit` | root | function |
 
 ### Wiring symbolic equivalences
 
@@ -1568,14 +1536,12 @@
 | `equiv_comp` | root | function |
 | `equiv_compose_value` | root | function |
 | `equiv_ext_eq` | root | function |
-| `equiv_ext_eq_oracle` | root | function (differential-testing oracle, not a decision path) |
 | `equiv_fun_value` | root | function |
 | `equiv_fwd_value` | root | function |
 | `equiv_id` | root | function |
 | `equiv_id_value` | root | function |
 | `equiv_inv` | root | function |
 | `equiv_inv_fun_value` | root | function |
-| `equiv_inv_value` | root | function |
 | `equiv_make_value` | root | function |
 | `equiv_of_wiring` | root | function |
 | `equiv_parts` | root | function |
@@ -1585,20 +1551,16 @@
 | `equiv_sect_type` | root | function |
 | `equiv_sect_value` | root | function |
 | `equiv_swap` | root | function |
-| `equiv_type_term` | root | function |
 | `equiv_wf` | root | function |
-| `equiv_wf_extensional` | root | function (differential-testing oracle, not a decision path) |
 | `iso_bool_not` | root | function |
 | `iso_of_wiring` | root | function |
 | `iso_swap` | root | function |
 | `iso_to_equiv` | root | function |
 | `iso_to_path` | root | function |
 | `iso_wf` | root | function |
-| `iso_wf_extensional` | root | function (differential-testing oracle, not a decision path) |
 | `swap_naturality` | root | function |
 | `ua` | root | function |
 | `ua_line_value` | root | function |
-| `ua_term` | root | function |
 | `ua_type_at` | root | function |
 | `ua_value` | root | function |
 | `upath_eq` | root | function |
@@ -1666,7 +1628,6 @@
 | `glue_equiv_restrict_arg_under_face` | root | function |
 | `glue_equiv_store_partial` | root | function |
 | `glue_equiv_systems_conv` | root | function |
-| `glue_equiv_term` | root | function |
 | `glue_equiv_top_index` | root | function |
 | `glue_from_base` | root | function |
 | `glue_restrict` | root | function |
@@ -1738,7 +1699,6 @@
 | `map_cube_matrix` | root | function |
 | `outer2` | root | function |
 | `prune_cube_subline` | root | function |
-| `subline_const` | root | function |
 | `subline_from_unit_path` | root | function |
 | `vec_box` | root | function |
 | `vec_normalize` | root | function |
@@ -1908,7 +1868,6 @@
 | `bdd_manager_cache_stats` | root | function |
 | `bdd_manager_new` | root | function |
 | `bdd_manager_node_count` | root | function |
-| `bdd_manager_stats` | root | function |
 | `bdd_manager_with_order` | root | function |
 | `bdd_tree_of_dag` | root | function |
 | `bdd_var_order_candidates` | root | function |
@@ -1940,7 +1899,6 @@
 | `face_sat_cdcl_report` | root | function |
 | `face_sat_dpll` | root | function |
 | `face_sat_watched_dpll` | root | function |
-| `face_sat_within_budget` | root | function |
 
 ### Raw DSystem compatibility and first-match normal forms
 
@@ -2015,7 +1973,6 @@
 | `DTubeNFClass.path` | root | field |
 | `DTubeNFClass.region` | root | field |
 | `check_conv_under_face_relevant_descent` | root | function |
-| `check_dsystem_compatibility` | root | function |
 | `check_dsystem_first_match_nf` | root | function |
 | `check_dsystem_maximum_completion` | root | function |
 | `check_dsystem_repair_phase9` | root | function |
@@ -2031,7 +1988,6 @@
 | `dsystem_repair_all_maxima` | root | function |
 | `dsystem_repair_all_maxima_dsatur` | root | function |
 | `dsystem_repair_maximum` | root | function |
-| `dtube_nf_class` | root | function |
 | `face_agreement_face` | root | function |
 | `face_agreement_face_sound` | root | function |
 | `face_agreement_region` | root | function |
@@ -2113,19 +2069,14 @@
 | `checked_comp_value` | root | function |
 | `checked_constant_type_line` | root | function |
 | `checked_constant_type_line_closed` | root | function |
-| `checked_fill_value` | root | function |
 | `checked_line_at` | root | function |
-| `checked_line_body` | root | function |
-| `checked_line_conv` | root | function |
 | `checked_line_endpoints` | root | function |
 | `checked_line_fn` | root | function |
 | `checked_line_is_constant` | root | function |
 | `checked_line_level` | root | function |
-| `checked_line_of_pathp_term` | root | function |
 | `checked_line_quote_body` | root | function |
 | `checked_line_reify_closed` | root | function |
 | `checked_line_reparam_closed` | root | function |
-| `checked_pathp_type` | root | function |
 | `checked_type_line` | root | function |
 | `checked_type_line_closed` | root | function |
 | `checked_ua_line` | root | function |
@@ -2259,7 +2210,6 @@
 | `conv_decode_neutral` | root | function |
 | `conv_schema_args_full` | root | function |
 | `decode_term` | root | function |
-| `dfunctor_const` | root | function |
 | `dfunctor_container` | root | function |
 | `dfunctor_family` | root | function |
 | `dfunctor_identity` | root | function |
@@ -2269,7 +2219,6 @@
 | `dfunctor_pi` | root | function |
 | `dfunctor_product` | root | function |
 | `dfunctor_self_family` | root | function |
-| `dfunctor_sigma` | root | function |
 | `dfunctor_sum` | root | function |
 | `dfunctorial_positivity_container_cert` | root | function |
 | `dfunctorial_positivity_covariant_cert` | root | function |
@@ -2336,14 +2285,10 @@
 | `circle_level_scheme` | root | function |
 | `compile_mutual_inductive` | root | function |
 | `cube3_schema` | root | function |
-| `dlevel_const` | root | function |
 | `dlevel_eval` | root | function |
 | `dlevel_hit_decl` | root | function |
 | `dlevel_inductive_decl` | root | function |
-| `dlevel_max` | root | function |
-| `dlevel_succ` | root | function |
 | `dlevel_term_decl` | root | function |
-| `dlevel_var` | root | function |
 | `equal_nat_pair_schema` | root | function |
 | `even_odd_components` | root | function |
 | `even_odd_family` | root | function |
@@ -2356,16 +2301,13 @@
 | `mutual_ctor_index` | root | function |
 | `mutual_decl_elaborate` | root | function |
 | `mutual_decl_positivity` | root | function |
-| `mutual_elim_term` | root | function |
 | `mutual_intro_term` | root | function |
 | `mutual_intro_value` | root | function |
 | `mutual_motive_function` | root | function |
 | `mutual_nat_term` | root | function |
 | `mutual_nat_value` | root | function |
 | `mutual_type_term` | root | function |
-| `mutual_type_value` | root | function |
 | `quotient_eq_term` | root | function |
-| `quotient_point_term` | root | function |
 | `quotient_schema` | root | function |
 | `rose_tree_schema` | root | function |
 | `tarski_universe_schema` | root | function |
@@ -2433,7 +2375,6 @@
 | `qmat_scale` | algebra | function |
 | `qmat_sub` | algebra | function |
 | `qmat_trace` | algebra | function |
-| `qmat_transpose` | algebra | function |
 | `qmat_vec` | algebra | function |
 | `qmat_zero` | algebra | function |
 | `qpoly_add` | algebra | function |
@@ -2451,7 +2392,6 @@
 | `qpoly_factor_rational_roots` | algebra | function |
 | `qpoly_gcd` | algebra | function |
 | `qpoly_int` | algebra | function |
-| `qpoly_integer_coeffs` | algebra | function |
 | `qpoly_integer_coeffs_big` | algebra | function |
 | `qpoly_irreducibility_certificate` | algebra | function |
 | `qpoly_irreducibility_certificate_check` | algebra | function |
@@ -2555,7 +2495,6 @@
 | `alg_is_zero` | algebra | function |
 | `alg_make` | algebra | function |
 | `alg_minimal_polynomial` | algebra | function |
-| `alg_modulus_irreducible_small` | algebra | function |
 | `alg_mul` | algebra | function |
 | `alg_multiplication_matrix` | algebra | function |
 | `alg_neg` | algebra | function |
@@ -2570,8 +2509,6 @@
 | `alg_sqrt_in_field` | algebra | function |
 | `alg_sqrt_rat` | algebra | function |
 | `alg_sub` | algebra | function |
-| `alg_to_quad` | algebra | function |
-| `alg_to_rat` | algebra | function |
 | `alg_trace` | algebra | function |
 | `alg_zero` | algebra | function |
 | `check_algebraic_radicals_and_rank6_multiquad` | algebra | function |
@@ -2592,8 +2529,6 @@
 | `cubic_rat` | algebra | function |
 | `cubic_sign` | algebra | function |
 | `cubic_sub` | algebra | function |
-| `int_sqrt_exact` | algebra | function |
-| `int_squarefree_decomp` | algebra | function |
 | `multiquad_add` | algebra | function |
 | `multiquad_add_upto` | algebra | function |
 | `multiquad_align` | algebra | function |
@@ -2602,37 +2537,29 @@
 | `multiquad_eq` | algebra | function |
 | `multiquad_eq_upto` | algebra | function |
 | `multiquad_inv` | algebra | function |
-| `multiquad_is_rat` | algebra | function |
 | `multiquad_is_zero` | algebra | function |
 | `multiquad_make` | algebra | function |
 | `multiquad_make_upto` | algebra | function |
 | `multiquad_mul` | algebra | function |
 | `multiquad_mul_upto` | algebra | function |
 | `multiquad_neg` | algebra | function |
-| `multiquad_of_biquad` | algebra | function |
-| `multiquad_of_quad` | algebra | function |
-| `multiquad_of_triquad` | algebra | function |
 | `multiquad_rat` | algebra | function |
 | `multiquad_rational_square_adjustment` | algebra | function |
-| `multiquad_reembed` | algebra | function |
 | `multiquad_sign` | algebra | function |
 | `multiquad_sqrt_extended` | algebra | function |
 | `multiquad_sqrt_extended_upto` | algebra | function |
 | `multiquad_sqrt_in_field` | algebra | function |
 | `multiquad_sqrt_rat` | algebra | function |
 | `multiquad_sub` | algebra | function |
-| `multiquad_to_rat` | algebra | function |
 | `multiquad_zero` | algebra | function |
 | `quad_add` | algebra | function |
 | `quad_compatible` | algebra | function |
-| `quad_conj` | algebra | function |
 | `quad_denested_cuberoot` | algebra | function |
 | `quad_denested_sqrt` | algebra | function |
 | `quad_div` | algebra | function |
 | `quad_eq` | algebra | function |
 | `quad_int` | algebra | function |
 | `quad_inv` | algebra | function |
-| `quad_is_rat` | algebra | function |
 | `quad_is_zero` | algebra | function |
 | `quad_make` | algebra | function |
 | `quad_make_big` | algebra | function |
@@ -2647,7 +2574,6 @@
 | `quad_sqrt_rat` | algebra | function |
 | `quad_sub` | algebra | function |
 | `quad_to_double` | root | function |
-| `quad_to_rat` | algebra | function |
 | `quad_trace` | algebra | function |
 | `quad_zero` | algebra | function |
 | `real_alg_add` | algebra | function |
@@ -2724,13 +2650,8 @@
 | `QPrimaryProjector.factor` | algebra | field |
 | `QPrimaryProjector.polynomial` | algebra | field |
 | `QPrimaryProjector.projector` | algebra | field |
-| `QRationalSpectrum` | algebra | struct |
-| `QRationalSpectrum.eigenvalues` | algebra | field |
-| `QRationalSpectrum.multiplicities` | algebra | field |
-| `QRationalSpectrum.residual` | algebra | field |
 | `algmat_Jordan_chains` | algebra | function |
 | `algmat_Jordan_decomposition` | algebra | function |
-| `algmat_add` | algebra | function |
 | `algmat_charpoly` | algebra | function |
 | `algmat_eigenvalue_multiplicity` | algebra | function |
 | `algmat_eq` | algebra | function |
@@ -2755,7 +2676,6 @@
 | `algvec_rank` | algebra | function |
 | `algvec_zero` | algebra | function |
 | `check_algebraic_extensions_and_Jordan` | algebra | function |
-| `qmat_Jordan_block_sizes` | algebra | function |
 | `qmat_Jordan_chains` | algebra | function |
 | `qmat_Jordan_decomposition` | algebra | function |
 | `qmat_Jordan_decomposition_auto` | algebra | function |
@@ -2767,7 +2687,6 @@
 | `qmat_is_diagonalizable_rational` | algebra | function |
 | `qmat_primary_projector` | algebra | function |
 | `qmat_primary_subspace_basis` | algebra | function |
-| `qmat_rational_spectrum` | algebra | function |
 | `qmat_vector_annihilator` | algebra | function |
 
 ### Certified numeric shadows and exact cubes
@@ -2821,7 +2740,6 @@
 | `alg_cert_is_projector` | root | function |
 | `alg_cert_mat_adjoint` | root | function |
 | `alg_cert_mat_eq` | root | function |
-| `alg_cert_mat_from_rows` | root | function |
 | `alg_cert_mat_mul` | root | function |
 | `alg_cert_mat_vec` | root | function |
 | `alg_cert_outer` | root | function |
@@ -2829,21 +2747,16 @@
 | `alg_cert_path_in_image` | root | function |
 | `alg_cert_square_eval` | root | function |
 | `alg_cert_square_in_image` | root | function |
-| `alg_cert_vec_add` | root | function |
 | `alg_cert_vec_eq` | root | function |
 | `alg_cert_vec_scale` | root | function |
 | `algc_add` | root | function |
 | `algc_conj` | root | function |
 | `algc_eq` | root | function |
 | `algc_i` | root | function |
-| `algc_is_zero` | root | function |
-| `algc_make` | root | function |
 | `algc_mul` | root | function |
-| `algc_neg` | root | function |
 | `algc_one` | root | function |
 | `algc_real` | root | function |
 | `algc_scale_alg` | root | function |
-| `algc_sub` | root | function |
 | `algc_zero` | root | function |
 | `cert_complement` | root | function |
 | `cert_eigenspace_kan_sound` | root | function |
@@ -2862,7 +2775,6 @@
 | `cert_mat_from_rows` | root | function |
 | `cert_mat_identity` | root | function |
 | `cert_mat_mul` | root | function |
-| `cert_mat_scale_quad` | root | function |
 | `cert_mat_sub` | root | function |
 | `cert_mat_to_numeric` | root | function |
 | `cert_mat_trace` | root | function |
@@ -2870,7 +2782,6 @@
 | `cert_mat_zero` | root | function |
 | `cert_open_box_wf` | root | function |
 | `cert_outer` | root | function |
-| `cert_path_const` | root | function |
 | `cert_path_end` | root | function |
 | `cert_path_eq` | root | function |
 | `cert_path_in_image` | root | function |
@@ -2878,22 +2789,18 @@
 | `cert_path_line` | root | function |
 | `cert_path_start` | root | function |
 | `cert_path_sym` | root | function |
-| `cert_projector_of_vector` | root | function |
 | `cert_pruning_repairs_filler` | root | function |
 | `cert_square_add` | root | function |
 | `cert_square_apply` | root | function |
 | `cert_square_bilinear` | root | function |
 | `cert_square_bump` | root | function |
-| `cert_square_eq` | root | function |
 | `cert_square_face` | root | function |
 | `cert_square_fill` | root | function |
 | `cert_square_in_image` | root | function |
 | `cert_vec_add` | root | function |
 | `cert_vec_eq` | root | function |
 | `cert_vec_scale` | root | function |
-| `cert_vec_scale_quad` | root | function |
 | `cert_vec_sub` | root | function |
-| `cert_vec_to_numeric` | root | function |
 | `cert_vec_zero` | root | function |
 | `certify_numeric_projector` | root | function |
 | `certify_projector` | root | function |
@@ -2909,13 +2816,11 @@
 | `qcc_eq` | root | function |
 | `qcc_i` | root | function |
 | `qcc_is_zero` | root | function |
-| `qcc_make` | root | function |
 | `qcc_mul` | root | function |
 | `qcc_neg` | root | function |
 | `qcc_one` | root | function |
 | `qcc_rat` | root | function |
 | `qcc_real` | root | function |
-| `qcc_scale_quad` | root | function |
 | `qcc_sub` | root | function |
 | `qcc_to_complex` | root | function |
 | `qcc_zero` | root | function |
@@ -3092,7 +2997,6 @@
 | `check_jacobi_block_deflation_and_multiplicity` | algebra | function |
 | `check_jacobi_cluster_separation` | algebra | function |
 | `check_phase14_jacobi_block_deflation_and_multiplicity` | root | function |
-| `cinterval` | algebra | function |
 | `cinterval_add` | algebra | function |
 | `cinterval_conj` | algebra | function |
 | `cinterval_contains` | algebra | function |
@@ -3120,10 +3024,8 @@
 | `jacobi_similarity_interval` | algebra | function |
 | `jacobi_unitary_interval` | algebra | function |
 | `jacobi_unitary_residual_contains_zero` | algebra | function |
-| `qci_mat_add` | algebra | function |
 | `qci_mat_adjoint` | algebra | function |
 | `qci_mat_contains` | algebra | function |
-| `qci_mat_contains_point` | algebra | function |
 | `qci_mat_from_point` | algebra | function |
 | `qci_mat_from_rows` | algebra | function |
 | `qci_mat_hermitian_hull` | algebra | function |
@@ -3256,6 +3158,13 @@
 | `HouLazyUnifierStream.root_started` | root | field |
 | `HouLazyUnifierStream.round_budget` | root | field |
 | `HouLazyUnifierStream.stack` | root | field |
+| `HouMatchResult` | root | enum |
+| `HouMatchResult::HouMatchBudgetExceeded` | root | constructor |
+| `HouMatchResult::HouMatchNoneWithinBound` | root | constructor |
+| `HouMatchResult::HouMatchSolved` | root | constructor |
+| `HouMatchResult::equal` | root | function |
+| `HouMatchResult::not_equal` | root | function |
+| `HouMatchResult::to_repr` | root | function |
 | `HouMguReport` | root | struct |
 | `HouMguReport.residual` | root | field |
 | `HouMguReport.status` | root | field |
@@ -3351,6 +3260,7 @@
 | `Unifier::to_repr` | root | function |
 | `check_hou_bounded_search` | root | function |
 | `check_hou_elaborator` | root | function |
+| `check_hou_matching` | root | function |
 | `check_hou_phase9_extensions` | root | function |
 | `check_hou_residual_solver` | root | function |
 | `check_hou_search_extensions` | root | function |
@@ -3361,8 +3271,11 @@
 | `elab_result_to_dterm` | root | function |
 | `elab_type_to_dterm` | root | function |
 | `elaborator_new` | root | function |
+| `hou_conv` | root | function |
 | `hou_enumerate_unifiers` | root | function |
 | `hou_fresh_meta` | root | function |
+| `hou_match` | root | function |
+| `hou_match_solved_within` | root | function |
 | `hou_reify_delayed_flex_flex` | root | function |
 | `hou_search_unify` | root | function |
 | `hou_search_unify_bool` | root | function |
@@ -3383,7 +3296,6 @@
 | `uterm_whnf` | root | function |
 | `uty_arrow` | root | function |
 | `uty_bool` | root | function |
-| `uty_implicit_arrow` | root | function |
 | `uty_nat` | root | function |
 | `uty_unit` | root | function |
 
@@ -3518,19 +3430,82 @@
 
 | Symbol | Package | Kind |
 |---|---|---|
+| `BrunerieNorm` | root | enum |
+| `BrunerieNorm::DoesNotNormalise` | root | constructor |
+| `BrunerieNorm::NeverNormalised` | root | constructor |
+| `BrunerieNorm::NormalisesTo` | root | constructor |
+| `BrunerieNorm::equal` | root | function |
+| `BrunerieNorm::not_equal` | root | function |
+| `BrunerieNorm::to_repr` | root | function |
+| `BrunerieNumber` | root | struct |
+| `BrunerieNumber.complexity` | root | field |
+| `BrunerieNumber.name` | root | field |
+| `BrunerieNumber.norm` | root | field |
+| `BrunerieNumber::equal` | root | function |
+| `BrunerieNumber::not_equal` | root | function |
+| `BrunerieNumber::to_repr` | root | function |
+| `FgAb` | root | struct |
+| `FgAb.rank` | root | field |
+| `FgAb.torsion` | root | field |
+| `FgAb::equal` | root | function |
+| `FgAb::not_equal` | root | function |
+| `FgAb::to_repr` | root | function |
+| `FreuStatus` | root | enum |
+| `FreuStatus::FreuEquiv` | root | constructor |
+| `FreuStatus::FreuNone` | root | constructor |
+| `FreuStatus::FreuSurj` | root | constructor |
+| `FreuStatus::equal` | root | function |
+| `FreuStatus::not_equal` | root | function |
+| `FreuStatus::to_repr` | root | function |
 | `KanBox` | root | struct |
 | `KanBox.base` | root | field |
 | `KanBox.dlevel` | root | field |
 | `KanBox.line` | root | field |
 | `KanBox.system` | root | field |
+| `Origin` | root | enum |
+| `Origin::Imported` | root | constructor |
+| `Origin::Prior` | root | constructor |
+| `Origin::Proved` | root | constructor |
+| `Origin::equal` | root | function |
+| `Origin::not_equal` | root | function |
+| `Origin::to_repr` | root | function |
+| `Paren` | root | enum |
+| `Paren::PLeaf` | root | constructor |
+| `Paren::PNode` | root | constructor |
+| `Paren::equal` | root | function |
+| `Paren::not_equal` | root | function |
+| `Paren::to_repr` | root | function |
+| `Stree` | root | enum |
+| `Stree::SLeaf` | root | constructor |
+| `Stree::SNode` | root | constructor |
+| `Stree::equal` | root | function |
+| `Stree::not_equal` | root | function |
+| `Stree::to_repr` | root | function |
+| `assoc_euler_characteristic` | root | function |
+| `assoc_fvector` | root | function |
+| `assoc_tree_value` | root | function |
+| `assoc_two_faces` | root | function |
+| `bm_gap` | root | function |
+| `brunerie_family_decreasing` | root | function |
+| `brunerie_family_establishes` | root | function |
+| `brunerie_new_family` | root | function |
+| `brunerie_norm_establishes` | root | function |
+| `brunerie_original` | root | function |
+| `brunerie_whitehead_lives_in` | root | function |
+| `catalan` | root | function |
+| `check_assoc_faces` | root | function |
+| `check_blakers_massey` | root | function |
+| `check_brunerie_pi4_s3` | root | function |
 | `check_cubical_algorithms` | root | function |
+| `check_homotopy_universal` | root | function |
 | `check_phase14_eckmann_hilton_and_pentagon_coherence` | root | function |
+| `conn_of_sphere` | root | function |
+| `cyclic_of_beta` | root | function |
 | `dfunext_term` | root | function |
 | `dj_singleton_elim_value` | root | function |
 | `dpath_assoc3_value` | root | function |
 | `dpath_assoc_path3_value` | root | function |
 | `dpath_associahedron_k5_cell5_value` | root | function |
-| `dpath_at_value` | root | function |
 | `dpath_cong_term` | root | function |
 | `dpath_cong_value` | root | function |
 | `dpath_eckmann_hilton3_value` | root | function |
@@ -3551,7 +3526,6 @@
 | `dpath_pentagon_path_top3_value` | root | function |
 | `dpath_pentagon_top3_value` | root | function |
 | `dpath_prefix_value` | root | function |
-| `dpath_refl_term` | root | function |
 | `dpath_refl_value` | root | function |
 | `dpath_right_inverse3_value` | root | function |
 | `dpath_right_unit3_value` | root | function |
@@ -3570,24 +3544,94 @@
 | `dpathp_of_transport_eq_value` | root | function |
 | `dtransport_back_term` | root | function |
 | `dtransport_term` | root | function |
+| `fg_is_trivial` | root | function |
+| `fg_rank_le` | root | function |
+| `fg_z` | root | function |
+| `fg_zero` | root | function |
+| `fg_zmod` | root | function |
 | `fibration_loop_equiv_fiber_path_value` | root | function |
+| `freudenthal_status` | root | function |
+| `gap_equiv_below` | root | function |
+| `gap_surj_at` | root | function |
+| `homotopy_universal_remaining` | root | function |
+| `hopf_les_injective` | root | function |
+| `hopf_les_iso` | root | function |
+| `hopf_les_surjective` | root | function |
+| `james_cell_dim` | root | function |
+| `james_cells` | root | function |
+| `james_cons_value` | root | function |
+| `james_nil_value` | root | function |
+| `james_rec_value` | root | function |
+| `james_schema` | root | function |
+| `james_schema_at` | root | function |
+| `james_type_value` | root | function |
+| `join_cocone_type_value` | root | function |
+| `join_dim` | root | function |
+| `join_inl_value` | root | function |
+| `join_inr_value` | root | function |
+| `join_push_value` | root | function |
+| `join_rec_value` | root | function |
+| `join_schema` | root | function |
+| `join_schema_at` | root | function |
+| `join_sphere_dim` | root | function |
+| `join_type_value` | root | function |
 | `kan_box` | root | function |
 | `kan_box_comp` | root | function |
 | `kan_box_fill` | root | function |
 | `kan_box_pathp` | root | function |
+| `les_middle_is_injective` | root | function |
+| `les_middle_is_iso` | root | function |
+| `les_middle_is_surjective` | root | function |
+| `paren_all` | root | function |
+| `paren_k5_lhs1` | root | function |
+| `paren_leaves` | root | function |
+| `paren_left_spine` | root | function |
+| `paren_renumber` | root | function |
+| `paren_right_spine` | root | function |
+| `paren_rotation_edge_count` | root | function |
+| `paren_rotation_graph_connected` | root | function |
+| `paren_rotations` | root | function |
 | `pathp_equiv_transport_eq_value` | root | function |
+| `pi2_s2_iso_z_halves` | root | function |
+| `pi2_s2_iso_z_origins` | root | function |
+| `pi3_s2_iso_pi3_s3` | root | function |
+| `pi3_s2_iso_pi3_s3_origins` | root | function |
+| `pi3_s3_iso_pi2_s2` | root | function |
+| `pi3_s3_iso_pi2_s2_origins` | root | function |
+| `pi4_s3_group` | root | function |
+| `pi4_s3_iso_pi4_s2` | root | function |
+| `pi4_s3_origins` | root | function |
+| `pi_circle` | root | function |
+| `s3_is_join_of_two_circles` | root | function |
 | `sigma_cong_snd_equiv_value` | root | function |
 | `sigma_path_equiv_subst_value` | root | function |
 | `sigma_path_equiv_value` | root | function |
+| `stree_all` | root | function |
+| `stree_dim` | root | function |
+| `stree_leaves` | root | function |
 | `subst_pathp_value` | root | function |
 | `subst_refl_eq_value` | root | function |
 | `subst_trans_eq_value` | root | function |
 | `subst_value` | root | function |
+| `suspension_gap` | root | function |
 | `transport_back_value` | root | function |
 | `transport_checked_line_value` | root | function |
 | `transport_filler_value` | root | function |
 | `transport_pathp_value` | root | function |
 | `transport_value` | root | function |
+| `trunc_inc_value` | root | function |
+| `trunc_rec_value` | root | function |
+| `trunc_schema` | root | function |
+| `trunc_schema_at` | root | function |
+| `trunc_type_value` | root | function |
+| `wedge_glue_value` | root | function |
+| `wedge_rec_value` | root | function |
+| `wedge_schema` | root | function |
+| `wedge_schema_at` | root | function |
+| `wedge_type_value` | root | function |
+| `wedge_winl_value` | root | function |
+| `wedge_winr_value` | root | function |
+| `whitehead_degree` | root | function |
 
 ### Computational univalence
 
@@ -3620,7 +3664,6 @@
 | `universe_path_normal_form` | root | function |
 | `universe_path_of_checked_line` | root | function |
 | `universe_path_of_ua_term_closed` | root | function |
-| `universe_path_path_value` | root | function |
 | `universe_path_to_equiv_value` | root | function |
 | `universe_path_transport_conv` | root | function |
 | `upath_refl` | root | function |
@@ -3651,6 +3694,14 @@
 | `BiquadNum::equal` | algebra | function |
 | `BiquadNum::not_equal` | algebra | function |
 | `BiquadNum::to_repr` | algebra | function |
+| `CertEnclosure` | algebra | struct |
+| `CertEnclosure.hi` | algebra | field |
+| `CertEnclosure.lo` | algebra | field |
+| `CertEnclosure.tail` | algebra | field |
+| `CertEnclosure.terms` | algebra | field |
+| `CertEnclosure::equal` | algebra | function |
+| `CertEnclosure::not_equal` | algebra | function |
+| `CertEnclosure::to_repr` | algebra | function |
 | `ComplexAlgNum` | algebra | struct |
 | `ComplexAlgNum.disk` | algebra | field |
 | `ComplexAlgNum.minpoly` | algebra | field |
@@ -3663,6 +3714,22 @@
 | `ComplexRootIsolation.disk` | algebra | field |
 | `ComplexRootIsolation.multiplicity` | algebra | field |
 | `ComplexRootIsolation.polynomial` | algebra | field |
+| `EIrrCertificate` | algebra | struct |
+| `EIrrCertificate.a` | algebra | field |
+| `EIrrCertificate.e_hi` | algebra | field |
+| `EIrrCertificate.e_lo` | algebra | field |
+| `EIrrCertificate.m` | algebra | field |
+| `EIrrCertificate.n` | algebra | field |
+| `EIrrCertificate.p` | algebra | field |
+| `EIrrCertificate.q` | algebra | field |
+| `EIrrCertificate.q_divides_m` | algebra | field |
+| `EIrrCertificate.scaled_hi` | algebra | field |
+| `EIrrCertificate.scaled_lo` | algebra | field |
+| `EIrrCertificate.tail_bound` | algebra | field |
+| `EIrrCertificate.verified` | algebra | field |
+| `EIrrCertificate::equal` | algebra | function |
+| `EIrrCertificate::not_equal` | algebra | function |
+| `EIrrCertificate::to_repr` | algebra | function |
 | `LllReductionReport` | algebra | struct |
 | `LllReductionReport.reduced_basis` | algebra | field |
 | `LllReductionReport.size_reductions` | algebra | field |
@@ -3718,6 +3785,14 @@
 | `RealRootIsolation.multiplicity` | algebra | field |
 | `RealRootIsolation.polynomial` | algebra | field |
 | `RealRootIsolation.upper` | algebra | field |
+| `RefutationResult` | algebra | struct |
+| `RefutationResult.hi` | algebra | field |
+| `RefutationResult.lo` | algebra | field |
+| `RefutationResult.refuted` | algebra | field |
+| `RefutationResult.terms` | algebra | field |
+| `RefutationResult::equal` | algebra | function |
+| `RefutationResult::not_equal` | algebra | function |
+| `RefutationResult::to_repr` | algebra | function |
 | `SplittingField` | algebra | struct |
 | `SplittingField.modulus` | algebra | field |
 | `SplittingField.roots` | algebra | field |
@@ -3770,6 +3845,8 @@
 | `biquad_sub` | algebra | function |
 | `biquad_to_radical` | algebra | function |
 | `biquad_zero` | algebra | function |
+| `certified_e` | algebra | function |
+| `certified_pi` | algebra | function |
 | `check_biquadratic_denesting` | algebra | function |
 | `check_complex_algebraic_closure_rouche` | algebra | function |
 | `check_lll_lattice_and_van_hoeij_factor` | algebra | function |
@@ -3781,6 +3858,7 @@
 | `check_radical_denesting` | algebra | function |
 | `check_root_isolation` | algebra | function |
 | `check_splitting_field` | algebra | function |
+| `check_transcendental_boundary_layer` | algebra | function |
 | `complex_alg_add` | algebra | function |
 | `complex_alg_all_nth_roots` | algebra | function |
 | `complex_alg_conj` | algebra | function |
@@ -3797,6 +3875,11 @@
 | `complex_alg_roots_of` | algebra | function |
 | `complex_alg_sub` | algebra | function |
 | `complex_root_isolations_are_certified` | algebra | function |
+| `e_irr_certificate_verify` | algebra | function |
+| `e_irrationality_certificate` | algebra | function |
+| `e_refute_rational` | algebra | function |
+| `pi_refute_rational_refined` | algebra | function |
+| `poly_nonzero_at_e` | algebra | function |
 | `qcpx_hermitian_charpoly` | algebra | function |
 | `qcpx_hermitian_eigenvalue_isolations` | algebra | function |
 | `qmat_is_lll_reduced` | algebra | function |
@@ -3820,7 +3903,6 @@
 | `radical_equal_algebraic` | algebra | function |
 | `radical_equal_exact` | algebra | function |
 | `radical_int` | algebra | function |
-| `radical_rat` | algebra | function |
 | `radical_simplify` | algebra | function |
 | `radical_sqrt` | algebra | function |
 | `radical_to_biquad` | algebra | function |
@@ -3844,9 +3926,6 @@
 | Symbol | Package | Kind |
 |---|---|---|
 | `DLevelDecl` | root | enum |
-| `DLevelDecl::DLevelHit` | root | constructor |
-| `DLevelDecl::DLevelInductive` | root | constructor |
-| `DLevelDecl::DLevelTerm` | root | constructor |
 | `DLevelHitDecl` | root | struct |
 | `DLevelHitDecl.binders` | root | field |
 | `DLevelHitDecl.result_level` | root | field |
@@ -3981,10 +4060,6 @@
 | `dtype_operator_decl` | root | function |
 | `eval_simultaneous_ir` | root | function |
 | `extract_positive_functor` | root | function |
-| `level_decl_hit` | root | function |
-| `level_decl_inductive` | root | function |
-| `level_decl_term` | root | function |
-| `level_decl_validate` | root | function |
 | `level_hit_decl_validate` | root | function |
 | `level_identity_decl` | root | function |
 | `level_inductive_decl_validate` | root | function |
@@ -4023,8 +4098,6 @@
 | `DAdjointEquivParts` | root | struct |
 | `DAdjointEquivParts.equiv` | root | field |
 | `DAdjointEquivParts.triangle` | root | field |
-| `adjoint_equiv_make` | root | function |
-| `adjoint_equiv_to_equiv` | root | function |
 | `adjoint_equiv_type_term` | root | function |
 | `adjoint_id_value` | root | function |
 | `adjointify_equiv_value` | root | function |
@@ -4043,7 +4116,6 @@
 | `equiv_triangle_type` | root | function |
 | `equiv_with_improved_sect` | root | function |
 | `fiber_type_term` | root | function |
-| `identity_fibers_contractible_value` | root | function |
 | `is_contr_type_term` | root | function |
 | `prop_trunc_elim_prop_value` | root | function |
 | `prop_trunc_point_value` | root | function |
@@ -4136,7 +4208,6 @@
 | `pi2_s2_hopf_hom_value` | root | function |
 | `pi2_s2_hopf_retract_sect_value` | root | function |
 | `pi2_s2_type_value` | root | function |
-| `pi3_sphere_point_term` | root | function |
 | `pi3_sphere_type_term` | root | function |
 | `sphere2_susp_loop1_to_loop2_value` | root | function |
 | `sphere3_from_swapped_value` | root | function |
@@ -4147,9 +4218,7 @@
 | `sphere3_swapped_schema` | root | function |
 | `sphere3_swapped_sect_value` | root | function |
 | `sphere3_swapped_south_value` | root | function |
-| `sphere3_swapped_type_term` | root | function |
 | `sphere3_to_swapped_value` | root | function |
-| `sphere_degree_function_value` | root | function |
 | `sphere_degree_value` | root | function |
 | `sphere_loop_canonical_expr` | root | function |
 | `sphere_loop_canonical_value` | root | function |
@@ -4342,6 +4411,15 @@
 | `CompiledModuleStoreStats::equal` | root | function |
 | `CompiledModuleStoreStats::not_equal` | root | function |
 | `CompiledModuleStoreStats::to_repr` | root | function |
+| `DiskState` | hostfs | struct |
+| `DiskState.durable_dirent` | hostfs | field |
+| `DiskState.durable_inode` | hostfs | field |
+| `DiskState.inode_at` | hostfs | field |
+| `DiskState.inode_content` | hostfs | field |
+| `DiskState.next_inode` | hostfs | field |
+| `DiskState::equal` | hostfs | function |
+| `DiskState::not_equal` | hostfs | function |
+| `DiskState::to_repr` | hostfs | function |
 | `Ed25519Keypair` | root | struct |
 | `Ed25519Keypair.public_key` | root | field |
 | `Ed25519Keypair.seed` | root | field |
@@ -4358,6 +4436,43 @@
 | `Ed25519Signature::equal` | root | function |
 | `Ed25519Signature::not_equal` | root | function |
 | `Ed25519Signature::to_repr` | root | function |
+| `HotLoadDecision` | root | enum |
+| `HotLoadDecision::HotAdd` | root | constructor |
+| `HotLoadDecision::HotOpaqueSwap` | root | constructor |
+| `HotLoadDecision::HotReject` | root | constructor |
+| `HotLoadDecision::HotRelink` | root | constructor |
+| `HotLoadDecision::equal` | root | function |
+| `HotLoadDecision::not_equal` | root | function |
+| `HotLoadDecision::to_repr` | root | function |
+| `HotLoadEnv` | root | struct |
+| `HotLoadEnv.epoch` | root | field |
+| `HotLoadEnv.history` | root | field |
+| `HotLoadEnv.modules` | root | field |
+| `HotLoadEnv::equal` | root | function |
+| `HotLoadEnv::not_equal` | root | function |
+| `HotLoadEnv::to_repr` | root | function |
+| `HotLoadRecord` | root | struct |
+| `HotLoadRecord.epoch` | root | field |
+| `HotLoadRecord.interface_changed` | root | field |
+| `HotLoadRecord.path` | root | field |
+| `HotLoadRecord.reason` | root | field |
+| `HotLoadRecord.replacements` | root | field |
+| `HotLoadRecord.rolled_back` | root | field |
+| `HotLoadRecord::equal` | root | function |
+| `HotLoadRecord::not_equal` | root | function |
+| `HotLoadRecord::to_repr` | root | function |
+| `HotLoadReport` | root | struct |
+| `HotLoadReport.accepted` | root | field |
+| `HotLoadReport.epoch_after` | root | field |
+| `HotLoadReport.epoch_before` | root | field |
+| `HotLoadReport.interface_changed` | root | field |
+| `HotLoadReport.reason` | root | field |
+| `HotLoadReport.replacements` | root | field |
+| `HotLoadReport.rolled_back` | root | field |
+| `HotLoadReport.stale` | root | field |
+| `HotLoadReport::equal` | root | function |
+| `HotLoadReport::not_equal` | root | function |
+| `HotLoadReport::to_repr` | root | function |
 | `ModuleBinaryLoad` | root | struct |
 | `ModuleBinaryLoad.module_` | root | field |
 | `ModuleBinaryLoad.status` | root | field |
@@ -4418,6 +4533,13 @@
 | `ModuleTlvSection::equal` | root | function |
 | `ModuleTlvSection::not_equal` | root | function |
 | `ModuleTlvSection::to_repr` | root | function |
+| `Recovery` | hostfs | enum |
+| `Recovery::RecoveredAbsent` | hostfs | constructor |
+| `Recovery::RecoveredTorn` | hostfs | constructor |
+| `Recovery::RecoveredValue` | hostfs | constructor |
+| `Recovery::equal` | hostfs | function |
+| `Recovery::not_equal` | hostfs | function |
+| `Recovery::to_repr` | hostfs | function |
 | `SharedDagBundle` | root | struct |
 | `SharedDagBundle.modules` | root | field |
 | `SharedDagBundle.registry` | root | field |
@@ -4427,6 +4549,17 @@
 | `SharedDagBundleLoad.reused_dag_nodes` | root | field |
 | `SharedDagBundleLoad.shared_term_entries` | root | field |
 | `SharedDagBundleLoad.status` | root | field |
+| `StoreOp` | hostfs | enum |
+| `StoreOp::OpFsync` | hostfs | constructor |
+| `StoreOp::OpFsyncParent` | hostfs | constructor |
+| `StoreOp::OpLock` | hostfs | constructor |
+| `StoreOp::OpRename` | hostfs | constructor |
+| `StoreOp::OpUnlink` | hostfs | constructor |
+| `StoreOp::OpUnlock` | hostfs | constructor |
+| `StoreOp::OpWrite` | hostfs | constructor |
+| `StoreOp::equal` | hostfs | function |
+| `StoreOp::not_equal` | hostfs | function |
+| `StoreOp::to_repr` | hostfs | function |
 | `abstract_point_module` | root | function |
 | `artifact_byte_store_new` | root | function |
 | `artifact_kind_compiled_module` | root | function |
@@ -4477,9 +4610,11 @@
 | `artifact_wal_store_open` | root | function |
 | `binary_negotiate_version` | root | function |
 | `check_artifact_manifest_integrity_chain` | root | function |
+| `check_durable_write_protocol` | hostfs | function |
 | `check_module_binary_format` | root | function |
 | `check_module_binary_versions_and_store` | root | function |
 | `check_module_compilation` | root | function |
+| `check_module_runtime_hot_loading` | root | function |
 | `check_phase14_tlv_envelope_cas_and_incremental_sync` | root | function |
 | `check_phase16_crypto_ed25519_and_wal` | root | function |
 | `compiled_module_binary_format_version` | root | function |
@@ -4519,9 +4654,26 @@
 | `crypto_sha256_hex` | root | function |
 | `crypto_sha512` | root | function |
 | `crypto_sha512_hex` | root | function |
+| `disk_apply` | hostfs | function |
+| `disk_recover` | hostfs | function |
+| `disk_state_new` | hostfs | function |
+| `durable_delete_protocol` | hostfs | function |
+| `durable_write_protocol` | hostfs | function |
 | `ed25519_keypair_from_seed` | root | function |
 | `ed25519_sign` | root | function |
 | `ed25519_verify` | root | function |
+| `hot_load_apply` | root | function |
+| `hot_load_consistent` | root | function |
+| `hot_load_dependents` | root | function |
+| `hot_load_env_epoch` | root | function |
+| `hot_load_env_history` | root | function |
+| `hot_load_env_modules` | root | function |
+| `hot_load_env_new` | root | function |
+| `hot_load_env_to_compiled` | root | function |
+| `hot_load_instantiate` | root | function |
+| `hot_load_plan` | root | function |
+| `hot_load_signature` | root | function |
+| `hot_load_stale_modules` | root | function |
 | `module_build_dag_incremental` | root | function |
 | `module_compile` | root | function |
 | `module_compile_cache_lookup` | root | function |
@@ -4538,8 +4690,15 @@
 | `module_topological_plan` | root | function |
 | `point_client_module` | root | function |
 | `point_implementation_module` | root | function |
+| `protocol_deletes_on_completion` | hostfs | function |
+| `protocol_durable_on_completion` | hostfs | function |
+| `protocol_first_tear` | hostfs | function |
+| `protocol_is_crash_consistent` | hostfs | function |
 | `shared_dag_bundle_load_binary_report` | root | function |
 | `shared_dag_bundle_to_binary` | root | function |
+| `torn_write_protocol` | hostfs | function |
+| `unacknowledged_delete_protocol` | hostfs | function |
+| `unacknowledged_write_protocol` | hostfs | function |
 
 ### Categorification checks
 
@@ -4737,25 +4896,21 @@
 | `dcube_cubes_conv_covering_report` | root | function |
 | `dcube_cubes_conv_stratified` | root | function |
 | `dcube_cubes_conv_stratified_report` | root | function |
-| `dcube_degenerate` | root | function |
 | `dcube_face` | root | function |
 | `dcube_filler_faces_ok` | root | function |
 | `dcube_filler_faces_ok_stratified` | root | function |
 | `dcube_function` | root | function |
 | `dcube_generic_dims` | root | function |
 | `dcube_of_path` | root | function |
-| `dcube_of_point` | root | function |
 | `dcube_open_box` | root | function |
 | `dcube_phf_5colors` | root | function |
 | `dcube_yoneda_audit_report` | root | function |
-| `poly_box_cap` | algebra | function |
 | `poly_box_face` | algebra | function |
 | `poly_box_face_of` | algebra | function |
 | `poly_box_fill` | algebra | function |
 | `poly_box_fill_verified` | algebra | function |
 | `poly_box_filler_faces_ok` | algebra | function |
 | `poly_box_validate` | algebra | function |
-| `poly_cube` | algebra | function |
 | `poly_cube_add` | algebra | function |
 | `poly_cube_compose` | algebra | function |
 | `poly_cube_const` | algebra | function |
@@ -4763,7 +4918,6 @@
 | `poly_cube_eq` | algebra | function |
 | `poly_cube_eval` | algebra | function |
 | `poly_cube_face` | algebra | function |
-| `poly_cube_identity` | algebra | function |
 | `poly_cube_scale` | algebra | function |
 | `poly_cube_sub` | algebra | function |
 
@@ -4874,24 +5028,19 @@
 | `SearchStats.nodes` | symlib | field |
 | `analyze` | symlib | function |
 | `analyze_m` | symlib | function |
-| `arr_less` | symlib | function |
 | `aut_functorial` | symlib | function |
 | `aut_generators` | symlib | function |
 | `aut_map` | symlib | function |
 | `aut_on_line` | symlib | function |
 | `aut_order` | symlib | function |
-| `aut_order_decomposed` | symlib | function |
 | `automorphism_group` | symlib | function |
 | `automorphism_group_colored` | symlib | function |
 | `automorphism_group_dual` | symlib | function |
 | `canon_digest` | symlib | function |
 | `canon_encoding` | symlib | function |
-| `canon_encoding_dual` | symlib | function |
 | `canonical_dual` | symlib | function |
 | `canonical_form` | symlib | function |
-| `canonical_form_decomposed` | symlib | function |
 | `canonical_labeling` | symlib | function |
-| `canonical_labeling_m` | symlib | function |
 | `cmp_arr` | symlib | function |
 | `colored_canonical_key` | symlib | function |
 | `digest_from` | symlib | function |
@@ -4903,20 +5052,14 @@
 | `impl Eq for Graph` | symlib | trait implementation |
 | `impl Show for BitVec` | symlib | trait implementation |
 | `impl Show for Graph` | symlib | trait implementation |
-| `is_asymmetric` | symlib | function |
 | `is_automorphism` | symlib | function |
-| `is_colored_automorphism` | symlib | function |
 | `is_dual_side` | symlib | function |
-| `is_edge_transitive` | symlib | function |
-| `is_vertex_transitive` | symlib | function |
 | `isolated_count` | symlib | function |
 | `isomorphic` | symlib | function |
-| `isomorphic_colored` | symlib | function |
 | `isomorphic_decomposed` | symlib | function |
 | `isomorphic_dual` | symlib | function |
 | `isomorphic_line` | symlib | function |
 | `isomorphism` | symlib | function |
-| `isomorphism_decomposed` | symlib | function |
 | `isomorphism_dual` | symlib | function |
 | `isomorphism_via_line` | symlib | function |
 | `isomorphisms_m` | symlib | function |
@@ -4925,8 +5068,6 @@
 | `labeling_perm` | symlib | function |
 | `pack_bits` | symlib | function |
 | `refine_colors` | symlib | function |
-| `refine_equitable` | symlib | function |
-| `search_bad_witness` | symlib | function |
 | `search_graph` | symlib | function |
 | `search_graph_colored` | symlib | function |
 | `search_graph_flags` | symlib | function |
@@ -5094,9 +5235,7 @@
 | `marks_cert` | symlib | function |
 | `permset` | symlib | function |
 | `permset_canon` | symlib | function |
-| `permset_cert` | symlib | function |
 | `permset_encoding` | symlib | function |
-| `permset_isomorphic` | symlib | function |
 | `subgroup_classes` | symlib | function |
 | `table_of_marks` | symlib | function |
 | `table_of_marks_formula` | symlib | function |
@@ -5163,13 +5302,11 @@
 | `FoldedGraph::summary` | symlib | function |
 | `FoldedGraph::to_repr` | symlib | function |
 | `FoldedGraph::to_string` | symlib | function |
-| `block_encoding_of` | symlib | function |
 | `decomp_cert` | symlib | function |
 | `decomp_key_equal` | symlib | function |
 | `decompose` | symlib | function |
 | `dual_cert` | symlib | function |
 | `dual_cross_check` | symlib | function |
-| `dual_digest` | symlib | function |
 | `dual_pair` | symlib | function |
 | `fold_candidates` | symlib | function |
 | `fold_canonical` | symlib | function |
@@ -5369,7 +5506,6 @@
 | `impl Debug for Cert` | symlib | trait implementation |
 | `impl Debug for SymmetryReport` | symlib | trait implementation |
 | `impl Show for SymmetryReport` | symlib | trait implementation |
-| `int_rows_to_string` | symlib | function |
 | `ints_to_string` | symlib | function |
 | `lcg_step` | symlib | function |
 | `prove_all` | symlib | function |
@@ -5883,7 +6019,6 @@
 | `has_negative_cycle` | semiring-graph | function |
 | `pareto_sssp` | semiring-graph | function |
 | `total_labels` | semiring-graph | function |
-| `widest_path` | semiring-graph | function |
 
 ### Semiring lab: splines
 
@@ -5902,14 +6037,12 @@
 | `affine_steps` | semiring-spline | function |
 | `bspline_basis` | semiring-spline | function |
 | `cubic_pole` | semiring-spline | function |
-| `eval_deboor` | semiring-spline | function |
 | `interp_cubic_banded` | semiring-spline | function |
 | `interp_cubic_dense` | semiring-spline | function |
 | `interp_cubic_dense_open` | semiring-spline | function |
 | `interp_cubic_periodic` | semiring-spline | function |
 | `solve_banded` | semiring-spline | function |
 | `solve_dense` | semiring-spline | function |
-| `uniform_knots` | semiring-spline | function |
 
 ### Semiring lab: tropical geometry
 
@@ -6041,7 +6174,6 @@
 | `dfa_equiv` | semiring-nf | function |
 | `dfa_minimize` | semiring-nf | function |
 | `dfa_of_regex` | semiring-nf | function |
-| `dfa_reverse` | semiring-nf | function |
 | `idempotent_identity_holds` | semiring-nf | function |
 | `idempotent_identity_holds_via_dfa` | semiring-nf | function |
 | `mono_cmp` | semiring-nf | function |
@@ -6052,7 +6184,6 @@
 | `r_sum` | semiring-nf | function |
 | `regex_cmp` | semiring-nf | function |
 | `regex_equiv` | semiring-nf | function |
-| `regex_state_count` | semiring-nf | function |
 | `rx_accepts` | semiring-nf | function |
 | `sexpr_to_regex` | semiring-nf | function |
 
@@ -6085,18 +6216,15 @@
 | `SetMat::add` | semiring-cat | function |
 | `SetMat::get` | semiring-cat | function |
 | `SetMat::new` | semiring-cat | function |
-| `argmin_k` | semiring-cat | function |
 | `decategorify` | semiring-cat | function |
 | `dequant_error` | semiring-cat | function |
 | `dequantize` | semiring-cat | function |
 | `dequantize_naive` | semiring-cat | function |
 | `dequantized_mul` | semiring-cat | function |
-| `distinct_witnesses` | semiring-cat | function |
 | `max_abs_diff` | semiring-cat | function |
 | `minplus_mul` | semiring-cat | function |
 | `smat_mul` | semiring-cat | function |
 | `smat_plus` | semiring-cat | function |
-| `witness_equal` | semiring-cat | function |
 
 ### Semiring lab: algebraic path problems
 
@@ -6119,13 +6247,10 @@
 | `Verdict.winner_us` | semiring-app | field |
 | `app_bool` | semiring-app | function |
 | `app_closure` | semiring-app | function |
-| `app_counts` | semiring-app | function |
 | `app_minplus` | semiring-app | function |
-| `app_mostlikely` | semiring-app | function |
 | `app_widest` | semiring-app | function |
 | `build` | semiring-app | function |
 | `consensus_trop` | semiring-app | function |
-| `most_likely_bruteforce` | semiring-app | function |
 | `reach_bfs` | semiring-app | function |
 | `shortest_fw` | semiring-app | function |
 | `widest_fw` | semiring-app | function |
@@ -6152,12 +6277,10 @@
 | `FactorGraph.factors` | semiring-bp | field |
 | `FactorGraph.nvar` | semiring-bp | field |
 | `bp_marginals` | semiring-bp | function |
-| `brute_force_max_product` | semiring-bp | function |
 | `brute_force_sum_product` | semiring-bp | function |
 | `decode_assign` | semiring-bp | function |
 | `factor_size` | semiring-bp | function |
 | `is_tree` | semiring-bp | function |
-| `marginals_max_product` | semiring-bp | function |
 | `marginals_sum_product` | semiring-bp | function |
 | `table_index` | semiring-bp | function |
 | `total_assignments` | semiring-bp | function |
@@ -6326,7 +6449,6 @@
 | `par_for` | semiring-par | function |
 | `par_map_chunks` | semiring-par | function |
 | `par_scan` | semiring-par | function |
-| `par_sum` | semiring-par | function |
 | `scan_depth` | semiring-par | function |
 | `scan_sequential` | semiring-par | function |
 | `shard_io_bench` | semiring-par | function |
@@ -6343,33 +6465,6 @@
 | `is_host_backend` | semiring-par-host | function |
 | `par_for` | semiring-par-host | function |
 | `shard_io_bench` | semiring-par-host | function |
-
-### Semiring lab: examples
-
-- Canonical form: outputs of compilable teaching examples
-- Categorification: concrete witnesses for constructions in the semiring pillar
-- Decision: white-box example tests
-
-| Symbol | Package | Kind |
-|---|---|---|
-| `example_aggregates` | semiring-examples | function |
-| `example_app_five_semirings` | semiring-examples | function |
-| `example_belief` | semiring-examples | function |
-| `example_blocking` | semiring-examples | function |
-| `example_counting_paths` | semiring-examples | function |
-| `example_csr` | semiring-examples | function |
-| `example_float_minplus` | semiring-examples | function |
-| `example_free_category` | semiring-examples | function |
-| `example_min_dfa_states` | semiring-examples | function |
-| `example_parallel` | semiring-examples | function |
-| `example_pareto` | semiring-examples | function |
-| `example_ratelimit` | semiring-examples | function |
-| `example_regex_equiv` | semiring-examples | function |
-| `example_shortest_path` | semiring-examples | function |
-| `example_spline` | semiring-examples | function |
-| `example_tropical_curve` | semiring-examples | function |
-| `example_tropical_det` | semiring-examples | function |
-| `example_tropical_roots` | semiring-examples | function |
 
 ### Semiring lab: measured report
 
@@ -6557,7 +6652,6 @@
 | `cat_opposite` | topos | function |
 | `cat_satisfies_right_ore` | topos | function |
 | `enumerate_matching_families` | topos | function |
-| `is_matching_family` | topos | function |
 | `presheaf_are_isomorphic` | topos | function |
 | `presheaf_coequalizer` | topos | function |
 | `presheaf_constant_raw` | topos | function |
@@ -6567,7 +6661,6 @@
 | `presheaf_hom_enumerate` | topos | function |
 | `presheaf_hom_eq` | topos | function |
 | `presheaf_hom_id` | topos | function |
-| `presheaf_hom_is_epi_presheaf` | topos | function |
 | `presheaf_hom_is_iso` | topos | function |
 | `presheaf_hom_is_mono` | topos | function |
 | `presheaf_hom_is_natural` | topos | function |
@@ -6698,7 +6791,6 @@
 | `inverse_image_sheaf` | topos | function |
 | `is_atom_sheaf` | topos | function |
 | `is_covariant_point_functor` | topos | function |
-| `is_cover_preserving_functor` | topos | function |
 | `is_diaconescu_point` | topos | function |
 | `is_flat_point_functor` | topos | function |
 | `point_skyscraper_sheaf` | topos | function |
@@ -6789,7 +6881,6 @@
 | `is_valid_subpresheaf` | topos | function |
 | `kripke_joyal_forces` | topos | function |
 | `model_satisfies_sequent` | topos | function |
-| `model_satisfies_theory` | topos | function |
 | `subpresheaf_exists` | topos | function |
 | `subpresheaf_forall` | topos | function |
 | `subpresheaf_pullback` | topos | function |
@@ -6858,7 +6949,6 @@
 | `SimplicialNerve.num_vertices` | topos | field |
 | `SimplicialNerve.tetrahedra` | topos | field |
 | `SimplicialNerve.triangles` | topos | field |
-| `abelian_presheaf_constant_q` | topos | function |
 | `boundary_simplex_nerve` | topos | function |
 | `build_circle_z2_torsor_stack` | topos | function |
 | `canonical_descent_datum` | topos | function |
@@ -6870,12 +6960,9 @@
 | `compute_nerve_homotopy_type` | topos | function |
 | `descent_data_isomorphic` | topos | function |
 | `groupoid_of_fincat` | topos | function |
-| `is_valid_abelian_presheaf` | topos | function |
-| `is_valid_groupoid` | topos | function |
 | `nerve_constant_cochain_complex_q` | topos | function |
 | `rect_qmat_id` | topos | function |
 | `rect_qmat_zero` | topos | function |
-| `roos_site_cochain_complex` | topos | function |
 | `rp2_minimal_nerve` | topos | function |
 | `verify_descent_cocycle` | topos | function |
 | `verify_euler_poincare` | topos | function |
@@ -6971,17 +7058,14 @@
 | `ideal_is_unit` | scheme | function |
 | `ideal_is_zero` | scheme | function |
 | `ideal_krull_dimension` | scheme | function |
-| `ideal_mul` | scheme | function |
 | `ideal_new` | scheme | function |
 | `ideal_normal_form` | scheme | function |
-| `ideal_quotient` | scheme | function |
 | `ideal_quotient_poly` | scheme | function |
 | `ideal_quotient_vector_space_dim` | scheme | function |
 | `ideal_radical` | scheme | function |
 | `ideal_radical_contains` | scheme | function |
 | `ideal_saturate` | scheme | function |
 | `ideal_standard_monomials` | scheme | function |
-| `ideal_subset` | scheme | function |
 | `monomial_cmp` | scheme | function |
 | `mpoly_add` | scheme | function |
 | `mpoly_const` | scheme | function |
@@ -7051,7 +7135,6 @@
 | `RingHom::not_equal` | scheme | function |
 | `RingHom::to_repr` | scheme | function |
 | `affine_is_reduced` | scheme | function |
-| `affine_nilpotent_witness` | scheme | function |
 | `affine_reduction` | scheme | function |
 | `affine_scheme` | scheme | function |
 | `coord_ring_eq` | scheme | function |
@@ -7062,13 +7145,11 @@
 | `localize_quasicoherent_module` | scheme | function |
 | `localized_section_eq` | scheme | function |
 | `principal_open_subset` | scheme | function |
-| `restrict_localized_section` | scheme | function |
 | `ring_hom_apply` | scheme | function |
 | `ring_hom_compose` | scheme | function |
 | `ring_hom_id` | scheme | function |
 | `ring_hom_is_surjective` | scheme | function |
 | `ring_hom_is_valid` | scheme | function |
-| `ring_hom_kernel` | scheme | function |
 | `solve_ideal_linear_combination` | scheme | function |
 | `verify_affine_reduction_universal_property` | scheme | function |
 
@@ -7121,8 +7202,6 @@
 | `analyze_scheme_properness` | scheme | function |
 | `global_sections_dimension_upto_deg` | scheme | function |
 | `is_affine_morphism` | scheme | function |
-| `is_proper_morphism` | scheme | function |
-| `is_proper_scheme` | scheme | function |
 | `is_separated_scheme` | scheme | function |
 | `laurent_add` | scheme | function |
 | `laurent_const` | scheme | function |
@@ -7132,23 +7211,19 @@
 | `laurent_monomial` | scheme | function |
 | `laurent_mul` | scheme | function |
 | `laurent_sub` | scheme | function |
-| `morphism_closed_immersion_in_projective_space` | scheme | function |
 | `morphism_hopf_punctured_plane_to_p1` | scheme | function |
 | `morphism_punctured_plane_to_a2` | scheme | function |
 | `morphism_to_spec_q` | scheme | function |
 | `mpoly_eval_laurent` | scheme | function |
 | `scheme_affine_space` | scheme | function |
 | `scheme_doubled_origin_line` | scheme | function |
-| `scheme_fat_point` | scheme | function |
 | `scheme_from_affine` | scheme | function |
-| `scheme_is_reduced` | scheme | function |
 | `scheme_is_valid` | scheme | function |
 | `scheme_morphism_compose` | scheme | function |
 | `scheme_morphism_is_valid` | scheme | function |
 | `scheme_projective_space` | scheme | function |
 | `scheme_projective_subscheme` | scheme | function |
 | `scheme_punctured_plane` | scheme | function |
-| `scheme_reduction` | scheme | function |
 | `valuative_extension_classes_for_arc` | scheme | function |
 
 ### Schemes: rational equivalence, dualizing complexes, functor of points and motivic categorification
@@ -7225,7 +7300,6 @@
 | `eval_scheme_functor_of_points` | scheme | function |
 | `fcomm_dual_numbers` | scheme | function |
 | `fcomm_fp` | scheme | function |
-| `fcomm_product` | scheme | function |
 | `finite_ring_hom_is_valid` | scheme | function |
 | `mpoly_eval_finite_ring` | scheme | function |
 | `p1_correspondence_bidegree` | scheme | function |
@@ -7239,7 +7313,6 @@
 | `verify_motivic_p1_categorification` | scheme | function |
 | `verify_serre_duality_and_riemann_roch_p1` | scheme | function |
 | `verify_serre_duality_p2` | scheme | function |
-| `weil_divisor_p1_add` | scheme | function |
 | `weil_divisor_p1_degree` | scheme | function |
 | `weil_divisor_p1_normalize` | scheme | function |
 | `weil_divisor_p1_sub` | scheme | function |
@@ -7269,7 +7342,6 @@
 | `affine_is_smooth` | scheme | function |
 | `affine_jacobian_ideal` | scheme | function |
 | `affine_kahler_differentials` | scheme | function |
-| `affine_singular_locus_ideal` | scheme | function |
 | `affine_tjurina_number` | scheme | function |
 | `blowup_plane_curve_at_origin` | scheme | function |
 | `fcomm_fp2` | scheme | function |
@@ -7364,7 +7436,6 @@
 | `verify_dependent_cubical_topos_bridge` | bridge | function |
 | `verify_excision_subtopos_blowup_bridge` | bridge | function |
 | `verify_five_federation_pentagon_unification` | bridge | function |
-| `verify_geometry_logic_atlas` | bridge | function |
 | `verify_glivenko_topos_subtopos_bridge` | bridge | function |
 | `verify_k5_federation_bridges` | bridge | function |
 | `verify_kapranov_tropical_laurent_bridge` | bridge | function |

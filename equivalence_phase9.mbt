@@ -51,21 +51,9 @@ pub struct DAdjointEquivParts {
 }
 
 ///|
-pub fn adjoint_equiv_make(
-  e : DValue,
-  src : DValue,
-  dst : DValue,
-  triangle : DValue,
-) -> DAdjointEquivParts {
-  DAdjointEquivParts::{ equiv: equiv_parts(e, src, dst), triangle, }
-}
 
 ///|
 /// Forget the coherence: the underlying quasi-inverse equivalence.
-pub fn adjoint_equiv_to_equiv(adj : DAdjointEquivParts) -> DValue {
-  let p = adj.equiv
-  DVEquiv(p.src, p.dst, p.fwd, p.bwd, p.sect, p.retr)
-}
 
 ///|
 /// The identity adjoint equivalence: every component is
@@ -215,28 +203,6 @@ pub fn equiv_fiber_center_value(
 /// from the singleton contraction: `y ↦ ((y, refl), λ w ↦ ...)`.
 /// A fiber element is `(x, p)` with `p : Path A x y`; its
 /// contraction is the singleton contraction at `p`.
-pub fn identity_fibers_contractible_value(ty : DValue) -> DValue {
-  DVLam(y => {
-    DVPair(
-      DVPair(y, DVPathLam(_ => y)),
-      DVLam(w => {
-        match force_value(w) {
-          DVPair(_, p) => singleton_contraction_value(p)
-          _ =>
-            // Neutral fiber elements: project the path component
-            // semantically (second projection of a Σ value).
-            singleton_contraction_value(
-              dsnd_typed(w, ty, x => DVPathTy(_ => ty, x, y)),
-            )
-        }
-      }),
-    )
-  })
-}
-
-// ---------------------------------------------------------------------------
-// Laws
-// ---------------------------------------------------------------------------
 
 ///|
 pub fn check_adjoint_equivalence_and_fibers() -> Bool {

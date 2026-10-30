@@ -876,6 +876,3 @@ fn verify_atlas_entries(atlas : Array[GeometryLogicAtlasEntry]) -> Bool {
 ///|
 /// Verify that EVERY entry in the Fine-Grained Geometry–Logic Correspondence
 /// Atlas passes BOTH its live theorem witness AND its distinguishing contrast!
-pub fn verify_geometry_logic_atlas() -> Bool {
-  verify_atlas_entries(build_fine_grained_geometry_logic_atlas())
-}

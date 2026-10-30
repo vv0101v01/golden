@@ -35,18 +35,6 @@ pub extend Dim with @moonbitlang/core/debug.Debug::{to_repr}
 pub extend Dim with Eq::{not_equal, equal}
 
 ///|
-/// Shared tolerance for the floating semantic layers.  It lives in
-/// the foundation component because interval laws use it too.
-/// Cross-package Dim constructors.  The enums remain non-`pub(all)`;
-/// these functions are the deliberate construction boundary.
-pub fn dim_zero() -> Dim {
-  DZero
-}
-
-///|
-pub fn dim_one() -> Dim {
-  DOne
-}
 
 ///|
 pub fn dim_var(i : Int32) -> Dim {
@@ -54,19 +42,10 @@ pub fn dim_var(i : Int32) -> Dim {
 }
 
 ///|
-pub fn dim_neg(a : Dim) -> Dim {
-  DNeg(a)
-}
 
 ///|
-pub fn dim_and(a : Dim, b : Dim) -> Dim {
-  DAnd(a, b)
-}
 
 ///|
-pub fn dim_or(a : Dim, b : Dim) -> Dim {
-  DOr(a, b)
-}
 
 ///|
 pub let eps : Double = 0.000000001

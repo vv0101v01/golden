@@ -541,18 +541,6 @@ pub fn model_satisfies_sequent(
 
 ///|
 /// Decide whether `model` satisfies every axiom of `theory` in `Sh(site)`.
-pub fn model_satisfies_theory(
-  site : Site,
-  model : SheafStructure,
-  theory : GeometricTheory,
-) -> Bool {
-  for ax in theory.axioms {
-    if !model_satisfies_sequent(site, model, ax) {
-      return false
-    }
-  }
-  true
-}
 
 ///|
 /// Verify semantic soundness of `geometric_normal_form`: `formula` and its

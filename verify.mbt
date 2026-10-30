@@ -790,6 +790,38 @@ pub fn run_all_checks() -> Array[CheckResult] {
       name: "第十六期 Huet 延遲 flex-flex 約束圖、拉取式惰性合一串流、模組 DAG 介面雜湊重連結與三方倉庫合併：按需枚舉、不透明實作零重編譯重連結與 LCA 三方衝突判定",
       ok: check_phase16_hou_stream_and_module_merge(),
     },
+    CheckResult::{
+      name: "第十六期後 §四邊界收束·超越數認證層：e 與 π 的嚴格有理包絡、e≠p/q 的可複核否證證書（含篡改證書必拒）、P(e)≠0 的區間算術認證與預算不足時如實不宣稱",
+      ok: check_transcendental_boundary_layer(),
+    },
+    CheckResult::{
+      name: "第十七期 a 段模組執行期熱載入：介面雜湊不變的透明替換零重連結、介面變更精確列出陳舊依賴並交易式回滾、攜替換物件則提交、缺失／陳舊依賴在變動前拒絕且稽核日誌記錄每次嘗試",
+      ok: check_module_runtime_hot_loading(),
+    },
+    CheckResult::{
+      name: "第十七期 a 段崩潰一致寫入協定：內容 fsync 先於目錄 fsync 的耐久性模型，逐崩潰點驗證只會回到舊值或新值、絕不撕裂，且缺目錄 fsync 的寫入如實判定為未被承認",
+      ok: check_durable_write_protocol(),
+    },
+    CheckResult::{
+      name: "第十七期 b 段高階匹配：單側無元變數片斷的判定——相異變數脊柱給出唯一解、重複脊柱解經驗證、bound 不足如實回報不宣稱無解，且每個回傳解皆以 βη 轉換重新核驗",
+      ok: check_hou_matching(),
+    },
+    CheckResult::{
+      name: "第十七期 c 段 Stasheff 結合多面體 K_n（n ≥ 6）：Schröder 樹面格 f-向量、Euler 示性數為 1、二維面必為五邊形或正方形，且旋轉圖邊數與面格 f_1 互相對帳",
+      ok: check_assoc_faces(),
+    },
+    CheckResult::{
+      name: "第十八期 Blakers–Massey 與 Freudenthal：連接度間隙算術、由 bm_gap 推導穩定範圍、Hopf 纖維序列恰當序列代數，得出 π₃(S²) ≃ π₃(S³) 與 π₃(S³) ≃ π₂(S²)，並明示 π₂(S²) ≃ ℤ 的滿射半邊係 import 而非自證",
+      ok: check_blakers_massey(),
+    },
+    CheckResult::{
+      name: "第十九期 π₄(S³) ≃ ℤ/2ℤ：join 維度算術（S¹*S¹ ≃ S³）、Whitehead 積次數 [i₂,i₂] ∈ π₃(S²) 與第十八期 ψ 定義域一致、James 構造胞結構、Hopf LES 得 π₄(S³) ≃ π₄(S²)、ℤ/βℤ 循環群算術含退化情形，以及定理 6.17 判準 |β|=2",
+      ok: check_brunerie_pi4_s3(),
+    },
+    CheckResult::{
+      name: "第二十期 a 段 通用型別構造子：join、wedge、n-截斷、James 構造以 DHitSpec 宣告為真正的 HIT，並給出其遞迴原則與計算規則；join 維度算術 S^m*S^n ≃ S^(m+n+1)；如實列出仍然 import 的連接度引理",
+      ok: check_homotopy_universal(),
+    },
   ]
 }
 

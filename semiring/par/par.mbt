@@ -63,33 +63,6 @@ pub fn par_map_chunks(
 }
 
 ///|
-/// 確定性歸約：每段各自算出 Int64，最後**依索引順序**相加。
-///
-/// 順序固定的理由：浮點或非結合運算的結果會依歸約順序改變；
-/// 固定順序讓「平行」不會改變任何一個位元（測試逐位元比對）。
-pub fn par_sum(total : Int32, chunk : Int32, f : (Int32) -> Int64) -> Int64 {
-  if total <= 0 {
-    return 0L
-  }
-  let n_chunk = (total + chunk - 1) / chunk
-  let parts : Array[Int64] = Array::make(n_chunk, 0L)
-  par_for(n_chunk, fn(k) {
-    let lo = k * chunk
-    let hi = if lo + chunk > total { total } else { lo + chunk }
-    let mut s = 0L
-    for i in lo..<hi {
-      s = s + f(i)
-    }
-    parts[k] = s
-  })
-  let mut acc = 0L
-  for p in parts {
-    acc = acc + p
-  }
-  acc
-}
-
-///|
 /// Hillis–Steele 掃描：深度 O(log n)，每一層的更新彼此獨立（可平行）。
 ///
 /// 與序列累加的差別是**深度**而非工作量：工作量 O(n log n) > O(n)，

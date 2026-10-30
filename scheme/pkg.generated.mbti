@@ -17,13 +17,9 @@ pub fn affine_jacobian_ideal(AffineScheme) -> Ideal
 
 pub fn affine_kahler_differentials(AffineScheme) -> QuasiCoherentModule
 
-pub fn affine_nilpotent_witness(AffineScheme) -> MPoly?
-
 pub fn affine_reduction(AffineScheme) -> (AffineScheme, RingHom)
 
 pub fn affine_scheme(CoordRing) -> AffineScheme
-
-pub fn affine_singular_locus_ideal(AffineScheme) -> Ideal
 
 pub fn affine_tjurina_number(AffineScheme) -> Int32?
 
@@ -57,8 +53,6 @@ pub fn fcomm_fp(Int32) -> FiniteCommRing
 
 pub fn fcomm_fp2(Int32) -> (FiniteCommRing, FiniteRingHom)
 
-pub fn fcomm_product(FiniteCommRing, FiniteCommRing) -> FiniteCommRing
-
 pub fn finite_ring_hom_is_valid(FiniteRingHom) -> Bool
 
 pub fn global_sections_dimension_upto_deg(Scheme, Int32) -> Int32
@@ -81,13 +75,9 @@ pub fn ideal_is_zero(Ideal) -> Bool
 
 pub fn ideal_krull_dimension(Ideal) -> Int32
 
-pub fn ideal_mul(Ideal, Ideal) -> Ideal
-
 pub fn ideal_new(Int32, Array[MPoly]) -> Ideal
 
 pub fn ideal_normal_form(Ideal, MPoly) -> MPoly
-
-pub fn ideal_quotient(Ideal, Ideal) -> Ideal
 
 pub fn ideal_quotient_poly(Ideal, MPoly) -> Ideal
 
@@ -101,15 +91,9 @@ pub fn ideal_saturate(Ideal, MPoly) -> Ideal
 
 pub fn ideal_standard_monomials(Ideal) -> Array[Array[Int32]]?
 
-pub fn ideal_subset(Ideal, Ideal) -> Bool
-
 pub fn is_affine_morphism(SchemeMorphism) -> Bool
 
 pub fn is_etale_ring_hom_between_smooth(RingHom) -> Bool
-
-pub fn is_proper_morphism(SchemeMorphism) -> Bool
-
-pub fn is_proper_scheme(Scheme) -> Bool
 
 pub fn is_separated_scheme(Scheme) -> Bool
 
@@ -140,8 +124,6 @@ pub fn localize_quasicoherent_module(QuasiCoherentModule, MPoly) -> QuasiCoheren
 pub fn localized_section_eq(CoordRing, LocalizedSection, LocalizedSection) -> Bool
 
 pub fn monomial_cmp(MonomialOrder, Array[Int32], Array[Int32]) -> Int32
-
-pub fn morphism_closed_immersion_in_projective_space(Int32, Array[MPoly]) -> SchemeMorphism
 
 pub fn morphism_hopf_punctured_plane_to_p1() -> SchemeMorphism
 
@@ -231,8 +213,6 @@ pub fn rational_equivalence_witness_p1(WeilDivisorP1, WeilDivisorP1) -> (@algebr
 
 pub fn reduced_groebner_basis(Int32, Array[MPoly], MonomialOrder) -> ReducedGroebnerBasis
 
-pub fn restrict_localized_section(CoordRing, LocalizedSection, MPoly) -> LocalizedSection?
-
 pub fn ring_hom_apply(RingHom, MPoly) -> MPoly
 
 pub fn ring_hom_compose(RingHom, RingHom) -> RingHom
@@ -243,19 +223,13 @@ pub fn ring_hom_is_surjective(RingHom) -> Bool
 
 pub fn ring_hom_is_valid(RingHom) -> Bool
 
-pub fn ring_hom_kernel(RingHom) -> Ideal
-
 pub fn s_polynomial(MPoly, MPoly, MonomialOrder) -> MPoly
 
 pub fn scheme_affine_space(Int32) -> Scheme
 
 pub fn scheme_doubled_origin_line() -> Scheme
 
-pub fn scheme_fat_point(Int32) -> Scheme
-
 pub fn scheme_from_affine(AffineScheme) -> Scheme
-
-pub fn scheme_is_reduced(Scheme) -> Bool
 
 pub fn scheme_is_valid(Scheme) -> Bool
 
@@ -268,8 +242,6 @@ pub fn scheme_projective_space(Int32) -> Scheme
 pub fn scheme_projective_subscheme(Int32, Array[MPoly]) -> Scheme
 
 pub fn scheme_punctured_plane() -> Scheme
-
-pub fn scheme_reduction(Scheme) -> (Scheme, SchemeMorphism)
 
 pub fn solve_ideal_linear_combination(CoordRing, Array[MPoly], MPoly, max_deg? : Int32) -> Array[MPoly]?
 
@@ -286,8 +258,6 @@ pub fn verify_serre_duality_and_riemann_roch_p1(Int32) -> Bool
 pub fn verify_serre_duality_p2(Int32) -> Bool
 
 pub fn verify_weil_zeta_and_galois_frobenius_descent() -> Bool
-
-pub fn weil_divisor_p1_add(WeilDivisorP1, WeilDivisorP1) -> WeilDivisorP1
 
 pub fn weil_divisor_p1_degree(WeilDivisorP1) -> Int32
 

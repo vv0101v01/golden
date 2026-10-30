@@ -69,9 +69,6 @@ pub fn rpoly_x() -> RPoly {
 }
 
 ///|
-pub fn rpoly_const(c : SymFrac) -> RPoly {
-  rpoly_normalize([c])
-}
 
 ///|
 pub fn rpoly_is_zero(p : RPoly) -> Bool {

@@ -1884,7 +1884,10 @@ pub fn dfunctorial_positivity_verify(
           u_term,
           DPi(
             DPi(DTVar(1), DTVar(1)),
-            DPi(DApp(DTVar(f_idx + 3), DTVar(2)), DApp(DTVar(f_idx + 4), DTVar(2))),
+            DPi(
+              DApp(DTVar(f_idx + 3), DTVar(2)),
+              DApp(DTVar(f_idx + 4), DTVar(2)),
+            ),
           ),
         ),
       )
@@ -2028,4 +2031,3 @@ pub fn dterm_family_strictly_positive_functorial(
   }
   dterm_family_strictly_positive_declared(t, name, verified_decls, scope~)
 }
-

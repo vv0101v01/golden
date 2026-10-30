@@ -213,9 +213,6 @@ pub fn cmp_arr(a : Array[Int32], b : Array[Int32]) -> Int32 {
 
 ///|
 /// 陣列是否字典序小於。
-pub fn arr_less(a : Array[Int32], b : Array[Int32]) -> Bool {
-  cmp_arr(a, b) < 0
-}
 
 ///|
 /// 最大顏色值。
@@ -234,74 +231,6 @@ fn max_color(color : Array[Int32]) -> Int32 {
 fn fst(p : (Int32, Int32)) -> Int32 {
   let (a, _) = p
   a
-}
-
-///|
-/// 等價分割精煉：以「各顏色鄰居計數向量」為簽名反覆分裂至穩定。
-/// 結果為有序分割（格序 = 簽名排序序），可作搜尋引擎的初始狀態。
-pub fn refine_equitable(g : Graph, initial : Part) -> Part {
-  let n = g.order()
-  guard n > 0 else { return initial }
-  let mut part = initial.copy()
-  let mut changed = true
-  while changed {
-    changed = false
-    let k = part.cell_count()
-    // 每點對各格的鄰居計數
-    let cnt : Array[Array[Int32]] = Array::make(n, [])
-    for v in 0..<n {
-      cnt[v] = Array::make(k, 0)
-    }
-    for v in 0..<n {
-      let c = part.cell_of[v]
-      for u in g.neighbors(v) {
-        cnt[u][c] = cnt[u][c] + 1
-      }
-    }
-    // 每格按簽名 (cell_of, cnt) 分裂
-    let new_part = split_cells_by(part, cnt)
-    if new_part.cell_count() != k {
-      changed = true
-    }
-    part = new_part
-  }
-  part
-}
-
-///|
-/// 按簽名分裂各格（等變：簽名排序編號）。
-fn split_cells_by(part : Part, cnt : Array[Array[Int32]]) -> Part {
-  let n = part.n
-  let new_cells : Array[Array[Int32]] = []
-  for cell in part.cells() {
-    // 依簽名排序該格
-    cell.sort_by(fn(a : Int32, b : Int32) -> Int32 { cmp_arr(cnt[a], cnt[b]) })
-    let sorted = cell
-    let mut cur : Array[Int32] = [sorted[0]]
-    for i in 1..<sorted.length() {
-      if cmp_arr(cnt[sorted[i]], cnt[sorted[i - 1]]) != 0 {
-        new_cells.push(cur)
-        cur = [sorted[i]]
-      } else {
-        cur.push(sorted[i])
-      }
-    }
-    new_cells.push(cur)
-  }
-  // 重建有序分割（格序 = 出現序；等變性由簽名唯一決定）
-  let lab = Array::make(n, 0)
-  let ptn = Array::make(n, 0)
-  let cell_of = Array::make(n, 0)
-  let mut pos = 0
-  for ci, cell in new_cells {
-    for j, v in cell {
-      lab[pos] = v
-      cell_of[v] = ci
-      ptn[pos] = if j < cell.length() - 1 { 1 } else { 0 }
-      pos = pos + 1
-    }
-  }
-  { n, lab, ptn, cell_of, }
 }
 
 ///|

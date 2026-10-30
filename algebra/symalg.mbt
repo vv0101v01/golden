@@ -44,20 +44,6 @@ pub fn int_abs(x : Int32) -> Int32 {
 }
 
 ///|
-pub fn int_gcd(a0 : Int32, b0 : Int32) -> Int32 {
-  let mut a = int_abs(a0)
-  let mut b = int_abs(b0)
-  while b != 0 {
-    let r = a % b
-    a = b
-    b = r
-  }
-  if a == 0 {
-    1
-  } else {
-    a
-  }
-}
 
 ///|
 pub fn bigint_abs(x : BigInt) -> BigInt {
@@ -124,9 +110,6 @@ pub fn rat_big_int(n : BigInt) -> Rat {
 }
 
 ///|
-pub fn rat_make_decimal_strings(n : String, d : String) -> Rat {
-  rat_make_big(BigInt::from_string(n), BigInt::from_string(d))
-}
 
 ///|
 pub fn rat_int(n : Int32) -> Rat {
@@ -144,13 +127,6 @@ pub fn rat_one() -> Rat {
 }
 
 ///|
-pub fn rat_to_string(a : Rat) -> String {
-  if a.den == 1N {
-    a.num.to_string()
-  } else {
-    a.num.to_string() + "/" + a.den.to_string()
-  }
-}
 
 ///|
 fn bigint_scaled_mantissa(x : BigInt) -> (Double, Int32) {
@@ -227,11 +203,6 @@ pub fn rat_to_double(a : Rat) -> Double {
 /// Whether both components fit in signed 32-bit integers.  This is a
 /// compatibility query for legacy algorithms; the rational itself is
 /// never truncated.
-pub fn rat_fits_int32(a : Rat) -> Bool {
-  a.num >= BigInt::from_int(-2147483647 - 1) &&
-  a.num <= BigInt::from_int(2147483647) &&
-  a.den <= BigInt::from_int(2147483647)
-}
 
 ///|
 pub fn rat_add(a : Rat, b : Rat) -> Rat {
@@ -466,9 +437,6 @@ pub fn poly_mul(a : Poly, b : Poly) -> Poly {
 }
 
 ///|
-pub fn poly_scale(c : Rat, a : Poly) -> Poly {
-  poly_mul(poly_const(c), a)
-}
 
 ///|
 pub fn poly_eq(a : Poly, b : Poly) -> Bool {
@@ -609,9 +577,6 @@ pub fn sc_var(id : Int32) -> SymC {
 }
 
 ///|
-pub fn sc_i() -> SymC {
-  sc_make(frac_zero(), frac_one())
-}
 
 ///|
 pub fn sc_add(a : SymC, b : SymC) -> SymC {
@@ -687,13 +652,6 @@ pub fn sym_vec_scale(f : SymFrac, a : SymVec) -> SymVec {
 }
 
 ///|
-pub fn sym_vec_scale_c(c : SymC, a : SymVec) -> SymVec {
-  let out : SymVec = []
-  for i in 0..<a.length() {
-    out.push(sc_mul(c, a[i]))
-  }
-  out
-}
 
 ///|
 pub fn sym_vec_eq(a : SymVec, b : SymVec) -> Bool {
@@ -755,17 +713,6 @@ pub fn sym_mat_from_rows(rows : Array[Array[SymC]]) -> SymMat {
 }
 
 ///|
-pub fn sym_scalar_matrix(f : SymFrac, n : Int32) -> SymMat {
-  let rows : Array[Array[SymC]] = []
-  for i in 0..<n {
-    let row : Array[SymC] = []
-    for j in 0..<n {
-      row.push(if i == j { sc_real_frac(f) } else { sc_zero() })
-    }
-    rows.push(row)
-  }
-  SymMat::{ n, rows, }
-}
 
 ///|
 pub fn sym_mat_add(a : SymMat, b : SymMat) -> SymMat {
@@ -851,13 +798,6 @@ pub fn sym_mat_eq(a : SymMat, b : SymMat) -> Bool {
 }
 
 ///|
-pub fn sym_mat_trace(m : SymMat) -> SymC {
-  let mut acc = sc_zero()
-  for i in 0..<m.n {
-    acc = sc_add(acc, m.rows[i][i])
-  }
-  acc
-}
 
 ///|
 pub fn sym_is_hermitian(m : SymMat) -> Bool {

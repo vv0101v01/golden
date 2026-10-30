@@ -21,9 +21,6 @@ pub fn backend_name() -> String {
 
 ///|
 /// 主機後端是否存在於這個 target 上（編譯期已知：只有 native 有這個套件）。
-pub fn is_host_backend() -> Bool {
-  true
-}
 
 ///|
 /// 以 task group 併發執行每一段，並等待全部完成。

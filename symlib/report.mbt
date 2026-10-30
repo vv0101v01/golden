@@ -107,9 +107,6 @@ pub fn analyze_m(g : Graph) -> StateM[SearchStats, SymmetryReport] {
 
 ///|
 /// StateM 版規範標號（只取標號，統計入狀態）。
-pub fn canonical_labeling_m(g : Graph) -> StateM[SearchStats, Array[Int32]] {
-  analyze_m(g).map(fn(r : SymmetryReport) -> Array[Int32] { r.canon_lab })
-}
 
 ///|
 /// ListM 版同構列舉：全部同構 σ : G1 → G2（= 一個基同構 ∘ Aut(G1)）。
@@ -208,10 +205,3 @@ pub fn ints_to_string(a : Array[Int32]) -> String {
 
 ///|
 /// 整數矩陣之緊湊字串（逐列 `ints_to_string` 串接）——標記矩陣等之展示/斷言用。
-pub fn int_rows_to_string(m : Array[Array[Int32]]) -> String {
-  let mut s = ""
-  for row in m {
-    s = s + ints_to_string(row)
-  }
-  s
-}

@@ -1078,10 +1078,7 @@ pub fn module_build_dag_incremental(
         for mod_path in plan.topological_order {
           if mod_path != entry_path {
             match find_mod(mod_path) {
-              Some(m) =>
-                if !module_env_add(dag_env, m) {
-                  return fail()
-                }
+              Some(m) => if !module_env_add(dag_env, m) { return fail() }
               None => return fail()
             }
           }

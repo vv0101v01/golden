@@ -79,9 +79,6 @@ pub fn canonical_dual(g : Graph) -> DualCanon {
 
 ///|
 /// G 之對偶規範編碼（= mask ⊕ canon_enc(Ḡ)；對偶定理 2）。
-pub fn canon_encoding_dual(g : Graph) -> Array[Int32] {
-  xor_mask(canon_encoding(g.complement()))
-}
 
 ///|
 /// **一次搜索，兩份規範形式**：G 與 Ḡ 共用同一 Aut 群（對偶定理 1），
@@ -142,11 +139,6 @@ pub fn dual_cross_check(g : Graph) -> Bool {
 
 ///|
 /// 對偶指紋：分支前綴 + 編碼之十六進制（同構 ⇔ 指紋相同）。
-pub fn dual_digest(g : Graph) -> String {
-  let d = canonical_dual(g)
-  let tag = if d.dual { "D" } else { "S" }
-  tag + ":" + digest_from(d.n, d.enc)
-}
 
 ///|
 /// 對偶同構判定。

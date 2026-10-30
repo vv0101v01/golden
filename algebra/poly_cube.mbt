@@ -162,9 +162,6 @@ pub struct PolyCube {
 }
 
 ///|
-pub fn poly_cube(dim : Int32, coords : Array[Poly]) -> PolyCube {
-  { dim, coords, }
-}
 
 ///|
 pub fn poly_cube_const(dim : Int32, point : Array[Rat]) -> PolyCube {
@@ -177,13 +174,6 @@ pub fn poly_cube_const(dim : Int32, point : Array[Rat]) -> PolyCube {
 
 ///|
 /// The identity `n`-cube in `Q^n`.
-pub fn poly_cube_identity(n : Int32) -> PolyCube {
-  let coords : Array[Poly] = []
-  for i in 0..<n {
-    coords.push(poly_var(i))
-  }
-  { dim: n, coords, }
-}
 
 ///|
 pub fn poly_cube_eq(a : PolyCube, b : PolyCube) -> Bool {
@@ -422,12 +412,6 @@ pub fn poly_box_fill(box : PolyOpenBox) -> PolyCube? {
 
 ///|
 /// The cap of the assembled filler.
-pub fn poly_box_cap(box : PolyOpenBox) -> PolyCube? {
-  match poly_box_fill(box) {
-    Some(filler) => Some(poly_cube_face(filler, box.dim - 1, true))
-    None => None
-  }
-}
 
 ///|
 /// Exact whole-boundary verification: every face of the filler

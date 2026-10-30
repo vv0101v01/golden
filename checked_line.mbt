@@ -103,18 +103,6 @@ pub fn checked_constant_type_line_closed(ty : DTerm) -> DCheckedTypeLine? {
 
 ///|
 /// The checked line underlying a PathP type term.
-pub fn checked_line_of_pathp_term(
-  t : DTerm,
-  ctx : DEnv,
-  env : DEnv,
-  denv : DDimEnv,
-) -> DCheckedTypeLine? {
-  match t {
-    DPathP(line, _, _) => checked_type_line(line, ctx, env, denv)
-    DPath(a, _, _) => checked_constant_type_line(a, ctx, env, denv)
-    _ => None
-  }
-}
 
 ///|
 /// The ua line of an equivalence term, as a checked line.  The
@@ -141,9 +129,6 @@ pub fn checked_line_fn(line : DCheckedTypeLine) -> (Dim) -> DValue {
 }
 
 ///|
-pub fn checked_line_body(line : DCheckedTypeLine) -> DTerm {
-  line.body
-}
 
 ///|
 pub fn checked_line_level(line : DCheckedTypeLine) -> Int32 {
@@ -163,17 +148,6 @@ pub fn checked_line_endpoints(line : DCheckedTypeLine) -> (DValue, DValue) {
 ///|
 /// Pointwise conversion of checked lines at a generic dimension and
 /// at both endpoints.
-pub fn checked_line_conv(
-  level : Int32,
-  dlevel : Int32,
-  a : DCheckedTypeLine,
-  b : DCheckedTypeLine,
-) -> Bool {
-  let fresh = DVar(dlevel)
-  conv_ty(level, dlevel + 1, (a.line)(fresh), (b.line)(fresh)) &&
-  conv_ty(level, dlevel, (a.line)(DZero), (b.line)(DZero)) &&
-  conv_ty(level, dlevel, (a.line)(DOne), (b.line)(DOne))
-}
 
 ///|
 /// Quote the body of a checked line under its dimension binder (or
@@ -192,13 +166,6 @@ pub fn checked_line_quote_body(
 
 ///|
 /// The PathP type over a checked line.
-pub fn checked_pathp_type(
-  line : DCheckedTypeLine,
-  left : DValue,
-  right : DValue,
-) -> DValue {
-  DVPathTy(line.line, left, right)
-}
 
 ///|
 pub fn checked_coe_value(
@@ -222,14 +189,6 @@ pub fn checked_comp_value(
 }
 
 ///|
-pub fn checked_fill_value(
-  line : DCheckedTypeLine,
-  branches : DSystem,
-  base : DValue,
-  dlevel : Int32,
-) -> (Dim) -> DValue {
-  fill_value(line.line, branches, base, dlevel)
-}
 
 ///|
 /// Pack a raw semantic line only after reifying and rechecking it at

@@ -66,30 +66,6 @@ fn arrow_pos_in_sieve(s : Sieve, m : Int32) -> Int32 {
 
 ///|
 /// Check whether `mf` is a valid matching family for `p` over `mf.sieve`.
-pub fn is_matching_family(p : @sym.Presheaf, mf : MatchingFamily) -> Bool {
-  let c = p.cat
-  let s = mf.sieve
-  guard sieve_is_valid(c, s) && mf.values.length() == s.arrows.length() else {
-    return false
-  }
-  for i in 0..<s.arrows.length() {
-    let f = s.arrows[i]
-    let v = mf.values[i]
-    guard v >= 0 && v < p.size[c.dom[f]] else { return false }
-  }
-  for i in 0..<s.arrows.length() {
-    let f = s.arrows[i]
-    let xf = mf.values[i]
-    for g in 0..<c.nmor {
-      if c.cod[g] == c.dom[f] {
-        let fg = c.comp[f * c.nmor + g]
-        let pos = arrow_pos_in_sieve(s, fg)
-        guard pos >= 0 && p.res[g][xf] == mf.values[pos] else { return false }
-      }
-    }
-  }
-  true
-}
 
 ///|
 /// Enumerate all matching families `Match(s, p)` via naturality isomorphism

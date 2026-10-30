@@ -1869,12 +1869,7 @@ pub fn face_cdcl_drup_trim(
 /// - `LratDelete(step_id, deleted_clause_ids)`: deletes active clauses in
 ///   `O(1)` per ID without literal-set scanning.
 pub(all) enum FaceLratStep {
-  LratAdd(
-    Int32,
-    Array[Int32],
-    Array[Int32],
-    Array[(Int32, Array[Int32])]
-  )
+  LratAdd(Int32, Array[Int32], Array[Int32], Array[(Int32, Array[Int32])])
   LratDelete(Int32, Array[Int32])
 } derive(Debug, Eq)
 
@@ -2025,10 +2020,7 @@ pub fn face_cdcl_lrat_check(
     }
   }
 
-  let verify_hint_chain = (
-    assumptions : Array[Int32],
-    hints : Array[Int32],
-  ) => {
+  let verify_hint_chain = (assumptions : Array[Int32], hints : Array[Int32]) => {
     let mut trivial_conflict = false
     for i in 0..<assumptions.length() {
       let lit = assumptions[i]
@@ -2526,10 +2518,26 @@ pub fn face_cdcl_elaborate_lrat(
     valid: ok,
     original_clauses: orig_count,
     input_steps: proof_steps.length(),
-    lrat_adds: if ok { add_count } else { 0 },
-    lrat_deletes: if ok { del_count } else { 0 },
-    total_hints: if ok { hint_count } else { 0 },
-    steps: if ok { out_steps } else { [] },
+    lrat_adds: if ok {
+      add_count
+    } else {
+      0
+    },
+    lrat_deletes: if ok {
+      del_count
+    } else {
+      0
+    },
+    total_hints: if ok {
+      hint_count
+    } else {
+      0
+    },
+    steps: if ok {
+      out_steps
+    } else {
+      []
+    },
   }
 }
 

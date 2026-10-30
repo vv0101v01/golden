@@ -23,7 +23,7 @@
 // ===========================================================================
 
 ///|
-using @alg {trait Semiring, type Prob, type TropMax}
+using @alg {trait Semiring, type Prob}
 
 ///|
 /// 因子：作用在 `vars` 這些變數上的一張表。
@@ -235,25 +235,6 @@ pub fn marginals_sum_product(
 
 ///|
 /// max-product（以 log 域表示 ⇒ max-plus）：回傳每個變數的 max-marginal。
-pub fn marginals_max_product(
-  g : FactorGraph[TropMax],
-  rounds~ : Int32 = 32,
-) -> (Array[Array[Int32]], Int64) {
-  let r = bp_marginals(g, rounds~)
-  let out : Array[Array[Int32]] = []
-  for v in 0..<g.nvar {
-    let row : Array[Int32] = []
-    for x in 0..<g.card[v] {
-      row.push(r.marginal[v][x].value())
-    }
-    out.push(row)
-  }
-  (out, r.times_ops)
-}
-
-// ---------------------------------------------------------------------------
-// 暴力對照：q^n 列舉，與訊息傳遞無關
-// ---------------------------------------------------------------------------
 
 ///|
 /// 暴力邊緣化（sum-product 版）：列舉所有 q^n 個聯合賦值。
@@ -303,36 +284,6 @@ pub fn brute_force_sum_product(
 
 ///|
 /// 暴力邊緣化（max-product 版）。
-pub fn brute_force_max_product(
-  g : FactorGraph[TropMax],
-) -> (Array[Array[Int32]], Int64) {
-  let total = total_assignments(g.card)
-  let best : Array[Array[Int32]] = []
-  for v in 0..<g.nvar {
-    best.push(Array::make(g.card[v], -0x3FFF_FFFF))
-  }
-  let mut ops = 0L
-  let mut code = 0
-  while code < total {
-    let assign = decode_assign(code, g.card, all_vars(g.nvar))
-    let mut s = 0
-    for f in g.factors {
-      let sub : Array[Int32] = []
-      for v in f.vars {
-        sub.push(assign[v])
-      }
-      s = s + f.table[table_index(f, g.card, sub)].value()
-      ops = ops + 1L
-    }
-    for v in 0..<g.nvar {
-      if s > best[v][assign[v]] {
-        best[v][assign[v]] = s
-      }
-    }
-    code = code + 1
-  }
-  (best, ops)
-}
 
 ///|
 fn all_vars(n : Int32) -> Array[Int32] {

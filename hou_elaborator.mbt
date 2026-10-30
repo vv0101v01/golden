@@ -74,9 +74,6 @@ pub fn uty_arrow(a : UTerm, b : UTerm) -> UTerm {
 }
 
 ///|
-pub fn uty_implicit_arrow(a : UTerm, b : UTerm) -> UTerm {
-  UImplicitPi(a, uterm_shift(b, 1, 0))
-}
 
 ///|
 pub struct UMetaInfo {
@@ -4539,9 +4536,7 @@ fn hou_stream_candidate_steps(
       }
       if id_a != id_b {
         for
-          s in hou_flex_step_candidates(
-            id_b, args_b, lhs, max_projection_args,
-          ) {
+          s in hou_flex_step_candidates(id_b, args_b, lhs, max_projection_args) {
           out.push(s)
         }
         out.push(u => {

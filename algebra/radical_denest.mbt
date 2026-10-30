@@ -161,34 +161,6 @@ pub fn alg_sqrt_in_field(x : AlgNum) -> AlgNum? {
 /// Convert an algebraic number of degree at most two to `QuadNum`.
 /// For degree two the returned value is the standard generator
 /// `(-p + sqrt(p² - 4q))/2` of its minimal polynomial `T²+pT+q`.
-pub fn alg_to_quad(x : AlgNum) -> QuadNum? {
-  let m = alg_minimal_polynomial(x)
-  if qpoly_degree(m) == 0 {
-    return Some(quad_zero())
-  }
-  if qpoly_degree(m) == 1 {
-    return Some(
-      quad_rat(rat_div(rat_neg(qpoly_coeff(m, 0)), qpoly_coeff(m, 1))),
-    )
-  }
-  if qpoly_degree(m) != 2 {
-    return None
-  }
-  let p = qpoly_coeff(m, 1)
-  let q = qpoly_coeff(m, 0)
-  let disc = rat_sub(rat_mul(p, p), rat_mul(rat_int(4), q))
-  let sqrt_disc = quad_sqrt_rat(disc)
-  if rat_is_zero(sqrt_disc.b) {
-    return Some(quad_rat(rat_div(rat_add(rat_neg(p), sqrt_disc.a), rat_int(2))))
-  }
-  Some(
-    quad_make_big(
-      rat_div(rat_neg(p), rat_int(2)),
-      rat_div(sqrt_disc.b, rat_int(2)),
-      sqrt_disc.d,
-    ),
-  )
-}
 
 ///|
 /// An `n`-th root in the same quadratic field, extracted through the
@@ -232,9 +204,6 @@ pub enum RadicalExpr {
 }
 
 ///|
-pub fn radical_rat(r : Rat) -> RadicalExpr {
-  RadicalExpr::RRat(r)
-}
 
 ///|
 pub fn radical_int(n : Int32) -> RadicalExpr {

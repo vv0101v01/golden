@@ -116,9 +116,6 @@ pub fn dfunctor_identity(index : Array[DTerm]) -> DPositiveFunctor {
 }
 
 ///|
-pub fn dfunctor_const(ty : DTerm) -> DPositiveFunctor {
-  DFunctorConst(ty)
-}
 
 ///|
 pub fn dfunctor_product(
@@ -160,12 +157,6 @@ pub fn dfunctor_container(
 }
 
 ///|
-pub fn dfunctor_sigma(
-  first : DPositiveFunctor,
-  second : DPositiveFunctor,
-) -> DPositiveFunctor {
-  DFunctorSigma(first, second)
-}
 
 ///|
 pub fn dfunctor_param_term(term : DTerm) -> DFunctorParamArg {
@@ -378,21 +369,6 @@ pub fn darg_mutual(
 
 ///|
 /// A function into another component of a mutual block.
-pub fn darg_mutual_function(
-  name : String,
-  component : Int32,
-  dom : DTerm,
-  index~ : Array[DTerm] = [],
-) -> DConstructorArg {
-  DConstructorArg::{
-    name,
-    kind: DArgFunction,
-    ty: dom,
-    index,
-    nested: DFunctorIdentity([]),
-    target: component,
-  }
-}
 
 ///|
 pub struct DConstructorSpec {
@@ -1499,11 +1475,7 @@ fn schema_motive_type_loop(
 }
 
 ///|
-fn peel_motive_univ_level(
-  ty : DValue,
-  arity : Int32,
-  level : Int32,
-) -> Int32? {
+fn peel_motive_univ_level(ty : DValue, arity : Int32, level : Int32) -> Int32? {
   if arity <= 0 {
     as_univ_level(ty)
   } else {
@@ -1541,7 +1513,14 @@ fn check_schema_motive(
     None => default_level
   }
   let mot_ty = schema_motive_type_loop(
-    entries, 0, param_types, params, [], [], family, chosen_level,
+    entries,
+    0,
+    param_types,
+    params,
+    [],
+    [],
+    family,
+    chosen_level,
   )
   d_check(motive_term, mot_ty, ctx, env, denv)
 }
@@ -3426,18 +3405,6 @@ pub fn comp_hit_value(
 // ---------------------------------------------------------------------------
 
 ///|
-pub fn hit_motive_type(spec : DHitSpec, params : Array[DValue]) -> DValue {
-  schema_motive_type_loop(
-    spec.indices,
-    0,
-    hit_param_types(spec, params),
-    params,
-    [],
-    [],
-    idx => DVHitType(spec, params, idx),
-    spec.level,
-  )
-}
 
 ///|
 fn hit_motive_from_value(
@@ -4427,9 +4394,6 @@ fn hit_dims_eq(a : Array[Dim], b : Array[Dim]) -> Bool {
 // ---------------------------------------------------------------------------
 
 ///|
-pub fn hit_type_term(spec : DHitSpec, args : Array[DTerm]) -> DTerm {
-  DHitType(spec, args)
-}
 
 ///|
 pub fn hit_intro_term(

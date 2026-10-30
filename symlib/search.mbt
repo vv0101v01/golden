@@ -710,25 +710,6 @@ pub fn search_graph_mode(g : Graph, mode : Int32) -> SearchResult {
 
 ///|
 /// 動態剪枝之見證失敗計數（除錯用；0 = 所有跳過皆有合法見證）。
-pub fn search_bad_witness(g : Graph) -> Int32 {
-  let n = g.order()
-  let total = n * (n - 1) / 2
-  let ctx = make_ctx(g, 2, true, total, n)
-  if n == 0 {
-    return 0
-  }
-  let lab = Array::make(n, 0)
-  for i in 0..<n {
-    lab[i] = i
-    ctx.pos_of[i] = i
-  }
-  let colors0 = degree_ranks(g)
-  for i in 0..<n {
-    ctx.color_slots[i] = colors0[i]
-  }
-  search_rec(ctx, lab, 0)
-  ctx.bad_witness
-}
 
 ///|
 fn search_graph_impl2(

@@ -29,8 +29,6 @@ using @alg {
   type Trop,
   type BoolSr,
   type Bottleneck,
-  type Prob,
-  type Counting,
 }
 
 ///|
@@ -165,70 +163,6 @@ pub fn widest_fw(
 }
 
 ///|
-/// 機率半環的暴力對照：**把所有路徑的機率加起來**（DAG，n ≤ 6 才用）。
-///
-/// 注意「最可能路徑」與「總機率」是兩件事：
-///   * `Prob` 的 ⊕ 是加法，所以 A*[i][j] = Σ_{所有路徑 p} Π_{e∈p} p_e（機率總和）；
-///   * 若只要最可能的那一條路徑，該用 max-× 半環，而不是 `Prob`。
-/// 這裡的暴力實作算的是前者，才能與 `Prob` 的閉包逐格對上。
-pub fn most_likely_bruteforce(
-  n : Int32,
-  es : Array[(Int32, Int32, Double)],
-) -> Array[Array[Double]] {
-  // 先把邊整理成鄰接表
-  let adj : Array[Array[(Int32, Double)]] = []
-  for _ in 0..<n {
-    adj.push([])
-  }
-  for e in es {
-    adj[e.0].push((e.1, e.2))
-  }
-  let out : Array[Array[Double]] = []
-  for s in 0..<n {
-    let best : Array[Double] = Array::make(n, 0.0)
-    best[s] = 1.0
-    let visited : Array[Bool] = Array::make(n, false)
-    visited[s] = true
-    explore(adj, s, s, 1.0, best, visited)
-    out.push(best)
-  }
-  out
-}
-
-///|
-fn explore(
-  adj : Array[Array[(Int32, Double)]],
-  s : Int32,
-  u : Int32,
-  acc : Double,
-  best : Array[Double],
-  visited : Array[Bool],
-) -> Unit {
-  for e in adj[u] {
-    let v = e.0
-    // 自環可以重複走（機率只會變小，不影響最大值），其他點走簡單路徑
-    if v == s || !visited[v] {
-      let p = acc * e.1
-      best[v] = best[v] + p
-      let was = visited[v]
-      visited[v] = true
-      explore(adj, s, v, p, best, visited)
-      visited[v] = was
-    }
-  }
-}
-
-// ---------------------------------------------------------------------------
-// 五個薄薄的外殼：同一個 `app_closure`，五種權重型別。
-//
-// 這些外殼存在的理由有二：
-//   1. 呼叫端不必自己組 `(u, v, E)` 三元組，型別一目了然；
-//   2. 泛型實例化（含 trait 解析）留在**本套件內**完成，
-//      測試與報告只需要呼叫非泛型函式。這也讓「同一份程式、五種代數」
-//      這件事在 API 上直接看得見。
-// ---------------------------------------------------------------------------
-
-///|
 pub fn app_bool(n : Int32, es : Array[(Int32, Int32)]) -> @mat.Mat[BoolSr] {
   let triples : Array[(Int32, Int32, BoolSr)] = []
   for e in es {
@@ -238,16 +172,6 @@ pub fn app_bool(n : Int32, es : Array[(Int32, Int32)]) -> @mat.Mat[BoolSr] {
 }
 
 ///|
-pub fn app_counts(
-  n : Int32,
-  es : Array[(Int32, Int32, Int64)],
-) -> @mat.Mat[Counting] {
-  let triples : Array[(Int32, Int32, Counting)] = []
-  for e in es {
-    triples.push((e.0, e.1, Counting::new(e.2)))
-  }
-  app_closure(n, triples)
-}
 
 ///|
 pub fn app_minplus(
@@ -277,14 +201,3 @@ pub fn app_widest(
 /// 最可能路徑：`Prob` 沒有 `StarSemiring` 實例——這不是遺漏，而是**正確的設計**：
 /// 機率半環的星只在譜半徑 < 1 時收斂，隨機圖上可能發散。
 /// 因此這裡走「冪級數 + 收斂旗標」，把收斂性變成回傳值而不是默默假設。
-pub fn app_mostlikely(
-  n : Int32,
-  es : Array[(Int32, Int32, Double)],
-) -> (@mat.Mat[Prob], Bool) {
-  let triples : Array[(Int32, Int32, Prob)] = []
-  for e in es {
-    triples.push((e.0, e.1, Prob::new(e.2)))
-  }
-  let m = build(n, triples)
-  @mat.closure_series(m, k=400, is_small=fn(x : Prob) { x.value() < 1.0e-12 })
-}

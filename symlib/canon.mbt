@@ -137,14 +137,3 @@ pub fn colored_canonical_key(
 
 ///|
 /// 有色圖同構判定（固定顏色標籤，不允許全域重命名顏色）。
-pub fn isomorphic_colored(
-  g1 : Graph,
-  colors1 : Array[Int32],
-  g2 : Graph,
-  colors2 : Array[Int32],
-) -> Bool {
-  guard g1.order() == g2.order() && g1.size() == g2.size() else { return false }
-  let (seq1, enc1) = colored_canonical_key(g1, colors1)
-  let (seq2, enc2) = colored_canonical_key(g2, colors2)
-  cmp_arr(seq1, seq2) == 0 && cmp_arr(enc1, enc2) == 0
-}

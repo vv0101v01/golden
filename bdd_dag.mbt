@@ -476,15 +476,6 @@ pub fn bdd_manager_node_count(m : BddManager) -> Int32 {
 }
 
 ///|
-pub fn bdd_manager_stats(m : BddManager) -> (Int32, Int32, Int32, Int32, Bool) {
-  (
-    bdd_manager_node_count(m),
-    m.apply_hits,
-    m.apply_misses,
-    m.mk_calls,
-    m.exceeded,
-  )
-}
 
 ///|
 /// Hash-table diagnostics: node bucket count, apply-cache bucket
@@ -640,22 +631,6 @@ pub fn face_eq_within_budget(
 }
 
 ///|
-pub fn face_sat_within_budget(
-  f : Face,
-  n : Int32,
-  max_nodes : Int32,
-) -> FaceDecision {
-  let built = bdd_dag_of_face(f, n, max_nodes~)
-  if built.ok {
-    FaceDecided(built.root != 0)
-  } else {
-    FaceBudgetExceeded
-  }
-}
-
-// ---------------------------------------------------------------------------
-// DPLL fallback for satisfiability
-// ---------------------------------------------------------------------------
 
 ///|
 pub fn face_not(f : Face) -> Face {
@@ -2273,7 +2248,11 @@ pub fn bdd_dag_of_face_optimal_decomposed(
   if n <= 0 {
     let res = bdd_dag_of_face_optimal_pruned(
       f,
-      if n < 0 { 0 } else { n },
+      if n < 0 {
+        0
+      } else {
+        n
+      },
       exact_max_vars=component_max_vars,
       max_nodes~,
     )
@@ -2282,7 +2261,11 @@ pub fn bdd_dag_of_face_optimal_decomposed(
       order: res.order,
       size: res.size,
       active_vars: res.active_vars,
-      component_count: if res.active_vars > 0 { 1 } else { 0 },
+      component_count: if res.active_vars > 0 {
+        1
+      } else {
+        0
+      },
       max_component_vars: res.active_vars,
       tried: res.tried,
       pruned_subsets: res.pruned_subsets,
@@ -2402,7 +2385,7 @@ pub fn bdd_dag_of_face_optimal_decomposed(
   let mut max_comp_k = 0
   let mut annihilated = false
 
-  for ci in 0..< clauses.length() {
+  for ci in 0..<clauses.length() {
     if clause_var_indices[ci].length() == 0 {
       let c_res = bdd_dag_of_face_optimal_pruned(
         clauses[ci],

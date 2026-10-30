@@ -93,7 +93,7 @@ pub fn check_phase15_bdd_symmetry_orbit_and_decomposed_optimal() -> Bool {
   for probe in 0..<6 {
     let bits : Array[Bool] = []
     for v in 0..<28 {
-      bits.push(((probe * 3 + v) % 4) == 0)
+      bits.push((probe * 3 + v) % 4 == 0)
     }
     let expected = face_holds(f28, bits)
     if bdd_dag_eval(dec_28.built.manager, dec_28.built.root, bits) != expected {
@@ -369,7 +369,14 @@ pub fn check_phase15_bidirectional_bijectivity_and_pi1_circle() -> Bool {
     !conv_at(4, 0, eq_zxy, dapp_dim(z_sq, DOne), zq) {
     return false
   }
-  match d_check(quote_at(4, 0, z_sq_ty, z_sq), z_sq_ty, ctx_zset, env_zset, ddim_empty()) {
+  match
+    d_check(
+      quote_at(4, 0, z_sq_ty, z_sq),
+      z_sq_ty,
+      ctx_zset,
+      env_zset,
+      ddim_empty(),
+    ) {
     Some(_) => ()
     None => return false
   }
@@ -388,7 +395,10 @@ pub fn check_phase15_bidirectional_bijectivity_and_pi1_circle() -> Bool {
   let bset_open = reflect_var(3, bset_ty)
   let ctx_trunc = denv_cons(
     bset_ty,
-    denv_cons(eq_ab_ty, denv_cons(DVUniv(0), denv_cons(DVUniv(0), denv_empty()))),
+    denv_cons(
+      eq_ab_ty,
+      denv_cons(DVUniv(0), denv_cons(DVUniv(0), denv_empty())),
+    ),
   )
   let env_trunc = denv_cons(
     bset_open,
@@ -407,11 +417,7 @@ pub fn check_phase15_bidirectional_bijectivity_and_pi1_circle() -> Bool {
     )
   }
   let trunc_eq_open = set_trunc_equiv_of_equiv_set_value(
-    a_open,
-    b_open,
-    e_open,
-    bset_fn,
-    16,
+    a_open, b_open, e_open, bset_fn, 16,
   )
   if !equiv_bidirectional_certified_in(
       ctx_trunc,
@@ -441,8 +447,20 @@ pub fn check_phase15_bidirectional_bijectivity_and_pi1_circle() -> Bool {
       !conv_at(0, 0, st_loop_ty, dapp_typed(pi1_bwd, zk, z_ty), stk) ||
       !conv_at(0, 0, z_ty, dapp_dim(dapp_typed(pi1_sect, zk, z_ty), DZero), zk) ||
       !conv_at(0, 0, z_ty, dapp_dim(dapp_typed(pi1_sect, zk, z_ty), DOne), zk) ||
-      !conv_at(0, 0, st_loop_ty, dapp_dim(dapp_typed(pi1_retr, stk, st_loop_ty), DZero), stk) ||
-      !conv_at(0, 0, st_loop_ty, dapp_dim(dapp_typed(pi1_retr, stk, st_loop_ty), DOne), stk) ||
+      !conv_at(
+        0,
+        0,
+        st_loop_ty,
+        dapp_dim(dapp_typed(pi1_retr, stk, st_loop_ty), DZero),
+        stk,
+      ) ||
+      !conv_at(
+        0,
+        0,
+        st_loop_ty,
+        dapp_dim(dapp_typed(pi1_retr, stk, st_loop_ty), DOne),
+        stk,
+      ) ||
       !conv_at(0, 0, z_ty, dapp_typed(cov_b_fwd, lk, loop_ty), zk) ||
       !conv_at(0, 0, loop_ty, dapp_typed(cov_b_bwd, zk, z_ty), lk) {
       return false
@@ -652,11 +670,7 @@ pub fn check_phase15_freudenthal_suspension_and_wedge_connectivity() -> Bool {
   ) => {
     let eq1 = DVPathTy(_ => p00, u1, v1)
     dapp_typed(
-      dapp_typed(
-        dapp_typed(dapp_typed(p00_set_var, u1, p00), v1, p00),
-        q1,
-        eq1,
-      ),
+      dapp_typed(dapp_typed(dapp_typed(p00_set_var, u1, p00), v1, p00), q1, eq1),
       q2,
       eq1,
     )
@@ -729,8 +743,20 @@ pub fn check_phase15_freudenthal_suspension_and_wedge_connectivity() -> Bool {
     ext_x_base,
     f_left(x_open),
   )
-  if !conv_at(7, 0, p_open_fam(x_open, base_c), dapp_dim(left_coh, DZero), ext_x_base) ||
-    !conv_at(7, 0, p_open_fam(x_open, base_c), dapp_dim(left_coh, DOne), f_left(x_open)) {
+  if !conv_at(
+      7,
+      0,
+      p_open_fam(x_open, base_c),
+      dapp_dim(left_coh, DZero),
+      ext_x_base,
+    ) ||
+    !conv_at(
+      7,
+      0,
+      p_open_fam(x_open, base_c),
+      dapp_dim(left_coh, DOne),
+      f_left(x_open),
+    ) {
     return false
   }
   match
@@ -753,8 +779,20 @@ pub fn check_phase15_freudenthal_suspension_and_wedge_connectivity() -> Bool {
     ext_base_y,
     f_right(y_open),
   )
-  if !conv_at(7, 0, p_open_fam(base_c, y_open), dapp_dim(right_coh, DZero), ext_base_y) ||
-    !conv_at(7, 0, p_open_fam(base_c, y_open), dapp_dim(right_coh, DOne), f_right(y_open)) {
+  if !conv_at(
+      7,
+      0,
+      p_open_fam(base_c, y_open),
+      dapp_dim(right_coh, DZero),
+      ext_base_y,
+    ) ||
+    !conv_at(
+      7,
+      0,
+      p_open_fam(base_c, y_open),
+      dapp_dim(right_coh, DOne),
+      f_right(y_open),
+    ) {
     return false
   }
   match
@@ -777,10 +815,7 @@ pub fn check_phase15_freudenthal_suspension_and_wedge_connectivity() -> Bool {
     loop_a_ty,
     denv_cons(a_ty, denv_cons(DVUniv(0), denv_empty())),
   )
-  let env_ap = denv_cons(
-    p_open,
-    denv_cons(a0, denv_cons(a_ty, denv_empty())),
-  )
+  let env_ap = denv_cons(p_open, denv_cons(a0, denv_cons(a_ty, denv_empty())))
   let susp_a = susp_type_value(a_ty)
   let north_a = susp_north_value(a_ty)
   let loop1_susp = DVPathTy(_ => susp_a, north_a, north_a)
@@ -824,4 +859,3 @@ pub fn check_phase15_freudenthal_suspension_and_wedge_connectivity() -> Bool {
   }
   true
 }
-

@@ -1901,7 +1901,10 @@ pub fn torus_square_glued_cap(
       }
       let sq = DVPathLam(i => {
         DVPathLam(j => {
-          embed_pair(dapp_dim(dapp_dim(sq_a, i), j), dapp_dim(dapp_dim(sq_b, i), j))
+          embed_pair(
+            dapp_dim(dapp_dim(sq_a, i), j),
+            dapp_dim(dapp_dim(sq_b, i), j),
+          )
         })
       })
       (Some(sq), rep_a.net_boundary_winding, rep_b.net_boundary_winding)

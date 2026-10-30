@@ -14,7 +14,6 @@ using @algebra {
   alg_div,
   alg_eq,
   alg_generator,
-  alg_is_zero,
   alg_mul,
   alg_neg,
   alg_one,
@@ -32,7 +31,6 @@ using @algebra {
   rat_zero,
   quad_add,
   quad_eq,
-  quad_inv,
   quad_is_zero,
   quad_mul,
   quad_neg,
@@ -65,4 +63,6 @@ using @algebra {
   check_jacobi_block_deflation_and_multiplicity,
   check_lll_lattice_and_van_hoeij_factor,
   check_complex_algebraic_closure_rouche,
+  // Transcendental boundary layer (SPEC section 4, exact algebra track).
+  check_transcendental_boundary_layer,
 }

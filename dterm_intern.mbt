@@ -245,9 +245,6 @@ pub fn dterm_local_shell(t : DTerm) -> DTerm {
 /// Local stamp: the cache key of a node's local shell.  Two nodes
 /// share a stamp iff they use the same constructor with the same
 /// non-term fields (and the same number of children).
-pub fn dterm_local_stamp(t : DTerm) -> String {
-  dterm_cache_key(dterm_local_shell(t))
-}
 
 ///|
 fn dterm_intern_key(shell : DTerm, child_ids : Array[Int32]) -> String {
@@ -276,19 +273,6 @@ pub fn dterm_intern_table_term(table : DTermInternTable, id : Int32) -> DTerm? {
 ///|
 /// A copy of the child intern ids of the node at `id`, in
 /// `dterm_children` order, or `None` for an out-of-range id.
-pub fn dterm_intern_table_children(
-  table : DTermInternTable,
-  id : Int32,
-) -> Array[Int32]? {
-  if id < 0 || id >= table.node_children.length() {
-    return None
-  }
-  let out : Array[Int32] = []
-  for i in 0..<table.node_children[id].length() {
-    out.push(table.node_children[id][i])
-  }
-  Some(out)
-}
 
 ///|
 /// Non-inserting lookup: the intern id of `t` when every subterm
@@ -386,16 +370,6 @@ pub fn dterm_intern(table : DTermInternTable, t : DTerm) -> DTerm {
 
 ///|
 /// Intern every term, reusing `table`.
-pub fn dterm_intern_all(
-  table : DTermInternTable,
-  ts : Array[DTerm],
-) -> Array[DTerm] {
-  let out : Array[DTerm] = []
-  for i in 0..<ts.length() {
-    out.push(dterm_intern(table, ts[i]))
-  }
-  out
-}
 
 ///|
 /// Number of nodes in the unshared tree.
@@ -415,32 +389,6 @@ pub fn dterm_distinct_subterm_count(t : DTerm) -> Int32 {
   let table = dterm_intern_table_new()
   ignore(dterm_intern(table, t))
   dterm_intern_table_size(table)
-}
-
-///|
-/// The sharing ratio `distinct / tree` as an exact rational pair
-/// reduced by gcd: `(distinct/g, tree/g)`.
-pub fn dterm_sharing_ratio(t : DTerm) -> (Int32, Int32) {
-  let distinct = dterm_distinct_subterm_count(t)
-  let tree = dterm_tree_node_count(t)
-  let g = int_gcd_nonnegative(distinct, tree)
-  if g <= 0 {
-    (distinct, tree)
-  } else {
-    (distinct / g, tree / g)
-  }
-}
-
-///|
-fn int_gcd_nonnegative(a : Int32, b : Int32) -> Int32 {
-  let mut x = if a < 0 { 0 - a } else { a }
-  let mut y = if b < 0 { 0 - b } else { b }
-  while y != 0 {
-    let r = x % y
-    x = y
-    y = r
-  }
-  x
 }
 
 ///|

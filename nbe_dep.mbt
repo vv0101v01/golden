@@ -685,7 +685,7 @@ let dind_spec_key_registry : Array[DInductiveSpec] = []
 let dhit_spec_key_registry : Array[DHitSpec] = []
 
 ///|
-fn dind_spec_key_id(spec : DInductiveSpec) -> Int {
+fn dind_spec_key_id(spec : DInductiveSpec) -> Int32 {
   for i in 0..<dind_spec_key_registry.length() {
     let entry = dind_spec_key_registry[i]
     if entry.name == spec.name &&
@@ -700,7 +700,7 @@ fn dind_spec_key_id(spec : DInductiveSpec) -> Int {
 }
 
 ///|
-fn dhit_spec_key_id(spec : DHitSpec) -> Int {
+fn dhit_spec_key_id(spec : DHitSpec) -> Int32 {
   for i in 0..<dhit_spec_key_registry.length() {
     let entry = dhit_spec_key_registry[i]
     if entry.name == spec.name && entry == spec {
@@ -2221,13 +2221,6 @@ pub fn deval_dim(t : DTerm, env : DEnv, denv : DDimEnv) -> DValue {
 }
 
 ///|
-pub fn deval(t : DTerm, env : Array[DValue]) -> DValue {
-  deval_dim(t, denv_from_array(env), ddim_empty())
-}
-
-// ---------------------------------------------------------------------------
-// Eliminator computation (including commutation with formal compositions)
-// ---------------------------------------------------------------------------
 
 ///|
 fn elim_over_comp(

@@ -7,8 +7,6 @@ import {
 }
 
 // Values
-pub fn argmin_k(Array[Double], Array[Double]) -> Int32
-
 pub fn decategorify(SetMat) -> @matrix.Mat[@algebra.Counting]
 
 pub fn dequant_error(Array[Double], Double) -> Double
@@ -19,8 +17,6 @@ pub fn dequantize_naive(Array[Double], Double) -> Double
 
 pub fn dequantized_mul(Array[Array[Double]], Array[Array[Double]], Double) -> Array[Array[Double]]
 
-pub fn distinct_witnesses(Array[Array[Int32]]) -> Int32
-
 pub fn max_abs_diff(Array[Array[Double]], Array[Array[Double]]) -> Double
 
 pub fn minplus_mul(Array[Array[Double]], Array[Array[Double]]) -> Array[Array[Double]]
@@ -28,8 +24,6 @@ pub fn minplus_mul(Array[Array[Double]], Array[Array[Double]]) -> Array[Array[Do
 pub fn smat_mul(SetMat, SetMat) -> SetMat
 
 pub fn smat_plus(SetMat, SetMat) -> SetMat
-
-pub fn witness_equal(Array[Int32], Array[Int32]) -> Bool
 
 // Errors
 

@@ -5,7 +5,9 @@ test "scheme Eisenbud Theorem 20.8 pure-dimensional smoothness vs mixed-dim guar
   let e2_minus_e = mpoly_sub(mpoly_pow(e, 2), e)
   let t_one_minus_e = mpoly_mul(t, mpoly_sub(mpoly_int(2, 1), e))
   let two_lines = affine_scheme(coord_ring_new(2, [e2_minus_e]))
-  let line_plus_pt = affine_scheme(coord_ring_new(2, [e2_minus_e, t_one_minus_e]))
+  let line_plus_pt = affine_scheme(
+    coord_ring_new(2, [e2_minus_e, t_one_minus_e]),
+  )
   assert_true(affine_is_smooth(two_lines))
   assert_true(!affine_is_smooth(line_plus_pt))
 }

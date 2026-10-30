@@ -218,18 +218,6 @@ pub fn qmat_vec(a : QMat, v : QVec) -> QVec {
 }
 
 ///|
-pub fn qmat_transpose(a : QMat) -> QMat {
-  let cols = if a.rows.length() == 0 { 0 } else { a.rows[0].length() }
-  let rows : Array[Array[Rat]] = []
-  for j in 0..<cols {
-    let row : Array[Rat] = []
-    for i in 0..<a.rows.length() {
-      row.push(a.rows[i][j])
-    }
-    rows.push(row)
-  }
-  QMat::{ n: a.n, rows, }
-}
 
 ///|
 pub fn qmat_eq(a : QMat, b : QMat) -> Bool {
@@ -280,21 +268,6 @@ pub fn qmat_is_zero(a : QMat) -> Bool {
 
 ///|
 /// Convert a rational matrix to the symbolic complex matrix format.
-pub fn sym_mat_of_qmat(a : QMat) -> SymMat {
-  let rows : Array[Array[SymC]] = []
-  for i in 0..<a.rows.length() {
-    let row : Array[SymC] = []
-    for j in 0..<a.rows[i].length() {
-      row.push(sc_rat(a.rows[i][j]))
-    }
-    rows.push(row)
-  }
-  sym_mat_from_rows(rows)
-}
-
-// ---------------------------------------------------------------------------
-// Row reduction
-// ---------------------------------------------------------------------------
 
 ///|
 fn qrows_copy(rows : Array[Array[Rat]]) -> Array[Array[Rat]] {

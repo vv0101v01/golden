@@ -434,9 +434,6 @@ pub fn universe_path_of_ua_term_closed(equiv : DTerm) -> UniversePath? {
 
 ///|
 /// The path value in the universe.
-pub fn universe_path_path_value(p : UniversePath) -> DValue {
-  DVPathLam(checked_line_fn(p.line))
-}
 
 ///|
 /// The transport equivalence of a checked universe path.
@@ -730,7 +727,12 @@ pub fn equiv_bidirectional_certified_in(
       }
       let fresh_d = DVar(dlevel)
       let denv_d = ddim_cons(fresh_d, denv)
-      let sy_i_term = quote_at(level + 1, dlevel + 1, dst, dapp_dim(sy, fresh_d))
+      let sy_i_term = quote_at(
+        level + 1,
+        dlevel + 1,
+        dst,
+        dapp_dim(sy, fresh_d),
+      )
       match d_check(sy_i_term, dst, ctx_y, env_y, denv_d) {
         Some(_) => ()
         None => return false
@@ -742,7 +744,12 @@ pub fn equiv_bidirectional_certified_in(
         !conv_at(level + 1, dlevel, src, dapp_dim(rx, DOne), x) {
         return false
       }
-      let rx_i_term = quote_at(level + 1, dlevel + 1, src, dapp_dim(rx, fresh_d))
+      let rx_i_term = quote_at(
+        level + 1,
+        dlevel + 1,
+        src,
+        dapp_dim(rx, fresh_d),
+      )
       match d_check(rx_i_term, src, ctx_x, env_x, denv_d) {
         Some(_) => true
         None => false
@@ -756,4 +763,3 @@ pub fn equiv_bidirectional_certified_in(
 pub fn equiv_bidirectional_certified(e : DValue) -> Bool {
   equiv_bidirectional_certified_in(denv_empty(), denv_empty(), ddim_empty(), e)
 }
-

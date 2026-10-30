@@ -799,11 +799,7 @@ pub struct DLevelTermDecl {
 }
 
 ///|
-pub enum DLevelDecl {
-  DLevelInductive(DLevelInductiveDecl)
-  DLevelHit(DLevelHitDecl)
-  DLevelTerm(DLevelTermDecl)
-}
+pub enum DLevelDecl {}
 
 ///|
 pub struct DLevelTermInstance {
@@ -1012,32 +1008,12 @@ pub fn check_level_polymorphic_declarations() -> Bool {
 }
 
 ///|
-pub fn level_decl_inductive(decl : DLevelInductiveDecl) -> DLevelDecl {
-  DLevelDecl::DLevelInductive(decl)
-}
 
 ///|
-pub fn level_decl_hit(decl : DLevelHitDecl) -> DLevelDecl {
-  DLevelDecl::DLevelHit(decl)
-}
 
 ///|
-pub fn level_decl_term(decl : DLevelTermDecl) -> DLevelDecl {
-  DLevelDecl::DLevelTerm(decl)
-}
 
 ///|
-pub fn level_decl_validate(decl : DLevelDecl) -> Bool {
-  match decl {
-    DLevelInductive(d) => level_inductive_decl_validate(d)
-    DLevelHit(d) => level_hit_decl_validate(d)
-    DLevelTerm(d) => level_term_decl_validate(d)
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Type-operator positivity extraction
-// ---------------------------------------------------------------------------
 
 ///|
 /// A transparent one-argument type operator declaration.  `head` is
@@ -5075,12 +5051,12 @@ pub extend DOpenIRArg with Eq::{not_equal, equal}
 
 ///|
 pub fn dopen_arg_external(name : String, ty : DTerm) -> DOpenIRArg {
-  DOpenIRArg::{ name, kind: DOpenArgExternal(ty) }
+  DOpenIRArg::{ name, kind: DOpenArgExternal(ty), }
 }
 
 ///|
 pub fn dopen_arg_code(name : String) -> DOpenIRArg {
-  DOpenIRArg::{ name, kind: DOpenArgCode }
+  DOpenIRArg::{ name, kind: DOpenArgCode, }
 }
 
 ///|
@@ -5089,7 +5065,7 @@ pub fn dopen_arg_decoded_val(
   source_arg : Int32,
   decoder_idx : Int32,
 ) -> DOpenIRArg {
-  DOpenIRArg::{ name, kind: DOpenArgDecodedVal(source_arg, decoder_idx) }
+  DOpenIRArg::{ name, kind: DOpenArgDecodedVal(source_arg, decoder_idx), }
 }
 
 ///|
@@ -5098,7 +5074,7 @@ pub fn dopen_arg_decoded_code_fn(
   source_arg : Int32,
   decoder_idx : Int32,
 ) -> DOpenIRArg {
-  DOpenIRArg::{ name, kind: DOpenArgDecodedCodeFn(source_arg, decoder_idx) }
+  DOpenIRArg::{ name, kind: DOpenArgDecodedCodeFn(source_arg, decoder_idx), }
 }
 
 ///|
@@ -5118,7 +5094,7 @@ pub fn dopen_ir_constructor(
   name : String,
   args : Array[DOpenIRArg],
 ) -> DOpenIRConstructor {
-  DOpenIRConstructor::{ name, args }
+  DOpenIRConstructor::{ name, args, }
 }
 
 ///|
@@ -5140,7 +5116,7 @@ pub fn dopen_ir_decoder(
   decode_level : Int32,
   cases : Array[DTerm],
 ) -> DOpenIRDecoder {
-  DOpenIRDecoder::{ name, decode_level, cases }
+  DOpenIRDecoder::{ name, decode_level, cases, }
 }
 
 ///|
@@ -5164,7 +5140,7 @@ pub fn dopen_simultaneous_ir_spec(
   constructors : Array[DOpenIRConstructor],
   decoders : Array[DOpenIRDecoder],
 ) -> DOpenSimultaneousIRSpec {
-  DOpenSimultaneousIRSpec::{ name, level, constructors, decoders }
+  DOpenSimultaneousIRSpec::{ name, level, constructors, decoders, }
 }
 
 ///|
@@ -5202,7 +5178,7 @@ pub fn dopen_ir_intro(
   ctor_idx : Int32,
   args : Array[DOpenIRArgVal],
 ) -> DOpenIRCode {
-  DOpenIRCode::{ ctor_idx, args }
+  DOpenIRCode::{ ctor_idx, args, }
 }
 
 ///|
@@ -5391,7 +5367,8 @@ fn open_ir_eval_all_decoders(
           Some(tv) => tv.value
           None => return None
         }
-        let val = match d_check(tm, expected, denv_empty(), denv_empty(), ddim_empty()) {
+        let val = match
+          d_check(tm, expected, denv_empty(), denv_empty(), ddim_empty()) {
           Some(v) => v
           None => return None
         }
@@ -5461,7 +5438,9 @@ fn open_ir_eval_all_decoders(
   }
   let out : Array[DValue] = []
   for r in 0..<m {
-    out.push(deval_dim(spec.decoders[r].cases[code.ctor_idx], sim_env, ddim_empty()))
+    out.push(
+      deval_dim(spec.decoders[r].cases[code.ctor_idx], sim_env, ddim_empty()),
+    )
   }
   Some(out)
 }
@@ -5679,7 +5658,7 @@ fn open_ir_elim_rec(
       _ => return None
     }
   }
-  Some((cases[code.ctor_idx])(step_args))
+  Some(cases[code.ctor_idx](step_args))
 }
 
 ///|
@@ -5726,4 +5705,3 @@ pub fn open_ir_lower_single_decoder(
     None
   }
 }
-

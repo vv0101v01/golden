@@ -64,12 +64,12 @@ allowlists.  See the [migration guide](docs/MIGRATION.md), the
 
 The governed manifest (`architecture.json` v2) partitions **5 federations +
 1 unification apex, 27 packages, 36 components** (`191` `.mbt` files,
-`134,148` `.mbt` lines), and the generated bilingual appendices classify
+`135,148` `.mbt` lines), and the generated bilingual appendices classify
 **6,484 public symbols** across `SPEC-APPENDIX.md` and
 `SPEC-APPENDIX.en.md` (`spec_registry`: **127** entries).  Fast local gates:
 `moon check --deny-warn --target wasm-gc`,
 `moon test --release --target wasm-gc` (**15/15** consolidated `L8` tests across all federations),
-`moon run --release cmd/main --target wasm-gc` (**116/116** theorems),
+`moon run --release cmd/main --target wasm-gc` (**124/124** theorems),
 `moon run --release cmd/showcase --target wasm-gc` (**5/5 federations, 10/10 `K_5` pairwise bridges,
 42/42 grand-unification certificates**, including Phase-15 and Phase-16 cubical/algebraic certificates and all **18/18** Geometry–Logic
 Atlas entries), `python3 tools/arch_check.py`, and
@@ -147,7 +147,7 @@ AST); a federated multi-package architecture governed by
 canonical-form/categorification specifications.
 
 Run: `moon check --deny-warn --target wasm-gc`, `moon test --release --target wasm-gc` (15 consolidated `L8` tests across all federations),
-`moon run --release cmd/main --target wasm-gc` (expected: 116/116 cubical registry checks),
+`moon run --release cmd/main --target wasm-gc` (expected: 124/124 cubical registry checks),
 `moon run --release cmd/showcase --target wasm-gc` (expected: 42/42 grand-unification certificates), `python3 tools/arch_check.py`, and
 `moon info && python3 tools/audit_spec.py --check` (the generated
 appendices are the authoritative public-symbol count).  Documentation:

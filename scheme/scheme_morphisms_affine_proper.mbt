@@ -104,10 +104,6 @@ pub fn scheme_affine_space(n : Int32) -> Scheme {
 
 ///|
 /// Non-reduced fat point `Spec(Q[x] / <x^m>)` (`m >= 2`).
-pub fn scheme_fat_point(m : Int32) -> Scheme {
-  let x = mpoly_var(1, 0)
-  scheme_from_affine(affine_scheme(coord_ring_new(1, [mpoly_pow(x, m)])))
-}
 
 ///|
 /// General `n`-dimensional projective subscheme `V_+(homog_gens) ⊆ P^n_Q` (`n >= 0`)
@@ -211,28 +207,6 @@ pub fn scheme_projective_space(n : Int32) -> Scheme {
 
 ///|
 /// Closed immersion `V_+(homog_gens) ↪ P^n_Q` for any `n >= 0`!
-pub fn morphism_closed_immersion_in_projective_space(
-  n : Int32,
-  homog_gens : Array[MPoly],
-) -> SchemeMorphism {
-  let sub = scheme_projective_subscheme(n, homog_gens)
-  let pn = scheme_projective_space(n)
-  let chart_map : Array[Int32] = []
-  let maps : Array[RingHom] = []
-  for i in 0..<(n + 1) {
-    chart_map.push(i)
-    let imgs : Array[MPoly] = []
-    for a in 0..<n {
-      imgs.push(coord_ring_nf(sub.charts[i].ring, mpoly_var(n, a)))
-    }
-    maps.push({
-      src: pn.charts[i].ring,
-      dst: sub.charts[i].ring,
-      var_images: imgs,
-    })
-  }
-  { src: sub, dst: pn, chart_map, ring_maps: maps, }
-}
 
 ///|
 /// **Affine Line with Doubled Origin** (`U_0 ∪ U_1` glued along `u = v` on
@@ -497,63 +471,9 @@ pub fn affine_fiber_product(
 }
 
 ///|
-/// Decide whether a general glued `Scheme` `X` is **Reduced** (`O_X(U_i)` is
-/// reduced on every affine chart `U_i`)!
-pub fn scheme_is_reduced(x : Scheme) -> Bool {
-  for c in x.charts {
-    if !affine_is_reduced(c) {
-      return false
-    }
-  }
-  true
-}
-
-///|
 /// Construct the **Associated Reduced Scheme** `X_red` and canonical closed
 /// immersion `ι : X_red ↪ X` by reducing every chart AND every overlap ideal
 /// (`√I` commutes with localization `(√I)_f = √(I_f)`!)!
-pub fn scheme_reduction(x : Scheme) -> (Scheme, SchemeMorphism) {
-  let m = x.charts.length()
-  let red_charts : Array[AffineScheme] = []
-  let ring_maps : Array[RingHom] = []
-  let chart_map : Array[Int32] = []
-  for i in 0..<m {
-    let (rc, hom_i) = affine_reduction(x.charts[i])
-    red_charts.push(rc)
-    ring_maps.push(hom_i)
-    chart_map.push(i)
-  }
-  let red_overlaps : Array[ChartOverlap] = []
-  for i in 0..<m {
-    for j in 0..<m {
-      let ov = x.overlaps[i * m + j]
-      if ov.is_empty {
-        red_overlaps.push(ov)
-      } else {
-        let r_red : CoordRing = {
-          nvars: ov.ring.nvars,
-          ideal: ideal_radical(ov.ring.ideal),
-        }
-        let fi_imgs : Array[MPoly] = []
-        for p in ov.from_i.var_images {
-          fi_imgs.push(coord_ring_nf(r_red, p))
-        }
-        let fj_imgs : Array[MPoly] = []
-        for p in ov.from_j.var_images {
-          fj_imgs.push(coord_ring_nf(r_red, p))
-        }
-        red_overlaps.push({
-          is_empty: false,
-          ring: r_red,
-          from_i: { src: red_charts[i].ring, dst: r_red, var_images: fi_imgs, },
-          from_j: { src: red_charts[j].ring, dst: r_red, var_images: fj_imgs, },
-        })
-      }
-    }
-  }
-  let x_red : Scheme = { charts: red_charts, overlaps: red_overlaps, }
-  (x_red, { src: x_red, dst: x, chart_map, ring_maps, })
-}
 
 ///|
 /// **Grothendieck's Diagonal Criterion for Separatedness** (EGA I, 5.5.6):
@@ -1343,12 +1263,6 @@ pub fn analyze_scheme_properness(x : Scheme) -> PropernessReport {
 }
 
 ///|
-/// Decide whether `X` is a **Proper Scheme** over `Spec(Q)`!
-pub fn is_proper_scheme(x : Scheme) -> Bool {
-  analyze_scheme_properness(x).is_proper
-}
-
-///|
 /// Decide whether a morphism `f : X -> Y` of finite-type `Q`-schemes is **Proper**:
 ///   - Closed immersions (`f.chart_map` injective/chart-preserving with surjective
 ///     ring maps on every chart preimage) are ALWAYS proper!
@@ -1356,41 +1270,3 @@ pub fn is_proper_scheme(x : Scheme) -> Bool {
 ///     by the Cancellation Theorem (`X -> Y -> Spec(Q)` proper and `Y -> Spec(Q)`
 ///     separated `=>` `X -> Y` proper, Hartshorne Cor. II.4.8(e)!), `f` is proper!
 ///   - Otherwise checks fiberwise/source valuative properness!
-pub fn is_proper_morphism(f : SchemeMorphism) -> Bool {
-  if !scheme_morphism_is_valid(f) {
-    return false
-  }
-  // 1. Check if `f` is a closed immersion (`chart_map[i] == i` across charts with surjective ring maps).
-  let mx = f.src.charts.length()
-  let my = f.dst.charts.length()
-  if mx == my {
-    let mut closed_imm = true
-    for i in 0..<mx {
-      if f.chart_map[i] != i || !ring_hom_is_surjective(f.ring_maps[i]) {
-        closed_imm = false
-        break
-      }
-    }
-    if closed_imm {
-      return true
-    }
-  }
-  // 2. Cancellation Theorem when X is proper and Y is separated:
-  if is_proper_scheme(f.src) && is_separated_scheme(f.dst) {
-    return true
-  }
-  // 3. Identity / isomorphism check:
-  if f.src == f.dst {
-    let mut is_iso = true
-    for i in 0..<mx {
-      if f.chart_map[i] != i || !ring_hom_is_surjective(f.ring_maps[i]) {
-        is_iso = false
-        break
-      }
-    }
-    if is_iso {
-      return true
-    }
-  }
-  false
-}

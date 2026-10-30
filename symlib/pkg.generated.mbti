@@ -14,8 +14,6 @@ pub fn analyze(Graph) -> SymmetryReport
 
 pub fn analyze_m(Graph) -> StateM[SearchStats, SymmetryReport]
 
-pub fn arr_less(Array[Int32], Array[Int32]) -> Bool
-
 pub fn arrow_diagram(FinMap) -> FinDiagram
 
 pub fn aut_functorial(Perm, Perm, PermGroup) -> (PermGroup, PermGroup)
@@ -28,31 +26,21 @@ pub fn aut_on_line(Graph) -> PermGroup
 
 pub fn aut_order(Graph) -> Int64
 
-pub fn aut_order_decomposed(Graph) -> Int64
-
 pub fn automorphism_group(Graph) -> PermGroup
 
 pub fn automorphism_group_colored(Graph, Array[Int32]) -> PermGroup
 
 pub fn automorphism_group_dual(Graph) -> PermGroup
 
-pub fn block_encoding_of(Graph) -> Array[Int32]
-
 pub fn canon_digest(Graph) -> String
 
 pub fn canon_encoding(Graph) -> Array[Int32]
-
-pub fn canon_encoding_dual(Graph) -> Array[Int32]
 
 pub fn canonical_dual(Graph) -> DualCanon
 
 pub fn canonical_form(Graph) -> Graph
 
-pub fn canonical_form_decomposed(Graph) -> Graph
-
 pub fn canonical_labeling(Graph) -> Array[Int32]
-
-pub fn canonical_labeling_m(Graph) -> StateM[SearchStats, Array[Int32]]
 
 pub fn cat_arrow() -> FinCat
 
@@ -119,8 +107,6 @@ pub fn digest_from(Int32, Array[Int32]) -> String
 pub fn dual_cert(Graph, Perm) -> (Bool, Bool, Bool)
 
 pub fn dual_cross_check(Graph) -> Bool
-
-pub fn dual_digest(Graph) -> String
 
 pub fn dual_pair(Graph) -> (DualCanon, DualCanon)
 
@@ -202,21 +188,13 @@ pub fn induced_gset(PermGroup, Int32, Int32) -> FinAction
 
 pub fn induced_lift(PermGroup, Int32, Int32, Perm) -> Array[Int32]
 
-pub fn int_rows_to_string(Array[Array[Int32]]) -> String
-
 pub fn ints_to_string(Array[Int32]) -> String
-
-pub fn is_asymmetric(Graph) -> Bool
 
 pub fn is_automorphism(Graph, Perm) -> Bool
 
 pub fn is_category(FinCat) -> Bool
 
-pub fn is_colored_automorphism(Graph, Array[Int32], Perm) -> Bool
-
 pub fn is_dual_side(Graph) -> Bool
-
-pub fn is_edge_transitive(Graph) -> Bool
 
 pub fn is_fin_functor(FinFunctor) -> Bool
 
@@ -224,13 +202,9 @@ pub fn is_functor(FinDiagram) -> Bool
 
 pub fn is_presheaf(Presheaf) -> Bool
 
-pub fn is_vertex_transitive(Graph) -> Bool
-
 pub fn isolated_count(Graph) -> Int32
 
 pub fn isomorphic(Graph, Graph) -> Bool
-
-pub fn isomorphic_colored(Graph, Array[Int32], Graph, Array[Int32]) -> Bool
 
 pub fn isomorphic_decomposed(Graph, Graph) -> Bool
 
@@ -239,8 +213,6 @@ pub fn isomorphic_dual(Graph, Graph) -> Bool
 pub fn isomorphic_line(Graph, Graph) -> Bool
 
 pub fn isomorphism(Graph, Graph) -> Perm?
-
-pub fn isomorphism_decomposed(Graph, Graph) -> Perm?
 
 pub fn isomorphism_dual(Graph, Graph) -> Perm?
 
@@ -294,11 +266,7 @@ pub fn permset(Int32, Array[Perm]) -> PermSet
 
 pub fn permset_canon(PermSet, Int32) -> Array[Int32]
 
-pub fn permset_cert(PermSet, Perm, Int32) -> (Bool, Bool, Bool)
-
 pub fn permset_encoding(PermSet, Perm) -> Array[Int32]
-
-pub fn permset_isomorphic(PermSet, PermSet, Int32) -> Bool
 
 pub fn pow_fmap(FinMap) -> FinMap
 
@@ -336,11 +304,7 @@ pub fn random_ints(Int32, Int32, Int32) -> (Array[Int32], Int32)
 
 pub fn refine_colors(Graph) -> Array[Int32]
 
-pub fn refine_equitable(Graph, Part) -> Part
-
 pub fn regular_perm(PermGroup, Int32, Perm) -> Perm
-
-pub fn search_bad_witness(Graph) -> Int32
 
 pub fn search_graph(Graph, Bool) -> SearchResult
 

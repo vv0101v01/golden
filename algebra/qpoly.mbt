@@ -703,14 +703,6 @@ pub fn qpoly_integer_coeffs_big(p : QPoly) -> Array[BigInt] {
 /// Legacy 32-bit view of `qpoly_integer_coeffs_big`.  It is exact
 /// only when the primitive coefficients fit in `Int32`; new exact
 /// algorithms use the BigInt form.
-pub fn qpoly_integer_coeffs(p : QPoly) -> Array[Int32] {
-  let big = qpoly_integer_coeffs_big(p)
-  let out : Array[Int32] = []
-  for i in 0..<big.length() {
-    out.push(big[i].to_int())
-  }
-  out
-}
 
 ///|
 fn small_primes(limit : Int32) -> Array[BigInt] {

@@ -643,14 +643,6 @@ pub extend DSystemCompatibility with @moonbitlang/core/debug.Debug::{to_repr}
 pub extend DSystemCompatibility with Eq::{not_equal, equal}
 
 ///|
-pub fn dsystem_compatibility(
-  compatible : Bool,
-  reason : DSystemIncompatibility,
-  branch : Int32,
-  other_branch : Int32,
-) -> DSystemCompatibility {
-  DSystemCompatibility::{ compatible, reason, branch, other_branch, }
-}
 
 ///|
 /// Decide whether branches agree pairwise on every satisfiable
@@ -810,19 +802,6 @@ pub fn dsystem_checked(
 
 ///|
 /// Checked constructor from raw branches.
-pub fn dsystem_checked_of(
-  level : Int32,
-  dlevel : Int32,
-  line : (Dim) -> DValue,
-  branches : Array[DTubeBranch],
-  base : DValue,
-) -> DSystem? {
-  dsystem_checked(level, dlevel, line, dsystem_of(branches), base)
-}
-
-// ---------------------------------------------------------------------------
-// First-match normal form for tube systems
-// ---------------------------------------------------------------------------
 
 ///|
 pub struct DTubeNFClass {
@@ -837,9 +816,6 @@ pub struct DTubeNF {
 }
 
 ///|
-pub fn dtube_nf_class(region : Bdd, path : (Dim) -> DValue) -> DTubeNFClass {
-  DTubeNFClass::{ region, path, }
-}
 
 ///|
 fn dsystem_nvars(system : DSystem, dlevel : Int32) -> Int32 {
@@ -1956,6 +1932,7 @@ pub struct DSystemRepairAllMaxima {
 }
 
 ///|
+
 ///|
 /// DSATUR chromatic upper-bound report for maximum compatible `DSystem`
 /// enumeration across conflict components.

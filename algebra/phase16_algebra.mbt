@@ -509,10 +509,7 @@ pub fn van_hoeij_lll_recombine(
     centered.push(lc % modulus)
     // Scale by `lc` before unscaling: `g_tilde(x) = lc^{deg-1} * lc * g(x/lc)`
     let deg_g = prod_mod.length() - 1
-    let scaled_prod = zmod_norm(
-      modulus,
-      prod_mod.map(c => c * lc % modulus),
-    )
+    let scaled_prod = zmod_norm(modulus, prod_mod.map(c => c * lc % modulus))
     ignore(centered)
     let g_tilde : Array[BigInt] = []
     for j in 0..<deg_g {
@@ -569,7 +566,7 @@ pub fn qpoly_factor_lll(p : QPoly) -> QPolyLllFactorReport {
       let rts = qpoly_rational_roots(f)
       if rts.length() > 0 {
         let lin = qpoly_monic(qpoly_normalize([rat_neg(rts[0]), rat_one()]))
-        all_factors.push(QPolyFactor::{ factor: lin, multiplicity: mult })
+        all_factors.push(QPolyFactor::{ factor: lin, multiplicity: mult, })
         f = qpoly_monic(qpoly_div_exact(f, lin))
         peeled = true
       }
@@ -578,7 +575,7 @@ pub fn qpoly_factor_lll(p : QPoly) -> QPolyLllFactorReport {
       continue
     }
     if qpoly_degree(f) == 1 {
-      all_factors.push(QPolyFactor::{ factor: f, multiplicity: mult })
+      all_factors.push(QPolyFactor::{ factor: f, multiplicity: mult, })
       continue
     }
     let int_coeffs = qpoly_integer_coeffs_big(f)
@@ -620,7 +617,7 @@ pub fn qpoly_factor_lll(p : QPoly) -> QPolyLllFactorReport {
       rep_prime = best_p
       rep_mod_count = 1
       rep_short_dim = 1
-      all_factors.push(QPolyFactor::{ factor: f, multiplicity: mult })
+      all_factors.push(QPolyFactor::{ factor: f, multiplicity: mult, })
       continue
     }
     let mut done_lll = false
@@ -716,10 +713,7 @@ fn gauss_eval_poly(p : QPoly, re : Rat, im : Rat) -> (Rat, Rat) {
 
 ///|
 fn gauss_abs_upper(re : Rat, im : Rat, bits : Int32) -> Rat {
-  let (_, hi) = rat_sqrt_bounds(
-    rat_add(rat_mul(re, re), rat_mul(im, im)),
-    bits,
-  )
+  let (_, hi) = rat_sqrt_bounds(rat_add(rat_mul(re, re), rat_mul(im, im)), bits)
   hi
 }
 
@@ -753,7 +747,7 @@ pub fn complex_alg_refine_disk(
   for _step in 0..<24 {
     let (fre, fim) = gauss_eval_poly(x.minpoly, cre, cim)
     if rat_is_zero(fre) && rat_is_zero(fim) {
-      let exact_d = ComplexDisk::{ re: cre, im: cim, radius: rat_zero() }
+      let exact_d = ComplexDisk::{ re: cre, im: cim, radius: rat_zero(), }
       let dist = gauss_abs_upper(
         rat_sub(cre, x.disk.re),
         rat_sub(cim, x.disk.im),
@@ -779,7 +773,7 @@ pub fn complex_alg_refine_disk(
     } else {
       rat_mul(rat_int(4), step_len)
     }
-    let cand = ComplexDisk::{ re: cre, im: cim, radius: cand_rad }
+    let cand = ComplexDisk::{ re: cre, im: cim, radius: cand_rad, }
     let center_dist = gauss_abs_upper(
       rat_sub(cre, x.disk.re),
       rat_sub(cim, x.disk.im),
@@ -802,7 +796,7 @@ pub fn complex_alg_of_rat(r : Rat) -> ComplexAlgNum {
   ComplexAlgNum::{
     minpoly: qpoly_normalize([rat_neg(r), rat_one()]),
     root_index: 0,
-    disk: ComplexDisk::{ re: r, im: rat_zero(), radius: rat_zero() },
+    disk: ComplexDisk::{ re: r, im: rat_zero(), radius: rat_zero(), },
   }
 }
 
@@ -813,17 +807,17 @@ pub fn complex_alg_i() -> ComplexAlgNum {
   let rts = qpoly_isolate_complex_roots(mp)
   for idx in 0..<rts.length() {
     if rat_cmp_exact(rts[idx].disk.im, rat_zero()) > 0 {
-      return ComplexAlgNum::{ minpoly: mp, root_index: idx, disk: rts[idx].disk }
+      return ComplexAlgNum::{
+        minpoly: mp,
+        root_index: idx,
+        disk: rts[idx].disk,
+      }
     }
   }
   ComplexAlgNum::{
     minpoly: mp,
     root_index: 1,
-    disk: ComplexDisk::{
-      re: rat_zero(),
-      im: rat_one(),
-      radius: rat_zero(),
-    },
+    disk: ComplexDisk::{ re: rat_zero(), im: rat_one(), radius: rat_zero(), },
   }
 }
 
@@ -843,7 +837,7 @@ pub fn complex_alg_roots_of(p : QPoly) -> Array[(ComplexAlgNum, Int32)] {
     for idx in 0..<rts.length() {
       out.push(
         (
-          ComplexAlgNum::{ minpoly: mp, root_index: idx, disk: rts[idx].disk },
+          ComplexAlgNum::{ minpoly: mp, root_index: idx, disk: rts[idx].disk, },
           f.multiplicity,
         ),
       )
@@ -923,7 +917,7 @@ pub fn complex_alg_conj(x : ComplexAlgNum) -> ComplexAlgNum {
   }
   let target = fn(bits : Int32) -> ComplexDisk {
     let d = complex_alg_refine_disk(x, bits)
-    ComplexDisk::{ re: d.re, im: rat_neg(d.im), radius: d.radius }
+    ComplexDisk::{ re: d.re, im: rat_neg(d.im), radius: d.radius, }
   }
   match
     complex_alg_select_unique_root(x.minpoly, qpoly_degree(x.minpoly), target) {
@@ -1063,7 +1057,7 @@ pub fn complex_alg_mul(
       rat_add(rat_mul(abs_a, dkb.radius), rat_mul(abs_b, dka.radius)),
       rat_mul(dka.radius, dkb.radius),
     )
-    ComplexDisk::{ re: cre, im: cim, radius: rad }
+    ComplexDisk::{ re: cre, im: cim, radius: rad, }
   })
 }
 
@@ -1097,7 +1091,7 @@ pub fn complex_alg_inv(x : ComplexAlgNum) -> ComplexAlgNum? {
     let ire = rat_div(dk.re, norm2)
     let iim = rat_neg(rat_div(dk.im, norm2))
     let rad = rat_div(dk.radius, rat_mul(abs_lo, min_mod))
-    ComplexDisk::{ re: ire, im: iim, radius: rad }
+    ComplexDisk::{ re: ire, im: iim, radius: rad, }
   })
 }
 
@@ -1210,7 +1204,8 @@ pub fn complex_alg_eval_poly(
       Some(v) => v
       None => return None
     }
-    acc = match complex_alg_add(prod, complex_alg_of_rat(p.coeffs[i]), max_degree~) {
+    acc = match
+      complex_alg_add(prod, complex_alg_of_rat(p.coeffs[i]), max_degree~) {
       Some(v) => v
       None => return None
     }

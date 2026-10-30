@@ -430,7 +430,10 @@ pub fn verify_quaternary_normal_forms() -> Bool {
     return false
   }
   let sierp_cat = @sym.cat_arrow()
-  let sierp_site = @topos.site_new(sierp_cat, @topos.topology_trivial(sierp_cat))
+  let sierp_site = @topos.site_new(
+    sierp_cat,
+    @topos.topology_trivial(sierp_cat),
+  )
   let frob_model : @topos.SheafStructure = {
     carrier: @topos.presheaf_constant_raw(sierp_cat, 2),
     pred_arities: [0, 1, 1],

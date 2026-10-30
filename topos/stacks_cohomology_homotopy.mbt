@@ -109,20 +109,6 @@ pub extend HomotopyTypeSummary with Eq::{not_equal, equal}
 
 ///|
 /// Verify groupoid laws on `g`.
-pub fn is_valid_groupoid(g : FiniteGroupoid) -> Bool {
-  let c = g.cat
-  guard @sym.is_category(c) && g.inv.length() == c.nmor else { return false }
-  for m in 0..<c.nmor {
-    let im = g.inv[m]
-    guard im >= 0 && im < c.nmor else { return false }
-    guard c.dom[im] == c.cod[m] && c.cod[im] == c.dom[m] else { return false }
-    guard c.comp[im * c.nmor + m] == c.id[c.dom[m]] &&
-      c.comp[m * c.nmor + im] == c.id[c.cod[m]] else {
-      return false
-    }
-  }
-  true
-}
 
 ///|
 /// Convert any groupoid-shaped `FinCat` into a `FiniteGroupoid` by locating
@@ -920,49 +906,6 @@ pub fn verify_euler_poincare(cc : CochainComplexQ) -> Bool {
 }
 
 ///|
-/// Constant Q-vector space presheaf `Q^d` on `cat`.
-pub fn abelian_presheaf_constant_q(
-  cat : @sym.FinCat,
-  d : Int32,
-) -> AbelianPresheafQ {
-  let dims = Array::make(cat.nobj, d)
-  let res_mats : Array[RectQMat] = []
-  for _ in 0..<cat.nmor {
-    res_mats.push(rect_qmat_id(d))
-  }
-  { cat, dims, res_mats, }
-}
-
-///|
-/// Verify contravariant functoriality `R_{id} == I` and `R_{f ∘ g} == R_g * R_f`.
-pub fn is_valid_abelian_presheaf(ap : AbelianPresheafQ) -> Bool {
-  let c = ap.cat
-  guard ap.dims.length() == c.nobj && ap.res_mats.length() == c.nmor else {
-    return false
-  }
-  for u in 0..<c.nobj {
-    if ap.res_mats[c.id[u]] != rect_qmat_id(ap.dims[u]) {
-      return false
-    }
-  }
-  for f in 0..<c.nmor {
-    let rf = ap.res_mats[f]
-    if rf.nrows != ap.dims[c.dom[f]] || rf.ncols != ap.dims[c.cod[f]] {
-      return false
-    }
-    for g in 0..<c.nmor {
-      let fg = c.comp[f * c.nmor + g]
-      if fg >= 0 {
-        if ap.res_mats[fg] != rect_qmat_mul(ap.res_mats[g], rf) {
-          return false
-        }
-      }
-    }
-  }
-  true
-}
-
-///|
 /// Build the Roos / categorical nerve cosimplicial cochain complex
 /// `C^0(cat, F) ->^{δ^0} C^1(cat, F) ->^{δ^1} C^2(cat, F)` computing the derived
 /// global-section sheaf/presheaf cohomology `H^k(cat, F)` (including group
@@ -972,88 +915,6 @@ pub fn is_valid_abelian_presheaf(ap : AbelianPresheafQ) -> Bool {
 ///     `(δ^0 c)_{f_1} = F(f_1)(c_{u_1}) - c_{u_0}`
 ///   - `C^2 = Π_{u_0 ->^{f_1} u_1 ->^{f_2} u_2} F(u_0)`,
 ///     `(δ^1 c)_{(f_1, f_2)} = F(f_1)(c_{f_2}) - c_{f_2 ∘ f_1} + c_{f_1}`.
-pub fn roos_site_cochain_complex(ap : AbelianPresheafQ) -> CochainComplexQ {
-  let c = ap.cat
-  // Offsets in C^0.
-  let off0 = Array::make(c.nobj, 0)
-  let mut dim0 = 0
-  for u in 0..<c.nobj {
-    off0[u] = dim0
-    dim0 = dim0 + ap.dims[u]
-  }
-  // Offsets in C^1 indexed by morphism f_1.
-  let off1 = Array::make(c.nmor, 0)
-  let mut dim1 = 0
-  for f1 in 0..<c.nmor {
-    off1[f1] = dim1
-    dim1 = dim1 + ap.dims[c.dom[f1]]
-  }
-  // 2-simplices: composable pairs (f_1 : u0 -> u1, f_2 : u1 -> u2).
-  let pairs2 : Array[(Int32, Int32)] = []
-  let off2 : Array[Int32] = []
-  let mut dim2 = 0
-  for f1 in 0..<c.nmor {
-    for f2 in 0..<c.nmor {
-      if c.cod[f1] == c.dom[f2] {
-        pairs2.push((f1, f2))
-        off2.push(dim2)
-        dim2 = dim2 + ap.dims[c.dom[f1]]
-      }
-    }
-  }
-  let d0 = rect_qmat_zero(dim1, dim0)
-  for f1 in 0..<c.nmor {
-    let u0 = c.dom[f1]
-    let u1 = c.cod[f1]
-    let d_u0 = ap.dims[u0]
-    let d_u1 = ap.dims[u1]
-    let rf1 = ap.res_mats[f1]
-    // + F(f1)(c_{u1})
-    for r in 0..<d_u0 {
-      for col in 0..<d_u1 {
-        d0.rows[off1[f1] + r][off0[u1] + col] = @exactalg.rat_add(
-          d0.rows[off1[f1] + r][off0[u1] + col],
-          rf1.rows[r][col],
-        )
-      }
-      // - c_{u0}
-      d0.rows[off1[f1] + r][off0[u0] + r] = @exactalg.rat_sub(
-        d0.rows[off1[f1] + r][off0[u0] + r],
-        @exactalg.rat_one(),
-      )
-    }
-  }
-  let d1 = rect_qmat_zero(dim2, dim1)
-  for idx in 0..<pairs2.length() {
-    let (f1, f2) = pairs2[idx]
-    let f21 = c.comp[f2 * c.nmor + f1]
-    let u0 = c.dom[f1]
-    let u1 = c.dom[f2]
-    let d_u0 = ap.dims[u0]
-    let d_u1 = ap.dims[u1]
-    let rf1 = ap.res_mats[f1]
-    // + F(f1)(c_{f2})
-    for r in 0..<d_u0 {
-      for col in 0..<d_u1 {
-        d1.rows[off2[idx] + r][off1[f2] + col] = @exactalg.rat_add(
-          d1.rows[off2[idx] + r][off1[f2] + col],
-          rf1.rows[r][col],
-        )
-      }
-      // - c_{f2 ∘ f1}
-      d1.rows[off2[idx] + r][off1[f21] + r] = @exactalg.rat_sub(
-        d1.rows[off2[idx] + r][off1[f21] + r],
-        @exactalg.rat_one(),
-      )
-      // + c_{f1}
-      d1.rows[off2[idx] + r][off1[f1] + r] = @exactalg.rat_add(
-        d1.rows[off2[idx] + r][off1[f1] + r],
-        @exactalg.rat_one(),
-      )
-    }
-  }
-  { dims: [dim0, dim1, dim2], differentials: [d0, d1], }
-}
 
 ///|
 /// Build the exact rational Čech / simplicial cochain complex

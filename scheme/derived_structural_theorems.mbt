@@ -244,9 +244,6 @@ pub fn affine_jacobian_ideal(aff : AffineScheme) -> Ideal {
 ///|
 /// Radical **Singular Locus Ideal `I(Sing(X)) = √(I + J_c(I))`** of an equidimensional
 /// affine `Q`-scheme `X`.
-pub fn affine_singular_locus_ideal(aff : AffineScheme) -> Ideal {
-  ideal_radical(affine_jacobian_ideal(aff))
-}
 
 ///|
 /// Decide **Pure-Dimensional Smoothness** over `Q` via **Eisenbud Proposition 20.6 &
